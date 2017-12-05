@@ -7,6 +7,6 @@ script:
 # style enforcement - if we want to ignore stuff use '--ignore E456 E123'
   - pep8 .
 # static type checking
-  - mypy
+  - mypy -p src
 # run all unittests in the src directory
   - python -m unittest discover -s src -p '*_test.py'
