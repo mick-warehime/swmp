@@ -3,4 +3,8 @@ python:
   - 3.6
 install: 
   - pip install -r requirements.txt
-script: python -m unittest discover -s src -p '*_test.py'
+script:
+# style enforcement - if we want to ignore stuff use '--ignore E456 E123'
+  - pep8 .
+# run all unittests in the src directory
+  - python -m unittest discover -s src -p '*_test.py'
