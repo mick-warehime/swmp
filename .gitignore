@@ -1,1 +1,5 @@
+*.DS_Store
 .coverage
+.idea/
+.mypy_cache
+src/__pycache__
