@@ -232,7 +232,6 @@
   <object id="180" name="zombie" x="944" y="1344" width="32" height="32"/>
   <object id="181" name="zombie" x="928" y="1472" width="32" height="32"/>
   <object id="182" name="zombie" x="576" y="1424" width="32" height="32"/>
-  <object id="183" name="wall" x="508" y="92" width="128" height="64"/>
  </objectgroup>
  <objectgroup name="Breakables">
   <object id="114" name="breakable" gid="526" x="832" y="384" width="64" height="64">
