@@ -1,7 +1,7 @@
 # Tilemap Demo
 # KidsCanCode 2017
 import pygame as pg
-from pg.sprite import LayeredUpdates, Group, spritecollide, groupcollide
+from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
 import sys
 from random import choice, random
 from os import path
