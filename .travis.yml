@@ -16,4 +16,4 @@ script:
 #
 ## run unit tests and coverage
   - coverage run -m unittest discover -s src
-  - coverage report -m
+#  - coverage report -m
