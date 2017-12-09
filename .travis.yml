@@ -6,7 +6,7 @@ install:
 script:
 
 # style enforcement - if we want to ignore stuff use '--ignore E456 E123'
-#  - flake8 src
+  - flake8 src
 
 ## static type checking
 #  - mypy -p src --ignore-missing-imports
