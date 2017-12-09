@@ -8,11 +8,13 @@ from os import path
 import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
 import tilemap
+from typing import Dict, List  # noqa
+
 vec = pg.math.Vector2
 
 
 # HUD functions
-def draw_player_health(surf, x, y, pct):
+def draw_player_health(surf: pg.Surface, x: int, y: int, pct: float) -> None:
     if pct < 0:
         pct = 0
     BAR_LENGTH = 100
@@ -31,7 +33,7 @@ def draw_player_health(surf, x, y, pct):
 
 
 class Game:
-    def __init__(self):
+    def __init__(self) -> None:
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
@@ -39,13 +41,14 @@ class Game:
         self.clock = pg.time.Clock()
         self.load_data()
 
-    def draw_text(self, text, font_name, size, color, x, y, align="topleft"):
+    def draw_text(self, text: str, font_name: str, size: int,
+                  color: str, x: int, y: int, align: str = "topleft") -> None:
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect(**{align: (x, y)})
         self.screen.blit(text_surface, text_rect)
 
-    def load_data(self):
+    def load_data(self) -> None:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
         snd_folder = path.join(game_folder, 'snd')
@@ -58,7 +61,8 @@ class Game:
 
         plyr_img_path = path.join(img_folder, settings.PLAYER_IMG)
         self.player_img = pg.image.load(plyr_img_path).convert_alpha()
-        self.bullet_images = {}
+
+        self.bullet_images = {}  # type: Dict[str, pg.Surface]
         blt_img_path = path.join(img_folder, settings.BULLET_IMG)
         blt_img = pg.image.load(blt_img_path).convert_alpha()
         self.bullet_images['lg'] = blt_img
@@ -70,14 +74,17 @@ class Game:
         splat_img_path = path.join(img_folder, settings.SPLAT)
         self.splat = pg.image.load(splat_img_path).convert_alpha()
         self.splat = pg.transform.scale(self.splat, (64, 64))
-        self.gun_flashes = []
+
+        self.gun_flashes = []  # type: List[pg.Surface]
         for img in settings.MUZZLE_FLASHES:
             img_path = path.join(img_folder, img)
             self.gun_flashes.append(pg.image.load(img_path).convert_alpha())
-        self.item_images = {}
+
+        self.item_images = {}  # type: Dict[str, pg.Surface]
         for item in settings.ITEM_IMAGES:
             img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
             self.item_images[item] = pg.image.load(img_path).convert_alpha()
+
         # lighting effect
         self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
         self.fog.fill(settings.NIGHT_COLOR)
@@ -89,32 +96,37 @@ class Game:
         self.light_rect = self.light_mask.get_rect()
         # Sound loading
         pg.mixer.music.load(path.join(music_folder, settings.BG_MUSIC))
-        self.effects_sounds = {}
+
+        self.effects_sounds = {}  # type: Dict[str, pg.mixer.Sound]
         for type in settings.EFFECTS_SOUNDS:
             sound_path = path.join(snd_folder, settings.EFFECTS_SOUNDS[type])
             self.effects_sounds[type] = pg.mixer.Sound(sound_path)
-        self.weapon_sounds = {}
+
+        self.weapon_sounds = {}  # type: Dict[str, pg.mixer.Sound]
         for weapon in settings.WEAPON_SOUNDS:
             self.weapon_sounds[weapon] = []
             for snd in settings.WEAPON_SOUNDS[weapon]:
                 s = pg.mixer.Sound(path.join(snd_folder, snd))
                 s.set_volume(0.3)
                 self.weapon_sounds[weapon].append(s)
-        self.zombie_moan_sounds = []
+
+        self.zombie_moan_sounds = []  # type: List[pg.mixer.Sound]
         for snd in settings.ZOMBIE_MOAN_SOUNDS:
             s = pg.mixer.Sound(path.join(snd_folder, snd))
             s.set_volume(0.2)
             self.zombie_moan_sounds.append(s)
-        self.player_hit_sounds = []
+
+        self.player_hit_sounds = []  # type: List[pg.mixer.Sound]
         for snd in settings.PLAYER_HIT_SOUNDS:
             snd_path = path.join(snd_folder, snd)
             self.player_hit_sounds.append(pg.mixer.Sound(snd_path))
-        self.zombie_hit_sounds = []
+
+        self.zombie_hit_sounds = []  # type: List[pg.mixer.Sound]
         for snd in settings.ZOMBIE_HIT_SOUNDS:
             snd_path = path.join(snd_folder, snd)
             self.zombie_hit_sounds.append(pg.mixer.Sound(snd_path))
 
-    def new(self):
+    def new(self) -> None:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = LayeredUpdates()
         self.walls = Group()
@@ -142,7 +154,7 @@ class Game:
         self.night = False
         self.effects_sounds['level_start'].play()
 
-    def run(self):
+    def run(self) -> None:
         # game loop - set self.playing = False to end the game
         self.playing = True
         pg.mixer.music.play(loops=-1)
@@ -154,11 +166,11 @@ class Game:
                 self.update()
             self.draw()
 
-    def quit(self):
+    def quit(self) -> None:
         pg.quit()
         sys.exit()
 
-    def update(self):
+    def update(self) -> None:
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -197,7 +209,7 @@ class Game:
                 mob.health -= bullet.damage
             mob.vel = vec(0, 0)
 
-    def draw_grid(self):
+    def draw_grid(self) -> None:
         for x in range(0, settings.WIDTH, settings.TILESIZE):
             box_max_x = (x, settings.HEIGHT)
             pg.draw.line(self.screen, settings.LIGHTGREY, (x, 0), box_max_x)
@@ -205,14 +217,14 @@ class Game:
             box_max_y = (settings.WIDTH, y)
             pg.draw.line(self.screen, settings.LIGHTGREY, (0, y), box_max_y)
 
-    def render_fog(self):
+    def render_fog(self) -> None:
         # draw the light mask (gradient) onto fog image
         self.fog.fill(settings.NIGHT_COLOR)
         self.light_rect.center = self.camera.apply(self.player).center
         self.fog.blit(self.light_mask, self.light_rect)
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
-    def draw(self):
+    def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         # self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply(self.map))
@@ -244,7 +256,7 @@ class Game:
                            settings.HEIGHT / 2, align="center")
         pg.display.flip()
 
-    def events(self):
+    def events(self) -> None:
         # catch all events here
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -259,21 +271,21 @@ class Game:
                 if event.key == pg.K_n:
                     self.night = not self.night
 
-    def show_start_screen(self):
+    def show_start_screen(self) -> None:
         pass
 
-    def show_go_screen(self):
+    def show_go_screen(self) -> None:
         self.screen.fill(settings.BLACK)
         self.draw_text("GAME OVER", self.title_font, 100, settings.RED,
                        settings.WIDTH / 2, settings.HEIGHT / 2,
                        align="center")
-        self.draw_text("Press a key to start", self.title_font, 75,
+        self.draw_text("Press a key to wstart", self.title_font, 75,
                        settings.WHITE, settings.WIDTH / 2,
                        settings.HEIGHT * 3 / 4, align="center")
         pg.display.flip()
         self.wait_for_key()
 
-    def wait_for_key(self):
+    def wait_for_key(self) -> None:
         pg.event.wait()
         waiting = True
         while waiting:
