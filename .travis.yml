@@ -9,7 +9,7 @@ script:
   - flake8 src
 
 ## static type checking
-#  - mypy -p src --ignore-missing-imports
+  - mypy -p src --ignore-missing-imports
 #
 ## run all unittests in the src directory
 ##  - python -m unittest discover -s src -p '*_test.py'
