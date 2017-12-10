@@ -15,25 +15,6 @@ import controller as ctrl
 import view
 
 
-# HUD functions
-def draw_player_health(surf: pg.Surface, x: int, y: int, pct: float) -> None:
-    if pct < 0:
-        pct = 0
-    bar_length = 100
-    bar_height = 20
-    fill = pct * bar_length
-    outline_rect = pg.Rect(x, y, bar_length, bar_height)
-    fill_rect = pg.Rect(x, y, fill, bar_height)
-    if pct > 0.6:
-        col = settings.GREEN
-    elif pct > 0.3:
-        col = settings.YELLOW
-    else:
-        col = settings.RED
-    pg.draw.rect(surf, col, fill_rect)
-    pg.draw.rect(surf, settings.WHITE, outline_rect, 2)
-
-
 class Game:
     def __init__(self) -> None:
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
@@ -45,8 +26,6 @@ class Game:
         self.gun_flashes: List[pg.Surface] = []
         self.bullet_images: Dict[str, pg.Surface] = {}
         self.map_folder: str = ''
-        self.title_font: str = ''
-        self.hud_font: str = ''
 
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
@@ -62,13 +41,6 @@ class Game:
         self.controller: ctrl.Controller = ctrl.Controller()
         self.view: view.DungeonView = view.DungeonView(self.screen)
 
-    def draw_text(self, text: str, font_name: str, size: int, color: tuple,
-                  x: int, y: int, align: str = "topleft") -> None:
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(**{align: (x, y)})
-        self.screen.blit(text_surface, text_rect)
-
     def load_data(self) -> None:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
@@ -76,9 +48,6 @@ class Game:
         music_folder = path.join(game_folder, 'music')
 
         self.map_folder = path.join(game_folder, 'maps')
-
-        self.title_font = path.join(img_folder, 'ZOMBIE.TTF')
-        self.hud_font = path.join(img_folder, 'Impacted2.0.ttf')
 
         plyr_img_path = path.join(img_folder, settings.PLAYER_IMG)
         self.player_img = pg.image.load(plyr_img_path).convert_alpha()
@@ -148,9 +117,11 @@ class Game:
         # Temporary - eventually this should be one call to construct
         # a DungeonController that takes only a map and generates all the
         # sprites from that map
-
         self.view = view.DungeonView(self.screen)
         self.view.set_sprites(self.all_sprites)
+        self.view.set_walls(self.walls)
+        self.view.set_items(self.items)
+        self.view.set_mobs(self.mobs)
         self.set_default_controls()
 
     def set_default_controls(self) -> None:
@@ -246,31 +217,16 @@ class Game:
                 mob.health -= bullet.damage
             mob.vel = Vector2(0, 0)
 
-    def draw_grid(self) -> None:
-        for x in range(0, settings.WIDTH, settings.TILESIZE):
-            box_max_x = (x, settings.HEIGHT)
-            pg.draw.line(self.screen, settings.LIGHTGREY, (x, 0), box_max_x)
-        for y in range(0, settings.HEIGHT, settings.TILESIZE):
-            box_max_y = (settings.WIDTH, y)
-            pg.draw.line(self.screen, settings.LIGHTGREY, (0, y), box_max_y)
-
     def draw(self) -> None:
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
-        self.view.draw(self.player, self.map, self.map_img, self.camera)
+        self.view.draw(self.player,
+                       self.map,
+                       self.map_img,
+                       self.camera,
+                       self.paused)
 
-        # HUD functions
-        remaining_health = self.player.health / settings.PLAYER_HEALTH
-        draw_player_health(self.screen, 10, 10, remaining_health)
-        zombies_str = 'Zombies: {}'.format(len(self.mobs))
-        self.draw_text(zombies_str, self.hud_font, 30, settings.WHITE,
-                       settings.WIDTH - 10, 10, align="topright")
-        if self.paused:
-            self.screen.blit(self.view.dim_screen, (0, 0))
-            self.draw_text("Paused", self.title_font, 105,
-                           settings.RED, settings.WIDTH / 2,
-                           settings.HEIGHT / 2, align="center")
         pg.display.flip()
 
     def events(self) -> None:
@@ -283,13 +239,7 @@ class Game:
         self.paused = not self.paused
 
     def show_go_screen(self) -> None:
-        self.screen.fill(settings.BLACK)
-        self.draw_text("GAME OVER", self.title_font, 100, settings.RED,
-                       settings.WIDTH / 2, settings.HEIGHT / 2,
-                       align="center")
-        self.draw_text("Press a key to start", self.title_font, 75,
-                       settings.WHITE, settings.WIDTH / 2,
-                       settings.HEIGHT * 3 / 4, align="center")
+        self.view.game_over()
         pg.display.flip()
         self.wait_for_key()
 
