@@ -55,7 +55,6 @@ class DungeonView(object):
         self.hud_font = os.path.join(img_folder, 'Impacted2.0.ttf')
         self.title_font = os.path.join(img_folder, 'ZOMBIE.TTF')
 
-
     def set_sprites(self, all_sprites: LayeredUpdates) -> None:
         self.all_sprites = all_sprites
 
@@ -118,7 +117,7 @@ class DungeonView(object):
         self.fog.blit(self.light_mask, self.light_rect)
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
-    def game_over(self):
+    def game_over(self) -> None:
         self.screen.fill(settings.BLACK)
         self.draw_text("GAME OVER", self.title_font, 100, settings.RED,
                        settings.WIDTH / 2, settings.HEIGHT / 2,
