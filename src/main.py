@@ -99,15 +99,7 @@ class Game:
         for item in settings.ITEM_IMAGES:
             img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
             self.item_images[item] = pg.image.load(img_path).convert_alpha()
-        # lighting effect
-        self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
-        self.fog.fill(settings.NIGHT_COLOR)
-        light_img_path = path.join(img_folder, settings.LIGHT_MASK)
 
-        light_mask = pg.image.load(light_img_path).convert_alpha()
-        self.light_mask = light_mask
-        self.light_mask = pg.transform.scale(light_mask, settings.LIGHT_RADIUS)
-        self.light_rect = self.light_mask.get_rect()
         # Sound loading
         pg.mixer.music.load(path.join(music_folder, settings.BG_MUSIC))
         for label, file_name in settings.EFFECTS_SOUNDS.items():
@@ -150,9 +142,7 @@ class Game:
             if tile_object.name in ['health', 'shotgun']:
                 Item(self, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
-        self.draw_debug = False
         self.paused = False
-        self.night = False
         self.effects_sounds['level_start'].play()
 
         # Temporary - eventually this should be one call to construct
@@ -166,7 +156,7 @@ class Game:
     def set_default_controls(self) -> None:
 
         self.controller.bind(pg.K_ESCAPE, self.quit)
-        self.controller.bind_down(pg.K_n, self.toggle_night)
+        self.controller.bind_down(pg.K_n, self.view.toggle_night)
         self.controller.bind_down(pg.K_h, self.view.toggle_debug)
         self.controller.bind_down(pg.K_p, self.toggle_paused)
 
@@ -264,21 +254,12 @@ class Game:
             box_max_y = (settings.WIDTH, y)
             pg.draw.line(self.screen, settings.LIGHTGREY, (0, y), box_max_y)
 
-    def render_fog(self) -> None:
-        # draw the light mask (gradient) onto fog image
-        self.fog.fill(settings.NIGHT_COLOR)
-        self.light_rect.center = self.camera.apply(self.player).center
-        self.fog.blit(self.light_mask, self.light_rect)
-        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
-
     def draw(self) -> None:
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
-        self.view.draw(self.map, self.map_img, self.camera)
+        self.view.draw(self.player, self.map, self.map_img, self.camera)
 
-        if self.night:
-            self.render_fog()
         # HUD functions
         remaining_health = self.player.health / settings.PLAYER_HEALTH
         draw_player_health(self.screen, 10, 10, remaining_health)
@@ -297,9 +278,6 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
-
-    def toggle_night(self) -> None:
-        self.night = not self.night
 
     def toggle_paused(self) -> None:
         self.paused = not self.paused
