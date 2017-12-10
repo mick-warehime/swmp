@@ -81,9 +81,6 @@ class Game:
         self.bullet_images['lg'] = blt_img
         self.bullet_images['sm'] = pg.transform.scale(blt_img, (10, 10))
 
-        mob_img_path = path.join(img_folder, settings.MOB_IMG)
-        self.mob_img = pg.image.load(mob_img_path).convert_alpha()
-
         splat_img_path = path.join(img_folder, settings.SPLAT)
         self.splat = pg.image.load(splat_img_path).convert_alpha()
         self.splat = pg.transform.scale(self.splat, (64, 64))

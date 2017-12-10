@@ -11,7 +11,7 @@ from settings import PLAYER_LAYER, PLAYER_HIT_RECT, PLAYER_HEALTH, \
     PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, MOB_LAYER, \
     MOB_HIT_RECT, MOB_HEALTH, MOB_SPEEDS, AVOID_RADIUS, DETECT_RADIUS, GREEN, \
     YELLOW, RED, BULLET_LAYER, EFFECTS_LAYER, FLASH_DURATION, ITEMS_LAYER, \
-    BOB_RANGE, BOB_SPEED, BARREL_OFFSET, PLAYER_IMG
+    BOB_RANGE, BOB_SPEED, BARREL_OFFSET, PLAYER_IMG, MOB_IMG
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
@@ -38,18 +38,32 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
-class Player(pg.sprite.Sprite):
+class Humanoid(pg.sprite.Sprite):
+    base_image: Any = None
+
+    def __init__(self) -> None:
+        pass
+
+    @classmethod
+    def _init_base_image(cls, image_file: str) -> None:
+        if cls.base_image is None:
+            game_folder = path.dirname(__file__)
+            img_folder = path.join(game_folder, 'img')
+            image_path = path.join(img_folder, image_file)
+            cls.base_image = pg.image.load(image_path).convert_alpha()
+
+
+class Player(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
-        game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'img')
+
+        self._init_base_image(PLAYER_IMG)
+
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        plyr_img_path = path.join(img_folder, PLAYER_IMG)
 
-        self.base_img = pg.image.load(plyr_img_path).convert_alpha()
-        self.image = self.base_img
+        self.image = Player.base_image
 
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -104,7 +118,7 @@ class Player(pg.sprite.Sprite):
     def update(self) -> None:
         self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pg.transform.rotate(self.base_img, self.rot)
+        self.image = pg.transform.rotate(self.base_image, self.rot)
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
@@ -126,13 +140,16 @@ class Player(pg.sprite.Sprite):
             self.health = PLAYER_HEALTH
 
 
-class Mob(pg.sprite.Sprite):
+class Mob(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
+
+        self._init_base_image(MOB_IMG)
+
         self._layer = MOB_LAYER
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.mob_img.copy()
+        self.image = Mob.base_image
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = MOB_HIT_RECT.copy()
@@ -159,7 +176,7 @@ class Mob(pg.sprite.Sprite):
             if random() < 0.002:
                 choice(self.game.zombie_moan_sounds).play()
             self.rot = target_dist.angle_to(Vector2(1, 0))
-            self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+            self.image = pg.transform.rotate(Mob.base_image, self.rot)
             self.rect.center = self.pos
             self.acc = Vector2(1, 0).rotate(-self.rot)
             self.avoid_mobs()
