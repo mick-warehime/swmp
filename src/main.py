@@ -158,30 +158,30 @@ class Game:
 
     def set_default_controls(self) -> None:
 
-        self.controller.set_binding(pg.K_ESCAPE, self.quit)
-        self.controller.set_binding(pg.K_n, self.toggle_night)
-        self.controller.set_binding(pg.K_h, self.toggle_debug)
-        self.controller.set_binding(pg.K_p, self.toggle_paused)
+        self.controller.bind(pg.K_ESCAPE, self.quit)
+        self.controller.bind_down(pg.K_n, self.toggle_night)
+        self.controller.bind_down(pg.K_h, self.toggle_debug)
+        self.controller.bind_down(pg.K_p, self.toggle_paused)
 
         # players controls
         counterclockwise = self.player.turn_counterclockwise
         clockwise = self.player.turn_clockwise
-        self.controller.set_binding(pg.K_q, counterclockwise)
-        self.controller.set_binding(pg.K_e, clockwise)
+        self.controller.bind(pg.K_q, counterclockwise)
+        self.controller.bind(pg.K_e, clockwise)
 
-        self.controller.set_binding(pg.K_LEFT, self.player.move_left)
-        self.controller.set_binding(pg.K_a, self.player.move_left)
+        self.controller.bind(pg.K_LEFT, self.player.move_left)
+        self.controller.bind(pg.K_a, self.player.move_left)
 
-        self.controller.set_binding(pg.K_RIGHT, self.player.move_right)
-        self.controller.set_binding(pg.K_d, self.player.move_right)
+        self.controller.bind(pg.K_RIGHT, self.player.move_right)
+        self.controller.bind(pg.K_d, self.player.move_right)
 
-        self.controller.set_binding(pg.K_UP, self.player.move_up)
-        self.controller.set_binding(pg.K_w, self.player.move_up)
+        self.controller.bind(pg.K_UP, self.player.move_up)
+        self.controller.bind(pg.K_w, self.player.move_up)
 
-        self.controller.set_binding(pg.K_DOWN, self.player.move_down)
-        self.controller.set_binding(pg.K_s, self.player.move_down)
+        self.controller.bind(pg.K_DOWN, self.player.move_down)
+        self.controller.bind(pg.K_s, self.player.move_down)
 
-        self.controller.set_binding(pg.K_SPACE, self.player.shoot)
+        self.controller.bind(pg.K_SPACE, self.player.shoot)
 
     def _init_groups(self) -> None:
         self.walls = Group()
