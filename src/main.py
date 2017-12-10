@@ -176,6 +176,11 @@ class Game:
                 self.update()
             self.draw()
 
+    @staticmethod
+    def quit() -> None:
+        pg.quit()
+        sys.exit()
+
     def update(self) -> None:
         # update portion of the game loop
         self.all_sprites.update()
@@ -302,11 +307,6 @@ class Game:
                     self.quit()
                 if event.type == pg.KEYUP:
                     waiting = False
-
-    @staticmethod
-    def quit() -> None:
-        pg.quit()
-        sys.exit()
 
 
 # create the game object
