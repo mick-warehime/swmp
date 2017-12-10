@@ -55,6 +55,9 @@ class Game:
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
+        self.all_sprites = LayeredUpdates()
+        self._init_groups()
+
     def draw_text(self, text: str, font_name: str, size: int, color: tuple,
                   x: int, y: int, align: str = "topleft") -> None:
         font = pg.font.Font(font_name, size)
@@ -126,10 +129,7 @@ class Game:
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = LayeredUpdates()
-        self.walls = Group()
-        self.mobs = Group()
-        self.bullets = Group()
-        self.items = Group()
+        self._init_groups()
         self.map = tilemap.TiledMap(path.join(self.map_folder, 'level1.tmx'))
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
@@ -150,6 +150,12 @@ class Game:
         self.paused = False
         self.night = False
         self.effects_sounds['level_start'].play()
+
+    def _init_groups(self) -> None:
+        self.walls = Group()
+        self.mobs = Group()
+        self.bullets = Group()
+        self.items = Group()
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
