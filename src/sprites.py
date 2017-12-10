@@ -102,7 +102,7 @@ class Player(pg.sprite.Sprite):
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
                                 special_flags=pg.BLEND_RGBA_MULT)
-            except ValueError:
+            except StopIteration:
                 self.damaged = False
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
