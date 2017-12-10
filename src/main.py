@@ -266,7 +266,6 @@ class Game:
         # catch all events here
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                print("i quit!")
                 self.quit()
             if event.type == pg.KEYDOWN:
                 # check for any keys/clicks
@@ -300,7 +299,6 @@ class Game:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     waiting = False
-                    print("no i quit")
                     self.quit()
                 if event.type == pg.KEYUP:
                     waiting = False
