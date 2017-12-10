@@ -172,7 +172,6 @@ class Game:
         self.controller.set_binding(pg.K_LEFT, self.player.move_left)
         self.controller.set_binding(pg.K_a, self.player.move_left)
 
-
         self.controller.set_binding(pg.K_RIGHT, self.player.move_right)
         self.controller.set_binding(pg.K_d, self.player.move_right)
 
