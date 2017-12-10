@@ -60,10 +60,6 @@ class Game:
         self._init_groups()
 
         self.controller: ctrl.Controller = ctrl.Controller()
-        self.controller.set_binding(pg.K_ESCAPE, self.quit)
-        self.controller.set_binding(pg.K_n, self.toggle_night)
-        self.controller.set_binding(pg.K_h, self.toggle_debug)
-        self.controller.set_binding(pg.K_p, self.toggle_paused)
 
     def draw_text(self, text: str, font_name: str, size: int, color: tuple,
                   x: int, y: int, align: str = "topleft") -> None:
@@ -158,6 +154,36 @@ class Game:
         self.night = False
         self.effects_sounds['level_start'].play()
 
+        self.set_default_controls()
+
+    def set_default_controls(self) -> None:
+
+        self.controller.set_binding(pg.K_ESCAPE, self.quit)
+        self.controller.set_binding(pg.K_n, self.toggle_night)
+        self.controller.set_binding(pg.K_h, self.toggle_debug)
+        self.controller.set_binding(pg.K_p, self.toggle_paused)
+
+        # players controls
+        counterclockwise = self.player.turn_counterclockwise
+        clockwise = self.player.turn_clockwise
+        self.controller.set_binding(pg.K_q, counterclockwise)
+        self.controller.set_binding(pg.K_e, clockwise)
+
+        self.controller.set_binding(pg.K_LEFT, self.player.move_left)
+        self.controller.set_binding(pg.K_a, self.player.move_left)
+
+
+        self.controller.set_binding(pg.K_RIGHT, self.player.move_right)
+        self.controller.set_binding(pg.K_d, self.player.move_right)
+
+        self.controller.set_binding(pg.K_UP, self.player.move_up)
+        self.controller.set_binding(pg.K_w, self.player.move_up)
+
+        self.controller.set_binding(pg.K_DOWN, self.player.move_down)
+        self.controller.set_binding(pg.K_s, self.player.move_down)
+
+        self.controller.set_binding(pg.K_SPACE, self.player.shoot)
+
     def _init_groups(self) -> None:
         self.walls = Group()
         self.mobs = Group()
@@ -182,6 +208,7 @@ class Game:
         sys.exit()
 
     def update(self) -> None:
+        self.controller.update()
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -272,9 +299,6 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
-            if event.type == pg.KEYDOWN:
-                # check for any keys/clicks
-                self.controller.update()
 
     def toggle_night(self) -> None:
         self.night = not self.night
