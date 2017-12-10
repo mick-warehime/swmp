@@ -37,17 +37,23 @@ class Game:
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
         self.player_hit_sounds: List[pg.mixer.Sound] = []
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[str, pg.mixer.Sound] = {}
+        self.weapon_sounds: Dict[str, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
         self.item_images: Dict[str, pg.Surface] = {}
         self.gun_flashes: List[pg.Surface] = []
         self.bullet_images: Dict[str, pg.Surface] = {}
+        self.map_folder: str = ''
+        self.title_font: str = ''
+        self.hud_font: str = ''
+
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
         pg.display.set_caption(settings.TITLE)
         self.clock = pg.time.Clock()
         self.load_data()
+        self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
+        self.dim_screen.fill((0, 0, 0, 180))
 
     def draw_text(self, text: str, font_name: str, size: int, color: tuple,
                   x: int, y: int, align: str = "topleft") -> None:
@@ -61,11 +67,11 @@ class Game:
         img_folder = path.join(game_folder, 'img')
         snd_folder = path.join(game_folder, 'snd')
         music_folder = path.join(game_folder, 'music')
-        self.map_folder: str = path.join(game_folder, 'maps')
+
+        self.map_folder = path.join(game_folder, 'maps')
+
         self.title_font = path.join(img_folder, 'ZOMBIE.TTF')
         self.hud_font = path.join(img_folder, 'Impacted2.0.ttf')
-        self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
-        self.dim_screen.fill((0, 0, 0, 180))
 
         plyr_img_path = path.join(img_folder, settings.PLAYER_IMG)
         self.player_img = pg.image.load(plyr_img_path).convert_alpha()
@@ -97,24 +103,24 @@ class Game:
         self.light_rect = self.light_mask.get_rect()
         # Sound loading
         pg.mixer.music.load(path.join(music_folder, settings.BG_MUSIC))
-        for type in settings.EFFECTS_SOUNDS:
-            sound_path = path.join(snd_folder, settings.EFFECTS_SOUNDS[type])
-            self.effects_sounds[type] = pg.mixer.Sound(sound_path)
+        for label, file_name in settings.EFFECTS_SOUNDS.items():
+            sound_path = path.join(snd_folder, file_name)
+            self.effects_sounds[label] = pg.mixer.Sound(sound_path)
         for weapon in settings.WEAPON_SOUNDS:
             self.weapon_sounds[weapon] = []
-            for snd in settings.WEAPON_SOUNDS[weapon]:
-                s = pg.mixer.Sound(path.join(snd_folder, snd))
+            for sound_file in settings.WEAPON_SOUNDS[weapon]:
+                s = pg.mixer.Sound(path.join(snd_folder, sound_file))
                 s.set_volume(0.3)
                 self.weapon_sounds[weapon].append(s)
-        for snd in settings.ZOMBIE_MOAN_SOUNDS:
-            s = pg.mixer.Sound(path.join(snd_folder, snd))
+        for sound_file in settings.ZOMBIE_MOAN_SOUNDS:
+            s = pg.mixer.Sound(path.join(snd_folder, sound_file))
             s.set_volume(0.2)
             self.zombie_moan_sounds.append(s)
-        for snd in settings.PLAYER_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, snd)
+        for sound_file in settings.PLAYER_HIT_SOUNDS:
+            snd_path = path.join(snd_folder, sound_file)
             self.player_hit_sounds.append(pg.mixer.Sound(snd_path))
-        for snd in settings.ZOMBIE_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, snd)
+        for sound_file in settings.ZOMBIE_HIT_SOUNDS:
+            snd_path = path.join(snd_folder, sound_file)
             self.zombie_hit_sounds.append(pg.mixer.Sound(snd_path))
 
     def new(self) -> None:
