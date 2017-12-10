@@ -76,8 +76,6 @@ class Game:
         self.title_font = path.join(img_folder, 'ZOMBIE.TTF')
         self.hud_font = path.join(img_folder, 'Impacted2.0.ttf')
 
-        plyr_img_path = path.join(img_folder, settings.PLAYER_IMG)
-        self.player_img = pg.image.load(plyr_img_path).convert_alpha()
         blt_img_path = path.join(img_folder, settings.BULLET_IMG)
         blt_img = pg.image.load(blt_img_path).convert_alpha()
         self.bullet_images['lg'] = blt_img

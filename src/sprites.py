@@ -3,6 +3,7 @@ from random import uniform, choice, randint, random
 
 from typing import Any
 
+from os import path
 from pygame.math import Vector2
 from pygame.sprite import Sprite, Group
 
@@ -10,7 +11,7 @@ from settings import PLAYER_LAYER, PLAYER_HIT_RECT, PLAYER_HEALTH, \
     PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, MOB_LAYER, \
     MOB_HIT_RECT, MOB_HEALTH, MOB_SPEEDS, AVOID_RADIUS, DETECT_RADIUS, GREEN, \
     YELLOW, RED, BULLET_LAYER, EFFECTS_LAYER, FLASH_DURATION, ITEMS_LAYER, \
-    BOB_RANGE, BOB_SPEED, BARREL_OFFSET
+    BOB_RANGE, BOB_SPEED, BARREL_OFFSET, PLAYER_IMG
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
@@ -39,11 +40,16 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game: Any, x: int, y: int) -> None:
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
+        plyr_img_path = path.join(img_folder, PLAYER_IMG)
+
+        self.base_img = pg.image.load(plyr_img_path).convert_alpha()
+        self.image = self.base_img
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
@@ -97,7 +103,7 @@ class Player(pg.sprite.Sprite):
     def update(self) -> None:
         self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pg.transform.rotate(self.game.player_img, self.rot)
+        self.image = pg.transform.rotate(self.base_img, self.rot)
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
