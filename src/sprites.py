@@ -55,21 +55,26 @@ class Player(pg.sprite.Sprite):
         self.health = PLAYER_HEALTH
         self.weapon = 'pistol'
         self.damaged = False
-
-    def get_keys(self) -> None:
         self.rot_speed = 0
         self.vel = Vector2(0, 0)
-        keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT] or keys[pg.K_a]:
-            self.rot_speed = PLAYER_ROT_SPEED
-        if keys[pg.K_RIGHT] or keys[pg.K_d]:
-            self.rot_speed = -PLAYER_ROT_SPEED
-        if keys[pg.K_UP] or keys[pg.K_w]:
-            self.vel = Vector2(PLAYER_SPEED, 0).rotate(-self.rot)
-        if keys[pg.K_DOWN] or keys[pg.K_s]:
-            self.vel = Vector2(-PLAYER_SPEED / 2, 0).rotate(-self.rot)
-        if keys[pg.K_SPACE]:
-            self.shoot()
+
+    def move_up(self) -> None:
+        self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.rot)
+
+    def move_down(self) -> None:
+        self.vel += Vector2(-PLAYER_SPEED / 2, 0).rotate(-self.rot)
+
+    def move_right(self) -> None:
+        self.vel += Vector2(0, PLAYER_SPEED / 2).rotate(-self.rot)
+
+    def move_left(self) -> None:
+        self.vel += Vector2(0, -PLAYER_SPEED / 2).rotate(-self.rot)
+
+    def turn_clockwise(self) -> None:
+        self.rot_speed = -PLAYER_ROT_SPEED * 2
+
+    def turn_counterclockwise(self) -> None:
+        self.rot_speed = PLAYER_ROT_SPEED * 2
 
     def shoot(self) -> None:
         now = pg.time.get_ticks()
@@ -95,7 +100,6 @@ class Player(pg.sprite.Sprite):
         self.damage_alpha = chain(DAMAGE_ALPHA * 4)
 
     def update(self) -> None:
-        self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
         self.image = pg.transform.rotate(self.game.player_img, self.rot)
         if self.damaged:
@@ -112,6 +116,10 @@ class Player(pg.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
+
+        # reset the movement after each update
+        self.rot_speed = 0
+        self.vel = Vector2(0, 0)
 
     def add_health(self, amount: int) -> None:
         self.health += amount

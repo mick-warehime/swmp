@@ -11,6 +11,7 @@ from os import path
 import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
 import tilemap
+import controller as ctrl
 
 
 # HUD functions
@@ -57,6 +58,8 @@ class Game:
 
         self.all_sprites = LayeredUpdates()
         self._init_groups()
+
+        self.controller: ctrl.Controller = ctrl.Controller()
 
     def draw_text(self, text: str, font_name: str, size: int, color: tuple,
                   x: int, y: int, align: str = "topleft") -> None:
@@ -151,6 +154,35 @@ class Game:
         self.night = False
         self.effects_sounds['level_start'].play()
 
+        self.set_default_controls()
+
+    def set_default_controls(self) -> None:
+
+        self.controller.bind(pg.K_ESCAPE, self.quit)
+        self.controller.bind_down(pg.K_n, self.toggle_night)
+        self.controller.bind_down(pg.K_h, self.toggle_debug)
+        self.controller.bind_down(pg.K_p, self.toggle_paused)
+
+        # players controls
+        counterclockwise = self.player.turn_counterclockwise
+        clockwise = self.player.turn_clockwise
+        self.controller.bind(pg.K_q, counterclockwise)
+        self.controller.bind(pg.K_e, clockwise)
+
+        self.controller.bind(pg.K_LEFT, self.player.move_left)
+        self.controller.bind(pg.K_a, self.player.move_left)
+
+        self.controller.bind(pg.K_RIGHT, self.player.move_right)
+        self.controller.bind(pg.K_d, self.player.move_right)
+
+        self.controller.bind(pg.K_UP, self.player.move_up)
+        self.controller.bind(pg.K_w, self.player.move_up)
+
+        self.controller.bind(pg.K_DOWN, self.player.move_down)
+        self.controller.bind(pg.K_s, self.player.move_down)
+
+        self.controller.bind(pg.K_SPACE, self.player.shoot)
+
     def _init_groups(self) -> None:
         self.walls = Group()
         self.mobs = Group()
@@ -175,6 +207,7 @@ class Game:
         sys.exit()
 
     def update(self) -> None:
+        self.controller.update()
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -237,7 +270,7 @@ class Game:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if self.draw_debug:
+            if self.draw_debug and hasattr(sprite, 'hit_rect'):
                 camera = self.camera.apply_rect(sprite.hit_rect)
                 pg.draw.rect(self.screen, settings.CYAN, camera, 1)
         if self.draw_debug:
@@ -265,18 +298,15 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.quit()
-                if event.key == pg.K_h:
-                    self.draw_debug = not self.draw_debug
-                if event.key == pg.K_p:
-                    self.paused = not self.paused
-                if event.key == pg.K_n:
-                    self.night = not self.night
 
-    def show_start_screen(self) -> None:
-        pass
+    def toggle_night(self) -> None:
+        self.night = not self.night
+
+    def toggle_debug(self) -> None:
+        self.draw_debug = not self.draw_debug
+
+    def toggle_paused(self) -> None:
+        self.paused = not self.paused
 
     def show_go_screen(self) -> None:
         self.screen.fill(settings.BLACK)
@@ -304,7 +334,6 @@ class Game:
 
 # create the game object
 g = Game()
-g.show_start_screen()
 while True:
     g.new()
     g.run()
