@@ -50,6 +50,7 @@ class Player(pg.sprite.Sprite):
 
         self.base_img = pg.image.load(plyr_img_path).convert_alpha()
         self.image = self.base_img
+
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
@@ -154,7 +155,7 @@ class Mob(pg.sprite.Sprite):
 
     def update(self) -> None:
         target_dist = self.target.pos - self.pos
-        if target_dist.length_squared() < DETECT_RADIUS ** 2:
+        if self._target_close(target_dist):
             if random() < 0.002:
                 choice(self.game.zombie_moan_sounds).play()
             self.rot = target_dist.angle_to(Vector2(1, 0))
@@ -176,6 +177,11 @@ class Mob(pg.sprite.Sprite):
             choice(self.game.zombie_hit_sounds).play()
             self.kill()
             self.game.map_img.blit(self.game.splat, self.pos - Vector2(32, 32))
+
+    @staticmethod
+    def _target_close(target_dist: Vector2) -> bool:
+        _target_close = target_dist.length_squared() < DETECT_RADIUS ** 2
+        return _target_close
 
     def draw_health(self) -> None:
         if self.health > 60:
