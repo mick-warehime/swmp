@@ -12,6 +12,7 @@ import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
 import tilemap
 import controller as ctrl
+import view
 
 
 # HUD functions
@@ -50,7 +51,6 @@ class Game:
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
-        pg.display.set_caption(settings.TITLE)
         self.clock = pg.time.Clock()
         self.load_data()
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
@@ -60,6 +60,7 @@ class Game:
         self._init_groups()
 
         self.controller: ctrl.Controller = ctrl.Controller()
+        self.view: view.DungeonView = view.DungeonView(self.screen)
 
     def draw_text(self, text: str, font_name: str, size: int, color: tuple,
                   x: int, y: int, align: str = "topleft") -> None:
@@ -154,13 +155,19 @@ class Game:
         self.night = False
         self.effects_sounds['level_start'].play()
 
+        # Temporary - eventually this should be one call to construct
+        # a DungeonController that takes only a map and generates all the
+        # sprites from that map
+
+        self.view = view.DungeonView(self.screen)
+        self.view.set_sprites(self.all_sprites)
         self.set_default_controls()
 
     def set_default_controls(self) -> None:
 
         self.controller.bind(pg.K_ESCAPE, self.quit)
         self.controller.bind_down(pg.K_n, self.toggle_night)
-        self.controller.bind_down(pg.K_h, self.toggle_debug)
+        self.controller.bind_down(pg.K_h, self.view.toggle_debug)
         self.controller.bind_down(pg.K_p, self.toggle_paused)
 
         # players controls
@@ -197,8 +204,7 @@ class Game:
             # fix for Python 2.x
             self.dt = self.clock.tick(settings.FPS) / 1000.0
             self.events()
-            if not self.paused:
-                self.update()
+            self.update()
             self.draw()
 
     @staticmethod
@@ -207,7 +213,11 @@ class Game:
         sys.exit()
 
     def update(self) -> None:
+        # always update the controller
         self.controller.update()
+        if self.paused:
+            return
+
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -262,21 +272,10 @@ class Game:
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
     def draw(self) -> None:
+
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-        # self.screen.fill(BGCOLOR)
-        self.screen.blit(self.map_img, self.camera.apply(self.map))
-        # self.draw_grid()
-        for sprite in self.all_sprites:
-            if isinstance(sprite, Mob):
-                sprite.draw_health()
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if self.draw_debug and hasattr(sprite, 'hit_rect'):
-                camera = self.camera.apply_rect(sprite.hit_rect)
-                pg.draw.rect(self.screen, settings.CYAN, camera, 1)
-        if self.draw_debug:
-            for wall in self.walls:
-                camera = self.camera.apply_rect(wall.rect)
-                pg.draw.rect(self.screen, settings.CYAN, camera, 1)
+
+        self.view.draw(self.map, self.map_img, self.camera)
 
         if self.night:
             self.render_fog()
@@ -287,7 +286,7 @@ class Game:
         self.draw_text(zombies_str, self.hud_font, 30, settings.WHITE,
                        settings.WIDTH - 10, 10, align="topright")
         if self.paused:
-            self.screen.blit(self.dim_screen, (0, 0))
+            self.screen.blit(self.view.dim_screen, (0, 0))
             self.draw_text("Paused", self.title_font, 105,
                            settings.RED, settings.WIDTH / 2,
                            settings.HEIGHT / 2, align="center")
@@ -301,9 +300,6 @@ class Game:
 
     def toggle_night(self) -> None:
         self.night = not self.night
-
-    def toggle_debug(self) -> None:
-        self.draw_debug = not self.draw_debug
 
     def toggle_paused(self) -> None:
         self.paused = not self.paused
