@@ -270,7 +270,7 @@ class Game:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if self.draw_debug:
+            if self.draw_debug and hasattr(sprite, 'hit_rect'):
                 camera = self.camera.apply_rect(sprite.hit_rect)
                 pg.draw.rect(self.screen, settings.CYAN, camera, 1)
         if self.draw_debug:
