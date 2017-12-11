@@ -8,7 +8,7 @@ from pygame.math import Vector2
 from pygame.sprite import Sprite, Group
 
 from settings import PLAYER_LAYER, PLAYER_HIT_RECT, PLAYER_HEALTH, \
-    PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, MOB_LAYER, \
+    PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, \
     MOB_HIT_RECT, MOB_HEALTH, MOB_SPEEDS, AVOID_RADIUS, DETECT_RADIUS, GREEN, \
     YELLOW, RED, BULLET_LAYER, EFFECTS_LAYER, FLASH_DURATION, ITEMS_LAYER, \
     BOB_RANGE, BOB_SPEED, BARREL_OFFSET, PLAYER_IMG, MOB_IMG
@@ -39,10 +39,14 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
 
 
 class Humanoid(pg.sprite.Sprite):
-    base_image: Any = None
+    base_image: pg.Surface = None
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, image_file: str, x: int, y: int) -> None:
+        self._init_base_image(image_file)
+
+        self.image = self.base_image
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
 
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
@@ -56,17 +60,13 @@ class Humanoid(pg.sprite.Sprite):
 class Player(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
 
-        self._init_base_image(PLAYER_IMG)
+        super(Player, self).__init__(PLAYER_IMG, x, y)
 
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.image = Player.base_image
-
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.center = self.rect.center
         self.vel = Vector2(0, 0)
@@ -143,15 +143,13 @@ class Player(Humanoid):
 class Mob(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
 
-        self._init_base_image(MOB_IMG)
+        super(Mob, self).__init__(MOB_IMG, x, y)
 
-        self._layer = MOB_LAYER
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
+
         self.game = game
-        self.image = Mob.base_image
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+
         self.hit_rect = MOB_HIT_RECT.copy()
         self.hit_rect.center = self.rect.center
         self.pos = Vector2(x, y)
