@@ -6,50 +6,27 @@ import pygame as pg
 from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
 from pygame.math import Vector2
 import sys
-from random import choice, random
+from random import random
 from os import path
 import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
 import tilemap
-
-
-# HUD functions
-def draw_player_health(surf: pg.Surface, x: int, y: int, pct: float) -> None:
-    if pct < 0:
-        pct = 0
-    bar_length = 100
-    bar_height = 20
-    fill = pct * bar_length
-    outline_rect = pg.Rect(x, y, bar_length, bar_height)
-    fill_rect = pg.Rect(x, y, fill, bar_height)
-    if pct > 0.6:
-        col = settings.GREEN
-    elif pct > 0.3:
-        col = settings.YELLOW
-    else:
-        col = settings.RED
-    pg.draw.rect(surf, col, fill_rect)
-    pg.draw.rect(surf, settings.WHITE, outline_rect, 2)
+import controller as ctrl
+import view
+import sounds
 
 
 class Game:
     def __init__(self) -> None:
-        self.zombie_hit_sounds: List[pg.mixer.Sound] = []
-        self.player_hit_sounds: List[pg.mixer.Sound] = []
-        self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[str, List[pg.mixer.Sound]] = {}
-        self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
+
         self.item_images: Dict[str, pg.Surface] = {}
         self.gun_flashes: List[pg.Surface] = []
         self.bullet_images: Dict[str, pg.Surface] = {}
         self.map_folder: str = ''
-        self.title_font: str = ''
-        self.hud_font: str = ''
 
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
-        pg.display.set_caption(settings.TITLE)
         self.clock = pg.time.Clock()
         self.load_data()
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
@@ -58,24 +35,23 @@ class Game:
         self.all_sprites = LayeredUpdates()
         self._init_groups()
 
-    def draw_text(self, text: str, font_name: str, size: int, color: tuple,
-                  x: int, y: int, align: str = "topleft") -> None:
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(**{align: (x, y)})
-        self.screen.blit(text_surface, text_rect)
+        self.controller: ctrl.Controller = ctrl.Controller()
+        self.view: view.DungeonView = view.DungeonView(self.screen)
+
+        # needs to happen after a valid mixer is available
+        sounds.initialize_sounds()
 
     def load_data(self) -> None:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
-        snd_folder = path.join(game_folder, 'snd')
-        music_folder = path.join(game_folder, 'music')
 
         self.map_folder = path.join(game_folder, 'maps')
 
         self.title_font = path.join(img_folder, 'ZOMBIE.TTF')
         self.hud_font = path.join(img_folder, 'Impacted2.0.ttf')
 
+        plyr_img_path = path.join(img_folder, settings.PLAYER_IMG)
+        self.player_img = pg.image.load(plyr_img_path).convert_alpha()
         blt_img_path = path.join(img_folder, settings.BULLET_IMG)
         blt_img = pg.image.load(blt_img_path).convert_alpha()
         self.bullet_images['lg'] = blt_img
@@ -90,36 +66,6 @@ class Game:
         for item in settings.ITEM_IMAGES:
             img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
             self.item_images[item] = pg.image.load(img_path).convert_alpha()
-        # lighting effect
-        self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
-        self.fog.fill(settings.NIGHT_COLOR)
-        light_img_path = path.join(img_folder, settings.LIGHT_MASK)
-
-        light_mask = pg.image.load(light_img_path).convert_alpha()
-        self.light_mask = light_mask
-        self.light_mask = pg.transform.scale(light_mask, settings.LIGHT_RADIUS)
-        self.light_rect = self.light_mask.get_rect()
-        # Sound loading
-        pg.mixer.music.load(path.join(music_folder, settings.BG_MUSIC))
-        for label, file_name in settings.EFFECTS_SOUNDS.items():
-            sound_path = path.join(snd_folder, file_name)
-            self.effects_sounds[label] = pg.mixer.Sound(sound_path)
-        for weapon in settings.WEAPON_SOUNDS:
-            self.weapon_sounds[weapon] = []
-            for sound_file in settings.WEAPON_SOUNDS[weapon]:
-                s = pg.mixer.Sound(path.join(snd_folder, sound_file))
-                s.set_volume(0.3)
-                self.weapon_sounds[weapon].append(s)
-        for sound_file in settings.ZOMBIE_MOAN_SOUNDS:
-            s = pg.mixer.Sound(path.join(snd_folder, sound_file))
-            s.set_volume(0.2)
-            self.zombie_moan_sounds.append(s)
-        for sound_file in settings.PLAYER_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, sound_file)
-            self.player_hit_sounds.append(pg.mixer.Sound(snd_path))
-        for sound_file in settings.ZOMBIE_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, sound_file)
-            self.zombie_hit_sounds.append(pg.mixer.Sound(snd_path))
 
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
@@ -141,10 +87,45 @@ class Game:
             if tile_object.name in ['health', 'shotgun']:
                 Item(self, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
-        self.draw_debug = False
         self.paused = False
-        self.night = False
-        self.effects_sounds['level_start'].play()
+        sounds.play(sounds.LEVEL_START)
+
+        # Temporary - eventually this should be one call to construct
+        # a DungeonController that takes only a map and generates all the
+        # sprites from that map
+        self.view = view.DungeonView(self.screen)
+        self.view.set_sprites(self.all_sprites)
+        self.view.set_walls(self.walls)
+        self.view.set_items(self.items)
+        self.view.set_mobs(self.mobs)
+        self.set_default_controls()
+
+    def set_default_controls(self) -> None:
+
+        self.controller.bind(pg.K_ESCAPE, self.quit)
+        self.controller.bind_down(pg.K_n, self.view.toggle_night)
+        self.controller.bind_down(pg.K_h, self.view.toggle_debug)
+        self.controller.bind_down(pg.K_p, self.toggle_paused)
+
+        # players controls
+        counterclockwise = self.player.turn_counterclockwise
+        clockwise = self.player.turn_clockwise
+        self.controller.bind(pg.K_q, counterclockwise)
+        self.controller.bind(pg.K_e, clockwise)
+
+        self.controller.bind(pg.K_LEFT, self.player.move_left)
+        self.controller.bind(pg.K_a, self.player.move_left)
+
+        self.controller.bind(pg.K_RIGHT, self.player.move_right)
+        self.controller.bind(pg.K_d, self.player.move_right)
+
+        self.controller.bind(pg.K_UP, self.player.move_up)
+        self.controller.bind(pg.K_w, self.player.move_up)
+
+        self.controller.bind(pg.K_DOWN, self.player.move_down)
+        self.controller.bind(pg.K_s, self.player.move_down)
+
+        self.controller.bind(pg.K_SPACE, self.player.shoot)
 
     def _init_groups(self) -> None:
         self.walls = Group()
@@ -160,8 +141,7 @@ class Game:
             # fix for Python 2.x
             self.dt = self.clock.tick(settings.FPS) / 1000.0
             self.events()
-            if not self.paused:
-                self.update()
+            self.update()
             self.draw()
 
     @staticmethod
@@ -170,6 +150,11 @@ class Game:
         sys.exit()
 
     def update(self) -> None:
+        # always update the controller
+        self.controller.update()
+        if self.paused:
+            return
+
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -182,17 +167,17 @@ class Game:
             full_health = self.player.health >= settings.PLAYER_HEALTH
             if hit.type == 'health' and not full_health:
                 hit.kill()
-                self.effects_sounds['health_up'].play()
+                sounds.play(sounds.HEALTH_UP)
                 self.player.add_health(settings.HEALTH_PACK_AMOUNT)
             if hit.type == 'shotgun':
                 hit.kill()
-                self.effects_sounds['gun_pickup'].play()
+                sounds.play(sounds.GUN_PICKUP)
                 self.player.weapon = 'shotgun'
         # mobs hit player
         hits = spritecollide(self.player, self.mobs, False, collide_hit_rect)
         for hit in hits:
             if random() < 0.7:
-                choice(self.player_hit_sounds).play()
+                sounds.player_hit_sound()
             self.player.health -= settings.MOB_DAMAGE
             hit.vel = Vector2(0, 0)
             if self.player.health <= 0:
@@ -208,51 +193,16 @@ class Game:
                 mob.health -= bullet.damage
             mob.vel = Vector2(0, 0)
 
-    def draw_grid(self) -> None:
-        for x in range(0, settings.WIDTH, settings.TILESIZE):
-            box_max_x = (x, settings.HEIGHT)
-            pg.draw.line(self.screen, settings.LIGHTGREY, (x, 0), box_max_x)
-        for y in range(0, settings.HEIGHT, settings.TILESIZE):
-            box_max_y = (settings.WIDTH, y)
-            pg.draw.line(self.screen, settings.LIGHTGREY, (0, y), box_max_y)
-
-    def render_fog(self) -> None:
-        # draw the light mask (gradient) onto fog image
-        self.fog.fill(settings.NIGHT_COLOR)
-        self.light_rect.center = self.camera.apply(self.player).center
-        self.fog.blit(self.light_mask, self.light_rect)
-        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
-
     def draw(self) -> None:
-        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-        # self.screen.fill(BGCOLOR)
-        self.screen.blit(self.map_img, self.camera.apply(self.map))
-        # self.draw_grid()
-        for sprite in self.all_sprites:
-            if isinstance(sprite, Mob):
-                sprite.draw_health()
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if self.draw_debug:
-                camera = self.camera.apply_rect(sprite.hit_rect)
-                pg.draw.rect(self.screen, settings.CYAN, camera, 1)
-        if self.draw_debug:
-            for wall in self.walls:
-                camera = self.camera.apply_rect(wall.rect)
-                pg.draw.rect(self.screen, settings.CYAN, camera, 1)
 
-        if self.night:
-            self.render_fog()
-        # HUD functions
-        remaining_health = self.player.health / settings.PLAYER_HEALTH
-        draw_player_health(self.screen, 10, 10, remaining_health)
-        zombies_str = 'Zombies: {}'.format(len(self.mobs))
-        self.draw_text(zombies_str, self.hud_font, 30, settings.WHITE,
-                       settings.WIDTH - 10, 10, align="topright")
-        if self.paused:
-            self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text("Paused", self.title_font, 105,
-                           settings.RED, settings.WIDTH / 2,
-                           settings.HEIGHT / 2, align="center")
+        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+
+        self.view.draw(self.player,
+                       self.map,
+                       self.map_img,
+                       self.camera,
+                       self.paused)
+
         pg.display.flip()
 
     def events(self) -> None:
@@ -260,27 +210,12 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.quit()
-                if event.key == pg.K_h:
-                    self.draw_debug = not self.draw_debug
-                if event.key == pg.K_p:
-                    self.paused = not self.paused
-                if event.key == pg.K_n:
-                    self.night = not self.night
 
-    def show_start_screen(self) -> None:
-        pass
+    def toggle_paused(self) -> None:
+        self.paused = not self.paused
 
     def show_go_screen(self) -> None:
-        self.screen.fill(settings.BLACK)
-        self.draw_text("GAME OVER", self.title_font, 100, settings.RED,
-                       settings.WIDTH / 2, settings.HEIGHT / 2,
-                       align="center")
-        self.draw_text("Press a key to start", self.title_font, 75,
-                       settings.WHITE, settings.WIDTH / 2,
-                       settings.HEIGHT * 3 / 4, align="center")
+        self.view.game_over()
         pg.display.flip()
         self.wait_for_key()
 
@@ -299,7 +234,6 @@ class Game:
 
 # create the game object
 g = Game()
-g.show_start_screen()
 while True:
     g.new()
     g.run()
