@@ -1,6 +1,6 @@
 # Tilemap Demo
 # KidsCanCode 2017
-from typing import Dict, List
+from typing import Dict
 
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
@@ -20,7 +20,6 @@ class Game:
     def __init__(self) -> None:
 
         self.item_images: Dict[str, pg.Surface] = {}
-        self.gun_flashes: List[pg.Surface] = []
         self.bullet_images: Dict[str, pg.Surface] = {}
         self.map_folder: str = ''
 
@@ -47,17 +46,6 @@ class Game:
 
         self.map_folder = path.join(game_folder, 'maps')
 
-        blt_img_path = path.join(img_folder, settings.BULLET_IMG)
-        blt_img = pg.image.load(blt_img_path).convert_alpha()
-        self.bullet_images['lg'] = blt_img
-        self.bullet_images['sm'] = pg.transform.scale(blt_img, (10, 10))
-
-        splat_img_path = path.join(img_folder, settings.SPLAT)
-        self.splat = pg.image.load(splat_img_path).convert_alpha()
-        self.splat = pg.transform.scale(self.splat, (64, 64))
-        for img in settings.MUZZLE_FLASHES:
-            img_path = path.join(img_folder, img)
-            self.gun_flashes.append(pg.image.load(img_path).convert_alpha())
         for item in settings.ITEM_IMAGES:
             img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
             self.item_images[item] = pg.image.load(img_path).convert_alpha()
