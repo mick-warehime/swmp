@@ -22,8 +22,9 @@ class SoundEffects(object):
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
-        music_folder = 'music'
-        snd_folder = 'snd'
+        game_folder = os.path.dirname(__file__)
+        music_folder = os.path.join(game_folder, 'music')
+        snd_folder = os.path.join(game_folder, 'snd')
         pg.mixer.music.load(os.path.join(music_folder, settings.BG_MUSIC))
         for label, file_name in settings.EFFECTS_SOUNDS.items():
             sound_path = os.path.join(snd_folder, file_name)

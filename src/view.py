@@ -43,7 +43,8 @@ class DungeonView(object):
         self.night = False
 
         # lighting effect
-        img_folder = 'img'
+        game_folder = os.path.dirname(__file__)
+        img_folder = os.path.join(game_folder, 'img')
         self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
         self.fog.fill(settings.NIGHT_COLOR)
         light_img_path = os.path.join(img_folder, settings.LIGHT_MASK)
