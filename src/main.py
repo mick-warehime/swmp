@@ -1,7 +1,3 @@
-# Tilemap Demo
-# KidsCanCode 2017
-from typing import Dict
-
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
 from pygame.math import Vector2
@@ -16,18 +12,14 @@ import view
 import sounds
 
 
-class Game:
+class Game(object):
     def __init__(self) -> None:
-
-        self.item_images: Dict[str, pg.Surface] = {}
-        self.bullet_images: Dict[str, pg.Surface] = {}
-        self.map_folder: str = ''
 
         pg.mixer.pre_init(44100, -16, 4, 2048)
         pg.init()
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
         self.clock = pg.time.Clock()
-        self.load_data()
+
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
@@ -40,21 +32,14 @@ class Game:
         # needs to happen after a valid mixer is available
         sounds.initialize_sounds()
 
-    def load_data(self) -> None:
-        game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'img')
-
-        self.map_folder = path.join(game_folder, 'maps')
-
-        for item in settings.ITEM_IMAGES:
-            img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
-            self.item_images[item] = pg.image.load(img_path).convert_alpha()
-
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = LayeredUpdates()
         self._init_groups()
-        self.map = tilemap.TiledMap(path.join(self.map_folder, 'level1.tmx'))
+
+        game_folder = path.dirname(__file__)
+        map_folder = path.join(game_folder, 'maps')
+        self.map = tilemap.TiledMap(path.join(map_folder, 'level1.tmx'))
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
         for tile_object in self.map.tmxdata.objects:

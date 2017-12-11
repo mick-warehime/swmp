@@ -244,8 +244,9 @@ class Bullet(pg.sprite.Sprite):
         self.hit_rect = self.rect
         self.pos = Vector2(pos)
         self.rect.center = pos
-        # spread = uniform(-GUN_SPREAD, GUN_SPREAD)
-        self.vel = direction * WEAPONS[weapon]['bullet_speed'] * uniform(0.9, 1.1)
+
+        speed = WEAPONS[weapon]['bullet_speed']
+        self.vel = direction * speed * uniform(0.9, 1.1)
         self.spawn_time = pg.time.get_ticks()
         self.damage = WEAPONS[weapon]['damage']
 
@@ -304,7 +305,12 @@ class Item(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.items
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.item_images[type]
+
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        img_path = path.join(img_folder, ITEM_IMAGES[type])
+        self.image = pg.image.load(img_path).convert_alpha()
+
         self.rect = self.image.get_rect()
         self.type = type
         self.pos = pos
