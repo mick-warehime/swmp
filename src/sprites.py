@@ -3,14 +3,15 @@ from random import uniform, choice, randint, random
 
 from typing import Any
 
+from os import path
 from pygame.math import Vector2
 from pygame.sprite import Sprite, Group
 
 from settings import PLAYER_LAYER, PLAYER_HIT_RECT, PLAYER_HEALTH, \
-    PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, MOB_LAYER, \
+    PLAYER_ROT_SPEED, PLAYER_SPEED, WEAPONS, DAMAGE_ALPHA, \
     MOB_HIT_RECT, MOB_HEALTH, MOB_SPEEDS, AVOID_RADIUS, DETECT_RADIUS, GREEN, \
     YELLOW, RED, BULLET_LAYER, EFFECTS_LAYER, FLASH_DURATION, ITEMS_LAYER, \
-    BOB_RANGE, BOB_SPEED, BARREL_OFFSET
+    BOB_RANGE, BOB_SPEED, BARREL_OFFSET, PLAYER_IMG, MOB_IMG
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
@@ -38,15 +39,35 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
-class Player(pg.sprite.Sprite):
+class Humanoid(pg.sprite.Sprite):
+    base_image: pg.Surface = None
+
+    def __init__(self, image_file: str, x: int, y: int) -> None:
+        self._init_base_image(image_file)
+
+        self.image = self.base_image
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+    @classmethod
+    def _init_base_image(cls, image_file: str) -> None:
+        if cls.base_image is None:
+            game_folder = path.dirname(__file__)
+            img_folder = path.join(game_folder, 'img')
+            image_path = path.join(img_folder, image_file)
+            cls.base_image = pg.image.load(image_path).convert_alpha()
+
+
+class Player(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
+
+        super(Player, self).__init__(PLAYER_IMG, x, y)
+
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.center = self.rect.center
         self.vel = Vector2(0, 0)
@@ -99,7 +120,7 @@ class Player(pg.sprite.Sprite):
 
     def update(self) -> None:
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pg.transform.rotate(self.game.player_img, self.rot)
+        self.image = pg.transform.rotate(self.base_image, self.rot)
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
@@ -125,15 +146,16 @@ class Player(pg.sprite.Sprite):
             self.health = PLAYER_HEALTH
 
 
-class Mob(pg.sprite.Sprite):
+class Mob(Humanoid):
     def __init__(self, game: Any, x: int, y: int) -> None:
-        self._layer = MOB_LAYER
+
+        super(Mob, self).__init__(MOB_IMG, x, y)
+
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
+
         self.game = game
-        self.image = game.mob_img.copy()
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+
         self.hit_rect = MOB_HIT_RECT.copy()
         self.hit_rect.center = self.rect.center
         self.pos = Vector2(x, y)
@@ -154,11 +176,11 @@ class Mob(pg.sprite.Sprite):
 
     def update(self) -> None:
         target_dist = self.target.pos - self.pos
-        if target_dist.length_squared() < DETECT_RADIUS ** 2:
+        if self._target_close(target_dist):
             if random() < 0.002:
                 sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
-            self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+            self.image = pg.transform.rotate(Mob.base_image, self.rot)
             self.rect.center = self.pos
             self.acc = Vector2(1, 0).rotate(-self.rot)
             self.avoid_mobs()
@@ -176,6 +198,11 @@ class Mob(pg.sprite.Sprite):
             sounds.mob_hit_sound()
             self.kill()
             self.game.map_img.blit(self.game.splat, self.pos - Vector2(32, 32))
+
+    @staticmethod
+    def _target_close(target_dist: Vector2) -> bool:
+        _target_close = target_dist.length_squared() < DETECT_RADIUS ** 2
+        return _target_close
 
     def draw_health(self) -> None:
         if self.health > 60:
