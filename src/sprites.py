@@ -14,6 +14,7 @@ from settings import PLAYER_LAYER, PLAYER_HIT_RECT, PLAYER_HEALTH, \
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
+import sounds
 
 
 def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
@@ -89,10 +90,7 @@ class Player(pg.sprite.Sprite):
                                  WEAPONS[self.weapon]['spread'])
                 Bullet(self.game, pos, dir.rotate(spread),
                        WEAPONS[self.weapon]['damage'])
-                snd = choice(self.game.weapon_sounds[self.weapon])
-                if snd.get_num_channels() > 2:
-                    snd.stop()
-                snd.play()
+                sounds.fire_weapon_sound(self.weapon)
             MuzzleFlash(self.game, pos)
 
     def hit(self) -> None:
@@ -158,7 +156,7 @@ class Mob(pg.sprite.Sprite):
         target_dist = self.target.pos - self.pos
         if target_dist.length_squared() < DETECT_RADIUS ** 2:
             if random() < 0.002:
-                choice(self.game.zombie_moan_sounds).play()
+                sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
             self.image = pg.transform.rotate(self.game.mob_img, self.rot)
             self.rect.center = self.pos
@@ -175,7 +173,7 @@ class Mob(pg.sprite.Sprite):
             collide_with_walls(self, self.game.walls, 'y')
             self.rect.center = self.hit_rect.center
         if self.health <= 0:
-            choice(self.game.zombie_hit_sounds).play()
+            sounds.mob_hit_sound()
             self.kill()
             self.game.map_img.blit(self.game.splat, self.pos - Vector2(32, 32))
 

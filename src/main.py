@@ -6,22 +6,19 @@ import pygame as pg
 from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
 from pygame.math import Vector2
 import sys
-from random import choice, random
+from random import random
 from os import path
 import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
 import tilemap
 import controller as ctrl
 import view
+import sounds
 
 
 class Game:
     def __init__(self) -> None:
-        self.zombie_hit_sounds: List[pg.mixer.Sound] = []
-        self.player_hit_sounds: List[pg.mixer.Sound] = []
-        self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[str, List[pg.mixer.Sound]] = {}
-        self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
+
         self.item_images: Dict[str, pg.Surface] = {}
         self.gun_flashes: List[pg.Surface] = []
         self.bullet_images: Dict[str, pg.Surface] = {}
@@ -41,11 +38,12 @@ class Game:
         self.controller: ctrl.Controller = ctrl.Controller()
         self.view: view.DungeonView = view.DungeonView(self.screen)
 
+        # needs to happen after a valid mixer is available
+        sounds.initialize_sounds()
+
     def load_data(self) -> None:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
-        snd_folder = path.join(game_folder, 'snd')
-        music_folder = path.join(game_folder, 'music')
 
         self.map_folder = path.join(game_folder, 'maps')
 
@@ -69,28 +67,6 @@ class Game:
             img_path = path.join(img_folder, settings.ITEM_IMAGES[item])
             self.item_images[item] = pg.image.load(img_path).convert_alpha()
 
-        # Sound loading
-        pg.mixer.music.load(path.join(music_folder, settings.BG_MUSIC))
-        for label, file_name in settings.EFFECTS_SOUNDS.items():
-            sound_path = path.join(snd_folder, file_name)
-            self.effects_sounds[label] = pg.mixer.Sound(sound_path)
-        for weapon in settings.WEAPON_SOUNDS:
-            self.weapon_sounds[weapon] = []
-            for sound_file in settings.WEAPON_SOUNDS[weapon]:
-                s = pg.mixer.Sound(path.join(snd_folder, sound_file))
-                s.set_volume(0.3)
-                self.weapon_sounds[weapon].append(s)
-        for sound_file in settings.ZOMBIE_MOAN_SOUNDS:
-            s = pg.mixer.Sound(path.join(snd_folder, sound_file))
-            s.set_volume(0.2)
-            self.zombie_moan_sounds.append(s)
-        for sound_file in settings.PLAYER_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, sound_file)
-            self.player_hit_sounds.append(pg.mixer.Sound(snd_path))
-        for sound_file in settings.ZOMBIE_HIT_SOUNDS:
-            snd_path = path.join(snd_folder, sound_file)
-            self.zombie_hit_sounds.append(pg.mixer.Sound(snd_path))
-
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = LayeredUpdates()
@@ -112,7 +88,7 @@ class Game:
                 Item(self, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
         self.paused = False
-        self.effects_sounds['level_start'].play()
+        sounds.play(sounds.LEVEL_START)
 
         # Temporary - eventually this should be one call to construct
         # a DungeonController that takes only a map and generates all the
@@ -191,17 +167,17 @@ class Game:
             full_health = self.player.health >= settings.PLAYER_HEALTH
             if hit.type == 'health' and not full_health:
                 hit.kill()
-                self.effects_sounds['health_up'].play()
+                sounds.play(sounds.HEALTH_UP)
                 self.player.add_health(settings.HEALTH_PACK_AMOUNT)
             if hit.type == 'shotgun':
                 hit.kill()
-                self.effects_sounds['gun_pickup'].play()
+                sounds.play(sounds.GUN_PICKUP)
                 self.player.weapon = 'shotgun'
         # mobs hit player
         hits = spritecollide(self.player, self.mobs, False, collide_hit_rect)
         for hit in hits:
             if random() < 0.7:
-                choice(self.player_hit_sounds).play()
+                sounds.player_hit_sound()
             self.player.health -= settings.MOB_DAMAGE
             hit.vel = Vector2(0, 0)
             if self.player.health <= 0:
