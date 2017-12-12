@@ -59,7 +59,7 @@ class Humanoid(GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
     def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 max_health: int) -> None:
+                 max_health: int, game: Any) -> None:
         super(Humanoid, self).__init__(image_file, hit_rect, pos)
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
@@ -67,6 +67,8 @@ class Humanoid(GameObject):
         self.rot = 0
         self.max_health = max_health
         self.health = max_health
+        self._timer = Timer(game)
+        self._wall_group = game.walls
 
     def _update_trajectory(self) -> None:
         dt = self._timer.dt
@@ -105,12 +107,10 @@ class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH)
+                                     settings.PLAYER_HEALTH, game)
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self._timer = Timer(game)
-        self._wall_group = game.walls
 
         self.last_shot = 0
 
@@ -165,7 +165,7 @@ class Player(Humanoid):
             except StopIteration:
                 self.damaged = False
 
-        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
+        self.rot = (self.rot + self.rot_speed * self._timer.dt) % 360
 
         self._match_image_to_rot()
         self._update_trajectory()
@@ -184,16 +184,12 @@ class Mob(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
 
         super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH)
+                                  settings.MOB_HEALTH, game)
 
         self.groups = game.all_sprites, game.mobs
         self._mob_group = game.mobs
         self._map_img = game.map_img
-        self._timer = Timer(game)
-        self._wall_group = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
-
-        # self.game = game
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = game.player
