@@ -179,7 +179,7 @@ class Mob(Humanoid):
         splat_img = images.get_image(images.SPLAT)
         self.splat = pg.transform.scale(splat_img, (64, 64))
 
-    def avoid_mobs(self) -> None:
+    def _avoid_mobs(self) -> None:
         for mob in self.game.mobs:
             if mob != self:
                 dist = self.pos - mob.pos
@@ -205,7 +205,7 @@ class Mob(Humanoid):
 
     def _update_acc(self) -> None:
         self.acc = Vector2(1, 0).rotate(-self.rot)
-        self.avoid_mobs()
+        self._avoid_mobs()
         self.acc.scale_to_length(self.speed)
         self.acc += self.vel * -1
 
@@ -254,9 +254,13 @@ class Bullet(pg.sprite.Sprite):
         self.rect.center = self.pos
         if pg.sprite.spritecollideany(self, self.game.walls):
             self.kill()
-        if pg.time.get_ticks() - self.spawn_time > \
-                settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']:
+        if self._lifetime_exceeded():
             self.kill()
+
+    def _lifetime_exceeded(self) -> bool:
+        lifetime = pg.time.get_ticks() - self.spawn_time
+        max_time = settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']
+        return lifetime > max_time
 
 
 class Obstacle(pg.sprite.Sprite):
