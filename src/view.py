@@ -1,10 +1,10 @@
-import os
 import pygame as pg
 import settings
 from pygame import Surface
 from pygame.sprite import LayeredUpdates, Group
 from sprites import Mob, Player
 from tilemap import Camera, TiledMap
+import images
 
 
 # HUD functions
@@ -42,19 +42,12 @@ class DungeonView(object):
         self.draw_debug = False
         self.night = False
 
-        # lighting effect
-        game_folder = os.path.dirname(__file__)
-        img_folder = os.path.join(game_folder, 'img')
         self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
         self.fog.fill(settings.NIGHT_COLOR)
-        light_img_path = os.path.join(img_folder, settings.LIGHT_MASK)
-        light_mask = pg.image.load(light_img_path).convert_alpha()
-        self.light_mask = light_mask
-        self.light_mask = pg.transform.scale(light_mask, settings.LIGHT_RADIUS)
-        self.light_rect = self.light_mask.get_rect()
 
-        self.hud_font = os.path.join(img_folder, 'Impacted2.0.ttf')
-        self.title_font = os.path.join(img_folder, 'ZOMBIE.TTF')
+        # lighting effect
+        self.light_mask = images.get_image(images.LIGHT_MASK)
+        self.light_rect = self.light_mask.get_rect()
 
     def set_sprites(self, all_sprites: LayeredUpdates) -> None:
         self.all_sprites = all_sprites
@@ -96,11 +89,13 @@ class DungeonView(object):
         remaining_health = player.health / settings.PLAYER_HEALTH
         draw_player_health(self.screen, 10, 10, remaining_health)
         zombies_str = 'Zombies: {}'.format(len(self.mobs))
-        self.draw_text(zombies_str, self.hud_font, 30, settings.WHITE,
+        hud_font = images.get_font(images.IMPACTED_FONT)
+        self.draw_text(zombies_str, hud_font, 30, settings.WHITE,
                        settings.WIDTH - 10, 10, align="topright")
         if paused:
+            title_font = images.get_font(images.ZOMBIE_FONT)
             self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text("Paused", self.title_font, 105,
+            self.draw_text("Paused", title_font, 105,
                            settings.RED, settings.WIDTH / 2,
                            settings.HEIGHT / 2, align="center")
 
@@ -120,10 +115,11 @@ class DungeonView(object):
 
     def game_over(self) -> None:
         self.screen.fill(settings.BLACK)
-        self.draw_text("GAME OVER", self.title_font, 100, settings.RED,
+        title_font = images.get_font(images.ZOMBIE_FONT)
+        self.draw_text("GAME OVER", title_font, 100, settings.RED,
                        settings.WIDTH / 2, settings.HEIGHT / 2,
                        align="center")
-        self.draw_text("Press a key to start", self.title_font, 75,
+        self.draw_text("Press a key to start", title_font, 75,
                        settings.WHITE, settings.WIDTH / 2,
                        settings.HEIGHT * 3 / 4, align="center")
 
