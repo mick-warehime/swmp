@@ -52,21 +52,37 @@ class GameObject(pg.sprite.Sprite):
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
         if cls.base_image is None:
-            img = images.get_image(image_file)
-            cls.base_image = img
+            cls.base_image = images.get_image(image_file)
 
 
 class Humanoid(GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
     def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 health: int) -> None:
+                 max_health: int) -> None:
         super(Humanoid, self).__init__(image_file, hit_rect, pos)
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
         self.rect.center = self.pos
         self.rot = 0
-        self.health = health
+        self.max_health = max_health
+        self.health = max_health
+
+    def _update_trajectory(self) -> None:
+        self.vel += self.acc * self.game.dt
+        self.pos += self.vel * self.game.dt
+        self.pos += 0.5 * self.acc * self.game.dt ** 2
+
+    def _collide_with_walls(self) -> None:
+        self.hit_rect.centerx = self.pos.x
+        collide_with_walls(self, self.game.walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collide_with_walls(self, self.game.walls, 'y')
+        self.rect.center = self.hit_rect.center
+
+    def _match_image_to_rot(self) -> None:
+        self.image = pg.transform.rotate(self.base_image, self.rot)
+        self.rect = self.image.get_rect()
 
 
 class Player(Humanoid):
@@ -123,22 +139,19 @@ class Player(Humanoid):
         self.damaged = True
 
     def update(self) -> None:
-        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pg.transform.rotate(self.base_image, self.rot)
+
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
                                 special_flags=pg.BLEND_RGBA_MULT)
             except StopIteration:
                 self.damaged = False
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
-        self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.walls, 'x')
-        self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.walls, 'y')
-        self.rect.center = self.hit_rect.center
+
+        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
+
+        self._match_image_to_rot()
+        self._update_trajectory()
+        self._collide_with_walls()
 
         # reset the movement after each update
         self.rot_speed = 0
@@ -146,8 +159,7 @@ class Player(Humanoid):
 
     def add_health(self, amount: int) -> None:
         self.health += amount
-        if self.health > settings.PLAYER_HEALTH:
-            self.health = settings.PLAYER_HEALTH
+        self.health = min(self.health, self.max_health)
 
 
 class Mob(Humanoid):
@@ -180,24 +192,22 @@ class Mob(Humanoid):
             if random() < 0.002:
                 sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
-            self.image = pg.transform.rotate(Mob.base_image, self.rot)
-            self.rect.center = self.pos
-            self.acc = Vector2(1, 0).rotate(-self.rot)
-            self.avoid_mobs()
-            self.acc.scale_to_length(self.speed)
-            self.acc += self.vel * -1
-            self.vel += self.acc * self.game.dt
-            self.pos += self.vel * self.game.dt
-            self.pos += 0.5 * self.acc * self.game.dt ** 2
-            self.hit_rect.centerx = self.pos.x
-            collide_with_walls(self, self.game.walls, 'x')
-            self.hit_rect.centery = self.pos.y
-            collide_with_walls(self, self.game.walls, 'y')
-            self.rect.center = self.hit_rect.center
+
+            self._match_image_to_rot()
+            self._update_acc()
+            self._update_trajectory()
+            self._collide_with_walls()
+
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
             self.game.map_img.blit(self.splat, self.pos - Vector2(32, 32))
+
+    def _update_acc(self) -> None:
+        self.acc = Vector2(1, 0).rotate(-self.rot)
+        self.avoid_mobs()
+        self.acc.scale_to_length(self.speed)
+        self.acc += self.vel * -1
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:
@@ -250,17 +260,23 @@ class Bullet(pg.sprite.Sprite):
 
 
 class Obstacle(pg.sprite.Sprite):
-    def __init__(self, game: Any, x: int, y: int, w: int,
-                 h: int) -> None:
+    def __init__(self, game: Any, pos: Vector2, w: int, h: int) -> None:
         self.groups = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.rect = pg.Rect(x, y, w, h)
-        self.hit_rect = self.rect
-        self.x = x
-        self.y = y
-        self.rect.x = x
-        self.rect.y = y
+
+        self.rect = pg.Rect(pos.x, pos.y, w, h)
+
+    @property
+    def x(self) -> int:
+        return self.rect.x
+
+    @property
+    def y(self) -> int:
+        return self.rect.y
+
+    @property
+    def hit_rect(self) -> pg.Rect:
+        return self.rect
 
 
 class MuzzleFlash(pg.sprite.Sprite):

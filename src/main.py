@@ -58,8 +58,8 @@ class Game(object):
                 pos = Vector2(obj_center.x, obj_center.y)
                 Mob(self, pos)
             if tile_object.name == 'wall':
-                Obstacle(self, tile_object.x, tile_object.y,
-                         tile_object.width, tile_object.height)
+                pos = Vector2(tile_object.x, tile_object.y)
+                Obstacle(self, pos, tile_object.width, tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
                 Item(self, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
