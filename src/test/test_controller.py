@@ -1,5 +1,5 @@
 import unittest
-import pygame_mock
+from . import pygame_mock
 import sys
 sys.modules['pygame'] = pygame_mock.Pygame()
 import controller
