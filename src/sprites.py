@@ -68,6 +68,18 @@ class Humanoid(GameObject):
         self.max_health = max_health
         self.health = max_health
 
+    def _update_trajectory(self) -> None:
+        self.vel += self.acc * self.game.dt
+        self.pos += self.vel * self.game.dt
+        self.pos += 0.5 * self.acc * self.game.dt ** 2
+
+    def _collide_with_walls(self) -> None:
+        self.hit_rect.centerx = self.pos.x
+        collide_with_walls(self, self.game.walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collide_with_walls(self, self.game.walls, 'y')
+        self.rect.center = self.hit_rect.center
+
 
 class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
@@ -123,22 +135,22 @@ class Player(Humanoid):
         self.damaged = True
 
     def update(self) -> None:
-        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pg.transform.rotate(self.base_image, self.rot)
+
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
                                 special_flags=pg.BLEND_RGBA_MULT)
             except StopIteration:
                 self.damaged = False
+
+        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
+
+        self.image = pg.transform.rotate(self.base_image, self.rot)
         self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
-        self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.walls, 'x')
-        self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.walls, 'y')
-        self.rect.center = self.hit_rect.center
+
+        self._update_trajectory()
+
+        self._collide_with_walls()
 
         # reset the movement after each update
         self.rot_speed = 0
@@ -179,20 +191,18 @@ class Mob(Humanoid):
             if random() < 0.002:
                 sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
-            self.image = pg.transform.rotate(Mob.base_image, self.rot)
+
+            self.image = pg.transform.rotate(self.base_image, self.rot)
             self.rect.center = self.pos
+
             self.acc = Vector2(1, 0).rotate(-self.rot)
             self.avoid_mobs()
             self.acc.scale_to_length(self.speed)
             self.acc += self.vel * -1
-            self.vel += self.acc * self.game.dt
-            self.pos += self.vel * self.game.dt
-            self.pos += 0.5 * self.acc * self.game.dt ** 2
-            self.hit_rect.centerx = self.pos.x
-            collide_with_walls(self, self.game.walls, 'x')
-            self.hit_rect.centery = self.pos.y
-            collide_with_walls(self, self.game.walls, 'y')
-            self.rect.center = self.hit_rect.center
+            self._update_trajectory()
+
+            self._collide_with_walls()
+
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
