@@ -26,19 +26,19 @@ class Controller(object):
     def update(self) -> None:
         keys = pg.key.get_pressed()
         mouse = pg.mouse.get_pressed()
+        if any(keys) or any(mouse):
+            for key_id in self.bindings:
+                if keys[key_id]:
+                    self.bindings[key_id]()
 
-        for key_id in self.bindings:
-            if keys[key_id]:
-                self.bindings[key_id]()
+            for mouse_id in self.mouse_bindings:
+                if mouse[mouse_id]:
+                    self.mouse_bindings[mouse_id]()
 
-        for mouse_id in self.mouse_bindings:
-            if mouse[mouse_id]:
-                self.mouse_bindings[mouse_id]()
-
-        for key_id in self.bindings_down:
-            if self.prev_keys[key_id]:
-                continue
-            if keys[key_id]:
-                self.bindings_down[key_id]()
+            for key_id in self.bindings_down:
+                if self.prev_keys[key_id]:
+                    continue
+                if keys[key_id]:
+                    self.bindings_down[key_id]()
 
         self.prev_keys = keys
