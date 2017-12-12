@@ -69,15 +69,16 @@ class Humanoid(GameObject):
         self.health = max_health
 
     def _update_trajectory(self) -> None:
-        self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt
-        self.pos += 0.5 * self.acc * self.game.dt ** 2
+        dt = self._timer.dt
+        self.vel += self.acc * dt
+        self.pos += self.vel * dt
+        self.pos += 0.5 * self.acc * dt ** 2
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.walls, 'x')
+        collide_with_walls(self, self._wall_group, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.walls, 'y')
+        collide_with_walls(self, self._wall_group, 'y')
         self.rect.center = self.hit_rect.center
 
     def _match_image_to_rot(self) -> None:
@@ -85,7 +86,7 @@ class Humanoid(GameObject):
         self.rect = self.image.get_rect()
 
 
-class TimeTracker(object):
+class Timer(object):
     """Keeps track of game time."""
 
     def __init__(self, game: Any) -> None:
@@ -108,6 +109,8 @@ class Player(Humanoid):
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
+        self._timer = Timer(game)
+        self._wall_group = game.walls
 
         self.last_shot = 0
 
@@ -184,9 +187,13 @@ class Mob(Humanoid):
                                   settings.MOB_HEALTH)
 
         self.groups = game.all_sprites, game.mobs
+        self._mob_group = game.mobs
+        self._map_img = game.map_img
+        self._timer = Timer(game)
+        self._wall_group = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
 
-        self.game = game
+        # self.game = game
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = game.player
@@ -195,7 +202,7 @@ class Mob(Humanoid):
         self.splat = pg.transform.scale(splat_img, (64, 64))
 
     def _avoid_mobs(self) -> None:
-        for mob in self.game.mobs:
+        for mob in self._mob_group:
             if mob != self:
                 dist = self.pos - mob.pos
                 if 0 < dist.length() < settings.AVOID_RADIUS:
@@ -216,7 +223,7 @@ class Mob(Humanoid):
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
-            self.game.map_img.blit(self.splat, self.pos - Vector2(32, 32))
+            self._map_img.blit(self.splat, self.pos - Vector2(32, 32))
 
     def _update_acc(self) -> None:
         self.acc = Vector2(1, 0).rotate(-self.rot)
@@ -247,7 +254,7 @@ class Bullet(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self._timer = TimeTracker(game)
+        self._timer = Timer(game)
 
         blt_img = images.get_image(images.BULLET_IMG)
 
