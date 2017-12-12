@@ -60,13 +60,14 @@ class Humanoid(GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
     def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 health: int) -> None:
+                 max_health: int) -> None:
         super(Humanoid, self).__init__(image_file, hit_rect, pos)
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
         self.rect.center = self.pos
         self.rot = 0
-        self.health = health
+        self.max_health = max_health
+        self.health = max_health
 
 
 class Player(Humanoid):
@@ -146,8 +147,7 @@ class Player(Humanoid):
 
     def add_health(self, amount: int) -> None:
         self.health += amount
-        if self.health > settings.PLAYER_HEALTH:
-            self.health = settings.PLAYER_HEALTH
+        self.health = min(self.health, self.max_health)
 
 
 class Mob(Humanoid):
