@@ -27,12 +27,10 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280
 PLAYER_ROT_SPEED = 200
-PLAYER_IMG = 'manBlue_gun.png'
 PLAYER_HIT_RECT = pygame.Rect(0, 0, 35, 35)
 BARREL_OFFSET = pygame.math.Vector2(30, 10)
 
 # Weapon settings
-BULLET_IMG = 'bullet.png'
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 500,
                      'bullet_lifetime': 1000,
@@ -52,7 +50,6 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'bullet_count': 12}
 
 # Mob settings
-MOB_IMG = 'zombie1_hold.png'
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pygame.Rect(0, 0, 30, 30)
 MOB_HEALTH = 100
@@ -62,14 +59,10 @@ AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
 # Effects
-MUZZLE_FLASHES = ['whitePuff15.png', 'whitePuff16.png', 'whitePuff17.png',
-                  'whitePuff18.png']
-SPLAT = 'splat green.png'
 FLASH_DURATION = 50
 DAMAGE_ALPHA = list(range(0, 255, 55))
 NIGHT_COLOR = (20, 20, 20)
 LIGHT_RADIUS = (500, 500)
-LIGHT_MASK = "light_350_soft.png"
 
 # Layers
 WALL_LAYER = 1
@@ -80,8 +73,6 @@ EFFECTS_LAYER = 4
 ITEMS_LAYER = 1
 
 # Items
-ITEM_IMAGES = {'health': 'health_pack.png',
-               'shotgun': 'obj_shotgun.png'}
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3
