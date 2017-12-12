@@ -26,8 +26,6 @@ class Controller(object):
     def update(self) -> None:
         keys = pg.key.get_pressed()
         mouse = pg.mouse.get_pressed()
-        if not (any(keys) or any(mouse)):
-            return
 
         for key_id in self.bindings:
             if keys[key_id]:
