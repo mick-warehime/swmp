@@ -52,8 +52,7 @@ class GameObject(pg.sprite.Sprite):
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
         if cls.base_image is None:
-            img = images.get_image(image_file)
-            cls.base_image = img
+            cls.base_image = images.get_image(image_file)
 
 
 class Humanoid(GameObject):
@@ -257,10 +256,16 @@ class Obstacle(pg.sprite.Sprite):
         self.game = game
         self.rect = pg.Rect(x, y, w, h)
         self.hit_rect = self.rect
-        self.x = x
-        self.y = y
         self.rect.x = x
         self.rect.y = y
+
+    @property
+    def x(self) -> int:
+        return self.rect.x
+
+    @property
+    def y(self) -> int:
+        return self.rect.y
 
 
 class MuzzleFlash(pg.sprite.Sprite):
