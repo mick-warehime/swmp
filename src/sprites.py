@@ -80,6 +80,10 @@ class Humanoid(GameObject):
         collide_with_walls(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
 
+    def _match_image_to_rot(self) -> None:
+        self.image = pg.transform.rotate(self.base_image, self.rot)
+        self.rect = self.image.get_rect()
+
 
 class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
@@ -145,11 +149,8 @@ class Player(Humanoid):
 
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
 
-        self.image = pg.transform.rotate(self.base_image, self.rot)
-        self.rect = self.image.get_rect()
-
+        self._match_image_to_rot()
         self._update_trajectory()
-
         self._collide_with_walls()
 
         # reset the movement after each update
@@ -192,21 +193,21 @@ class Mob(Humanoid):
                 sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
 
-            self.image = pg.transform.rotate(self.base_image, self.rot)
-            self.rect.center = self.pos
-
-            self.acc = Vector2(1, 0).rotate(-self.rot)
-            self.avoid_mobs()
-            self.acc.scale_to_length(self.speed)
-            self.acc += self.vel * -1
+            self._match_image_to_rot()
+            self._update_acc()
             self._update_trajectory()
-
             self._collide_with_walls()
 
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
             self.game.map_img.blit(self.splat, self.pos - Vector2(32, 32))
+
+    def _update_acc(self) -> None:
+        self.acc = Vector2(1, 0).rotate(-self.rot)
+        self.avoid_mobs()
+        self.acc.scale_to_length(self.speed)
+        self.acc += self.vel * -1
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:
