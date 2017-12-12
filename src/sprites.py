@@ -253,7 +253,6 @@ class Obstacle(pg.sprite.Sprite):
                  h: int) -> None:
         self.groups = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
         self.rect = pg.Rect(x, y, w, h)
         self.rect.x = x
         self.rect.y = y
