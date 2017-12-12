@@ -10,27 +10,33 @@ import tilemap
 import controller as ctrl
 import view
 import sounds
+import images
 
 
 class Game(object):
     def __init__(self) -> None:
 
         pg.mixer.pre_init(44100, -16, 4, 2048)
+
         pg.init()
+
         self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
         self.clock = pg.time.Clock()
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
+        # needs to happen after the video mode has been set
+        images.initialize_images()
+
+        # needs to happen after a valid mixer is available
+        sounds.initialize_sounds()
+
         self.all_sprites = LayeredUpdates()
         self._init_groups()
 
         self.controller: ctrl.Controller = ctrl.Controller()
         self.view: view.DungeonView = view.DungeonView(self.screen)
-
-        # needs to happen after a valid mixer is available
-        sounds.initialize_sounds()
 
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
