@@ -165,7 +165,7 @@ class Player(Humanoid):
             except StopIteration:
                 self.damaged = False
 
-        self.rot = (self.rot + self.rot_speed * self._timer.dt) % 360
+        self.rot = (self.rot + int(self.rot_speed * self._timer.dt)) % 360
 
         self._match_image_to_rot()
         self._update_trajectory()
