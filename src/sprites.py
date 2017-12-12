@@ -1,14 +1,18 @@
 import pygame as pg
 from random import uniform, choice, randint, random
-from typing import Any
+
+from typing import Any, Union
+
+from os import path
 from pygame.math import Vector2
 from pygame.sprite import Sprite, Group
+
+import settings
+
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
-import settings
 import sounds
-import images
 
 
 def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
@@ -32,43 +36,64 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
-class Humanoid(pg.sprite.Sprite):
-    base_image: pg.Surface = None
+class GameObject(pg.sprite.Sprite):
+    """In-game object with a body, image, and update method.
+    """
+    base_image: Union[pg.Surface, None] = None
 
-    def __init__(self, image_file: str, x: int, y: int) -> None:
+    def __init__(self, image_file: str, hit_rect: pg.Rect,
+                 pos: Vector2) -> None:
         self._init_base_image(image_file)
 
         self.image = self.base_image
+        self.pos = pos
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = (pos.x, pos.y)
+
+        self.hit_rect = hit_rect.copy()
+        self.hit_rect.center = self.rect.center
 
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
         if cls.base_image is None:
-            img = images.get_image(image_file)
-            cls.base_image = img
+            game_folder = path.dirname(__file__)
+            img_folder = path.join(game_folder, 'img')
+            image_path = path.join(img_folder, image_file)
+            cls.base_image = pg.image.load(image_path).convert_alpha()
+
+    def update(self) -> None:
+        raise NotImplemented
+
+
+class Humanoid(GameObject):
+    """GameObject with health and motion. We will add more to this later."""
+
+    def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
+                 health: int) -> None:
+        super(Humanoid, self).__init__(image_file, hit_rect, pos)
+        self.vel = Vector2(0, 0)
+        self.acc = Vector2(0, 0)
+        self.rect.center = self.pos
+        self.rot = 0
+        self.health = health
 
 
 class Player(Humanoid):
-    def __init__(self, game: Any, x: int, y: int) -> None:
-        super(Player, self).__init__(images.PLAYER_IMG, x, y)
+    def __init__(self, game: Any, pos: Vector2) -> None:
+        super(Player, self).__init__(settings.PLAYER_IMG,
+                                     settings.PLAYER_HIT_RECT, pos,
+                                     settings.PLAYER_HEALTH)
 
-        self._layer = settings.PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.hit_rect = settings.PLAYER_HIT_RECT
-        self.hit_rect.center = self.rect.center
-        self.vel = Vector2(0, 0)
-        self.pos = Vector2(x, y)
-        self.rot = 0
         self.last_shot = 0
-        self.health = settings.PLAYER_HEALTH
+
         self.weapon = 'pistol'
         self.damaged = False
+        self.damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self.rot_speed = 0
-        self.vel = Vector2(0, 0)
 
     def move_up(self) -> None:
         self.vel += Vector2(settings.PLAYER_SPEED, 0).rotate(-self.rot)
@@ -106,7 +131,6 @@ class Player(Humanoid):
 
     def hit(self) -> None:
         self.damaged = True
-        self.damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
 
     def update(self) -> None:
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
@@ -137,28 +161,24 @@ class Player(Humanoid):
 
 
 class Mob(Humanoid):
-    def __init__(self, game: Any, x: int, y: int) -> None:
+    def __init__(self, game: Any, pos: Vector2) -> None:
 
-        super(Mob, self).__init__(images.MOB_IMG, x, y)
+        super(Mob, self).__init__(settings.MOB_IMG, settings.MOB_HIT_RECT, pos,
+                                  settings.MOB_HEALTH)
 
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
 
-        self.hit_rect = settings.MOB_HIT_RECT.copy()
-        self.hit_rect.center = self.rect.center
-        self.pos = Vector2(x, y)
-        self.vel = Vector2(0, 0)
-        self.acc = Vector2(0, 0)
-        self.rect.center = self.pos
-        self.rot = 0
-        self.health = settings.MOB_HEALTH
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = game.player
 
-        splat_img = images.get_image(images.SPLAT)
-        self.splat = pg.transform.scale(splat_img, (64, 64))
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        splat_img_path = path.join(img_folder, settings.SPLAT)
+        splat = pg.image.load(splat_img_path).convert_alpha()
+        self.splat = pg.transform.scale(splat, (64, 64))
 
     def avoid_mobs(self) -> None:
         for mob in self.game.mobs:
@@ -212,12 +232,14 @@ class Mob(Humanoid):
 class Bullet(pg.sprite.Sprite):
     def __init__(self, game: Any, pos: Vector2, direction: Vector2,
                  weapon: str) -> None:
-        self._layer = settings.BULLET_LAYER
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        blt_img = images.get_image(images.BULLET_IMG)
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        blt_img_path = path.join(img_folder, settings.BULLET_IMG)
+        blt_img = pg.image.load(blt_img_path).convert_alpha()
 
         if weapon == 'pistol':
             self.image = blt_img
@@ -265,8 +287,11 @@ class MuzzleFlash(pg.sprite.Sprite):
         self.game = game
         size = randint(20, 50)
 
-        flash_img = images.get_muzzle_flash()
-        self.image = pg.transform.scale(flash_img, (size, size))
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        img_path = path.join(img_folder, choice(settings.MUZZLE_FLASHES))
+        img = pg.image.load(img_path).convert_alpha()
+        self.image = pg.transform.scale(img, (size, size))
 
         self.rect = self.image.get_rect()
         self.pos = pos
@@ -285,7 +310,10 @@ class Item(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.image = images.get_item_image(type)
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        img_path = path.join(img_folder, settings.ITEM_IMAGES[type])
+        self.image = pg.image.load(img_path).convert_alpha()
 
         self.rect = self.image.get_rect()
         self.type = type

@@ -52,9 +52,11 @@ class Game(object):
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
-                self.player = Player(self, obj_center.x, obj_center.y)
+                pos = Vector2(obj_center.x, obj_center.y)
+                self.player = Player(self, pos)
             if tile_object.name == 'zombie':
-                Mob(self, obj_center.x, obj_center.y)
+                pos = Vector2(obj_center.x, obj_center.y)
+                Mob(self, pos)
             if tile_object.name == 'wall':
                 Obstacle(self, tile_object.x, tile_object.y,
                          tile_object.width, tile_object.height)
