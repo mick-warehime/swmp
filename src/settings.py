@@ -37,7 +37,7 @@ WEAPONS['pistol'] = {'bullet_speed': 500,
                      'rate': 250,
                      'kickback': 200,
                      'spread': 5,
-                     'damage': 10,
+                     'damage': 50,
                      'bullet_size': 'lg',
                      'bullet_count': 1}
 WEAPONS['shotgun'] = {'bullet_speed': 400,
@@ -45,7 +45,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'rate': 900,
                       'kickback': 300,
                       'spread': 20,
-                      'damage': 5,
+                      'damage': 15,
                       'bullet_size': 'sm',
                       'bullet_count': 12}
 
