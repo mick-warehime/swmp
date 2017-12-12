@@ -85,6 +85,21 @@ class Humanoid(GameObject):
         self.rect = self.image.get_rect()
 
 
+class TimeTracker(object):
+    """Keeps track of game time."""
+
+    def __init__(self, game: Any) -> None:
+        self._game = game
+
+    @property
+    def dt(self) -> float:
+        return self._game.dt
+
+    @property
+    def current_time(self) -> int:
+        return pg.time.get_ticks()
+
+
 class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
         super(Player, self).__init__(images.PLAYER_IMG,
@@ -232,6 +247,7 @@ class Bullet(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
+        self._timer = TimeTracker(game)
 
         blt_img = images.get_image(images.BULLET_IMG)
 
@@ -246,11 +262,11 @@ class Bullet(pg.sprite.Sprite):
 
         speed = settings.WEAPONS[weapon]['bullet_speed']
         self.vel = direction * speed * uniform(0.9, 1.1)
-        self.spawn_time = pg.time.get_ticks()
+        self.spawn_time = self._timer.current_time
         self.damage = settings.WEAPONS[weapon]['damage']
 
     def update(self) -> None:
-        self.pos += self.vel * self.game.dt
+        self.pos += self.vel * self._timer.dt
         self.rect.center = self.pos
         if pg.sprite.spritecollideany(self, self.game.walls):
             self.kill()
@@ -258,7 +274,7 @@ class Bullet(pg.sprite.Sprite):
             self.kill()
 
     def _lifetime_exceeded(self) -> bool:
-        lifetime = pg.time.get_ticks() - self.spawn_time
+        lifetime = self._timer.current_time - self.spawn_time
         max_time = settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']
         return lifetime > max_time
 
