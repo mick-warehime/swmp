@@ -33,7 +33,7 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
 
 
 class GameObject(pg.sprite.Sprite):
-    """In-game object with a body, image, and update method.
+    """In-game object with a body for collisions and an image.
     """
     base_image: Union[pg.Surface, None] = None
 
@@ -54,9 +54,6 @@ class GameObject(pg.sprite.Sprite):
         if cls.base_image is None:
             img = images.get_image(image_file)
             cls.base_image = img
-
-    def update(self) -> None:
-        raise NotImplemented
 
 
 class Humanoid(GameObject):
