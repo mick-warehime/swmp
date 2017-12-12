@@ -100,6 +100,7 @@ class Game(object):
         self.controller.bind(pg.K_s, self.player.move_down)
 
         self.controller.bind(pg.K_SPACE, self.player.shoot)
+        self.controller.bind_mouse(ctrl.MOUSE_LEFT, self.player.shoot)
 
     def _init_groups(self) -> None:
         self.walls = Group()
