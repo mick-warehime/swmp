@@ -255,7 +255,6 @@ class Obstacle(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.rect = pg.Rect(x, y, w, h)
-        self.hit_rect = self.rect
         self.rect.x = x
         self.rect.y = y
 
@@ -266,6 +265,10 @@ class Obstacle(pg.sprite.Sprite):
     @property
     def y(self) -> int:
         return self.rect.y
+
+    @property
+    def hit_rect(self) -> pg.Rect:
+        return self.rect
 
 
 class MuzzleFlash(pg.sprite.Sprite):
