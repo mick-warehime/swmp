@@ -1,26 +1,11 @@
-from typing import List
-
 import pygame as pg
 import pytmx
 
-from settings import TILESIZE, WIDTH, HEIGHT
+from settings import WIDTH, HEIGHT
 
 
 def collide_hit_rect(one: pg.sprite.Sprite, two: pg.sprite.Sprite) -> bool:
     return one.hit_rect.colliderect(two.rect)
-
-
-class Map:
-    def __init__(self, filename: str) -> None:
-        self.data: List[str] = []
-        with open(filename, 'rt') as f:
-            for line in f:
-                self.data.append(line.strip())
-
-        self.tilewidth = len(self.data[0])
-        self.tileheight = len(self.data)
-        self.width = self.tilewidth * TILESIZE
-        self.height = self.tileheight * TILESIZE
 
 
 class TiledMap:
