@@ -131,11 +131,11 @@ class Weapon(object):
         self._label = label
 
     @property
-    def shoot_rate(self) -> float:
+    def shoot_rate(self) -> int:
         return settings.WEAPONS[self._label]['rate']
 
     @property
-    def kick_back(self) -> float:
+    def kick_back(self) -> int:
         return settings.WEAPONS[self._label]['kickback']
 
     @property
@@ -143,7 +143,7 @@ class Weapon(object):
         return settings.WEAPONS[self._label]['bullet_count']
 
     @property
-    def spread(self) -> float:
+    def spread(self) -> int:
         return settings.WEAPONS[self._label]['spread']
 
     def shoot(self, pos: Vector2, rot: Vector2) -> None:
