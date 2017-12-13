@@ -107,6 +107,9 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind_mouse(self.a_key, lambda: self.set_d(test_mouse_1))
         ctrl.bind_mouse(self.b_key, lambda: self.set_e(test_mouse_2))
 
+        self.assertEqual(len(ctrl.bindings), 3)
+        self.assertEqual(len(ctrl.mouse_bindings), 2)
+
         # every combination of 3 keys and two mouse presses
         off_on = [0,1]
         for key_1 in off_on:
