@@ -149,7 +149,7 @@ class Game(object):
             if hit.type == 'shotgun':
                 hit.kill()
                 sounds.play(sounds.GUN_PICKUP)
-                self.player.weapon = 'shotgun'
+                self.player.set_weapon('shotgun')
         # mobs hit player
         hits = spritecollide(self.player, self.mobs, False, collide_hit_rect)
         for hit in hits:

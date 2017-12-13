@@ -49,6 +49,13 @@ class Timer(object):
 
 class GameObject(pg.sprite.Sprite):
     """In-game object with a body for collisions and an image.
+
+    Added functionality derived from Sprite:
+    Can be added/removed to Group objects --> add(*groups), remove(*groups).
+    kill() removes from all groups.
+    update() method that is referenced when a group is updated.
+    alive() : True iff sprite belongs to any group.
+
     """
     base_image: Union[pg.Surface, None] = None
 
@@ -83,7 +90,7 @@ class Humanoid(GameObject):
         self.max_health = max_health
         self.health = max_health
         self._timer = timer
-        self._wall_group = walls
+        self._walls = walls
 
     def _update_trajectory(self) -> None:
         dt = self._timer.dt
@@ -93,14 +100,68 @@ class Humanoid(GameObject):
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self._wall_group, 'x')
+        collide_with_walls(self, self._walls, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self._wall_group, 'y')
+        collide_with_walls(self, self._walls, 'y')
         self.rect.center = self.hit_rect.center
 
     def _match_image_to_rot(self) -> None:
         self.image = pg.transform.rotate(self.base_image, self.rot)
         self.rect = self.image.get_rect()
+
+
+class Weapon(object):
+    """Generates bullets or other sources of damage."""
+
+    def __init__(self, label: str, timer: Timer, all_sprites: Group,
+                 bullets: Group, walls: Group) -> None:
+        self._label = ''
+        self.set(label)
+        self._timer = timer
+        self._all_sprites = all_sprites
+        self._bullets = bullets
+        self._walls = walls
+        self._last_shot = timer.current_time
+
+    def set(self, label: str) -> None:
+        if label not in settings.WEAPONS:
+            raise ValueError('Weapon \'%s\' not defined in settings.py. '
+                             'Allowed values: %s.'
+                             % (label, settings.WEAPONS.keys()))
+        self._label = label
+
+    @property
+    def shoot_rate(self) -> float:
+        return settings.WEAPONS[self._label]['rate']
+
+    @property
+    def kick_back(self) -> float:
+        return settings.WEAPONS[self._label]['kickback']
+
+    @property
+    def bullet_count(self) -> int:
+        return settings.WEAPONS[self._label]['bullet_count']
+
+    @property
+    def spread(self) -> float:
+        return settings.WEAPONS[self._label]['spread']
+
+    def shoot(self, pos: Vector2, rot: Vector2) -> None:
+        self._last_shot = self._timer.current_time
+        direction = Vector2(1, 0).rotate(-rot)
+        origin = pos + settings.BARREL_OFFSET.rotate(-rot)
+
+        for _ in range(self.bullet_count):
+            spread = uniform(-self.spread, self.spread)
+            Bullet(self._timer, self._all_sprites, self._bullets,
+                   self._walls, origin,
+                   direction.rotate(spread), self._label)
+            sounds.fire_weapon_sound(self._label)
+        MuzzleFlash(self._all_sprites, origin)
+
+    def can_shoot(self) -> bool:
+        now = self._timer.current_time
+        return now - self._last_shot > self.shoot_rate
 
 
 class Player(Humanoid):
@@ -109,13 +170,10 @@ class Player(Humanoid):
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH, timer, game.walls)
-        self._all_sprites = game.all_sprites
-        self._bullets = game.bullets
-        pg.sprite.Sprite.__init__(self, self._all_sprites)
+        pg.sprite.Sprite.__init__(self, game.all_sprites)
 
-        self.last_shot = 0
-
-        self.weapon = 'pistol'
+        self._weapon = Weapon('pistol', self._timer, game.all_sprites,
+                              game.bullets, self._walls)
         self.damaged = False
         self.damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self.rot_speed = 0
@@ -138,23 +196,13 @@ class Player(Humanoid):
     def turn_counterclockwise(self) -> None:
         self.rot_speed = settings.PLAYER_ROT_SPEED * 2
 
+    def set_weapon(self, weapon: str) -> None:
+        self._weapon.set(weapon)
+
     def shoot(self) -> None:
-        now = pg.time.get_ticks()
-        if now - self.last_shot > settings.WEAPONS[self.weapon]['rate']:
-            self.last_shot = now
-            dir = Vector2(1, 0).rotate(-self.rot)
-            pos = self.pos + settings.BARREL_OFFSET.rotate(-self.rot)
-            self.vel = Vector2(-settings.WEAPONS[self.weapon]['kickback'],
-                               0).rotate(
-                -self.rot)
-            for i in range(settings.WEAPONS[self.weapon]['bullet_count']):
-                spread = uniform(-settings.WEAPONS[self.weapon]['spread'],
-                                 settings.WEAPONS[self.weapon]['spread'])
-                Bullet(self._timer, self._all_sprites, self._bullets,
-                       self._wall_group, pos,
-                       dir.rotate(spread), self.weapon)
-                sounds.fire_weapon_sound(self.weapon)
-            MuzzleFlash(self._all_sprites, pos)
+        if self._weapon.can_shoot():
+            self._weapon.shoot(self.pos, self.rot)
+            self.vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
 
     def hit(self) -> None:
         self.damaged = True
