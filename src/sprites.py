@@ -32,6 +32,21 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
+class Timer(object):
+    """Keeps track of game time."""
+
+    def __init__(self, game: Any) -> None:
+        self._game = game
+
+    @property
+    def dt(self) -> float:
+        return self._game.dt
+
+    @property
+    def current_time(self) -> int:
+        return pg.time.get_ticks()
+
+
 class GameObject(pg.sprite.Sprite):
     """In-game object with a body for collisions and an image.
     """
@@ -59,7 +74,7 @@ class Humanoid(GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
     def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 max_health: int, game: Any) -> None:
+                 max_health: int, timer: Timer, walls: Group) -> None:
         super(Humanoid, self).__init__(image_file, hit_rect, pos)
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
@@ -67,8 +82,8 @@ class Humanoid(GameObject):
         self.rot = 0
         self.max_health = max_health
         self.health = max_health
-        self._timer = Timer(game)
-        self._wall_group = game.walls
+        self._timer = timer
+        self._wall_group = walls
 
     def _update_trajectory(self) -> None:
         dt = self._timer.dt
@@ -88,26 +103,12 @@ class Humanoid(GameObject):
         self.rect = self.image.get_rect()
 
 
-class Timer(object):
-    """Keeps track of game time."""
-
-    def __init__(self, game: Any) -> None:
-        self._game = game
-
-    @property
-    def dt(self) -> float:
-        return self._game.dt
-
-    @property
-    def current_time(self) -> int:
-        return pg.time.get_ticks()
-
-
 class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
+        timer = Timer(game)
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH, game)
+                                     settings.PLAYER_HEALTH, timer, game.walls)
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -165,7 +166,8 @@ class Player(Humanoid):
             except StopIteration:
                 self.damaged = False
 
-        self.rot = (self.rot + int(self.rot_speed * self._timer.dt)) % 360
+        delta_rot = int(self.rot_speed * self._timer.dt)
+        self.rot = (self.rot + delta_rot) % 360
 
         self._match_image_to_rot()
         self._update_trajectory()
@@ -182,9 +184,9 @@ class Player(Humanoid):
 
 class Mob(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
-
+        timer = Timer(game)
         super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH, game)
+                                  settings.MOB_HEALTH, timer, game.walls)
 
         self.groups = game.all_sprites, game.mobs
         self._mob_group = game.mobs
