@@ -32,6 +32,21 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
+class Timer(object):
+    """Keeps track of game time."""
+
+    def __init__(self, game: Any) -> None:
+        self._game = game
+
+    @property
+    def dt(self) -> float:
+        return self._game.dt
+
+    @property
+    def current_time(self) -> int:
+        return pg.time.get_ticks()
+
+
 class GameObject(pg.sprite.Sprite):
     """In-game object with a body for collisions and an image.
     """
@@ -59,7 +74,7 @@ class Humanoid(GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
     def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 max_health: int) -> None:
+                 max_health: int, timer: Timer, walls: Group) -> None:
         super(Humanoid, self).__init__(image_file, hit_rect, pos)
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
@@ -67,17 +82,20 @@ class Humanoid(GameObject):
         self.rot = 0
         self.max_health = max_health
         self.health = max_health
+        self._timer = timer
+        self._wall_group = walls
 
     def _update_trajectory(self) -> None:
-        self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt
-        self.pos += 0.5 * self.acc * self.game.dt ** 2
+        dt = self._timer.dt
+        self.vel += self.acc * dt
+        self.pos += self.vel * dt
+        self.pos += 0.5 * self.acc * dt ** 2
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.walls, 'x')
+        collide_with_walls(self, self._wall_group, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.walls, 'y')
+        collide_with_walls(self, self._wall_group, 'y')
         self.rect.center = self.hit_rect.center
 
     def _match_image_to_rot(self) -> None:
@@ -87,9 +105,10 @@ class Humanoid(GameObject):
 
 class Player(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
+        timer = Timer(game)
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH)
+                                     settings.PLAYER_HEALTH, timer, game.walls)
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -147,7 +166,8 @@ class Player(Humanoid):
             except StopIteration:
                 self.damaged = False
 
-        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
+        delta_rot = int(self.rot_speed * self._timer.dt)
+        self.rot = (self.rot + delta_rot) % 360
 
         self._match_image_to_rot()
         self._update_trajectory()
@@ -164,14 +184,14 @@ class Player(Humanoid):
 
 class Mob(Humanoid):
     def __init__(self, game: Any, pos: Vector2) -> None:
-
+        timer = Timer(game)
         super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH)
+                                  settings.MOB_HEALTH, timer, game.walls)
 
         self.groups = game.all_sprites, game.mobs
+        self._mob_group = game.mobs
+        self._map_img = game.map_img
         pg.sprite.Sprite.__init__(self, self.groups)
-
-        self.game = game
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = game.player
@@ -179,8 +199,8 @@ class Mob(Humanoid):
         splat_img = images.get_image(images.SPLAT)
         self.splat = pg.transform.scale(splat_img, (64, 64))
 
-    def avoid_mobs(self) -> None:
-        for mob in self.game.mobs:
+    def _avoid_mobs(self) -> None:
+        for mob in self._mob_group:
             if mob != self:
                 dist = self.pos - mob.pos
                 if 0 < dist.length() < settings.AVOID_RADIUS:
@@ -201,11 +221,11 @@ class Mob(Humanoid):
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
-            self.game.map_img.blit(self.splat, self.pos - Vector2(32, 32))
+            self._map_img.blit(self.splat, self.pos - Vector2(32, 32))
 
     def _update_acc(self) -> None:
         self.acc = Vector2(1, 0).rotate(-self.rot)
-        self.avoid_mobs()
+        self._avoid_mobs()
         self.acc.scale_to_length(self.speed)
         self.acc += self.vel * -1
 
@@ -232,6 +252,7 @@ class Bullet(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
+        self._timer = Timer(game)
 
         blt_img = images.get_image(images.BULLET_IMG)
 
@@ -246,17 +267,21 @@ class Bullet(pg.sprite.Sprite):
 
         speed = settings.WEAPONS[weapon]['bullet_speed']
         self.vel = direction * speed * uniform(0.9, 1.1)
-        self.spawn_time = pg.time.get_ticks()
+        self.spawn_time = self._timer.current_time
         self.damage = settings.WEAPONS[weapon]['damage']
 
     def update(self) -> None:
-        self.pos += self.vel * self.game.dt
+        self.pos += self.vel * self._timer.dt
         self.rect.center = self.pos
         if pg.sprite.spritecollideany(self, self.game.walls):
             self.kill()
-        if pg.time.get_ticks() - self.spawn_time > \
-                settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']:
+        if self._lifetime_exceeded():
             self.kill()
+
+    def _lifetime_exceeded(self) -> bool:
+        lifetime = self._timer.current_time - self.spawn_time
+        max_time = settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']
+        return lifetime > max_time
 
 
 class Obstacle(pg.sprite.Sprite):
