@@ -109,9 +109,9 @@ class Player(Humanoid):
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH, timer, game.walls)
-        self.groups = game.all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        self._all_sprites = game.all_sprites
+        self._bullets = game.bullets
+        pg.sprite.Sprite.__init__(self, self._all_sprites)
 
         self.last_shot = 0
 
@@ -150,9 +150,11 @@ class Player(Humanoid):
             for i in range(settings.WEAPONS[self.weapon]['bullet_count']):
                 spread = uniform(-settings.WEAPONS[self.weapon]['spread'],
                                  settings.WEAPONS[self.weapon]['spread'])
-                Bullet(self.game, pos, dir.rotate(spread), self.weapon)
+                Bullet(self._timer, self._all_sprites, self._bullets,
+                       self._wall_group, pos,
+                       dir.rotate(spread), self.weapon)
                 sounds.fire_weapon_sound(self.weapon)
-            MuzzleFlash(self.game, pos)
+            MuzzleFlash(self._all_sprites, pos)
 
     def hit(self) -> None:
         self.damaged = True
@@ -247,12 +249,14 @@ class Mob(Humanoid):
 
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, game: Any, pos: Vector2, direction: Vector2,
+    def __init__(self, timer: Any, all_sprites: Group, bullet_grp: Group,
+                 walls: Group, pos: Vector2, direction: Vector2,
                  weapon: str) -> None:
-        self.groups = game.all_sprites, game.bullets
+        self.groups = all_sprites, bullet_grp
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self._timer = Timer(game)
+        self._timer = timer
+        self._wall_grp = walls
+        self.weapon = weapon
 
         blt_img = images.get_image(images.BULLET_IMG)
 
@@ -273,14 +277,14 @@ class Bullet(pg.sprite.Sprite):
     def update(self) -> None:
         self.pos += self.vel * self._timer.dt
         self.rect.center = self.pos
-        if pg.sprite.spritecollideany(self, self.game.walls):
+        if pg.sprite.spritecollideany(self, self._wall_grp):
             self.kill()
         if self._lifetime_exceeded():
             self.kill()
 
     def _lifetime_exceeded(self) -> bool:
         lifetime = self._timer.current_time - self.spawn_time
-        max_time = settings.WEAPONS[self.game.player.weapon]['bullet_lifetime']
+        max_time = settings.WEAPONS[self.weapon]['bullet_lifetime']
         return lifetime > max_time
 
 
@@ -305,11 +309,10 @@ class Obstacle(pg.sprite.Sprite):
 
 
 class MuzzleFlash(pg.sprite.Sprite):
-    def __init__(self, game: Any, pos: Vector2) -> None:
+    def __init__(self, all_sprites: Group, pos: Vector2) -> None:
         self._layer = settings.EFFECTS_LAYER
-        self.groups = game.all_sprites
+        self.groups = all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
         size = randint(20, 50)
 
         flash_img = images.get_muzzle_flash()
