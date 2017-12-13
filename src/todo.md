@@ -16,3 +16,10 @@ TODO:
 * Mob improvements
     * mob pathfinding (detect range)
     * Mob states (chasing, roaming)
+
+* Model improvements
+    * Make a groups dictionary to instantiate Humanoids, etc rather than
+    using game.groups
+
+* Player improvements
+    * Make weapon class which handles creation of bullets and bullet types.
