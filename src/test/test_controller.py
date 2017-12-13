@@ -42,6 +42,12 @@ class ControllerTest(unittest.TestCase):
 
         pg.key.pressed[self.a_key] = 1
 
+        # test we set the key
+        self.assertEqual(len(ctrl.bindings), 1)
+
+        # ensure we haven't changed this yet
+        self.assertEqual(self.a, '')
+
         ctrl.update()
         self.assertEqual(self.a, test_string)
 
