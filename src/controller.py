@@ -41,4 +41,4 @@ class Controller(object):
                 if keys[key_id]:
                     self.bindings_down[key_id]()
 
-        self.prev_keys = keys
+        self.prev_keys = list(keys)
