@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import pygame as pg
 from pygame.sprite import spritecollide, groupcollide
 from pygame.math import Vector2
@@ -6,7 +8,7 @@ from random import random
 from os import path
 import settings
 from sprites import Player, Mob, Obstacle, Item, collide_hit_rect, Groups, \
-    Timer
+    Timer, Bullet
 import tilemap
 import controller as ctrl
 import view
@@ -38,6 +40,10 @@ class Game(object):
         self.controller: ctrl.Controller = ctrl.Controller()
         self.view: view.DungeonView = view.DungeonView(self.screen)
 
+        self.playing = False
+        self.dt = 0.0
+        self.paused = False
+
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
         self.groups = Groups()
@@ -63,7 +69,7 @@ class Game(object):
                 Obstacle(self.groups.walls, pos, tile_object.width,
                          tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
-                Item(self, obj_center, tile_object.name)
+                Item(self.groups, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
         self.paused = False
         sounds.play(sounds.LEVEL_START)
@@ -134,37 +140,42 @@ class Game(object):
         # game over?
         if len(self.groups.mobs) == 0:
             self.playing = False
+
         # player hits items
-        hits = spritecollide(self.player, self.groups.items, False)
-        for hit in hits:
+        items: List[Item] = spritecollide(self.player, self.groups.items,
+                                          False)
+        for item in items:
             full_health = self.player.health >= settings.PLAYER_HEALTH
-            if hit.type == 'health' and not full_health:
-                hit.kill()
+            if item.label == 'health' and not full_health:
+                item.kill()
                 sounds.play(sounds.HEALTH_UP)
                 self.player.add_health(settings.HEALTH_PACK_AMOUNT)
-            if hit.type == 'shotgun':
-                hit.kill()
+            if item.label == 'shotgun':
+                item.kill()
                 sounds.play(sounds.GUN_PICKUP)
                 self.player.set_weapon('shotgun')
+
         # mobs hit player
-        hits = spritecollide(self.player, self.groups.mobs, False,
-                             collide_hit_rect)
-        for hit in hits:
+        mobs: List[Mob] = spritecollide(self.player, self.groups.mobs, False,
+                                        collide_hit_rect)
+        for mob in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
             self.player.health -= settings.MOB_DAMAGE
-            hit.vel = Vector2(0, 0)
+            mob.vel = Vector2(0, 0)
             if self.player.health <= 0:
                 self.playing = False
-        if hits:
+        if mobs:
             self.player.hit()
             knock_back = Vector2(settings.MOB_KNOCKBACK, 0)
-            self.player.pos += knock_back.rotate(-hits[0].rot)
+            self.player.pos += knock_back.rotate(-mobs[0].rot)
+
         # bullets hit mobs
-        hits = groupcollide(self.groups.mobs, self.groups.bullets, False, True)
-        for mob in hits:
-            for bullet in hits[mob]:
-                mob.health -= bullet.damage
+        hits: Dict[Mob, List[Bullet]] = groupcollide(self.groups.mobs,
+                                                     self.groups.bullets,
+                                                     False, True)
+        for mob, bullets in hits.items():
+            mob.health -= sum(bullet.damage for bullet in bullets)
             mob.vel = Vector2(0, 0)
 
     def draw(self) -> None:

@@ -78,9 +78,11 @@ class GameObject(pg.sprite.Sprite):
 
         self.image = self.base_image
         self.pos = pos
+        # Used in sprite collisions other than walls.
         self.rect = self.image.get_rect()
         self.rect.center = (pos.x, pos.y)
 
+        # Used in wall collisions
         self.hit_rect = hit_rect.copy()
         self.hit_rect.center = self.rect.center
 
@@ -365,9 +367,7 @@ class Obstacle(pg.sprite.Sprite):
 
 class MuzzleFlash(pg.sprite.Sprite):
     def __init__(self, all_sprites: Group, pos: Vector2) -> None:
-        self._layer = settings.EFFECTS_LAYER
-        self.groups = all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
+        pg.sprite.Sprite.__init__(self, all_sprites)
         size = randint(20, 50)
 
         flash_img = images.get_muzzle_flash()
@@ -384,16 +384,13 @@ class MuzzleFlash(pg.sprite.Sprite):
 
 
 class Item(pg.sprite.Sprite):
-    def __init__(self, game: Any, pos: pg.math.Vector2, type: str) -> None:
-        self._layer = settings.ITEMS_LAYER
-        self.groups = game.groups.all_sprites, game.groups.items
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+    def __init__(self, groups: Groups, pos: pg.math.Vector2,
+                 label: str) -> None:
+        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.items])
 
-        self.image = images.get_item_image(type)
-
+        self.image = images.get_item_image(label)
         self.rect = self.image.get_rect()
-        self.type = type
+        self.label = label
         self.pos = pos
         self.rect.center = pos
         self.tween = tween.easeInOutSine
