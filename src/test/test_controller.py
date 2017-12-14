@@ -1,4 +1,6 @@
 import unittest
+from itertools import product
+
 from . import pygame_mock
 import controller
 
@@ -110,40 +112,34 @@ class ControllerTest(unittest.TestCase):
         self.assertEqual(len(ctrl.mouse_bindings), 2)
 
         # every combination of 3 keys and two mouse presses
-        off_on = [0, 1]
-        for key_1 in off_on:
-            for key_2 in off_on:
-                for key_3 in off_on:
-                    for mouse_1 in off_on:
-                        for mouse_2 in off_on:
+        for key_1, key_2, key_3, mouse_1, mouse_2 in product(*[[0, 1]] * 5):
+            # press the keys
+            pg.key.pressed[0] = key_1
+            pg.key.pressed[1] = key_2
+            pg.key.pressed[2] = key_3
+            pg.mouse.pressed[0] = mouse_1
+            pg.mouse.pressed[1] = mouse_2
 
-                            # press the keys
-                            pg.key.pressed[0] = key_1
-                            pg.key.pressed[1] = key_2
-                            pg.key.pressed[2] = key_3
-                            pg.mouse.pressed[0] = mouse_1
-                            pg.mouse.pressed[1] = mouse_2
+            # .handle_input() combinations
+            ctrl.handle_input()
 
-                            #.handle_input() combinations
-                            ctrl.handle_input()
+            if key_1 == 1:
+                self.assertEqual(self.a, test_string_a)
+            if key_2 == 1:
+                self.assertEqual(self.b, test_string_b)
+            if key_3 == 1:
+                self.assertEqual(self.c, test_string_c)
+            if mouse_1 == 1:
+                self.assertEqual(self.d, test_mouse_1)
+            if mouse_2 == 1:
+                self.assertEqual(self.e, test_mouse_2)
 
-                            if key_1 == 1:
-                                self.assertEqual(self.a, test_string_a)
-                            if key_2 == 1:
-                                self.assertEqual(self.b, test_string_b)
-                            if key_3 == 1:
-                                self.assertEqual(self.c, test_string_c)
-                            if mouse_1 == 1:
-                                self.assertEqual(self.d, test_mouse_1)
-                            if mouse_2 == 1:
-                                self.assertEqual(self.e, test_mouse_2)
-
-                            # reset to register the next clicks
-                            self.a = ''
-                            self.b = ''
-                            self.c = ''
-                            self.d = ''
-                            self.e = ''
+            # reset to register the next clicks
+            self.a = ''
+            self.b = ''
+            self.c = ''
+            self.d = ''
+            self.e = ''
 
     def test_only_handle(self) -> None:
         ctrl = controller.Controller()
