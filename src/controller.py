@@ -1,8 +1,12 @@
 from typing import Callable, Dict, List, Union
 import pygame as pg
 from os import path
+
+from pygame.math import Vector2
+
 import tilemap
-from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
+from sprites import Player, Mob, Obstacle, Item, collide_hit_rect, Timer, \
+    Groups, Bullet
 import view
 from pygame.sprite import spritecollide, groupcollide
 from random import random
@@ -17,7 +21,6 @@ MOUSE_RIGHT = 2
 def call_binding(key_id: int,
                  funcs: Dict[int, Callable[..., None]],
                  filter_list: List[int]) -> None:
-
     key_allowed = key_id in filter_list if filter_list else True
 
     if key_allowed:
@@ -85,11 +88,7 @@ class DungeonController(Controller):
         self.screen = screen
 
         # initialize all variables and do all the setup for a new game
-        self.all_sprites = pg.sprite.LayeredUpdates()
-        self.walls = pg.sprite.Group()
-        self.mobs = pg.sprite.Group()
-        self.bullets = pg.sprite.Group()
-        self.items = pg.sprite.Group()
+        self.groups = Groups()
 
         self.clock = pg.time.Clock()
         self.dt = 0
@@ -113,31 +112,33 @@ class DungeonController(Controller):
         self.map = tilemap.TiledMap(path.join(map_folder, map_file))
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
+
+        timer = Timer(self)
         for tile_object in self.map.tmxdata.objects:
-            x = tile_object.x + tile_object.width / 2
-            y = tile_object.y + tile_object.height / 2
-            obj_center = pg.math.Vector2(x, y)
+            obj_center = Vector2(tile_object.x + tile_object.width / 2,
+                                 tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
-                pos = pg.math.Vector2(obj_center.x, obj_center.y)
-                self.player = Player(self, pos)
+                pos = Vector2(obj_center.x, obj_center.y)
+                self.player = Player(self.groups, timer, pos)
             if tile_object.name == 'zombie':
-                pos = pg.math.Vector2(obj_center.x, obj_center.y)
-                Mob(self, pos)
+                pos = Vector2(obj_center.x, obj_center.y)
+                Mob(pos, self.groups, timer, self.map_img, self.player)
             if tile_object.name == 'wall':
-                pos = pg.math.Vector2(tile_object.x, tile_object.y)
-                Obstacle(self, pos, tile_object.width, tile_object.height)
+                pos = Vector2(tile_object.x, tile_object.y)
+                Obstacle(self.groups.walls, pos, tile_object.width,
+                         tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
-                Item(self, obj_center, tile_object.name)
+                Item(self.groups, obj_center, tile_object.name)
 
     def init_view(self) -> None:
         # Temporary - eventually this should be one call to construct
         # a DungeonController that takes only a map and generates all the
         # sprites from that map
         self.view = view.DungeonView(self.screen)
-        self.view.set_sprites(self.all_sprites)
-        self.view.set_walls(self.walls)
-        self.view.set_items(self.items)
-        self.view.set_mobs(self.mobs)
+        self.view.set_sprites(self.groups.all_sprites)
+        self.view.set_walls(self.groups.walls)
+        self.view.set_items(self.groups.items)
+        self.view.set_mobs(self.groups.mobs)
 
     def init_controls(self) -> None:
 
@@ -184,46 +185,47 @@ class DungeonController(Controller):
         self.handle_input()
 
         # update portion of the game loop
-        self.all_sprites.update()
+        self.groups.all_sprites.update()
         self.camera.update(self.player)
 
         # game over?
-        if len(self.mobs) == 0:
+        if not self.groups.mobs:
             self.playing = False
 
         # player hits items
-        hits = spritecollide(self.player, self.items, False)
-        for hit in hits:
+        items: List[Item] = spritecollide(self.player, self.groups.items, False)
+        for item in items:
             full_health = self.player.health >= settings.PLAYER_HEALTH
-            if hit.type == 'health' and not full_health:
-                hit.kill()
+            if item.type == 'health' and not full_health:
+                item.kill()
                 sounds.play(sounds.HEALTH_UP)
                 self.player.add_health(settings.HEALTH_PACK_AMOUNT)
-            if hit.type == 'shotgun':
-                hit.kill()
+            if item.type == 'shotgun':
+                item.kill()
                 sounds.play(sounds.GUN_PICKUP)
                 self.player.set_weapon('shotgun')
 
         # mobs hit player
-        hits = spritecollide(self.player, self.mobs, False, collide_hit_rect)
-        for hit in hits:
+        mobs: List[Mob] = spritecollide(self.player, self.groups.mobs, False,
+                                        collide_hit_rect)
+        for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
                 self.player.health -= settings.MOB_DAMAGE
-            hit.vel = pg.math.Vector2(0, 0)
+            zombie.vel = pg.math.Vector2(0, 0)
             if self.player.health <= 0:
                 self.playing = False
-        if hits:
+        if mobs:
             self.player.hit()
             knock_back = pg.math.Vector2(settings.MOB_KNOCKBACK, 0)
-            self.player.pos += knock_back.rotate(-hits[0].rot)
+            self.player.pos += knock_back.rotate(-mobs[0].rot)
 
         # bullets hit mobs
-        bullets = self.bullets
-        hits = groupcollide(self.mobs, bullets, False, True)
-        for mob in hits:
-            for bullet in hits[mob]:
-                mob.health -= bullet.damage
+        hits: Dict[Mob, List[Bullet]] = groupcollide(self.groups.mobs,
+                                                     self.groups.bullets,
+                                                     False, True)
+        for mob, bullets in hits.items():
+            mob.health -= sum(bullet.damage for bullet in bullets)
             mob.vel = pg.math.Vector2(0, 0)
 
     def get_fps(self) -> float:
