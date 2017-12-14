@@ -5,7 +5,7 @@ from os import path
 from pygame.math import Vector2
 
 import tilemap
-from sprites import Player, Mob, Obstacle, Item, collide_hit_rect, Timer, \
+from model import Player, Mob, Obstacle, Item, collide_hit_rect, Timer, \
     Groups, Bullet
 import view
 from pygame.sprite import spritecollide, groupcollide
