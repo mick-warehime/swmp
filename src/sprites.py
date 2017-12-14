@@ -11,8 +11,8 @@ import sounds
 import images
 from collections import namedtuple
 
-_Groups = namedtuple('_Groups',
-                     ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
+_GroupsBase = namedtuple('_GroupsBase',
+                         ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
 
 
 def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
@@ -36,10 +36,10 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
-class Groups(_Groups):
+class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
-    def __new__(cls) -> _Groups:
+    def __new__(cls) -> _GroupsBase:
         args = [Group() for _ in range(4)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore

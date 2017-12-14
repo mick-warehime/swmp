@@ -196,11 +196,11 @@ class DungeonController(Controller):
         items: List[Item] = spritecollide(self.player, self.groups.items, False)
         for item in items:
             full_health = self.player.health >= settings.PLAYER_HEALTH
-            if item.type == 'health' and not full_health:
+            if item.label == 'health' and not full_health:
                 item.kill()
                 sounds.play(sounds.HEALTH_UP)
                 self.player.add_health(settings.HEALTH_PACK_AMOUNT)
-            if item.type == 'shotgun':
+            if item.label == 'shotgun':
                 item.kill()
                 sounds.play(sounds.GUN_PICKUP)
                 self.player.set_weapon('shotgun')
