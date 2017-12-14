@@ -26,6 +26,15 @@ def draw_player_health(surf: Surface, x: int, y: int, pct: float) -> None:
     pg.draw.rect(surf, settings.WHITE, outline_rect, 2)
 
 
+def draw_text(screen: pg.Surface, text: str, font_name: str,
+              size: int, color: tuple, x: int, y: int,
+              align: str = "topleft") -> None:
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(**{align: (x, y)})
+    screen.blit(text_surface, text_rect)
+
+
 class DungeonView(object):
     def __init__(self, screen: Surface) -> None:
 
@@ -65,8 +74,7 @@ class DungeonView(object):
              player: Player,
              map: TiledMap,
              map_img: Surface,
-             camera: Camera,
-             paused: bool) -> None:
+             camera: Camera) -> None:
 
         self.screen.blit(map_img, camera.apply(map))
 
@@ -90,21 +98,8 @@ class DungeonView(object):
         draw_player_health(self.screen, 10, 10, remaining_health)
         zombies_str = 'Zombies: {}'.format(len(self.mobs))
         hud_font = images.get_font(images.IMPACTED_FONT)
-        self.draw_text(zombies_str, hud_font, 30, settings.WHITE,
-                       settings.WIDTH - 10, 10, align="topright")
-        if paused:
-            title_font = images.get_font(images.ZOMBIE_FONT)
-            self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text("Paused", title_font, 105,
-                           settings.RED, settings.WIDTH / 2,
-                           settings.HEIGHT / 2, align="center")
-
-    def draw_text(self, text: str, font_name: str, size: int, color: tuple,
-                  x: int, y: int, align: str = "topleft") -> None:
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(**{align: (x, y)})
-        self.screen.blit(text_surface, text_rect)
+        draw_text(self.screen, zombies_str, hud_font, 30, settings.WHITE,
+                  settings.WIDTH - 10, 10, align="topright")
 
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image
@@ -112,16 +107,6 @@ class DungeonView(object):
         self.light_rect.center = camera.apply(player).center
         self.fog.blit(self.light_mask, self.light_rect)
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
-
-    def game_over(self) -> None:
-        self.screen.fill(settings.BLACK)
-        title_font = images.get_font(images.ZOMBIE_FONT)
-        self.draw_text("GAME OVER", title_font, 100, settings.RED,
-                       settings.WIDTH / 2, settings.HEIGHT / 2,
-                       align="center")
-        self.draw_text("Press a key to start", title_font, 75,
-                       settings.WHITE, settings.WIDTH / 2,
-                       settings.HEIGHT * 3 / 4, align="center")
 
     def toggle_debug(self) -> None:
         self.draw_debug = not self.draw_debug
