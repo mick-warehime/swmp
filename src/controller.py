@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 import pygame as pg
 from os import path
 import tilemap
@@ -17,10 +17,8 @@ MOUSE_RIGHT = 2
 def call_binding(key_id: int,
                  funcs: Dict[int, Callable[..., None]],
                  filter_list: List[int]) -> None:
-    key_allowed = True
-    if len(filter_list) > 0:
-        if key_id not in filter_list:
-            key_allowed = False
+
+    key_allowed = key_id in filter_list if filter_list else True
 
     if key_allowed:
         funcs[key_id]()
@@ -46,7 +44,7 @@ class Controller(object):
     def bind_mouse(self, key: int, binding: Callable[..., None]) -> None:
         self.mouse_bindings[key] = binding
 
-    def handle_input(self, only_handle: List[int] = []) -> None:
+    def handle_input(self, only_handle: Union[List[int], None] = None) -> None:
 
         keys = pg.key.get_pressed()
         mouse = pg.mouse.get_pressed()
