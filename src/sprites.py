@@ -48,12 +48,12 @@ class Groups(_GroupsBase):
 class Timer(object):
     """Keeps track of game time."""
 
-    def __init__(self, game: Any) -> None:
-        self._game = game
+    def __init__(self, controller: Any) -> None:
+        self._dungeon_controller = controller
 
     @property
     def dt(self) -> float:
-        return self._game.dt
+        return self._dungeon_controller.dt
 
     @property
     def current_time(self) -> int:
