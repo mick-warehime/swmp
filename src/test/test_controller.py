@@ -123,15 +123,15 @@ class ControllerTest(unittest.TestCase):
             # .handle_input() combinations
             ctrl.handle_input()
 
-            if key_1 == 1:
+            if key_1:
                 self.assertEqual(self.a, test_string_a)
-            if key_2 == 1:
+            if key_2:
                 self.assertEqual(self.b, test_string_b)
-            if key_3 == 1:
+            if key_3:
                 self.assertEqual(self.c, test_string_c)
-            if mouse_1 == 1:
+            if mouse_1:
                 self.assertEqual(self.d, test_mouse_1)
-            if mouse_2 == 1:
+            if mouse_2:
                 self.assertEqual(self.e, test_mouse_2)
 
             # reset to register the next clicks
