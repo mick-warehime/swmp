@@ -46,6 +46,9 @@ class Controller(object):
 
     def handle_input(self, only_handle: Union[List[int], None] = None) -> None:
 
+        if only_handle is None:
+            only_handle = []
+
         keys = pg.key.get_pressed()
         mouse = pg.mouse.get_pressed()
         if any(keys) or any(mouse):
