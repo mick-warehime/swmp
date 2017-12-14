@@ -193,7 +193,8 @@ class DungeonController(Controller):
             self.playing = False
 
         # player hits items
-        items: List[Item] = spritecollide(self.player, self.groups.items, False)
+        items: List[Item] = spritecollide(self.player, self.groups.items,
+                                          False)
         for item in items:
             full_health = self.player.health >= settings.PLAYER_HEALTH
             if item.label == 'health' and not full_health:
