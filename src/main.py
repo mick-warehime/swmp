@@ -106,9 +106,6 @@ class Game(object):
         self.controller.bind(pg.K_SPACE, self.player.shoot)
         self.controller.bind_mouse(ctrl.MOUSE_LEFT, self.player.shoot)
 
-    def _init_groups(self) -> None:
-        self.groups = Groups()
-
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         self.playing = True
