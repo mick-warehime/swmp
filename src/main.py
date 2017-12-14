@@ -1,11 +1,12 @@
 import pygame as pg
-from pygame.sprite import LayeredUpdates, Group, spritecollide, groupcollide
+from pygame.sprite import spritecollide, groupcollide
 from pygame.math import Vector2
 import sys
 from random import random
 from os import path
 import settings
-from sprites import Player, Mob, Obstacle, Item, collide_hit_rect
+from sprites import Player, Mob, Obstacle, Item, collide_hit_rect, Groups, \
+    Timer
 import tilemap
 import controller as ctrl
 import view
@@ -32,34 +33,35 @@ class Game(object):
         # needs to happen after a valid mixer is available
         sounds.initialize_sounds()
 
-        self.all_sprites = LayeredUpdates()
-        self._init_groups()
+        self.groups = Groups()
 
         self.controller: ctrl.Controller = ctrl.Controller()
         self.view: view.DungeonView = view.DungeonView(self.screen)
 
     def new(self) -> None:
         # initialize all variables and do all the setup for a new game
-        self.all_sprites = LayeredUpdates()
-        self._init_groups()
+        self.groups = Groups()
 
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, 'maps')
         self.map = tilemap.TiledMap(path.join(map_folder, 'level1.tmx'))
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
+
+        timer = Timer(self)
         for tile_object in self.map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(self, pos)
+                self.player = Player(self.groups, timer, pos)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
-                Mob(self, pos)
+                Mob(pos, self.groups, timer, self.map_img, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
-                Obstacle(self, pos, tile_object.width, tile_object.height)
+                Obstacle(self.groups.walls, pos, tile_object.width,
+                         tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
                 Item(self, obj_center, tile_object.name)
         self.camera = tilemap.Camera(self.map.width, self.map.height)
@@ -70,10 +72,10 @@ class Game(object):
         # a DungeonController that takes only a map and generates all the
         # sprites from that map
         self.view = view.DungeonView(self.screen)
-        self.view.set_sprites(self.all_sprites)
-        self.view.set_walls(self.walls)
-        self.view.set_items(self.items)
-        self.view.set_mobs(self.mobs)
+        self.view.set_sprites(self.groups.all_sprites)
+        self.view.set_walls(self.groups.walls)
+        self.view.set_items(self.groups.items)
+        self.view.set_mobs(self.groups.mobs)
         self.set_default_controls()
 
     def set_default_controls(self) -> None:
@@ -104,12 +106,6 @@ class Game(object):
         self.controller.bind(pg.K_SPACE, self.player.shoot)
         self.controller.bind_mouse(ctrl.MOUSE_LEFT, self.player.shoot)
 
-    def _init_groups(self) -> None:
-        self.walls = Group()
-        self.mobs = Group()
-        self.bullets = Group()
-        self.items = Group()
-
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         self.playing = True
@@ -133,13 +129,13 @@ class Game(object):
             return
 
         # update portion of the game loop
-        self.all_sprites.update()
+        self.groups.all_sprites.update()
         self.camera.update(self.player)
         # game over?
-        if len(self.mobs) == 0:
+        if len(self.groups.mobs) == 0:
             self.playing = False
         # player hits items
-        hits = spritecollide(self.player, self.items, False)
+        hits = spritecollide(self.player, self.groups.items, False)
         for hit in hits:
             full_health = self.player.health >= settings.PLAYER_HEALTH
             if hit.type == 'health' and not full_health:
@@ -151,7 +147,8 @@ class Game(object):
                 sounds.play(sounds.GUN_PICKUP)
                 self.player.set_weapon('shotgun')
         # mobs hit player
-        hits = spritecollide(self.player, self.mobs, False, collide_hit_rect)
+        hits = spritecollide(self.player, self.groups.mobs, False,
+                             collide_hit_rect)
         for hit in hits:
             if random() < 0.7:
                 sounds.player_hit_sound()
@@ -164,7 +161,7 @@ class Game(object):
             knock_back = Vector2(settings.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-hits[0].rot)
         # bullets hit mobs
-        hits = groupcollide(self.mobs, self.bullets, False, True)
+        hits = groupcollide(self.groups.mobs, self.groups.bullets, False, True)
         for mob in hits:
             for bullet in hits[mob]:
                 mob.health -= bullet.damage
