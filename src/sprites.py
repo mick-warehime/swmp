@@ -345,9 +345,8 @@ class Bullet(pg.sprite.Sprite):
 
 
 class Obstacle(pg.sprite.Sprite):
-    def __init__(self, groups: Groups, pos: Vector2, w: int, h: int) -> None:
-        self._walls = groups.walls
-        pg.sprite.Sprite.__init__(self, self._walls)
+    def __init__(self, walls: Group, pos: Vector2, w: int, h: int) -> None:
+        pg.sprite.Sprite.__init__(self, walls)
 
         self.rect = pg.Rect(pos.x, pos.y, w, h)
 

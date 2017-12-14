@@ -60,7 +60,7 @@ class Game(object):
                 Mob(pos, self.groups, timer, self.map_img, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
-                Obstacle(self.groups, pos, tile_object.width,
+                Obstacle(self.groups.walls, pos, tile_object.width,
                          tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
                 Item(self, obj_center, tile_object.name)
