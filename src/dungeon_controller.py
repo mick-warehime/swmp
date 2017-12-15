@@ -126,7 +126,7 @@ class DungeonController(controller.Controller):
             if item.label == 'health' and not full_health:
                 item.kill()
                 sounds.play(sounds.HEALTH_UP)
-                self.player.add_health(settings.HEALTH_PACK_AMOUNT)
+                self.player.increment_health(settings.HEALTH_PACK_AMOUNT)
             if item.label == 'shotgun':
                 item.kill()
                 sounds.play(sounds.GUN_PICKUP)
@@ -138,7 +138,7 @@ class DungeonController(controller.Controller):
         for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.health -= settings.MOB_DAMAGE
+                self.player.increment_health(-settings.MOB_DAMAGE)
             zombie.vel = pg.math.Vector2(0, 0)
             if self.player.health <= 0:
                 self._playing = False
@@ -152,7 +152,7 @@ class DungeonController(controller.Controller):
                                                      self._groups.bullets,
                                                      False, True)
         for mob, bullets in hits.items():
-            mob.health -= sum(bullet.damage for bullet in bullets)
+            mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.vel = pg.math.Vector2(0, 0)
 
     def get_fps(self) -> float:

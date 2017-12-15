@@ -124,9 +124,19 @@ class Humanoid(GameObject):
         self.rect.center = self.pos
         self.rot = 0
         self.max_health = max_health
-        self.health = max_health
+        self._health = max_health
         self._timer = timer
         self._walls = walls
+
+    @property
+    def health(self):
+        return self._health
+
+    def increment_health(self, amount: int) -> None:
+        new_health = self._health + amount
+        new_health = min(new_health, self.max_health)
+        new_health = max(new_health, 0)
+        self._health = new_health
 
     def _update_trajectory(self) -> None:
         dt = self._timer.dt
@@ -259,10 +269,6 @@ class Player(Humanoid):
         # reset the movement after each update
         self.rot_speed = 0
         self.vel = Vector2(0, 0)
-
-    def add_health(self, amount: int) -> None:
-        self.health += amount
-        self.health = min(self.health, self.max_health)
 
 
 class Mob(Humanoid):

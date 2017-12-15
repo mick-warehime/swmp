@@ -1,4 +1,5 @@
 import unittest
+from typing import Union
 
 import pygame
 from pygame.sprite import Group, LayeredUpdates
@@ -16,6 +17,27 @@ def setUpModule() -> None:
     pygame.init()
     images.initialize_images()
     sounds.initialize_sounds()
+
+
+def _make_pistol(timer: Union[None, MockTimer] = None,
+                 groups: Union[None, model.Groups] = None) -> model.Weapon:
+    if groups is None:
+        groups = model.Groups()
+    if timer is None:
+        timer = MockTimer()
+    weapon = model.Weapon('pistol', timer, groups)
+    return weapon
+
+
+def _make_player(timer: Union[None, MockTimer] = None,
+                 groups: Union[None, model.Groups] = None) -> model.Player:
+    if groups is None:
+        groups = model.Groups()
+    if timer is None:
+        timer = MockTimer()
+    pos = pygame.math.Vector2(0, 0)
+    player = model.Player(groups, timer, pos)
+    return player
 
 
 class ModelTest(unittest.TestCase):
@@ -36,8 +58,7 @@ class ModelTest(unittest.TestCase):
 
     def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
         groups = model.Groups()
-        timer = MockTimer()
-        weapon = model.Weapon('pistol', timer, groups)
+        weapon = _make_pistol(groups=groups)
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
 
@@ -48,9 +69,8 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(len(groups.bullets), 1)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
-        groups = model.Groups()
         timer = MockTimer()
-        weapon = model.Weapon('pistol', timer, groups)
+        weapon = _make_pistol(timer)
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
 
@@ -66,13 +86,60 @@ class ModelTest(unittest.TestCase):
         self.assertFalse(weapon.can_shoot)
 
     def test_weapon_set(self) -> None:
-        groups = model.Groups()
-        timer = MockTimer()
-        weapon = model.Weapon('pistol', timer, groups)
+        weapon = _make_pistol()
 
         self.assertLess(weapon.bullet_count, 2)
         weapon.set('shotgun')
         self.assertGreater(weapon.bullet_count, 1)
+
+    def test_player_hit(self) -> None:
+        player = _make_player()
+
+        self.assertFalse(player.damaged)
+        player.hit()
+        self.assertTrue(player.damaged)
+
+    def test_player_shoot_no_shot(self) -> None:
+        groups = model.Groups()
+        timer = MockTimer()
+        player = _make_player(timer=timer, groups=groups)
+
+        self.assertEqual(len(groups.bullets), 0)
+        player.shoot()
+        self.assertEqual(len(groups.bullets), 0)
+        timer.time += player._weapon.shoot_rate + 1
+        player.shoot()
+        self.assertEqual(len(groups.bullets), 1)
+
+    def test_player_shoot_kickback(self) -> None:
+        timer = MockTimer()
+        player = _make_player(timer=timer)
+
+        old_vel = (player.vel.x, player.vel.y)
+
+        timer.time += player._weapon.shoot_rate + 1
+        player.shoot()
+
+        new_vel = (player.vel.x, player.vel.y)
+        expected_vel = (-player._weapon.kick_back + old_vel[0], old_vel[1])
+        self.assertEqual(new_vel, expected_vel)
+
+    def test_player_set_weapon(self):
+        player = _make_player()
+        self.assertEqual(player._weapon._label, 'pistol')
+        player.set_weapon('shotgun')
+        self.assertEqual(player._weapon._label, 'shotgun')
+
+    def test_humanoid_increment_health(self):
+        player = _make_player()
+        max_health = player.health
+
+        player.increment_health(-1)
+        self.assertEqual(player.health, max_health - 1)
+        player.increment_health(100)
+        self.assertEqual(player.health, max_health)
+        player.increment_health(-max_health - 2)
+        self.assertEqual(player.health, 0)
 
 
 if __name__ == '__main__':
