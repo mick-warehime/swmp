@@ -3,7 +3,6 @@ from random import uniform, choice, randint, random
 from typing import Any, Union
 from pygame.math import Vector2
 from pygame.sprite import Sprite, Group, LayeredUpdates
-from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
 import settings
@@ -15,22 +14,44 @@ _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
 
 
-def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
+def collide_hit_rect_with_rect(one: pg.sprite.Sprite,
+                               two: pg.sprite.Sprite) -> bool:
+    """
+
+    :param one: A Sprite object with a hit_rect field.
+    :param two: A Sprite object with a rect field.
+    :return: Whether the hit_rect and rect collide.
+    """
+    return one.hit_rect.colliderect(two.rect)
+
+
+def _collide_hit_rect_in_direction(sprite: Sprite, group: Group,
+                                   x_or_y: str) -> None:
+    """
+
+    :param sprite: A sprite object with a hit_rect
+    :param group:
+    :param x_or_y:
+    :return:
+    """
+    assert x_or_y == 'x' or x_or_y == 'y'
     if x_or_y == 'x':
-        hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
+        hits = pg.sprite.spritecollide(sprite, group, False,
+                                       collide_hit_rect_with_rect)
         if hits:
             if hits[0].rect.centerx > sprite.hit_rect.centerx:
                 sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
-            if hits[0].rect.centerx < sprite.hit_rect.centerx:
+            if hits[0].rect.centerx <= sprite.hit_rect.centerx:
                 sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
             sprite.vel.x = 0
             sprite.hit_rect.centerx = sprite.pos.x
     if x_or_y == 'y':
-        hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
+        hits = pg.sprite.spritecollide(sprite, group, False,
+                                       collide_hit_rect_with_rect)
         if hits:
             if hits[0].rect.centery > sprite.hit_rect.centery:
                 sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2
-            if hits[0].rect.centery < sprite.hit_rect.centery:
+            if hits[0].rect.centery <= sprite.hit_rect.centery:
                 sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
@@ -115,9 +136,9 @@ class Humanoid(GameObject):
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self._walls, 'x')
+        _collide_hit_rect_in_direction(self, self._walls, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self._walls, 'y')
+        _collide_hit_rect_in_direction(self, self._walls, 'y')
         self.rect.center = self.hit_rect.center
 
     def _match_image_to_rot(self) -> None:
@@ -170,6 +191,7 @@ class Weapon(object):
             sounds.fire_weapon_sound(self._label)
         MuzzleFlash(self._groups.all_sprites, origin)
 
+    @property
     def can_shoot(self) -> bool:
         now = self._timer.current_time
         return now - self._last_shot > self.shoot_rate
@@ -211,7 +233,7 @@ class Player(Humanoid):
         self._weapon.set(weapon)
 
     def shoot(self) -> None:
-        if self._weapon.can_shoot():
+        if self._weapon.can_shoot:
             self._weapon.shoot(self.pos, self.rot)
             self.vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
 

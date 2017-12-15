@@ -5,7 +5,8 @@ from os import path
 from pygame.math import Vector2
 
 import tilemap
-from model import Player, Mob, Obstacle, Item, collide_hit_rect, Timer, \
+from model import Player, Mob, Obstacle, Item, collide_hit_rect_with_rect, \
+    Timer, \
     Groups, Bullet
 import view
 from pygame.sprite import spritecollide, groupcollide
@@ -133,7 +134,7 @@ class DungeonController(controller.Controller):
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
-                                        collide_hit_rect)
+                                        collide_hit_rect_with_rect)
         for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()

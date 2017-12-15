@@ -1,4 +1,7 @@
+import random
 from typing import List
+
+import model
 
 
 class Key(object):
@@ -13,3 +16,16 @@ class Pygame(object):
     def __init__(self) -> None:
         self.key = Key(n_keys=500)
         self.mouse = Key(n_keys=500)
+
+
+class MockTimer(model.Timer):
+    def __init__(self) -> None:
+        self.time = 0
+
+    @property
+    def current_time(self) -> int:
+        return self.time
+
+    @property
+    def dt(self) -> float:
+        return random.random() * 1e-2
