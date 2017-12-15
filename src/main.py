@@ -35,12 +35,17 @@ class Game(object):
         self.dungeon.bind(pg.K_ESCAPE, self.quit)
         self.dungeon.bind_down(pg.K_p, self.toggle_paused)
 
-    def first_level_decision(self) -> str:
         sounds.play(sounds.LEVEL_START)
+
+    def first_level_decision(self) -> str:
+
         prompt = 'Do you go into the swamp?'
         options = ['No', 'Yes', 'Maybe']
         dec = decision.DecisionController(self.screen, prompt, options)
+        dec.bind(pg.K_ESCAPE, self.quit)
+
         dec.draw()
+
         response = dec.wait_for_decision()
 
         return 'level{}.tmx'.format(response)
