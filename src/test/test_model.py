@@ -92,13 +92,6 @@ class ModelTest(unittest.TestCase):
         weapon.set('shotgun')
         self.assertGreater(weapon.bullet_count, 1)
 
-    def test_player_hit(self) -> None:
-        player = _make_player()
-
-        self.assertFalse(player.damaged)
-        player.hit()
-        self.assertTrue(player.damaged)
-
     def test_player_shoot_no_shot(self) -> None:
         groups = model.Groups()
         timer = MockTimer()
