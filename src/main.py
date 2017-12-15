@@ -2,9 +2,11 @@ import pygame as pg
 import sys
 import settings
 import dungeon_controller as ctrl
+import decision_controller as dec_ctrl
 import sounds
 import images
 import view
+
 
 
 class Game(object):
@@ -27,13 +29,22 @@ class Game(object):
 
         self.paused = False
 
-        self.new()
-
     def new(self) -> None:
-        sounds.play(sounds.LEVEL_START)
-        self.dungeon = ctrl.DungeonController(self.screen, 'level1.tmx')
+        level = self.first_level_decision()
+
+        self.dungeon = ctrl.DungeonController(self.screen, level)
         self.dungeon.bind(pg.K_ESCAPE, self.quit)
         self.dungeon.bind_down(pg.K_p, self.toggle_paused)
+
+    def first_level_decision(self) -> str:
+        sounds.play(sounds.LEVEL_START)
+        options = ['Yes', 'No', 'Maybe']
+        dec = dec_ctrl.DecisionController(self.screen, 'Do you go into the swamp?', options)
+        dec.draw()
+        response = dec.wait_for_decision()
+
+        return 'level{}.tmx'.format(response)
+
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
@@ -53,8 +64,6 @@ class Game(object):
 
     def update(self) -> None:
         # always update the controller
-        if self.paused:
-            print(10)
         self.dungeon.update()
 
     def draw(self) -> None:
@@ -67,7 +76,6 @@ class Game(object):
                 self.quit()
 
     def toggle_paused(self) -> None:
-        print("toggle pause " + str(self.paused))
         self.paused = not self.paused
 
     def show_go_screen(self) -> None:
