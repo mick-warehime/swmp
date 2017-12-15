@@ -1,0 +1,110 @@
+[quests]
+* quest theme foo *
++ quest for foo 1
++ quest for foo 2
+...
+
+non-arc
+unrelated encounters
+
+knowledge 
+deliver item for study  [get, goto, give]
+spy on someone  [sneak, spy]
+interview an npc  [goto, listen, goto, report]
+use item in the field  [get, goto, use, goto, give]
+
+reputation 
+obtain rate item   actions [get, goto, give]
+kill enemies  [goto, kill, goto, report]
+visit dangerous place  [goto, goto, survive, report]
+
+serenity 
+revenge  [goto, damage]
+capture criminal  [get, goto, use, capture, goto, give]
+check on npc 1  [goto, listen, goto, report]
+check on npc 2  [goto, take, goto, give]
+recover lost/stolen item  [get, goto, give]
+rescue captured npc  [goto, damage, escort, goto, report]
+
+protection 
+attack threatening enemies  [goto, damage, goto, report]
+treat or repair 1  [get, goto, use]
+treat or repair 2  [goto, repair]
+create diversion 1  [goto, damage]
+assemble fortification  [goto, repair]
+guard  [goto, defend]
+
+conquest 
+attack enemy  [goto, damage]
+steal something  [goto, steal, goto, give]
+kill enemies  [goto, kill, goto, kill]
+
+wealth 
+gather materials  [goto, get]
+steal valuables to sell  [goto, steal]
+
+ability 
+build new tool  [repair]
+obtain training materials  [get, use]
+use existing tools  [goto, use]
+practice combat  [goto, damage]
+practice skill  [goto, use]
+research skill  [get, use]
+
+equipment 
+assemble  [repair]
+deliver supplies  [get, goto, give]
+steal supplies  [steal]
+intercept supplies  [goto, kill, take, goto]
+trade for supplies  [goto, trade]
+collect items for recipe [collect]
+
+political influence 
+assinate official  [goto, kill, goto, report]
+spy on official  [goto, sneak, listen, goto, report]
+convince politician  [goto, convince]
+
+
+[sub-quests - replace any matching scene of a quest with an expanded version]
+
+convince 
+do a favor to convince them  [subquest]
+get them something nice  [goto, get, goto, give]
+kill someone for them  [goto, kill, goto, report]
+
+goto 
+figure out where to go and go there  [learn, goto]
+survive something on your way  [goto, survive, goto]
+bypass something in your way  [goto, bypass, goto]
+you were captured! use item/skill to escape  [goto, use, goto]
+you were captured! escape and kill your captors  [goto, kill, goto]
+
+learn 
+perform favor for info   actions [goto, subquest, listen]
+read the info somewhere  [goto, get, read]
+perform more complicated favor for info  [goto, get, subquest, give, listen]
+
+build 
+gather supplies to build  [goto, gather, goto, build]
+
+get 
+steal it  [steal]
+gather it  [goto, gather]
+ill trade this item for antoher. go get the one i want and do a favor for me  [goto, get, goto, subquest, exchange]
+
+steal 
+take it while no one is watching  [goto, sneak, take]
+kill someone to take it  [goto, kill, take]
+learn where it is and take it  [goto, learn, goto, take]
+
+spy 
+go somewhere to spy on someone  [goto, spy, goto, report]
+listen to a conversation  [listen, goto, report]
+
+capture 
+get something and use it to capture someone  [get, goto, capture]
+trade something for slaves  [get, trade, capture]
+
+kill 
+get item and kill someone with it  [goto, get, goto, kill]
+go kill someone  [goto, kill]
