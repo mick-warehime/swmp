@@ -124,13 +124,13 @@ class ModelTest(unittest.TestCase):
         expected_vel = (-player._weapon.kick_back + old_vel[0], old_vel[1])
         self.assertEqual(new_vel, expected_vel)
 
-    def test_player_set_weapon(self):
+    def test_player_set_weapon(self) -> None:
         player = _make_player()
         self.assertEqual(player._weapon._label, 'pistol')
         player.set_weapon('shotgun')
         self.assertEqual(player._weapon._label, 'shotgun')
 
-    def test_humanoid_increment_health(self):
+    def test_humanoid_increment_health(self) -> None:
         player = _make_player()
         max_health = player.health
 

@@ -129,7 +129,7 @@ class Humanoid(GameObject):
         self._walls = walls
 
     @property
-    def health(self):
+    def health(self) -> int:
         return self._health
 
     def increment_health(self, amount: int) -> None:
