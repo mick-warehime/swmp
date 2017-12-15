@@ -8,7 +8,6 @@ import images
 import view
 
 
-
 class Game(object):
     def __init__(self) -> None:
 
@@ -38,13 +37,13 @@ class Game(object):
 
     def first_level_decision(self) -> str:
         sounds.play(sounds.LEVEL_START)
-        options = ['Yes', 'No', 'Maybe']
-        dec = dec_ctrl.DecisionController(self.screen, 'Do you go into the swamp?', options)
+        prompt = 'Do you go into the swamp?'
+        options = ['No', 'Yes', 'Maybe']
+        dec = dec_ctrl.DecisionController(self.screen, prompt, options)
         dec.draw()
         response = dec.wait_for_decision()
 
         return 'level{}.tmx'.format(response)
-
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game

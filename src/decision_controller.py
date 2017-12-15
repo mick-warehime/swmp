@@ -39,6 +39,7 @@ class DecisionController(controller.Controller):
     def get_choice_function(self, key_idx: int) -> Callable[..., None]:
         def choice_func() -> None:
             self.choice = key_idx
+
         return choice_func
 
     def set_choice(self, choice: int) -> None:
@@ -55,13 +56,12 @@ class DecisionController(controller.Controller):
 
         n_texts = len(texts) + 1
         for idx, text in enumerate(texts, 1):
-
             view.draw_text(self.screen, text, title_font,
                            40, settings.WHITE, settings.WIDTH / 2,
                            settings.HEIGHT * idx / n_texts, align="center")
         pg.display.flip()
 
-    def get_text(self) -> str:
+    def get_text(self) -> List[str]:
 
         option_texts = [self.prompt, '', '']
         for idx in self.options:
@@ -77,7 +77,3 @@ class DecisionController(controller.Controller):
             self.handle_input()
 
         return self.choice
-
-
-
-
