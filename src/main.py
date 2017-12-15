@@ -1,8 +1,8 @@
 import pygame as pg
 import sys
 import settings
-import dungeon_controller as ctrl
-import decision_controller as dec_ctrl
+import dungeon_controller as dungeon
+import decision_controller as decision
 import sounds
 import images
 import view
@@ -31,7 +31,7 @@ class Game(object):
     def new(self) -> None:
         level = self.first_level_decision()
 
-        self.dungeon = ctrl.DungeonController(self.screen, level)
+        self.dungeon = dungeon.DungeonController(self.screen, level)
         self.dungeon.bind(pg.K_ESCAPE, self.quit)
         self.dungeon.bind_down(pg.K_p, self.toggle_paused)
 
@@ -39,7 +39,7 @@ class Game(object):
         sounds.play(sounds.LEVEL_START)
         prompt = 'Do you go into the swamp?'
         options = ['No', 'Yes', 'Maybe']
-        dec = dec_ctrl.DecisionController(self.screen, prompt, options)
+        dec = decision.DecisionController(self.screen, prompt, options)
         dec.draw()
         response = dec.wait_for_decision()
 
