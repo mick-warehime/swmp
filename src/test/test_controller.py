@@ -179,45 +179,36 @@ class ControllerTest(unittest.TestCase):
 class DecisionControllerTest(unittest.TestCase):
     def test_set_option_0(self) -> None:
         prompt = 'Do you go into the swamp?'
-        dc = decision_controller.DecisionController(prompt)
+        options = ['one', 'two', 'three']
+        dc = decision_controller.DecisionController(None, prompt, options)
 
-        dc.set_option(0, 'zero')
-        dc.set_option(1, 'one')
-        dc.set_option(2, 'two')
-
-        key0 = controller.pg.K_0
+        key0 = controller.pg.K_1
         pg.key.pressed[key0] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 0)
-
-    def test_set_option_1(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        dc = decision_controller.DecisionController(prompt)
-
-        dc.set_option(0, 'zero')
-        dc.set_option(1, 'one')
-        dc.set_option(2, 'two')
-
-        key1 = controller.pg.K_1
-        pg.key.pressed[key1] = 1
 
         dc.update()
 
         self.assertEqual(dc.choice, 1)
 
-    def test_set_option_2(self) -> None:
+    def test_set_option_1(self) -> None:
         prompt = 'Do you go into the swamp?'
-        dc = decision_controller.DecisionController(prompt)
+        options = ['one', 'two', 'three']
+        dc = decision_controller.DecisionController(None, prompt, options)
 
-        dc.set_option(0, 'zero')
-        dc.set_option(1, 'one')
-        dc.set_option(2, 'two')
-
-        key2 = controller.pg.K_2
-        pg.key.pressed[key2] = 1
+        key1 = controller.pg.K_2
+        pg.key.pressed[key1] = 1
 
         dc.update()
 
         self.assertEqual(dc.choice, 2)
+
+    def test_set_option_2(self) -> None:
+        prompt = 'Do you go into the swamp?'
+        options = ['one', 'two', 'three']
+        dc = decision_controller.DecisionController(None, prompt, options)
+
+        key2 = controller.pg.K_3
+        pg.key.pressed[key2] = 1
+
+        dc.update()
+
+        self.assertEqual(dc.choice, 3)
