@@ -127,9 +127,6 @@ class DungeonController(Controller):
                 Item(self, obj_center, tile_object.name)
 
     def init_view(self) -> None:
-        # Temporary - eventually this should be one call to construct
-        # a DungeonController that takes only a map and generates all the
-        # sprites from that map
         self.view = view.DungeonView(self.screen)
         self.view.set_sprites(self.all_sprites)
         self.view.set_walls(self.walls)
