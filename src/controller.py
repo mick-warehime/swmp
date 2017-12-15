@@ -17,10 +17,13 @@ def call_binding(key_id: int,
 
 class Controller(object):
     def __init__(self) -> None:
+
+        # keys pressed down in the previous frame
+        self._prev_keys: List[int] = [0] * len(pg.key.get_pressed())
+
         # maps keys to functions
         self.bindings: Dict[int, Callable[..., None]] = {}
         self.bindings_down: Dict[int, Callable[..., None]] = {}
-        self.prev_keys: List[int] = [0] * len(pg.key.get_pressed())
         self.mouse_bindings: Dict[int, Callable[..., None]] = {}
 
     # calls this function every frame when the key is held down
@@ -57,11 +60,11 @@ class Controller(object):
 
             for key_id in self.bindings_down:
                 # only press if key was not down last frame
-                if self.prev_keys[key_id]:
+                if self._prev_keys[key_id]:
                     continue
                 if keys[key_id]:
                     call_binding(key_id,
                                  self.bindings_down,
                                  only_handle)
 
-        self.prev_keys = list(keys)
+        self._prev_keys = list(keys)

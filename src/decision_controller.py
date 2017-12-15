@@ -15,14 +15,16 @@ class DecisionController(controller.Controller):
 
         super(DecisionController, self).__init__()
 
-        self.screen = screen
-        self.prompt = prompt
+        self._screen = screen
+        self._prompt = prompt
         self.choice = -1
-        self.options: Dict[int, str] = {}
+
         self.options_keys = [pg.K_0, pg.K_1, pg.K_2,
                              pg.K_3, pg.K_4, pg.K_5,
                              pg.K_6, pg.K_7, pg.K_8,
                              pg.K_9]
+
+        self.options: Dict[int, str] = {}
 
         for idx, option in enumerate(options, 1):
             self.set_option(idx, option)
@@ -49,21 +51,21 @@ class DecisionController(controller.Controller):
         self.handle_input()
 
     def draw(self) -> None:
-        self.screen.fill(settings.BLACK)
+        self._screen.fill(settings.BLACK)
 
         texts = self.get_text()
         title_font = images.get_font(images.ZOMBIE_FONT)
 
         n_texts = len(texts) + 1
         for idx, text in enumerate(texts, 1):
-            view.draw_text(self.screen, text, title_font,
+            view.draw_text(self._screen, text, title_font,
                            40, settings.WHITE, settings.WIDTH / 2,
                            settings.HEIGHT * idx / n_texts, align="center")
         pg.display.flip()
 
     def get_text(self) -> List[str]:
 
-        option_texts = [self.prompt, '', '']
+        option_texts = [self._prompt, '', '']
         for idx in self.options:
             option = self.options[idx]
             option_texts.append('{} - {}'.format(idx, option))

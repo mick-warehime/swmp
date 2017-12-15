@@ -38,25 +38,25 @@ def draw_text(screen: pg.Surface, text: str, font_name: str,
 class DungeonView(object):
     def __init__(self, screen: Surface) -> None:
 
-        self.screen = screen
-        self.dim_screen = Surface(screen.get_size()).convert_alpha()
-        self.dim_screen.fill((0, 0, 0, 180))
+        self._screen = screen
+        dim_screen = Surface(screen.get_size()).convert_alpha()
+        dim_screen.fill((0, 0, 0, 180))
+
+        self._draw_debug = False
+        self._night = False
+
+        self._fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
+        self._fog.fill(settings.NIGHT_COLOR)
+
+        # lighting effect for night mode
+        self._light_mask = images.get_image(images.LIGHT_MASK)
+        self._light_rect = self._light_mask.get_rect()
 
         self.all_sprites = LayeredUpdates()
         self.walls = Group()
         self.mobs = Group()
         self.bullets = Group()
         self.items = Group()
-
-        self.draw_debug = False
-        self.night = False
-
-        self.fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
-        self.fog.fill(settings.NIGHT_COLOR)
-
-        # lighting effect
-        self.light_mask = images.get_image(images.LIGHT_MASK)
-        self.light_rect = self.light_mask.get_rect()
 
     def set_sprites(self, all_sprites: LayeredUpdates) -> None:
         self.all_sprites = all_sprites
@@ -76,40 +76,40 @@ class DungeonView(object):
              map_img: Surface,
              camera: Camera) -> None:
 
-        self.screen.blit(map_img, camera.apply(map))
+        self._screen.blit(map_img, camera.apply(map))
 
         for sprite in self.all_sprites:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
-            self.screen.blit(sprite.image, camera.apply(sprite))
-            if self.draw_debug and hasattr(sprite, 'hit_rect'):
+            self._screen.blit(sprite.image, camera.apply(sprite))
+            if self._draw_debug and hasattr(sprite, 'hit_rect'):
                 sprite_camera = camera.apply_rect(sprite.hit_rect)
-                pg.draw.rect(self.screen, settings.CYAN, sprite_camera, 1)
-        if self.draw_debug:
+                pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
+        if self._draw_debug:
             for wall in self.walls:
                 wall_camera = camera.apply_rect(wall.rect)
-                pg.draw.rect(self.screen, settings.CYAN, wall_camera, 1)
+                pg.draw.rect(self._screen, settings.CYAN, wall_camera, 1)
 
-        if self.night:
+        if self._night:
             self.render_fog(player, camera)
 
         # HUD functions
         remaining_health = player.health / settings.PLAYER_HEALTH
-        draw_player_health(self.screen, 10, 10, remaining_health)
+        draw_player_health(self._screen, 10, 10, remaining_health)
         zombies_str = 'Zombies: {}'.format(len(self.mobs))
         hud_font = images.get_font(images.IMPACTED_FONT)
-        draw_text(self.screen, zombies_str, hud_font, 30, settings.WHITE,
+        draw_text(self._screen, zombies_str, hud_font, 30, settings.WHITE,
                   settings.WIDTH - 10, 10, align="topright")
 
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image
-        self.fog.fill(settings.NIGHT_COLOR)
-        self.light_rect.center = camera.apply(player).center
-        self.fog.blit(self.light_mask, self.light_rect)
-        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
+        self._fog.fill(settings.NIGHT_COLOR)
+        self._light_rect.center = camera.apply(player).center
+        self._fog.blit(self._light_mask, self._light_rect)
+        self._screen.blit(self._fog, (0, 0), special_flags=pg.BLEND_MULT)
 
     def toggle_debug(self) -> None:
-        self.draw_debug = not self.draw_debug
+        self._draw_debug = not self._draw_debug
 
     def toggle_night(self) -> None:
-        self.night = not self.night
+        self._night = not self._night
