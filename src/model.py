@@ -2,13 +2,17 @@ import pygame as pg
 from random import uniform, choice, randint, random
 from typing import Any, Union
 from pygame.math import Vector2
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Sprite, Group, LayeredUpdates
 from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
 import settings
 import sounds
 import images
+from collections import namedtuple
+
+_GroupsBase = namedtuple('_GroupsBase',
+                         ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
 
 
 def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
@@ -32,15 +36,24 @@ def collide_with_walls(sprite: Sprite, group: Group, x_or_y: str) -> None:
             sprite.hit_rect.centery = sprite.pos.y
 
 
+class Groups(_GroupsBase):
+    """Immutable container object for groups in the game."""
+
+    def __new__(cls) -> _GroupsBase:
+        args = [Group() for _ in range(4)]
+        args += [LayeredUpdates()]
+        return super(Groups, cls).__new__(cls, *args)  # type: ignore
+
+
 class Timer(object):
     """Keeps track of game time."""
 
-    def __init__(self, game: Any) -> None:
-        self._game = game
+    def __init__(self, controller: Any) -> None:
+        self._dungeon_controller = controller
 
     @property
     def dt(self) -> float:
-        return self._game.dt
+        return self._dungeon_controller.dt
 
     @property
     def current_time(self) -> int:
@@ -65,9 +78,11 @@ class GameObject(pg.sprite.Sprite):
 
         self.image = self.base_image
         self.pos = pos
+        # Used in sprite collisions other than walls.
         self.rect = self.image.get_rect()
         self.rect.center = (pos.x, pos.y)
 
+        # Used in wall collisions
         self.hit_rect = hit_rect.copy()
         self.hit_rect.center = self.rect.center
 
@@ -113,14 +128,11 @@ class Humanoid(GameObject):
 class Weapon(object):
     """Generates bullets or other sources of damage."""
 
-    def __init__(self, label: str, timer: Timer, all_sprites: Group,
-                 bullets: Group, walls: Group) -> None:
+    def __init__(self, label: str, timer: Timer, groups: Groups) -> None:
         self._label = ''
         self.set(label)
         self._timer = timer
-        self._all_sprites = all_sprites
-        self._bullets = bullets
-        self._walls = walls
+        self._groups = groups
         self._last_shot = timer.current_time
 
     def set(self, label: str) -> None:
@@ -153,11 +165,10 @@ class Weapon(object):
 
         for _ in range(self.bullet_count):
             spread = uniform(-self.spread, self.spread)
-            Bullet(self._timer, self._all_sprites, self._bullets,
-                   self._walls, origin,
+            Bullet(self._timer, self._groups, origin,
                    direction.rotate(spread), self._label)
             sounds.fire_weapon_sound(self._label)
-        MuzzleFlash(self._all_sprites, origin)
+        MuzzleFlash(self._groups.all_sprites, origin)
 
     def can_shoot(self) -> bool:
         now = self._timer.current_time
@@ -165,15 +176,15 @@ class Weapon(object):
 
 
 class Player(Humanoid):
-    def __init__(self, game: Any, pos: Vector2) -> None:
-        timer = Timer(game)
+    def __init__(self, groups: Groups, timer: Timer, pos: Vector2) -> None:
+
         super(Player, self).__init__(images.PLAYER_IMG,
                                      settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH, timer, game.walls)
-        pg.sprite.Sprite.__init__(self, game.all_sprites)
+                                     settings.PLAYER_HEALTH, timer,
+                                     groups.walls)
+        pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
-        self._weapon = Weapon('pistol', self._timer, game.all_sprites,
-                              game.bullets, self._walls)
+        self._weapon = Weapon('pistol', self._timer, groups)
         self.damaged = False
         self.damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self.rot_speed = 0
@@ -233,18 +244,18 @@ class Player(Humanoid):
 
 
 class Mob(Humanoid):
-    def __init__(self, game: Any, pos: Vector2) -> None:
-        timer = Timer(game)
-        super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH, timer, game.walls)
+    def __init__(self, pos: Vector2, groups: Groups, timer: Timer,
+                 map_img: pg.Surface, player: Player) -> None:
 
-        self.groups = game.all_sprites, game.mobs
-        self._mob_group = game.mobs
-        self._map_img = game.map_img
-        pg.sprite.Sprite.__init__(self, self.groups)
+        super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
+                                  settings.MOB_HEALTH, timer,
+                                  groups.walls)
+        self._mob_group = groups.mobs
+        self._map_img = map_img
+        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
 
         self.speed = choice(settings.MOB_SPEEDS)
-        self.target = game.player
+        self.target = player
 
         splat_img = images.get_image(images.SPLAT)
         self.splat = pg.transform.scale(splat_img, (64, 64))
@@ -297,13 +308,12 @@ class Mob(Humanoid):
 
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, timer: Any, all_sprites: Group, bullet_grp: Group,
-                 walls: Group, pos: Vector2, direction: Vector2,
-                 weapon: str) -> None:
-        self.groups = all_sprites, bullet_grp
-        pg.sprite.Sprite.__init__(self, self.groups)
+    def __init__(self, timer: Timer, groups: Groups, pos: Vector2,
+                 direction: Vector2, weapon: str) -> None:
+        groups_list = [groups.all_sprites, groups.bullets]
+        pg.sprite.Sprite.__init__(self, groups_list)
         self._timer = timer
-        self._wall_grp = walls
+        self._walls = groups.walls
         self.weapon = weapon
 
         blt_img = images.get_image(images.BULLET_IMG)
@@ -325,7 +335,7 @@ class Bullet(pg.sprite.Sprite):
     def update(self) -> None:
         self.pos += self.vel * self._timer.dt
         self.rect.center = self.pos
-        if pg.sprite.spritecollideany(self, self._wall_grp):
+        if pg.sprite.spritecollideany(self, self._walls):
             self.kill()
         if self._lifetime_exceeded():
             self.kill()
@@ -337,9 +347,8 @@ class Bullet(pg.sprite.Sprite):
 
 
 class Obstacle(pg.sprite.Sprite):
-    def __init__(self, game: Any, pos: Vector2, w: int, h: int) -> None:
-        self.groups = game.walls
-        pg.sprite.Sprite.__init__(self, self.groups)
+    def __init__(self, walls: Group, pos: Vector2, w: int, h: int) -> None:
+        pg.sprite.Sprite.__init__(self, walls)
 
         self.rect = pg.Rect(pos.x, pos.y, w, h)
 
@@ -358,9 +367,7 @@ class Obstacle(pg.sprite.Sprite):
 
 class MuzzleFlash(pg.sprite.Sprite):
     def __init__(self, all_sprites: Group, pos: Vector2) -> None:
-        self._layer = settings.EFFECTS_LAYER
-        self.groups = all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
+        pg.sprite.Sprite.__init__(self, all_sprites)
         size = randint(20, 50)
 
         flash_img = images.get_muzzle_flash()
@@ -377,16 +384,13 @@ class MuzzleFlash(pg.sprite.Sprite):
 
 
 class Item(pg.sprite.Sprite):
-    def __init__(self, game: Any, pos: pg.math.Vector2, type: str) -> None:
-        self._layer = settings.ITEMS_LAYER
-        self.groups = game.all_sprites, game.items
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+    def __init__(self, groups: Groups, pos: pg.math.Vector2,
+                 label: str) -> None:
+        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.items])
 
-        self.image = images.get_item_image(type)
-
+        self.image = images.get_item_image(label)
         self.rect = self.image.get_rect()
-        self.type = type
+        self.label = label
         self.pos = pos
         self.rect.center = pos
         self.tween = tween.easeInOutSine

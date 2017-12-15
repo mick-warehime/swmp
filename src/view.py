@@ -2,7 +2,7 @@ import pygame as pg
 import settings
 from pygame import Surface
 from pygame.sprite import LayeredUpdates, Group
-from sprites import Mob, Player
+from model import Mob, Player
 from tilemap import Camera, TiledMap
 import images
 
