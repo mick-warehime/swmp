@@ -143,7 +143,6 @@ class DungeonController(controller.Controller):
             if self.player.health <= 0:
                 self._playing = False
         if mobs:
-            self.player.hit()
             knock_back = pg.math.Vector2(settings.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 

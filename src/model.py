@@ -123,7 +123,7 @@ class Humanoid(GameObject):
         self.acc = Vector2(0, 0)
         self.rect.center = self.pos
         self.rot = 0
-        self.max_health = max_health
+        self._max_health = max_health
         self._health = max_health
         self._timer = timer
         self._walls = walls
@@ -132,9 +132,13 @@ class Humanoid(GameObject):
     def health(self) -> int:
         return self._health
 
+    @property
+    def damaged(self) -> bool:
+        return self.health < self._max_health
+
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
-        new_health = min(new_health, self.max_health)
+        new_health = min(new_health, self._max_health)
         new_health = max(new_health, 0)
         self._health = new_health
 
@@ -217,7 +221,6 @@ class Player(Humanoid):
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
         self._weapon = Weapon('pistol', self._timer, groups)
-        self.damaged = False
         self.damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self.rot_speed = 0
 
@@ -247,9 +250,6 @@ class Player(Humanoid):
             self._weapon.shoot(self.pos, self.rot)
             self.vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
 
-    def hit(self) -> None:
-        self.damaged = True
-
     def update(self) -> None:
 
         if self.damaged:
@@ -257,7 +257,7 @@ class Player(Humanoid):
                 self.image.fill((255, 255, 255, next(self.damage_alpha)),
                                 special_flags=pg.BLEND_RGBA_MULT)
             except StopIteration:
-                self.damaged = False
+                pass
 
         delta_rot = int(self.rot_speed * self._timer.dt)
         self.rot = (self.rot + delta_rot) % 360
@@ -331,7 +331,7 @@ class Mob(Humanoid):
             col = settings.RED
         width = int(self.rect.width * self.health / settings.MOB_HEALTH)
         self.health_bar = pg.Rect(0, 0, width, 7)
-        if self.health < settings.MOB_HEALTH:
+        if self.damaged:
             pg.draw.rect(self.image, col, self.health_bar)
 
 
