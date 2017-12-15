@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 import settings
-import controller as ctrl
+import dungeon_controller as ctrl
 import sounds
 import images
 import view
