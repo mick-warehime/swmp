@@ -11,5 +11,5 @@ class Key(object):
 
 class Pygame(object):
     def __init__(self) -> None:
-        self.key = Key(n_keys=10)
-        self.mouse = Key(n_keys=10)
+        self.key = Key(n_keys=500)
+        self.mouse = Key(n_keys=500)
