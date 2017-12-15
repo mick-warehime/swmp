@@ -1,7 +1,7 @@
 [quests]
 * quest theme foo *
-+ quest for foo 1
-+ quest for foo 2
++ quest for foo 1 - [scene theme 1, ... , scene theme n]
++ quest for foo 2 - [scene theme 1, ... , scene theme k]
 ...
 
 non-arc
