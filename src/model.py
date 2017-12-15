@@ -330,9 +330,9 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         width = int(self.rect.width * self.health / settings.MOB_HEALTH)
-        self.health_bar = pg.Rect(0, 0, width, 7)
+        health_bar = pg.Rect(0, 0, width, 7)
         if self.damaged:
-            pg.draw.rect(self.image, col, self.health_bar)
+            pg.draw.rect(self.image, col, health_bar)
 
 
 class Bullet(pg.sprite.Sprite):
