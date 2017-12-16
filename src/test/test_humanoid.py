@@ -7,8 +7,12 @@ sys.path.append('../')
 sys.path.append('.')
 import pygame
 from pygame.sprite import Group, LayeredUpdates
-import model, images, sounds
+import model
+import humanoid as hmn
+import images
+import sounds
 from src.test.pygame_mock import MockTimer, Pygame
+from weapon import Weapon
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -27,23 +31,23 @@ def setUpModule() -> None:
 
 
 def _make_pistol(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> model.Weapon:
+                 groups: Union[None, model.Groups] = None) -> Weapon:
     if groups is None:
         groups = model.Groups()
     if timer is None:
         timer = MockTimer()
-    weapon = model.Weapon('pistol', timer, groups)
+    weapon = Weapon('pistol', timer, groups)
     return weapon
 
 
 def _make_player(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> model.Player:
+                 groups: Union[None, model.Groups] = None) -> hmn.Player:
     if groups is None:
         groups = model.Groups()
     if timer is None:
         timer = MockTimer()
     pos = pygame.math.Vector2(0, 0)
-    player = model.Player(groups, timer, pos)
+    player = hmn.Player(groups, timer, pos)
     return player
 
 
@@ -61,7 +65,7 @@ class ModelTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not defined in settings.py.'):
             groups = model.Groups()
             timer = MockTimer()
-            model.Weapon('bad', timer, groups)
+            Weapon('bad', timer, groups)
 
     def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
         groups = model.Groups()

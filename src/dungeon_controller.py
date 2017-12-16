@@ -1,16 +1,14 @@
-from typing import Dict, List
-import pygame as pg
-from os import path
-
-from pygame.math import Vector2
-
-import tilemap
-from model import Player, Mob, Obstacle, Item, collide_hit_rect_with_rect, \
-    Timer, \
-    Groups, Bullet
-import view
+from humanoid import Player, Mob, collide_hit_rect_with_rect
 from pygame.sprite import spritecollide, groupcollide
+from model import Obstacle, Item, Timer, Groups
+from pygame.math import Vector2
+from typing import Dict, List
+from weapon import Bullet
+from os import path
 from random import random
+import pygame as pg
+import tilemap
+import view
 import settings
 import sounds
 import controller
