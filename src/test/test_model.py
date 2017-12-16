@@ -1,21 +1,19 @@
 import unittest
 from typing import Union
+import sys, os
 
+sys.path.append('../../')
+sys.path.append('../')
 import pygame
 from pygame.sprite import Group, LayeredUpdates
-
 import model, images, sounds
-from test.pygame_mock import MockTimer
-from . import pygame_mock
+from src.test.pygame_mock import MockTimer, Pygame
 
 # This allows for running tests without actually generating a screen display
-# or audio output.
-import os
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
+# or audio output.os.environ['SDL_VIDEODRIVER'] = 'dummy'
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
-
-pg = pygame_mock.Pygame()
+pg = Pygame()
 
 
 def setUpModule() -> None:
