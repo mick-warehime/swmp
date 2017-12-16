@@ -12,15 +12,16 @@ from . import pygame_mock
 import os
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.putenv('SDL_SOUNDDRIVER', 'fbcon')
+os.environ["SDL_SOUNDDRIVER"] = "dummy"
 
 pg = pygame_mock.Pygame()
 
 
 def setUpModule() -> None:
     pygame.display.set_mode((600, 400))
-    # pygame.mixer.pre_init(44100, -16, 4, 2048)
+    pygame.mixer.pre_init(44100, -16, 4, 2048)
     pygame.init()
-    pygame.mixer.set_num_channels(0)
     images.initialize_images()
     sounds.initialize_sounds()
 
