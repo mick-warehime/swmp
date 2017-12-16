@@ -12,7 +12,10 @@ pg = pygame_mock.Pygame()
 
 
 def setUpModule() -> None:
-    pygame.display.set_mode()
+    try:
+        pygame.display.set_mode((600, 400))
+    except ValueError:
+        pass
     pygame.mixer.pre_init(44100, -16, 4, 2048)
     pygame.init()
     images.initialize_images()
