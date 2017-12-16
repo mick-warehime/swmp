@@ -8,14 +8,16 @@ import model, images, sounds
 from test.pygame_mock import MockTimer
 from . import pygame_mock
 
+# This allows for running tests without actually generating a screen display.
+import os
+os.putenv('SDL_VIDEODRIVER', 'fbcon')
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+
 pg = pygame_mock.Pygame()
 
 
 def setUpModule() -> None:
-    try:
-        pygame.display.set_mode((600, 400))
-    except pygame.error:
-        pass
+    pygame.display.set_mode((600, 400))
     pygame.mixer.pre_init(44100, -16, 4, 2048)
     pygame.init()
     images.initialize_images()
