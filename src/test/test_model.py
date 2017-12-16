@@ -108,12 +108,12 @@ class ModelTest(unittest.TestCase):
         timer = MockTimer()
         player = _make_player(timer=timer)
 
-        old_vel = (player.vel.x, player.vel.y)
+        old_vel = (player._vel.x, player._vel.y)
 
         timer.time += player._weapon.shoot_rate + 1
         player.shoot()
 
-        new_vel = (player.vel.x, player.vel.y)
+        new_vel = (player._vel.x, player._vel.y)
         expected_vel = (-player._weapon.kick_back + old_vel[0], old_vel[1])
         self.assertEqual(new_vel, expected_vel)
 
