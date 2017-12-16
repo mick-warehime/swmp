@@ -10,10 +10,10 @@ from . import pygame_mock
 
 # This allows for running tests without actually generating a screen display.
 import os
-os.putenv('SDL_VIDEODRIVER', 'fbcon')
-os.environ["SDL_VIDEODRIVER"] = "dummy"
-os.putenv('SDL_AUDIODRIVER', 'fbcon')
-os.environ["SDL_AUDIODRIVER"] = "dummy"
+# os.putenv('SDL_VIDEODRIVER', 'fbcon')
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
+# os.putenv('SDL_AUDIODRIVER', 'dummy')
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 
 pg = pygame_mock.Pygame()
