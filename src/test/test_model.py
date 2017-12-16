@@ -4,6 +4,7 @@ import sys, os
 
 sys.path.append('../../')
 sys.path.append('../')
+sys.path.append('.')
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model, images, sounds
