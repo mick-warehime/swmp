@@ -139,7 +139,8 @@ class DungeonController(controller.Controller):
             if random() < 0.7:
                 sounds.player_hit_sound()
                 self.player.increment_health(-settings.MOB_DAMAGE)
-            zombie.vel = pg.math.Vector2(0, 0)
+            zombie.stop_x()
+            zombie.stop_y()
             if self.player.health <= 0:
                 self._playing = False
         if mobs:
@@ -152,7 +153,8 @@ class DungeonController(controller.Controller):
                                                      False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
-            mob.vel = pg.math.Vector2(0, 0)
+            mob.stop_x()
+            mob.stop_y()
 
     def get_fps(self) -> float:
         return self._clock.get_fps()
