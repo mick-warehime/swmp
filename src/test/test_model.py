@@ -12,8 +12,9 @@ from . import pygame_mock
 import os
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.environ["SDL_VIDEODRIVER"] = "dummy"
-os.putenv('SDL_SOUNDDRIVER', 'fbcon')
-os.environ["SDL_SOUNDDRIVER"] = "dummy"
+os.putenv('SDL_AUDIODRIVER', 'fbcon')
+os.environ["SDL_AUDIODRIVER"] = "dummy"
+
 
 pg = pygame_mock.Pygame()
 
