@@ -8,11 +8,10 @@ import model, images, sounds
 from test.pygame_mock import MockTimer
 from . import pygame_mock
 
-# This allows for running tests without actually generating a screen display.
+# This allows for running tests without actually generating a screen display
+# or audio output.
 import os
-# os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.environ['SDL_VIDEODRIVER'] = 'dummy'
-# os.putenv('SDL_AUDIODRIVER', 'dummy')
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 
