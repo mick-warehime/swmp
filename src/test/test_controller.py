@@ -212,3 +212,7 @@ class DecisionControllerTest(unittest.TestCase):
         dc.update()
 
         self.assertEqual(dc.choice, 3)
+
+
+if __name__ == '__main__':
+    unittest.main()
