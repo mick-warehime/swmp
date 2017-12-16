@@ -2,7 +2,7 @@ import pygame as pg
 from random import uniform, choice, randint, random
 from typing import Any, Union
 from pygame.math import Vector2
-from pygame.sprite import Sprite, Group, LayeredUpdates
+from pygame.sprite import Group, LayeredUpdates
 import pytweening as tween
 from itertools import chain
 import settings
