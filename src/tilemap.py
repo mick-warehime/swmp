@@ -4,10 +4,6 @@ import pytmx
 from settings import WIDTH, HEIGHT
 
 
-def collide_hit_rect(one: pg.sprite.Sprite, two: pg.sprite.Sprite) -> bool:
-    return one.hit_rect.colliderect(two.rect)
-
-
 class TiledMap:
     def __init__(self, filename: str) -> None:
         tm = pytmx.load_pygame(filename, pixelalpha=True)

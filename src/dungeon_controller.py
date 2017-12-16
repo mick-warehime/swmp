@@ -5,7 +5,8 @@ from os import path
 from pygame.math import Vector2
 
 import tilemap
-from model import Player, Mob, Obstacle, Item, collide_hit_rect, Timer, \
+from model import Player, Mob, Obstacle, Item, collide_hit_rect_with_rect, \
+    Timer, \
     Groups, Bullet
 import view
 from pygame.sprite import spritecollide, groupcollide
@@ -125,7 +126,7 @@ class DungeonController(controller.Controller):
             if item.label == 'health' and not full_health:
                 item.kill()
                 sounds.play(sounds.HEALTH_UP)
-                self.player.add_health(settings.HEALTH_PACK_AMOUNT)
+                self.player.increment_health(settings.HEALTH_PACK_AMOUNT)
             if item.label == 'shotgun':
                 item.kill()
                 sounds.play(sounds.GUN_PICKUP)
@@ -133,16 +134,16 @@ class DungeonController(controller.Controller):
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
-                                        collide_hit_rect)
+                                        collide_hit_rect_with_rect)
         for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.health -= settings.MOB_DAMAGE
-            zombie.vel = pg.math.Vector2(0, 0)
+                self.player.increment_health(-settings.MOB_DAMAGE)
+            zombie.stop_x()
+            zombie.stop_y()
             if self.player.health <= 0:
                 self._playing = False
         if mobs:
-            self.player.hit()
             knock_back = pg.math.Vector2(settings.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
@@ -151,8 +152,9 @@ class DungeonController(controller.Controller):
                                                      self._groups.bullets,
                                                      False, True)
         for mob, bullets in hits.items():
-            mob.health -= sum(bullet.damage for bullet in bullets)
-            mob.vel = pg.math.Vector2(0, 0)
+            mob.increment_health(-sum(bullet.damage for bullet in bullets))
+            mob.stop_x()
+            mob.stop_y()
 
     def get_fps(self) -> float:
         return self._clock.get_fps()
