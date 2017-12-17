@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import settings
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group
@@ -58,7 +58,7 @@ class DungeonView(object):
     def generate_skill_rects(self) -> List[pg.Rect]:
         skill_size = 62
         x, y = self._hud_pos
-        rects : List[pg.Rect] = []
+        rects: List[pg.Rect] = []
         for i in range(4):
             x_i = x + i * (skill_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, skill_size, skill_size)
