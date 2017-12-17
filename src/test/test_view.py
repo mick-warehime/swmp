@@ -17,6 +17,9 @@ class ViewTest(unittest.TestCase):
             self.view.try_click_skill((x, y))
             self.assertEqual(self.view._selected_skill, idx)
 
+        # ensure previous loop gets hit
+        self.assertTrue(idx > 0)
+
         self.view.try_click_skill((0, 0))
         self.assertEqual(self.view._selected_skill, -1)
 
@@ -26,6 +29,9 @@ class ViewTest(unittest.TestCase):
             y = r.centery
             self.view.try_click_item((x, y))
             self.assertEqual(self.view._selected_item, idx)
+
+        # ensure previous loop gets hit
+        self.assertTrue(idx > 0)
 
         self.view.try_click_item((0, 0))
         self.assertEqual(self.view._selected_item, -1)
