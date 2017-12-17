@@ -1,9 +1,10 @@
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Tuple
 import pygame as pg
 
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
 MOUSE_RIGHT = 2
+NOT_CLICKED = (-1, -1)
 
 
 def call_binding(key_id: int,
@@ -20,6 +21,7 @@ class Controller(object):
 
         # keys pressed down in the previous frame
         self._prev_keys: List[int] = [0] * len(pg.key.get_pressed())
+        self._prev_mouse: List[int] = [0] * len(pg.mouse.get_pressed())
 
         # maps keys to functions
         self.bindings: Dict[int, Callable[..., None]] = {}
@@ -53,7 +55,8 @@ class Controller(object):
                                  only_handle)
 
             for mouse_id in self.mouse_bindings:
-                if mouse[mouse_id]:
+                # only execute the first time the button is clicked
+                if mouse[mouse_id] and not self._prev_mouse[mouse_id]:
                     call_binding(mouse_id,
                                  self.mouse_bindings,
                                  only_handle)
@@ -67,4 +70,17 @@ class Controller(object):
                                  self.bindings_down,
                                  only_handle)
 
+    def get_clicked_pos(self) -> Tuple[int, int]:
+        mouse = pg.mouse.get_pressed()
+
+        # determine if we clicked this frame
+        if mouse[MOUSE_LEFT] and not self._prev_mouse[MOUSE_LEFT]:
+            return pg.mouse.get_pos()
+
+        return NOT_CLICKED
+
+    def set_previous_input(self) -> None:
+        keys = pg.key.get_pressed()
+        mouse = pg.mouse.get_pressed()
         self._prev_keys = list(keys)
+        self._prev_mouse = list(mouse)

@@ -73,7 +73,7 @@ class Humanoid(mdl.GameObject):
         self.backpack.append(item)
 
     def backpack_full(self) -> bool:
-        return len(self.backpack) <= self.backpack_size
+        return len(self.backpack) >= self.backpack_size
 
 
 class Player(Humanoid):
