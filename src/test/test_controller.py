@@ -62,6 +62,7 @@ class ControllerTest(unittest.TestCase):
         # function is called when you press the key
         pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
+        ctrl.set_previous_input()
         self.assertEqual(self.a, test_string)
 
         # reset to detect future calls
@@ -70,16 +71,19 @@ class ControllerTest(unittest.TestCase):
         # nothing happens if you keep it help down
         pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
+        ctrl.set_previous_input()
         self.assertEqual(self.a, '')
 
         # nothing happens when you release
         pg.key.pressed[self.a_key] = 0
         ctrl.handle_input()
+        ctrl.set_previous_input()
         self.assertEqual(self.a, '')
 
         # function called again when you press down
         pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
+        ctrl.set_previous_input()
         self.assertEqual(self.a, test_string)
 
     def test_mouse(self) -> None:

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import settings
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group
@@ -32,12 +32,19 @@ class DungeonView(object):
         self._hud_bar_offset = 0
         self._bar_length = 260
         self._bar_height = 20
+        self._hud_rect = pg.Rect(hud_x,
+                                 hud_y,
+                                 self._hud_width,
+                                 self._hud_height)
 
         # generate rects for skills/backpack
         self.skill_rects = self.generate_skill_rects()
         backpack_rects, img_rects = self.generate_backpack_rects()
         self.backpack_rects = backpack_rects
         self.backpack_img_rects = img_rects
+
+        self._selected_skill = -1
+        self._selected_item = -1
 
         self._draw_debug = False
         self._night = False
@@ -173,8 +180,11 @@ class DungeonView(object):
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
 
     def draw_skills(self, player: Player) -> None:
-        for r in self.skill_rects:
-            pg.draw.rect(self._screen, settings.HUDDARK, r, 2)
+        for idx, r in enumerate(self.skill_rects):
+            col = settings.HUDDARK
+            if self._selected_skill == idx:
+                col = settings.RED
+            pg.draw.rect(self._screen, col, r, 2)
 
         for idx, s in enumerate(player.active_skills):
 
@@ -193,9 +203,39 @@ class DungeonView(object):
                       20, settings.WHITE, r.x + 10, r.y + 10, align="center")
 
     def draw_backpack(self, player: Player) -> None:
-        for r in self.backpack_rects:
-            pg.draw.rect(self._screen, settings.HUDDARK, r, 2)
+        for idx, r in enumerate(self.backpack_rects):
+            col = settings.HUDDARK
+            if self._selected_item == idx:
+                col = settings.RED
+            pg.draw.rect(self._screen, col, r, 2)
 
         for idx, item in enumerate(player.backpack):
             r = self.backpack_img_rects[idx]
             self._screen.blit(item.image, r)
+
+    def try_click_skill(self, pos: Tuple[int, int]) -> None:
+        index = self.clicked_rect_index(self.skill_rects, pos)
+        if index == self._selected_skill:
+            self._selected_skill = -1
+        else:
+            self._selected_skill = index
+
+    def try_click_item(self, pos: Tuple[int, int]) -> None:
+        index = self.clicked_rect_index(self.backpack_rects, pos)
+        if index == self._selected_item:
+            self._selected_item = -1
+        else:
+            self._selected_item = index
+
+    def clicked_rect_index(self, rects: List[pg.Rect],
+                           pos: Tuple[int, int]) -> int:
+
+        x, y = pos
+        for idx, r in enumerate(rects):
+            if r.collidepoint(x, y):
+                return idx
+        return -1
+
+    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
+        x, y = pos
+        return self._hud_rect.collidepoint(x, y)

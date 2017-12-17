@@ -106,7 +106,9 @@ class DungeonController(controller.Controller):
         # needs to be called every frame to throttle max framerate
         self.dt = self._clock.tick(settings.FPS) / 1000.0
 
-        self.handle_input()
+        clicked_hud = self.try_handle_hud()
+        if not clicked_hud:
+            self.handle_input()
 
         # update portion of the game loop
         self._groups.all_sprites.update()
@@ -120,10 +122,9 @@ class DungeonController(controller.Controller):
         items: List[Item] = spritecollide(self.player, self._groups.items,
                                           False)
         for item in items:
-            # if not self.player.backpack_full():
-            print("adding item %s" % item.label)
-            self.player.add_item_to_backpack(item)
-            item.kill()
+            if not self.player.backpack_full():
+                self.player.add_item_to_backpack(item)
+                item.kill()
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
@@ -149,9 +150,21 @@ class DungeonController(controller.Controller):
             mob.stop_x()
             mob.stop_y()
 
+        self.set_previous_input()
+
     def get_fps(self) -> float:
         return self._clock.get_fps()
 
     # the owning object needs to know this
     def dungeon_over(self) -> bool:
         return not self._playing
+
+    def try_handle_hud(self) -> bool:
+        pos = self.get_clicked_pos()
+        if pos == controller.NOT_CLICKED:
+            return False
+
+        self._view.try_click_skill(pos)
+        self._view.try_click_item(pos)
+
+        return self._view.clicked_hud(pos)
