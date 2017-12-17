@@ -2,6 +2,7 @@ from itertools import chain
 from random import choice, random
 from pygame.math import Vector2
 from weapon import Weapon
+from typing import List
 import model as mdl
 import settings
 import images
@@ -22,6 +23,10 @@ class Humanoid(mdl.GameObject):
         self._health = max_health
         self._timer = timer
         self._walls = walls
+        self.skills: List[str] = [settings.PISTOL_SKILL]
+        self.active_skills: List[str] = [settings.PISTOL_SKILL]
+        self.backpack: List[mdl.Item] = []
+        self.backpack_size = 8
 
     @property
     def health(self) -> int:
@@ -59,6 +64,16 @@ class Humanoid(mdl.GameObject):
 
     def stop_y(self) -> None:
         self._vel.y = 0
+
+    def add_skill(self, skill_name: str) -> None:
+        self.skills.append(skill_name)
+        self.active_skills.append(skill_name)
+
+    def add_item_to_backpack(self, item: mdl.Item) -> None:
+        self.backpack.append(item)
+
+    def backpack_full(self) -> bool:
+        return len(self.backpack) <= self.backpack_size
 
 
 class Player(Humanoid):

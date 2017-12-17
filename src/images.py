@@ -14,10 +14,13 @@ MUZZLE_FLASH4 = 'whitePuff18.png'
 LIGHT_MASK = "light_350_soft.png"
 HEALTH_PACK = 'health_pack.png'
 SHOTGUN = 'obj_shotgun.png'
+SHOTGUN_SKILL = 'shells.png'
+PISTOL_SKILL = 'pistol_skill.png'
 
 ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
               MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
-              MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, SHOTGUN]
+              MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, SHOTGUN,
+              SHOTGUN_SKILL, PISTOL_SKILL]
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'

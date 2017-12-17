@@ -83,6 +83,7 @@ ITEMS_LAYER = 1
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3
+HEALTHPACK_ITEM = 'health'
 
 # Sounds
 BG_MUSIC = 'espionage.ogg'
@@ -97,3 +98,7 @@ WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
+
+# SKILL
+PISTOL_SKILL = 'pistol'
+SHOTGUN_SKILL = 'shotgun'

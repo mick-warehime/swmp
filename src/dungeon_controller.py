@@ -120,15 +120,10 @@ class DungeonController(controller.Controller):
         items: List[Item] = spritecollide(self.player, self._groups.items,
                                           False)
         for item in items:
-            full_health = self.player.health >= settings.PLAYER_HEALTH
-            if item.label == 'health' and not full_health:
-                item.kill()
-                sounds.play(sounds.HEALTH_UP)
-                self.player.increment_health(settings.HEALTH_PACK_AMOUNT)
-            if item.label == 'shotgun':
-                item.kill()
-                sounds.play(sounds.GUN_PICKUP)
-                self.player.set_weapon('shotgun')
+            # if not self.player.backpack_full():
+            print("adding item %s" % item.label)
+            self.player.add_item_to_backpack(item)
+            item.kill()
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
