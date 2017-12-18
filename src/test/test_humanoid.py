@@ -53,7 +53,7 @@ def _make_mob(player: hmn.Player,
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
 
-    return hmn.Mob(groups, pos)
+    return hmn.Mob(groups, pos, player)
 
 
 def setUpModule() -> None:
