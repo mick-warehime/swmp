@@ -13,7 +13,7 @@ import model
 import humanoid as hmn
 import images
 import sounds
-from src.test.pygame_mock import MockTimer, Pygame
+from src.test.pygame_mock import MockTimer, Pygame, _initialize_pygame
 from weapon import Weapon, Bullet, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
@@ -29,27 +29,25 @@ class Connection(object):
     timer = MockTimer()
 
 
-def _make_pistol(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> Weapon:
+def _make_pistol(groups: Union[None, model.Groups] = None) -> Weapon:
     if groups is None:
         groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
+    timer = Connection.timer
     return Weapon('pistol', timer, groups)
 
 
-def _make_player(groups: Union[None, model.Groups] = None) -> hmn.Player:
-    if groups is None:
-        groups = model.Groups()
+def _make_player() -> hmn.Player:
+    groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
-    return hmn.Player(groups, pos)
+
+    player = hmn.Player(groups, pos)
+    player.set_weapon('pistol')
+    return player
 
 
 def _make_mob(player: hmn.Player,
-              groups: Union[None, model.Groups] = None,
               pos: Union[Vector2, None] = None) -> hmn.Mob:
-    if groups is None:
-        groups = model.Groups()
+    groups = Connection.groups
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
 
@@ -58,11 +56,7 @@ def _make_mob(player: hmn.Player,
 
 
 def setUpModule() -> None:
-    pygame.display.set_mode((600, 400))
-    pygame.mixer.pre_init(44100, -16, 4, 2048)
-    pygame.init()
-    images.initialize_images()
-    sounds.initialize_sounds()
+    _initialize_pygame()
 
     try:
         _make_player()
@@ -76,7 +70,7 @@ def setUpModule() -> None:
         raise AssertionError('Expected a RuntimeError to be raised because '
                              'Humanoid is not initialized.')
     except RuntimeError:
-        hmn.Humanoid.init_class(Connection.groups.walls, Connection.timer)
+        hmn.Humanoid.init_humanoid(Connection.groups.walls, Connection.timer)
 
     player = _make_player()
 
@@ -92,13 +86,13 @@ def setUpModule() -> None:
 
 
 class ModelTest(unittest.TestCase):
-    def tearDown(self):
+    def tearDown(self) -> None:
         groups = Connection.groups
-        groups.walls.empty
-        groups.mobs.empty
-        groups.bullets.empty
-        groups.all_sprites.empty
-        groups.items.empty
+        groups.walls.empty()
+        groups.mobs.empty()
+        groups.bullets.empty()
+        groups.all_sprites.empty()
+        groups.items.empty()
 
         Connection.timer.reset()
 
@@ -143,8 +137,8 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(num_others, 0)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
-        timer = MockTimer()
-        weapon = _make_pistol(timer)
+        timer = Connection.timer
+        weapon = _make_pistol()
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
 
@@ -167,9 +161,9 @@ class ModelTest(unittest.TestCase):
         self.assertGreater(weapon.bullet_count, 1)
 
     def test_player_shoot_no_shot(self) -> None:
-        groups = model.Groups()
+        groups = Connection.groups
         timer = Connection.timer
-        player = _make_player(groups=groups)
+        player = _make_player()
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()

@@ -70,7 +70,7 @@ class DungeonController(controller.Controller):
                 ItemManager.item(self._groups, obj_center, tile_object.name)
 
     def _init_humanoids(self) -> None:
-        Humanoid.init_class(self._groups.walls, Timer(self))
+        Humanoid.init_humanoid(self._groups.walls, Timer(self))
         Player.init_class()
         Mob.init_class(self._map_img, self._groups)
 

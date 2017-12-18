@@ -1,28 +1,61 @@
-from src.test.pygame_mock import MockTimer
+import os
 import unittest
+
 import pygame
-import model
+
 import humanoid as hmn
+import mod
+import model
 import settings
 from item_manager import ItemManager
-import mod
+from src.test.pygame_mock import MockTimer
+# This allows for running tests without actually generating a screen display
+# or audio output.
+from test.pygame_mock import _initialize_pygame
+
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
+
+
+class Connection(object):
+    groups = model.Groups()
+    timer = MockTimer()
+
+
+def setUpModule() -> None:
+    _initialize_pygame()
+
+    hmn.Humanoid.init_humanoid(Connection.groups.walls, Connection.timer)
+    hmn.Player.init_class()
+    blank_screen = pygame.Surface((800, 600))
+    hmn.Mob.init_class(blank_screen, Connection.groups)
 
 
 def _make_player() -> hmn.Player:
-    groups = model.Groups()
-    timer = MockTimer()
+    groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(groups, timer, pos)
+    player = hmn.Player(groups, pos)
     player.set_weapon('pistol')
     return player
 
+
 def _make_item(label: str) -> model.Item:
     pos = (0, 0)
-    groups = model.Groups()
+    groups = Connection.groups
     return ItemManager.item(groups, pos, label)
 
 
 class ModTest(unittest.TestCase):
+    def tearDown(self) -> None:
+        groups = Connection.groups
+        groups.walls.empty()
+        groups.mobs.empty()
+        groups.bullets.empty()
+        groups.all_sprites.empty()
+        groups.items.empty()
+
+        Connection.timer.reset()
+
     def test_add_items(self) -> None:
         player = _make_player()
         hp = _make_item(settings.HEALTHPACK_ITEM)

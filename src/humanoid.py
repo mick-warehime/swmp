@@ -1,8 +1,10 @@
 from itertools import chain
 from random import choice, random
 from pygame.math import Vector2
+from pygame.sprite import Group
+
 from weapon import Weapon
-from typing import List, Dict
+from typing import List, Dict, Union
 import model as mdl
 import settings
 import images
@@ -14,8 +16,8 @@ import pygame as pg
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
     humanoids_initialized = False
-    _walls = None
-    _timer = None
+    _walls: Union[None, Group] = None
+    _timer: Union[None, mdl.Timer] = None
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
@@ -80,7 +82,7 @@ class Humanoid(mdl.GameObject):
         return len(self.backpack) >= self.backpack_size
 
     @classmethod
-    def init_class(cls, walls: mdl.Group, timer: mdl.Timer):
+    def init_humanoid(cls, walls: mdl.Group, timer: mdl.Timer) -> None:
         if not cls.humanoids_initialized:
             cls._walls = walls
             cls._timer = timer

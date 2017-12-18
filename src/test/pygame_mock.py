@@ -1,7 +1,11 @@
 import random
 from typing import List
 
+import pygame
+
+import images
 import model
+import sounds
 
 
 class Key(object):
@@ -32,3 +36,11 @@ class MockTimer(model.Timer):
 
     def reset(self) -> None:
         self._time = 0
+
+
+def _initialize_pygame() -> None:
+    pygame.display.set_mode((600, 400))
+    pygame.mixer.pre_init(44100, -16, 4, 2048)
+    pygame.init()
+    images.initialize_images()
+    sounds.initialize_sounds()
