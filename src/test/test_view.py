@@ -3,7 +3,7 @@ import unittest
 import view
 import pygame
 import settings
-from test.pygame_mock import _initialize_pygame
+from test.pygame_mock import initialize_pygame
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -12,7 +12,7 @@ os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 
 def setUpModule() -> None:
-    _initialize_pygame()
+    initialize_pygame()
 
 
 class ViewTest(unittest.TestCase):

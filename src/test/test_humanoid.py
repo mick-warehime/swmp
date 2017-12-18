@@ -13,7 +13,7 @@ import model
 import humanoid as hmn
 import images
 import sounds
-from src.test.pygame_mock import MockTimer, Pygame, _initialize_pygame
+from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from weapon import Weapon, Bullet, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
@@ -56,7 +56,7 @@ def _make_mob(player: hmn.Player,
 
 
 def setUpModule() -> None:
-    _initialize_pygame()
+    initialize_pygame()
 
     try:
         _make_player()

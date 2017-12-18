@@ -38,7 +38,7 @@ class MockTimer(model.Timer):
         self._time = 0
 
 
-def _initialize_pygame() -> None:
+def initialize_pygame() -> None:
     pygame.display.set_mode((600, 400))
     pygame.mixer.pre_init(44100, -16, 4, 2048)
     pygame.init()

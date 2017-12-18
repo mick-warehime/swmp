@@ -11,7 +11,7 @@ from item_manager import ItemManager
 from src.test.pygame_mock import MockTimer
 # This allows for running tests without actually generating a screen display
 # or audio output.
-from test.pygame_mock import _initialize_pygame
+from test.pygame_mock import initialize_pygame
 
 os.environ['SDL_VIDEODRIVER'] = 'dummy'
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
@@ -23,7 +23,7 @@ class Connection(object):
 
 
 def setUpModule() -> None:
-    _initialize_pygame()
+    initialize_pygame()
 
     hmn.Humanoid.init_humanoid(Connection.groups.walls, Connection.timer)
     hmn.Player.init_class()
