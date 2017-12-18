@@ -1,68 +1,100 @@
+from src.test.pygame_mock import MockTimer
 import unittest
-from typing import Union
-import sys, os
-
-sys.path.append('../../')
-sys.path.append('../')
-sys.path.append('.')
 import pygame
-from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-import images
-import sounds
-from src.test.pygame_mock import MockTimer, Pygame
-from weapon import Weapon
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
+import settings
+from item_manager import ItemManager
+import mod
 
 
-def setUpModule() -> None:
-    pygame.display.set_mode((600, 400))
-    pygame.mixer.pre_init(44100, -16, 4, 2048)
-    pygame.init()
-    images.initialize_images()
-    sounds.initialize_sounds()
-
-
-def _make_weapon(label: str) -> Weapon:
+def _make_player() -> hmn.Player:
     groups = model.Groups()
     timer = MockTimer()
-    weapon = Weapon(label, timer, groups)
-    return weapon
-
-
-def _make_player(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> hmn.Player:
-    if groups is None:
-        groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
     pos = pygame.math.Vector2(0, 0)
     player = hmn.Player(groups, timer, pos)
     player.set_weapon('pistol')
     return player
 
+def _make_item(label: str) -> model.Item:
+    pos = (0, 0)
+    groups = model.Groups()
+    return ItemManager.item(groups, pos, label)
+
 
 class ModTest(unittest.TestCase):
+    def test_add_items(self) -> None:
+        player = _make_player()
+        hp = _make_item(settings.HEALTHPACK_ITEM)
 
+        self.assertEqual(len(player.backpack), 0)
 
-    def test_player_has_pistol(self) -> None:
-        groups = model.Groups()
-        timer = MockTimer()
-        player = _make_player(timer=timer, groups=groups)
+        for i in range(player.backpack_size):
+            player.add_item_to_backpack(hp)
+            self.assertEqual(len(player.backpack), i + 1)
 
-        self.assertEqual(len(groups.bullets), 0)
-        player.shoot()
-        self.assertEqual(len(groups.bullets), 0)
-        timer.time += player._weapon.shoot_rate + 1
-        player.shoot()
-        self.assertEqual(len(groups.bullets), 1)
+        self.assertTrue(player.backpack_full())
+
+    def test_use_health_pack(self) -> None:
+        player = _make_player()
+        hp = _make_item(settings.HEALTHPACK_ITEM)
+
+        self.assertEqual(len(player.backpack), 0)
+
+        player.add_item_to_backpack(hp)
+
+        # health is full
+        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+
+        hp.use(player)
+
+        # health pack doesn't work if health is full
+        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertEqual(len(player.backpack), 1)
+
+        player.increment_health(-settings.HEALTH_PACK_AMOUNT)
+
+        hp.use(player)
+
+        # health pack fills health back up and is gone from backpack
+        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertEqual(len(player.backpack), 0)
+
+        player.add_item_to_backpack(hp)
+        player.increment_health(-1)
+
+        hp.use(player)
+
+        # health pack doesn't fill you over max health
+        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertEqual(len(player.backpack), 0)
+
+    def test_add_mod(self) -> None:
+        player = _make_player()
+        shotgun = _make_item(settings.SHOTGUN_MOD)
+
+        player.add_item_to_backpack(shotgun)
+
+        # nothing installed at arms location -> install shotgun
+        self.assertEqual(len(player.backpack), 0)
+        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        self.assertEqual(arm_mod, shotgun)
+
+        # adding a second arm mod goes into the backpack
+        pistol = _make_item(settings.PISTOL_MOD)
+
+        player.add_item_to_backpack(pistol)
+        self.assertEqual(len(player.backpack), 1)
+        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        self.assertEqual(arm_mod, shotgun)
+        self.assertTrue(pistol in player.backpack)
+
+        # make sure we can swap the pistol with the shotgun
+        pistol.use(player)
+        self.assertEqual(len(player.backpack), 1)
+        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        self.assertEqual(arm_mod, pistol)
+        self.assertTrue(shotgun in player.backpack)
 
 
 if __name__ == '__main__':

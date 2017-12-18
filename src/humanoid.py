@@ -68,6 +68,13 @@ class Humanoid(mdl.GameObject):
         self._vel.y = 0
 
     def add_item_to_backpack(self, item: mdl.Item) -> None:
+
+        if isinstance(item, mod.Mod):
+            m: mod.Mod = item
+            if m.loc not in self.active_mods:
+                m.use(self)
+                return
+
         self.backpack.append(item)
 
     def backpack_full(self) -> bool:

@@ -37,7 +37,9 @@ class Mod(model.Item):
             old_mod = player.active_mods[self.loc]
         player.active_mods[self.loc] = self
 
-        player.backpack.remove(self)
+        if self in player.backpack:
+            player.backpack.remove(self)
+
         if old_mod is not None:
             player.backpack.append(old_mod)
 
