@@ -52,7 +52,6 @@ class DungeonController(controller.Controller):
 
         self._init_humanoids()
 
-        timer = Timer(self)
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
