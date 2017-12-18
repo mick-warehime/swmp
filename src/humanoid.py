@@ -160,7 +160,8 @@ class Mob(Humanoid):
     _map_img = None
     _mob_group = None
 
-    def __init__(self, pos: Vector2, groups: mdl.Groups, player: Player) -> None:
+    def __init__(self, pos: Vector2, groups: mdl.Groups,
+                 player: Player) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
             raise ValueError('Classes %s and %s must be initialized before an '
