@@ -38,8 +38,7 @@ def _make_pistol(timer: Union[None, MockTimer] = None,
         groups = model.Groups()
     if timer is None:
         timer = MockTimer()
-    weapon = Weapon('pistol', timer, groups)
-    return weapon
+    return Weapon('pistol', timer, groups)
 
 
 def _make_player(timer: Union[None, MockTimer] = None,
@@ -49,8 +48,21 @@ def _make_player(timer: Union[None, MockTimer] = None,
     if timer is None:
         timer = MockTimer()
     pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(groups, timer, pos)
-    return player
+    return hmn.Player(groups, timer, pos)
+
+
+def _make_mob(player: hmn.Player,
+              timer: Union[None, MockTimer] = None,
+              groups: Union[None, model.Groups] = None,
+              pos: Union[Vector2, None] = None) -> hmn.Mob:
+    if groups is None:
+        groups = model.Groups()
+    if timer is None:
+        timer = MockTimer()
+    if pos is None:
+        pos = pygame.math.Vector2(0, 0)
+
+    return hmn.Mob(groups, timer, pos)
 
 
 class ModelTest(unittest.TestCase):
