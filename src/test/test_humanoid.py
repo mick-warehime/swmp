@@ -24,6 +24,10 @@ os.environ['SDL_AUDIODRIVER'] = 'dummy'
 pg = Pygame()
 
 
+class Connection(object):
+    groups = model.Groups()
+
+
 def _make_pistol(timer: Union[None, MockTimer] = None,
                  groups: Union[None, model.Groups] = None) -> Weapon:
     if groups is None:
@@ -72,8 +76,23 @@ def setUpModule() -> None:
     except ValueError:
         hmn.Player.init_class()
 
+    try:
+        _make_player()
+        raise AssertionError('Expected a ValueError to be raised because '
+                             'Humanoid is not initialized.')
+    except ValueError:
+        hmn.Humanoid.init_class(Connection.groups.walls)
+
 
 class ModelTest(unittest.TestCase):
+    def tearDown(self):
+        groups = Connection.groups
+        groups.walls.empty
+        groups.mobs.empty
+        groups.bullets.empty
+        groups.all_sprites.empty
+        groups.items.empty
+
     def test_groups_immutable_container(self) -> None:
         groups = model.Groups()
 

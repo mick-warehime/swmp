@@ -12,9 +12,11 @@ import pygame as pg
 
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
+    humanoids_initialized = False
+    _walls = None
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
-                 max_health: int, timer: mdl.Timer, walls: mdl.Group) -> None:
+                 max_health: int, timer: mdl.Timer) -> None:
         super(Humanoid, self).__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
@@ -22,7 +24,6 @@ class Humanoid(mdl.GameObject):
         self._max_health = max_health
         self._health = max_health
         self._timer = timer
-        self._walls = walls
         self.skills: List[str] = [settings.PISTOL_SKILL]
         self.active_skills: List[str] = [settings.PISTOL_SKILL]
         self.backpack: List[mdl.Item] = []
@@ -75,20 +76,25 @@ class Humanoid(mdl.GameObject):
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
+    @classmethod
+    def init_class(cls, walls: mdl.Group):
+        if not cls.humanoids_initialized:
+            cls._walls = walls
+            cls.humanoids_initialized = True
+
 
 class Player(Humanoid):
     class_initialized = False
 
-    def __init__(self, groups: mdl.Groups,
-                 timer: mdl.Timer, pos: Vector2) -> None:
+    def __init__(self, groups: mdl.Groups, timer: mdl.Timer,
+                 pos: Vector2) -> None:
 
-        if not self.class_initialized:
-            raise ValueError('Class %s must be initialized before an object '
-                             'can be instantiated.' % (Player,))
+        if not (self.class_initialized and self.humanoids_initialized):
+            raise ValueError('Classes %s and %s must be initialized before an '
+                             'object can be instantiated.' % (Player, Humanoid))
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH, timer,
-                                     groups.walls)
+                                     settings.PLAYER_HEALTH, timer)
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
         self._weapon = Weapon('pistol', self._timer, groups)
@@ -157,14 +163,12 @@ class Mob(Humanoid):
     def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
                  player: Player) -> None:
 
-        if not self.class_initialized:
-            raise ValueError('Class %s must be initialized before an object '
-                             'can be instantiated.' % (Mob,))
+        if not (self.class_initialized and self.humanoids_initialized):
+            raise ValueError('Classes %s and %s must be initialized before an '
+                             'object can be instantiated.' % (Mob, Humanoid))
 
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH, timer,
-                                  groups.walls)
-
+                                  settings.MOB_HEALTH, timer)
         pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
 
         self.speed = choice(settings.MOB_SPEEDS)
