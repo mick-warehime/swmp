@@ -50,8 +50,6 @@ def _make_mob(player: hmn.Player,
     groups = Connection.groups
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
-
-    player.set_weapon('pistol')
     return hmn.Mob(groups, pos, player)
 
 
