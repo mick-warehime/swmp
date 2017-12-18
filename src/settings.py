@@ -20,8 +20,8 @@ HUDGREY = (60, 60, 60)
 HUDDARK = (40, 40, 40)
 
 # game settings
-WIDTH = 1024  # 16 * 64 or 32 * 32 or 64 * 16
-HEIGHT = 768  # 16 * 48 or 32 * 24 or 64 * 12
+WIDTH = 800  # 16 * 64 or 32 * 32 or 64 * 16
+HEIGHT = 600  # 16 * 48 or 32 * 24 or 64 * 12
 FPS = 60
 TITLE = "Tilemap Demo"
 BGCOLOR = BROWN
