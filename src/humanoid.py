@@ -90,8 +90,9 @@ class Player(Humanoid):
     def __init__(self, groups: mdl.Groups, pos: Vector2) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
-            raise ValueError('Classes %s and %s must be initialized before an '
-                             'object can be instantiated.' % (Player, Humanoid))
+            raise ValueError(
+                'Classes %s and %s must be initialized before an object can be'
+                ' instantiated.' % (Player, Humanoid))
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH)
