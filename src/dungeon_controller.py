@@ -5,6 +5,7 @@ from pygame.math import Vector2
 from typing import Dict, List
 from weapon import Bullet
 from os import path
+from mod import Mod
 from random import random
 import pygame as pg
 import tilemap
@@ -167,7 +168,7 @@ class DungeonController(controller.Controller):
         if pos == controller.NOT_CLICKED:
             return False
 
-        self._view.try_click_skill(pos)
+        self._view.try_click_mod(pos)
         self._view.try_click_item(pos)
 
         return self._view.clicked_hud(pos)
@@ -176,7 +177,9 @@ class DungeonController(controller.Controller):
         idx = self._view._selected_item
 
         try:
-            self.player.backpack[idx]
+            itm = self.player.backpack[idx]
+            if isinstance(itm, Mod):
+                self.player.equip_mod(itm)
         except Exception as e:
             print(e)
         print("equiping")

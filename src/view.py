@@ -1,10 +1,11 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import settings
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group
 from humanoid import Mob, Player
 from tilemap import Camera, TiledMap
 import images
+import mod
 
 
 def draw_text(screen: pg.Surface, text: str, font_name: str,
@@ -37,13 +38,13 @@ class DungeonView(object):
                                  self._hud_width,
                                  self._hud_height)
 
-        # generate rects for skills/backpack
+        # generate rects for mods/backpack
         self.mod_rects = self.generate_mod_rects()
         backpack_rects, img_rects = self.generate_backpack_rects()
         self.backpack_rects = backpack_rects
         self.backpack_img_rects = img_rects
 
-        self._selected_skill = -1
+        self._selected_mod = -1
         self._selected_item = -1
 
         self._draw_debug = False
@@ -62,14 +63,18 @@ class DungeonView(object):
         self.bullets = Group()
         self.items = Group()
 
-    def generate_mod_rects(self) -> List[pg.Rect]:
-        skill_size = 62
+    def generate_mod_rects(self) -> Dict[mod.ModLocation, pg.Rect]:
+        mod_size = 62
         x, y = self._hud_pos
-        rects: List[pg.Rect] = []
-        for i in range(4):
-            x_i = x + i * (skill_size + 3)
-            fill_rect = pg.Rect(x_i + 3, y + 3, skill_size, skill_size)
-            rects.append(fill_rect)
+        rects: Dict[mod.ModLocation, pg.Rect] = {}
+
+        i = 0
+        for loc in mod.ModLocation:
+            x_i = x + i * (mod_size + 3)
+            fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
+            rects[loc] = fill_rect
+            i += 1
+
         return rects
 
     def generate_backpack_rects(self) -> List[List[pg.Rect]]:
@@ -144,7 +149,7 @@ class DungeonView(object):
         self.draw_hud_base()
         self.draw_bar(player, 'health')
         self.draw_bar(player, 'energy')
-        self.draw_skills(player)
+        self.draw_mods(player)
         self.draw_backpack(player)
 
     def draw_hud_base(self) -> None:
@@ -179,20 +184,22 @@ class DungeonView(object):
         pg.draw.rect(self._screen, col, back_rect)
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
 
-    def draw_skills(self, player: Player) -> None:
-        for idx, r in enumerate(self.mod_rects):
+    def draw_mods(self, player: Player) -> None:
+
+        for idx, loc in enumerate(self.mod_rects):
+            r = self.mod_rects[loc]
             col = settings.HUDDARK
-            if self._selected_skill == idx:
+            if self._selected_mod == idx:
                 col = settings.RED
             pg.draw.rect(self._screen, col, r, 2)
 
-        for idx, s in enumerate(player.active_mods):
-
-            img = s.image
+        for idx, loc in enumerate(player.active_mods):
+            mod = player.active_mods[loc]
+            img = mod.image
 
             img = pg.transform.scale(img, (70, 70))
 
-            r = self.mod_rects[idx]
+            r = self.mod_rects[loc]
             self._screen.blit(img, r)
 
             title_font = images.get_font(images.ZOMBIE_FONT)
@@ -210,12 +217,13 @@ class DungeonView(object):
             r = self.backpack_img_rects[idx]
             self._screen.blit(item.image, r)
 
-    def try_click_skill(self, pos: Tuple[int, int]) -> None:
-        index = self.clicked_rect_index(self.mod_rects, pos)
-        if index == self._selected_skill:
-            self._selected_skill = -1
+    def try_click_mod(self, pos: Tuple[int, int]) -> None:
+        rects = [self.mod_rects[l] for l in mod.ModLocation]
+        index = self.clicked_rect_index(rects, pos)
+        if index == self._selected_mod:
+            self._selected_mod = -1
         else:
-            self._selected_skill = index
+            self._selected_mod = index
 
     def try_click_item(self, pos: Tuple[int, int]) -> None:
         index = self.clicked_rect_index(self.backpack_rects, pos)

@@ -2,7 +2,7 @@ from itertools import chain
 from random import choice, random
 from pygame.math import Vector2
 from weapon import Weapon
-from typing import List
+from typing import List, Dict
 import model as mdl
 import settings
 import images
@@ -24,9 +24,12 @@ class Humanoid(mdl.GameObject):
         self._health = max_health
         self._timer = timer
         self._walls = walls
+
+        # start with only a pistol mod
+        arms = mod.ModLocation.ARMS
         pistol_mod = mod.PistolMod()
-        self.mods: List[mod.Mod] = [pistol_mod]
-        self.active_mods: List[mod.Mod] = [pistol_mod]
+        self.active_mods: Dict[mod.ModLocation, mod.Mod] = {arms: pistol_mod}
+
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
 
@@ -67,9 +70,8 @@ class Humanoid(mdl.GameObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def add_skill(self, skill_name: str) -> None:
-        self.skills.append(skill_name)
-        self.active_skills.append(skill_name)
+    def equip_mod(self, md: mod.Mod) -> None:
+        self.active_skills.append(md)
 
     def add_item_to_backpack(self, item: mdl.Item) -> None:
         self.backpack.append(item)

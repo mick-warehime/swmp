@@ -11,17 +11,18 @@ class ViewTest(unittest.TestCase):
 
     def test_click_mod(self) -> None:
 
-        for idx, r in enumerate(self.view.mod_rects):
+        for idx, loc in enumerate(self.view.mod_rects):
+            r = self.view.mod_rects[loc]
             x = r.centerx
             y = r.centery
-            self.view.try_click_skill((x, y))
-            self.assertEqual(self.view._selected_skill, idx)
+            self.view.try_click_mod((x, y))
+            self.assertEqual(self.view._selected_mod, idx)
 
         # ensure previous loop gets hit
         self.assertTrue(idx > 0)
 
-        self.view.try_click_skill((0, 0))
-        self.assertEqual(self.view._selected_skill, -1)
+        self.view.try_click_mod((0, 0))
+        self.assertEqual(self.view._selected_mod, -1)
 
     def test_click_item(self) -> None:
         for idx, r in enumerate(self.view.backpack_rects):
