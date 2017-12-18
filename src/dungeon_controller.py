@@ -61,7 +61,7 @@ class DungeonController(controller.Controller):
                 self.player = Player(self._groups, timer, pos)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self._groups, timer, self._map_img, self.player)
+                Mob(pos, self._groups, timer, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
@@ -69,10 +69,9 @@ class DungeonController(controller.Controller):
             if tile_object.name in ['health', 'shotgun']:
                 Item(self._groups, obj_center, tile_object.name)
 
-    @staticmethod
-    def _init_humanoids() -> None:
+    def _init_humanoids(self) -> None:
         Player.init_class()
-        Mob.init_class()
+        Mob.init_class(self._map_img)
 
     def init_controls(self) -> None:
 

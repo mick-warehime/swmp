@@ -150,9 +150,11 @@ class Player(Humanoid):
 
 class Mob(Humanoid):
     class_initialized = False
+    _splat = None
+    _map_img = None
 
     def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
-                 map_img: pg.Surface, player: Player) -> None:
+                 player: Player) -> None:
 
         if not self.class_initialized:
             raise ValueError('Class %s must be initialized before an object '
@@ -162,19 +164,18 @@ class Mob(Humanoid):
                                   settings.MOB_HEALTH, timer,
                                   groups.walls)
         self._mob_group = groups.mobs
-        self._map_img = map_img
         pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player
 
-        splat_img = images.get_image(images.SPLAT)
-        self.splat = pg.transform.scale(splat_img, (64, 64))
-
     @classmethod
-    def init_class(cls) -> None:
+    def init_class(cls, map_img: pg.Surface, ) -> None:
         if not cls.class_initialized:
             cls._init_base_image(images.MOB_IMG)
+            splat_img = images.get_image(images.SPLAT)
+            cls._splat = pg.transform.scale(splat_img, (64, 64))
+            cls._map_img = map_img
             cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:
@@ -199,7 +200,7 @@ class Mob(Humanoid):
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
-            self._map_img.blit(self.splat, self.pos - Vector2(32, 32))
+            self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
 
     def _update_acc(self) -> None:
         self._acc = Vector2(1, 0).rotate(-self.rot)
