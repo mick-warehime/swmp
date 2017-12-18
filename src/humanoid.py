@@ -25,10 +25,7 @@ class Humanoid(mdl.GameObject):
         self._timer = timer
         self._walls = walls
 
-        # start with only a pistol mod
-        arms = mod.ModLocation.ARMS
-        pistol_mod = mod.PistolMod()
-        self.active_mods: Dict[mod.ModLocation, mod.Mod] = {arms: pistol_mod}
+        self.active_mods: Dict[mod.ModLocation, mod.Mod] = {}
 
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
@@ -71,7 +68,7 @@ class Humanoid(mdl.GameObject):
         self._vel.y = 0
 
     def equip_mod(self, md: mod.Mod) -> None:
-        self.active_skills.append(md)
+        self.active_mods.append(md)
 
     def add_item_to_backpack(self, item: mdl.Item) -> None:
         self.backpack.append(item)
@@ -90,7 +87,8 @@ class Player(Humanoid):
                                      groups.walls)
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
-        self._weapon = Weapon('pistol', self._timer, groups)
+        self._groups = groups
+        self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
 
@@ -112,10 +110,14 @@ class Player(Humanoid):
     def turn_counterclockwise(self) -> None:
         self._rot_speed = settings.PLAYER_ROT_SPEED * 2
 
-    def set_weapon(self, weapon: str) -> None:
-        self._weapon.set(weapon)
+    def set_weapon(self, label: str) -> None:
+        wpn = Weapon(label, self._timer, self._groups)
+        self._weapon = wpn
 
     def shoot(self) -> None:
+        if not self._weapon:
+            return
+
         if self._weapon.can_shoot:
             self._weapon.shoot(self.pos, self.rot)
             self._vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)

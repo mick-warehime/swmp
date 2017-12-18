@@ -99,6 +99,6 @@ EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
 
-# SKILL
-PISTOL_SKILL = 'pistol'
-SHOTGUN_SKILL = 'shotgun'
+# MODS
+PISTOL_MOD = 'pistol'
+SHOTGUN_MOD = 'shotgun'

@@ -14,13 +14,14 @@ MUZZLE_FLASH4 = 'whitePuff18.png'
 LIGHT_MASK = "light_350_soft.png"
 HEALTH_PACK = 'health_pack.png'
 SHOTGUN = 'obj_shotgun.png'
-SHOTGUN_SKILL = 'shells.png'
-PISTOL_SKILL = 'pistol_skill.png'
+PISTOL = 'obj_pistol.png'
+SHOTGUN_MOD = 'mod_shotgun.png'
+PISTOL_MOD = 'mod_pistol.png'
 
 ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
               MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
               MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, SHOTGUN,
-              SHOTGUN_SKILL, PISTOL_SKILL]
+              SHOTGUN_MOD, PISTOL, PISTOL_MOD]
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'
@@ -75,5 +76,7 @@ def get_item_image(item_name: str) -> pg.Surface:
         return get_image(HEALTH_PACK)
     elif item_name == 'shotgun':
         return get_image(SHOTGUN)
+    elif item_name == 'pistol':
+        return get_image(PISTOL)
 
     assert False, "failure loading image: %s" % item_name

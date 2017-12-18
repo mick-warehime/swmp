@@ -1,11 +1,11 @@
 from humanoid import Player, Mob, collide_hit_rect_with_rect
 from pygame.sprite import spritecollide, groupcollide
 from model import Obstacle, Item, Timer, Groups
+from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List
 from weapon import Bullet
 from os import path
-from mod import Mod
 from random import random
 import pygame as pg
 import tilemap
@@ -65,8 +65,8 @@ class DungeonController(controller.Controller):
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
                          tile_object.height)
-            if tile_object.name in ['health', 'shotgun']:
-                Item(self._groups, obj_center, tile_object.name)
+            if tile_object.name in ['health', 'shotgun', 'pistol']:
+                ItemManager.item(self._groups, obj_center, tile_object.name)
 
     def init_controls(self) -> None:
 
@@ -96,7 +96,6 @@ class DungeonController(controller.Controller):
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
 
         self.bind_down(pg.K_f, self.use)
-        self.bind_down(pg.K_r, self.equip)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -173,16 +172,19 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
-    def equip(self) -> None:
+    def use(self) -> None:
         idx = self._view._selected_item
+        if idx == -1:
+            return
 
+        used_item = False
         try:
             itm = self.player.backpack[idx]
-            if isinstance(itm, Mod):
-                self.player.equip_mod(itm)
+            if isinstance(itm, Item):
+                used_item = itm.use(self.player)
         except Exception as e:
             print(e)
-        print("equiping")
 
-    def use(self) -> None:
+        if used_item:
+            self._view._selected_item = -1
         print("using")

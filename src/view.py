@@ -195,7 +195,7 @@ class DungeonView(object):
 
         for idx, loc in enumerate(player.active_mods):
             mod = player.active_mods[loc]
-            img = mod.image
+            img = mod.mod_image
 
             img = pg.transform.scale(img, (70, 70))
 
