@@ -68,14 +68,14 @@ def setUpModule() -> None:
         _make_player()
         raise AssertionError('Expected a ValueError to be raised because '
                              'Player is not initialized.')
-    except ValueError:
+    except RuntimeError:
         hmn.Player.init_class()
 
     try:
         _make_player()
         raise AssertionError('Expected a ValueError to be raised because '
                              'Humanoid is not initialized.')
-    except ValueError:
+    except RuntimeError:
         hmn.Humanoid.init_class(Connection.groups.walls, Connection.timer)
 
 
