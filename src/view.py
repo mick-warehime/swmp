@@ -38,7 +38,7 @@ class DungeonView(object):
                                  self._hud_height)
 
         # generate rects for skills/backpack
-        self.skill_rects = self.generate_skill_rects()
+        self.mod_rects = self.generate_mod_rects()
         backpack_rects, img_rects = self.generate_backpack_rects()
         self.backpack_rects = backpack_rects
         self.backpack_img_rects = img_rects
@@ -62,7 +62,7 @@ class DungeonView(object):
         self.bullets = Group()
         self.items = Group()
 
-    def generate_skill_rects(self) -> List[pg.Rect]:
+    def generate_mod_rects(self) -> List[pg.Rect]:
         skill_size = 62
         x, y = self._hud_pos
         rects: List[pg.Rect] = []
@@ -180,22 +180,19 @@ class DungeonView(object):
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
 
     def draw_skills(self, player: Player) -> None:
-        for idx, r in enumerate(self.skill_rects):
+        for idx, r in enumerate(self.mod_rects):
             col = settings.HUDDARK
             if self._selected_skill == idx:
                 col = settings.RED
             pg.draw.rect(self._screen, col, r, 2)
 
-        for idx, s in enumerate(player.active_skills):
+        for idx, s in enumerate(player.active_mods):
 
-            if s == settings.PISTOL_SKILL:
-                img = images.get_image(images.PISTOL_SKILL)
-            elif s == settings.SHOTGUN_SKILL:
-                img = images.get_image(images.SHOTGUN_SKILL)
+            img = s.image
 
             img = pg.transform.scale(img, (70, 70))
 
-            r = self.skill_rects[idx]
+            r = self.mod_rects[idx]
             self._screen.blit(img, r)
 
             title_font = images.get_font(images.ZOMBIE_FONT)
@@ -214,7 +211,7 @@ class DungeonView(object):
             self._screen.blit(item.image, r)
 
     def try_click_skill(self, pos: Tuple[int, int]) -> None:
-        index = self.clicked_rect_index(self.skill_rects, pos)
+        index = self.clicked_rect_index(self.mod_rects, pos)
         if index == self._selected_skill:
             self._selected_skill = -1
         else:

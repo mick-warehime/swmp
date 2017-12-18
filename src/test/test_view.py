@@ -9,9 +9,9 @@ class ViewTest(unittest.TestCase):
         screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
         self.view = view.DungeonView(screen)
 
-    def test_click_skill(self) -> None:
+    def test_click_mod(self) -> None:
 
-        for idx, r in enumerate(self.view.skill_rects):
+        for idx, r in enumerate(self.view.mod_rects):
             x = r.centerx
             y = r.centery
             self.view.try_click_skill((x, y))

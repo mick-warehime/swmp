@@ -7,6 +7,7 @@ import model as mdl
 import settings
 import images
 import sounds
+import mod
 import pygame as pg
 
 
@@ -23,8 +24,9 @@ class Humanoid(mdl.GameObject):
         self._health = max_health
         self._timer = timer
         self._walls = walls
-        self.skills: List[str] = [settings.PISTOL_SKILL]
-        self.active_skills: List[str] = [settings.PISTOL_SKILL]
+        pistol_mod = mod.PistolMod()
+        self.mods: List[mod.Mod] = [pistol_mod]
+        self.active_mods: List[mod.Mod] = [pistol_mod]
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
 

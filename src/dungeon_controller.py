@@ -94,6 +94,9 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_SPACE, self.player.shoot)
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
 
+        self.bind_down(pg.K_f, self.use)
+        self.bind_down(pg.K_r, self.equip)
+
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
@@ -168,3 +171,15 @@ class DungeonController(controller.Controller):
         self._view.try_click_item(pos)
 
         return self._view.clicked_hud(pos)
+
+    def equip(self) -> None:
+        idx = self._view._selected_item
+
+        try:
+            self.player.backpack[idx]
+        except Exception as e:
+            print(e)
+        print("equiping")
+
+    def use(self) -> None:
+        print("using")
