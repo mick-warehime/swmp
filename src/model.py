@@ -6,6 +6,8 @@ import pytweening as tween
 import settings
 import images
 from collections import namedtuple
+import sounds
+
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
@@ -108,3 +110,21 @@ class Item(pg.sprite.Sprite):
         if self.step > settings.BOB_RANGE:
             self.step = 0
             self.dir *= -1
+
+    def use(self, player: Any) -> bool:
+        raise NotImplementedError
+
+
+class HealthPack(Item):
+    def __init__(self, groups: Groups, pos: pg.math.Vector2,
+                 label: str) -> None:
+        super(HealthPack, self).__init__(groups, pos, label)
+
+    def use(self, player: Any) -> bool:
+        if player.health < settings.PLAYER_HEALTH:
+            sounds.play(sounds.HEALTH_UP)
+            player.increment_health(settings.HEALTH_PACK_AMOUNT)
+            player.backpack.remove(self)
+            self.kill()
+            return True
+        return False

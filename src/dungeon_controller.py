@@ -1,6 +1,7 @@
 from humanoid import Player, Mob, collide_hit_rect_with_rect, Humanoid
 from pygame.sprite import spritecollide, groupcollide
 from model import Obstacle, Item, Timer, Groups
+from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List
 from weapon import Bullet
@@ -65,8 +66,8 @@ class DungeonController(controller.Controller):
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
                          tile_object.height)
-            if tile_object.name in ['health', 'shotgun']:
-                Item(self._groups, obj_center, tile_object.name)
+            if tile_object.name in ['health', 'shotgun', 'pistol']:
+                ItemManager.item(self._groups, obj_center, tile_object.name)
 
     def _init_humanoids(self) -> None:
         Humanoid.init_class(self._groups.walls, Timer(self))
@@ -99,6 +100,8 @@ class DungeonController(controller.Controller):
 
         self.bind(pg.K_SPACE, self.player.shoot)
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
+
+        self.bind_down(pg.K_f, self.use_item_in_backpack)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -170,7 +173,28 @@ class DungeonController(controller.Controller):
         if pos == controller.NOT_CLICKED:
             return False
 
-        self._view.try_click_skill(pos)
+        self._view.try_click_mod(pos)
         self._view.try_click_item(pos)
 
         return self._view.clicked_hud(pos)
+
+    def use_item_in_backpack(self) -> None:
+        '''use an item if the user selects an item in the backpack
+        and hits the 'use' button binding. item.use is a virtual
+        method implemented separately for each item/mod type.
+        if item is a mod this will equip that mod at the proper
+        location'''
+        idx = self._view._selected_item
+        if idx == view.NO_SELECTION:
+            return
+
+        used_item = False
+        try:
+            itm = self.player.backpack[idx]
+            if isinstance(itm, Item):
+                used_item = itm.use(self.player)
+        except Exception as e:
+            print(e)
+
+        if used_item:
+            self._view._selected_item = view.NO_SELECTION
