@@ -187,4 +187,3 @@ class DungeonController(controller.Controller):
 
         if used_item:
             self._view._selected_item = -1
-        print("using")

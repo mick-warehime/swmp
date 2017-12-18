@@ -67,9 +67,6 @@ class Humanoid(mdl.GameObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def equip_mod(self, md: mod.Mod) -> None:
-        self.active_mods.append(md)
-
     def add_item_to_backpack(self, item: mdl.Item) -> None:
         self.backpack.append(item)
 

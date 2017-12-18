@@ -43,9 +43,7 @@ class Mod(model.Item):
 
         player.set_weapon(self.label)
 
-
         return True
-
 
 
 class ShotgunMod(Mod):
