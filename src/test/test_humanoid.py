@@ -14,7 +14,7 @@ import humanoid as hmn
 import images
 import sounds
 from src.test.pygame_mock import MockTimer, Pygame
-from weapon import Weapon
+from weapon import Weapon, Bullet, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -78,8 +78,21 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(len(groups.all_sprites), 0)
         weapon.shoot(pos, rot)
         # Check if a MuzzleFlash and Bullet sprite were created
-        self.assertEqual(len(groups.all_sprites), 2)
-        self.assertEqual(len(groups.bullets), 1)
+        sprites = groups.all_sprites
+        num_bullets = 0
+        num_flashes = 0
+        num_others = 0
+        for sp in sprites:
+            if isinstance(sp, Bullet):
+                num_bullets += 1
+            elif isinstance(sp, MuzzleFlash):
+                num_flashes += 1
+            else:
+                num_others += 1
+
+        self.assertEqual(num_bullets, 1)
+        self.assertEqual(num_flashes, 1)
+        self.assertEqual(num_others, 0)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
         timer = MockTimer()
