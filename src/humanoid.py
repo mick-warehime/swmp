@@ -13,9 +13,9 @@ import pygame as pg
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
 
-    def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
+    def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int, timer: mdl.Timer, walls: mdl.Group) -> None:
-        super(Humanoid, self).__init__(image_file, hit_rect, pos)
+        super(Humanoid, self).__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
@@ -77,11 +77,14 @@ class Humanoid(mdl.GameObject):
 
 
 class Player(Humanoid):
+    class_initialized = False
+
     def __init__(self, groups: mdl.Groups,
                  timer: mdl.Timer, pos: Vector2) -> None:
 
-        super(Player, self).__init__(images.PLAYER_IMG,
-                                     settings.PLAYER_HIT_RECT, pos,
+        self._init_class(images.PLAYER_IMG)
+
+        super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH, timer,
                                      groups.walls)
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
@@ -136,12 +139,21 @@ class Player(Humanoid):
         self._rot_speed = 0
         self._vel = Vector2(0, 0)
 
+    def _init_class(self, img_file: str) -> None:
+        if not self.class_initialized:
+            self._init_base_image(img_file)
+            self.class_initialized = True
+
 
 class Mob(Humanoid):
+    class_initialized = False
+
     def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
                  map_img: pg.Surface, player: Player) -> None:
 
-        super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
+        self._init_class(images.MOB_IMG)
+
+        super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH, timer,
                                   groups.walls)
         self._mob_group = groups.mobs
@@ -153,6 +165,11 @@ class Mob(Humanoid):
 
         splat_img = images.get_image(images.SPLAT)
         self.splat = pg.transform.scale(splat_img, (64, 64))
+
+    def _init_class(self, img_file: str) -> None:
+        if not self.class_initialized:
+            self._init_base_image(img_file)
+            self.class_initialized = True
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:

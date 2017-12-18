@@ -47,9 +47,8 @@ class GameObject(pg.sprite.Sprite):
     """
     base_image: Union[pg.Surface, None] = None
 
-    def __init__(self, image_file: str, hit_rect: pg.Rect,
-                 pos: Vector2) -> None:
-        self._init_base_image(image_file)
+    def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
+        # self._init_base_image(image_file)
 
         self.image = self.base_image
         self.pos = pos
