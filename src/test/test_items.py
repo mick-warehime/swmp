@@ -44,7 +44,7 @@ class ModTest(unittest.TestCase):
         player.add_item_to_backpack(hp)
 
         # health is full
-        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertFalse(player.damaged)
 
         hp.use(player)
 
