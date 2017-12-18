@@ -31,6 +31,7 @@ class Mod(model.Item):
         self.loc = loc
         self.mod_image = image
 
+    '''this will equip that mod at the proper location'''
     def use(self, player: Any) -> bool:
         old_mod = None
         if self.loc in player.active_mods:
