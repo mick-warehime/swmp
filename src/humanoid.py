@@ -2,11 +2,12 @@ from itertools import chain
 from random import choice, random
 from pygame.math import Vector2
 from weapon import Weapon
-from typing import List
+from typing import List, Dict
 import model as mdl
 import settings
 import images
 import sounds
+import mod
 import pygame as pg
 
 
@@ -23,8 +24,9 @@ class Humanoid(mdl.GameObject):
         self._health = max_health
         self._timer = timer
         self._walls = walls
-        self.skills: List[str] = [settings.PISTOL_SKILL]
-        self.active_skills: List[str] = [settings.PISTOL_SKILL]
+
+        self.active_mods: Dict[mod.ModLocation, mod.Mod] = {}
+
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
 
@@ -65,11 +67,13 @@ class Humanoid(mdl.GameObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def add_skill(self, skill_name: str) -> None:
-        self.skills.append(skill_name)
-        self.active_skills.append(skill_name)
-
     def add_item_to_backpack(self, item: mdl.Item) -> None:
+
+        if isinstance(item, mod.Mod):
+            if item.loc not in self.active_mods:
+                item.use(self)
+                return
+
         self.backpack.append(item)
 
     def backpack_full(self) -> bool:
@@ -86,7 +90,8 @@ class Player(Humanoid):
                                      groups.walls)
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
-        self._weapon = Weapon('pistol', self._timer, groups)
+        self._groups = groups
+        self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
 
@@ -108,10 +113,13 @@ class Player(Humanoid):
     def turn_counterclockwise(self) -> None:
         self._rot_speed = settings.PLAYER_ROT_SPEED * 2
 
-    def set_weapon(self, weapon: str) -> None:
-        self._weapon.set(weapon)
+    def set_weapon(self, label: str) -> None:
+        self._weapon = Weapon(label, self._timer, self._groups)
 
     def shoot(self) -> None:
+        if not self._weapon:
+            return
+
         if self._weapon.can_shoot:
             self._weapon.shoot(self.pos, self.rot)
             self._vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)

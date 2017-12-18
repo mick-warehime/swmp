@@ -50,6 +50,7 @@ def _make_player(timer: Union[None, MockTimer] = None,
         timer = MockTimer()
     pos = pygame.math.Vector2(0, 0)
     player = hmn.Player(groups, timer, pos)
+    player.set_weapon('pistol')
     return player
 
 

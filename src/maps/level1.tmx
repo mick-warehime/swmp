@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" nextobjectid="183">
- <tileset firstgid="1" name="spritesheet_tiles" tilewidth="64" tileheight="64" spacing="10" tilecount="540" columns="27">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" nextobjectid="184">
+ <tileset firstgid="1" name="spritesheet_tiles" tilewidth="64" tileheight="64" spacing="10" tilecount="540">
   <image source="../img/spritesheet_tiles.png" width="1988" height="1470"/>
  </tileset>
  <layer name="ground" width="50" height="30">
@@ -232,51 +232,52 @@
   <object id="180" name="zombie" x="944" y="1344" width="32" height="32"/>
   <object id="181" name="zombie" x="928" y="1472" width="32" height="32"/>
   <object id="182" name="zombie" x="576" y="1424" width="32" height="32"/>
+  <object id="183" name="pistol" x="406" y="216" width="22" height="20"/>
  </objectgroup>
  <objectgroup name="Breakables">
   <object id="114" name="breakable" gid="526" x="832" y="384" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="20"/>
+    <property name="hp" value="20"/>
    </properties>
   </object>
   <object id="115" name="breakable" gid="526" x="768" y="384" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="20"/>
+    <property name="hp" value="20"/>
    </properties>
   </object>
   <object id="168" name="breakable" gid="523" x="2560" y="896" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="169" name="breakable" gid="523" x="2560" y="1024" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="170" name="breakable" gid="523" x="2688" y="896" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="171" name="breakable" gid="523" x="2688" y="1024" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="172" name="breakable" gid="523" x="3008" y="896" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="173" name="breakable" gid="523" x="3008" y="1024" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
   <object id="174" name="breakable" gid="496" x="2304" y="960" width="64" height="64">
    <properties>
-    <property name="hp" type="int" value="30"/>
+    <property name="hp" value="30"/>
    </properties>
   </object>
  </objectgroup>
