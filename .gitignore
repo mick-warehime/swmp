@@ -2,4 +2,6 @@
 .coverage
 .idea/
 .mypy_cache
-src/__pycache__
+*__pycache__*
+*htmlcov*
+*~

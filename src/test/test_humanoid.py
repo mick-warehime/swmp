@@ -2,6 +2,8 @@ import unittest
 from typing import Union
 import sys, os
 
+from pygame.math import Vector2
+
 sys.path.append('../../')
 sys.path.append('../')
 sys.path.append('.')
@@ -12,7 +14,7 @@ import humanoid as hmn
 import images
 import sounds
 from src.test.pygame_mock import MockTimer, Pygame
-from weapon import Weapon
+from weapon import Weapon, Bullet, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -76,8 +78,21 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(len(groups.all_sprites), 0)
         weapon.shoot(pos, rot)
         # Check if a MuzzleFlash and Bullet sprite were created
-        self.assertEqual(len(groups.all_sprites), 2)
-        self.assertEqual(len(groups.bullets), 1)
+        sprites = groups.all_sprites
+        num_bullets = 0
+        num_flashes = 0
+        num_others = 0
+        for sp in sprites:
+            if isinstance(sp, Bullet):
+                num_bullets += 1
+            elif isinstance(sp, MuzzleFlash):
+                num_flashes += 1
+            else:
+                num_others += 1
+
+        self.assertEqual(num_bullets, 1)
+        self.assertEqual(num_flashes, 1)
+        self.assertEqual(num_others, 0)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
         timer = MockTimer()
@@ -144,6 +159,70 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(player.health, max_health)
         player.increment_health(-max_health - 2)
         self.assertEqual(player.health, 0)
+
+    def test_player_move(self) -> None:
+        player = _make_player()
+
+        original_pos = Vector2(0, 0)
+        self.assertEqual(player.pos, original_pos)
+
+        player.move_down()
+        player.move_left()
+        player.update()
+        player.move_down()
+        player.move_left()
+        player.update()
+        expected = Vector2(-28, -28)
+        self.assertEqual(player.pos, expected)
+
+        # velocity set to zero after each update
+        player.update()
+        self.assertEqual(player.pos, expected)
+
+        # up movement is twice as fast as other moves, so we only do it once.
+        player.move_up()
+        player.move_right()
+        player.update()
+        player.move_right()
+        player.update()
+        self.assertEqual(player.pos, original_pos)
+
+    def test_player_rot(self) -> None:
+        player = _make_player()
+
+        self.assertEqual(player.rot, 0)
+
+        player.turn_clockwise()
+        player.update()
+        expected = 320
+        self.assertEqual(player.rot, expected)
+
+        player.update()
+        self.assertEqual(player.rot, expected)
+
+        player.turn_counterclockwise()
+        player.update()
+        self.assertEqual(player.rot, 0)
+
+    def test_player_stop(self) -> None:
+        player = _make_player()
+
+        original_pos = Vector2(0, 0)
+        self.assertEqual(player.pos, original_pos)
+
+        player.move_down()
+        player.move_left()
+        player.stop_x()
+        player.update()
+        expected = Vector2(0, -14)
+        self.assertEqual(player.pos, expected)
+
+        player.move_down()
+        player.move_left()
+        player.stop_y()
+        player.update()
+        expected = Vector2(-14, -14)
+        self.assertEqual(player.pos, expected)
 
 
 if __name__ == '__main__':
