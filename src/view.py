@@ -8,6 +8,9 @@ import images
 import mod
 
 
+NO_SELECTION = -1
+
+
 def draw_text(screen: pg.Surface, text: str, font_name: str,
               size: int, color: tuple, x: int, y: int,
               align: str = "topleft") -> None:
@@ -44,8 +47,8 @@ class DungeonView(object):
         self.backpack_rects = backpack_rects
         self.backpack_img_rects = img_rects
 
-        self._selected_mod = -1
-        self._selected_item = -1
+        self._selected_mod = NO_SELECTION
+        self._selected_item = NO_SELECTION
 
         self._draw_debug = False
         self._night = False
@@ -221,14 +224,14 @@ class DungeonView(object):
         rects = [self.mod_rects[l] for l in mod.ModLocation]
         index = self.clicked_rect_index(rects, pos)
         if index == self._selected_mod:
-            self._selected_mod = -1
+            self._selected_mod = NO_SELECTION
         else:
             self._selected_mod = index
 
     def try_click_item(self, pos: Tuple[int, int]) -> None:
         index = self.clicked_rect_index(self.backpack_rects, pos)
         if index == self._selected_item:
-            self._selected_item = -1
+            self._selected_item = NO_SELECTION
         else:
             self._selected_item = index
 
@@ -239,7 +242,7 @@ class DungeonView(object):
         for idx, r in enumerate(rects):
             if r.collidepoint(x, y):
                 return idx
-        return -1
+        return NO_SELECTION
 
     def clicked_hud(self, pos: Tuple[int, int]) -> bool:
         x, y = pos

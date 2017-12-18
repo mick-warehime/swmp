@@ -70,9 +70,8 @@ class Humanoid(mdl.GameObject):
     def add_item_to_backpack(self, item: mdl.Item) -> None:
 
         if isinstance(item, mod.Mod):
-            m: mod.Mod = item
-            if m.loc not in self.active_mods:
-                m.use(self)
+            if item.loc not in self.active_mods:
+                item.use(self)
                 return
 
         self.backpack.append(item)
@@ -115,8 +114,7 @@ class Player(Humanoid):
         self._rot_speed = settings.PLAYER_ROT_SPEED * 2
 
     def set_weapon(self, label: str) -> None:
-        wpn = Weapon(label, self._timer, self._groups)
-        self._weapon = wpn
+        self._weapon = Weapon(label, self._timer, self._groups)
 
     def shoot(self) -> None:
         if not self._weapon:

@@ -49,15 +49,15 @@ class ModTest(unittest.TestCase):
         hp.use(player)
 
         # health pack doesn't work if health is full
-        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 1)
 
         player.increment_health(-settings.HEALTH_PACK_AMOUNT)
-
+        self.assertTrue(player.damaged)
         hp.use(player)
 
         # health pack fills health back up and is gone from backpack
-        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 0)
 
         player.add_item_to_backpack(hp)
@@ -87,14 +87,14 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertEqual(arm_mod, shotgun)
-        self.assertTrue(pistol in player.backpack)
+        self.assertIn(pistol, player.backpack)
 
         # make sure we can swap the pistol with the shotgun
         pistol.use(player)
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol)
-        self.assertTrue(shotgun in player.backpack)
+        self.assertIn(shotgun, player.backpack)
 
 
 if __name__ == '__main__':

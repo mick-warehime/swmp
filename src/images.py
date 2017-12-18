@@ -79,4 +79,4 @@ def get_item_image(item_name: str) -> pg.Surface:
     elif item_name == 'pistol':
         return get_image(PISTOL)
 
-    assert False, "failure loading image: %s" % item_name
+    raise ValueError("failure loading image: %s" % item_name)
