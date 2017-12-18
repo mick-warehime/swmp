@@ -152,6 +152,7 @@ class Mob(Humanoid):
     class_initialized = False
     _splat = None
     _map_img = None
+    _mob_group = None
 
     def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
                  player: Player) -> None:
@@ -163,19 +164,20 @@ class Mob(Humanoid):
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH, timer,
                                   groups.walls)
-        self._mob_group = groups.mobs
+
         pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player
 
     @classmethod
-    def init_class(cls, map_img: pg.Surface, ) -> None:
+    def init_class(cls, map_img: pg.Surface, groups: mdl.Groups) -> None:
         if not cls.class_initialized:
             cls._init_base_image(images.MOB_IMG)
             splat_img = images.get_image(images.SPLAT)
             cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
+            cls._mob_group = groups.mobs
             cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:
