@@ -28,4 +28,4 @@ class MockTimer(model.Timer):
 
     @property
     def dt(self) -> float:
-        return random.random() * 1e-2
+        return 0.5
