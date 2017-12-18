@@ -50,6 +50,8 @@ class DungeonController(controller.Controller):
         self._map_img = self._map.make_map()
         self._map.rect = self._map_img.get_rect()
 
+        self._init_humanoids()
+
         timer = Timer(self)
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
@@ -66,6 +68,11 @@ class DungeonController(controller.Controller):
                          tile_object.height)
             if tile_object.name in ['health', 'shotgun']:
                 Item(self._groups, obj_center, tile_object.name)
+
+    @staticmethod
+    def _init_humanoids() -> None:
+        Player.init_class()
+        Mob.init_class()
 
     def init_controls(self) -> None:
 

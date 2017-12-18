@@ -82,7 +82,9 @@ class Player(Humanoid):
     def __init__(self, groups: mdl.Groups,
                  timer: mdl.Timer, pos: Vector2) -> None:
 
-        self._init_class(images.PLAYER_IMG)
+        if not self.class_initialized:
+            raise ValueError('Class %s must be initialized before an object '
+                             'can be instantiated.' % (Player,))
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH, timer,
@@ -139,10 +141,11 @@ class Player(Humanoid):
         self._rot_speed = 0
         self._vel = Vector2(0, 0)
 
-    def _init_class(self, img_file: str) -> None:
-        if not self.class_initialized:
-            self._init_base_image(img_file)
-            self.class_initialized = True
+    @classmethod
+    def init_class(cls) -> None:
+        if not cls.class_initialized:
+            cls._init_base_image(images.PLAYER_IMG)
+            cls.class_initialized = True
 
 
 class Mob(Humanoid):
@@ -151,7 +154,9 @@ class Mob(Humanoid):
     def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
                  map_img: pg.Surface, player: Player) -> None:
 
-        self._init_class(images.MOB_IMG)
+        if not self.class_initialized:
+            raise ValueError('Class %s must be initialized before an object '
+                             'can be instantiated.' % (Mob,))
 
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH, timer,
@@ -166,10 +171,11 @@ class Mob(Humanoid):
         splat_img = images.get_image(images.SPLAT)
         self.splat = pg.transform.scale(splat_img, (64, 64))
 
-    def _init_class(self, img_file: str) -> None:
-        if not self.class_initialized:
-            self._init_base_image(img_file)
-            self.class_initialized = True
+    @classmethod
+    def init_class(cls) -> None:
+        if not cls.class_initialized:
+            cls._init_base_image(images.MOB_IMG)
+            cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:

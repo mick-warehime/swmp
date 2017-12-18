@@ -24,14 +24,6 @@ os.environ['SDL_AUDIODRIVER'] = 'dummy'
 pg = Pygame()
 
 
-def setUpModule() -> None:
-    pygame.display.set_mode((600, 400))
-    pygame.mixer.pre_init(44100, -16, 4, 2048)
-    pygame.init()
-    images.initialize_images()
-    sounds.initialize_sounds()
-
-
 def _make_pistol(timer: Union[None, MockTimer] = None,
                  groups: Union[None, model.Groups] = None) -> Weapon:
     if groups is None:
@@ -63,6 +55,22 @@ def _make_mob(player: hmn.Player,
         pos = pygame.math.Vector2(0, 0)
 
     return hmn.Mob(groups, timer, pos)
+
+
+def setUpModule() -> None:
+    pygame.display.set_mode((600, 400))
+    pygame.mixer.pre_init(44100, -16, 4, 2048)
+    pygame.init()
+    images.initialize_images()
+    sounds.initialize_sounds()
+
+    # TODO(dvirk): Make the same check for Mob
+    try:
+        _make_player()
+        raise AssertionError('Expected a ValueError to be raised because '
+                             'Player is not initialized.')
+    except ValueError:
+        hmn.Player.init_class()
 
 
 class ModelTest(unittest.TestCase):
