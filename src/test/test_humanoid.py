@@ -63,20 +63,31 @@ def setUpModule() -> None:
     images.initialize_images()
     sounds.initialize_sounds()
 
-    # TODO(dvirk): Make the same check for Mob
     try:
         _make_player()
-        raise AssertionError('Expected a ValueError to be raised because '
+        raise AssertionError('Expected a RuntimeError to be raised because '
                              'Player is not initialized.')
     except RuntimeError:
         hmn.Player.init_class()
 
     try:
         _make_player()
-        raise AssertionError('Expected a ValueError to be raised because '
+        raise AssertionError('Expected a RuntimeError to be raised because '
                              'Humanoid is not initialized.')
     except RuntimeError:
         hmn.Humanoid.init_class(Connection.groups.walls, Connection.timer)
+
+    player = _make_player()
+
+    try:
+        _make_mob(player)
+        raise AssertionError('Expected a RuntimeError to be raised because '
+                             'Mob is not initialized.')
+    except RuntimeError:
+        blank_screen = pygame.Surface((800, 600))
+        hmn.Mob.init_class(blank_screen, Connection.groups)
+
+    player.kill()
 
 
 class ModelTest(unittest.TestCase):
