@@ -20,12 +20,15 @@ class Pygame(object):
 
 class MockTimer(model.Timer):
     def __init__(self) -> None:
-        self.time = 0
+        self._time = 0
 
     @property
     def current_time(self) -> int:
-        return self.time
+        return self._time
 
     @property
     def dt(self) -> float:
         return 0.1
+
+    def reset(self) -> None:
+        self._time = 0

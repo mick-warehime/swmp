@@ -26,6 +26,7 @@ pg = Pygame()
 
 class Connection(object):
     groups = model.Groups()
+    timer = MockTimer()
 
 
 def _make_pistol(timer: Union[None, MockTimer] = None,
@@ -37,28 +38,22 @@ def _make_pistol(timer: Union[None, MockTimer] = None,
     return Weapon('pistol', timer, groups)
 
 
-def _make_player(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> hmn.Player:
+def _make_player(groups: Union[None, model.Groups] = None) -> hmn.Player:
     if groups is None:
         groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
     pos = pygame.math.Vector2(0, 0)
-    return hmn.Player(groups, timer, pos)
+    return hmn.Player(groups, pos)
 
 
 def _make_mob(player: hmn.Player,
-              timer: Union[None, MockTimer] = None,
               groups: Union[None, model.Groups] = None,
               pos: Union[Vector2, None] = None) -> hmn.Mob:
     if groups is None:
         groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
 
-    return hmn.Mob(groups, timer, pos)
+    return hmn.Mob(groups, pos)
 
 
 def setUpModule() -> None:
@@ -81,7 +76,7 @@ def setUpModule() -> None:
         raise AssertionError('Expected a ValueError to be raised because '
                              'Humanoid is not initialized.')
     except ValueError:
-        hmn.Humanoid.init_class(Connection.groups.walls)
+        hmn.Humanoid.init_class(Connection.groups.walls, Connection.timer)
 
 
 class ModelTest(unittest.TestCase):
@@ -92,6 +87,8 @@ class ModelTest(unittest.TestCase):
         groups.bullets.empty
         groups.all_sprites.empty
         groups.items.empty
+
+        Connection.timer.reset()
 
     def test_groups_immutable_container(self) -> None:
         groups = model.Groups()
@@ -143,9 +140,9 @@ class ModelTest(unittest.TestCase):
         # shoot. We must wait until timer.current_time> weapon.shoot_rate -
         # weapon._last_shot
         self.assertFalse(weapon.can_shoot)
-        timer.time += weapon.shoot_rate
+        timer._time += weapon.shoot_rate
         self.assertFalse(weapon.can_shoot)
-        timer.time += 1
+        timer._time += 1
         self.assertTrue(weapon.can_shoot)
         weapon.shoot(pos, rot)
         self.assertFalse(weapon.can_shoot)
@@ -159,23 +156,23 @@ class ModelTest(unittest.TestCase):
 
     def test_player_shoot_no_shot(self) -> None:
         groups = model.Groups()
-        timer = MockTimer()
-        player = _make_player(timer=timer, groups=groups)
+        timer = Connection.timer
+        player = _make_player(groups=groups)
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()
         self.assertEqual(len(groups.bullets), 0)
-        timer.time += player._weapon.shoot_rate + 1
+        timer._time += player._weapon.shoot_rate + 1
         player.shoot()
         self.assertEqual(len(groups.bullets), 1)
 
     def test_player_shoot_kickback(self) -> None:
-        timer = MockTimer()
-        player = _make_player(timer=timer)
+        timer = Connection.timer
+        player = _make_player()
 
         old_vel = (player._vel.x, player._vel.y)
 
-        timer.time += player._weapon.shoot_rate + 1
+        timer._time += player._weapon.shoot_rate + 1
         player.shoot()
 
         new_vel = (player._vel.x, player._vel.y)
