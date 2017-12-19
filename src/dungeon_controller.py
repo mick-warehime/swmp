@@ -3,7 +3,7 @@ from pygame.sprite import spritecollide, groupcollide
 from model import Obstacle, Item, Timer, Groups
 from item_manager import ItemManager
 from pygame.math import Vector2
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from weapon import Bullet
 from os import path
 from random import random
@@ -74,11 +74,7 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        counterclockwise = self.player.turn_counterclockwise
-        self.bind(pg.K_q, counterclockwise)
-
-        clockwise = self.player.turn_clockwise
-        self.bind(pg.K_e, clockwise)
+        self.bind(pg.K_q, self.player.turn)
 
         self.bind(pg.K_LEFT, self.player.move_left)
         self.bind(pg.K_a, self.player.move_left)
@@ -86,8 +82,8 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_RIGHT, self.player.move_right)
         self.bind(pg.K_d, self.player.move_right)
 
-        self.bind(pg.K_UP, self.player.move_up)
-        self.bind(pg.K_w, self.player.move_up)
+        self.bind(pg.K_UP, self.player.move_towards_mouse)
+        self.bind(pg.K_w, self.player.move_towards_mouse)
 
         self.bind(pg.K_DOWN, self.player.move_down)
         self.bind(pg.K_s, self.player.move_down)
@@ -95,7 +91,8 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_SPACE, self.player.shoot)
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
 
-        self.bind_down(pg.K_f, self.use_item_in_backpack)
+        # equip / use
+        self.bind_down(pg.K_e, self.use_item_in_backpack)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -108,6 +105,8 @@ class DungeonController(controller.Controller):
 
         # needs to be called every frame to throttle max framerate
         self.dt = self._clock.tick(settings.FPS) / 1000.0
+
+        self.pass_mouse_pos_to_player()
 
         clicked_hud = self.try_handle_hud()
         if not clicked_hud:
@@ -192,3 +191,16 @@ class DungeonController(controller.Controller):
 
         if used_item:
             self._view._selected_item = view.NO_SELECTION
+
+    def pass_mouse_pos_to_player(self) -> None:
+        mouse_pos = self.abs_mouse_pos()
+        self.player.set_mouse_pos(mouse_pos)
+
+    # mouse coordinates are relative to the camera
+    # most other coordinates are relative to the map
+    def abs_mouse_pos(self) -> Tuple[int, int]:
+        mouse_pos = pg.mouse.get_pos()
+        camera_pos = self._camera.camera
+        abs_mouse_x = mouse_pos[0] - camera_pos[0]
+        abs_mouse_y = mouse_pos[1] - camera_pos[1]
+        return (abs_mouse_x, abs_mouse_y)
