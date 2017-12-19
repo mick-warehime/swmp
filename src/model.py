@@ -38,7 +38,7 @@ class Timer(object):
 
 
 class GameObject(pg.sprite.Sprite):
-    """In-game object with a body for collisions and an image.
+    """In-game object with a hit_rect and rect for collisions and an image.
 
     Added functionality derived from Sprite:
     Can be added/removed to Group objects --> add(*groups), remove(*groups).

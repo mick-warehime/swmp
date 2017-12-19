@@ -1,11 +1,11 @@
 import settings
 import pygame as pg
 from model import Groups, Item
-from mod import ShotgunMod, PistolMod, HealthPack
+from mod import ShotgunMod, HealthPack, PistolObject
 
 item_contructors = {settings.HEALTHPACK_ITEM: HealthPack,
                     settings.SHOTGUN_MOD: ShotgunMod,
-                    settings.PISTOL_MOD: PistolMod}
+                    settings.PISTOL_MOD: PistolObject}
 
 
 class ItemManager(object):
@@ -17,4 +17,6 @@ class ItemManager(object):
             raise ValueError(error_msg % (label,))
 
         ctr = item_contructors[label]
+        if label == settings.PISTOL_MOD:
+            return ctr(pos)
         return ctr(groups, pos)

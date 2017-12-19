@@ -1,11 +1,14 @@
 from enum import Enum
 import pygame as pg
+import pytweening as tween
+from pygame.math import Vector2
+
 import images
 from typing import Any
 import model
 import settings
 import sounds
-from model import Item, Groups
+from model import Item, Groups, DynamicObject
 
 
 class ModID(Enum):
@@ -94,3 +97,52 @@ class HealthPack(Item):
             self.kill()
             return True
         return False
+
+
+class ItemObject(DynamicObject):
+    """A bobbing in-game object that can be picked up."""
+
+    def __init__(self, mod: Mod, image: pg.Surface, pos: Vector2) -> None:
+        self._check_class_initialized()
+        super(ItemObject, self).__init__(image.get_rect(), pos)
+
+        my_groups = [self._groups.all_sprites, self._groups.items]
+        pg.sprite.Sprite.__init__(self, my_groups)
+
+        self.image = image
+        self._mod = mod
+        self._tween = tween.easeInOutSine
+        self._step = 0
+        self._bob_direction = 1
+        self._bob_period = settings.BOB_RANGE
+        self._bob_speed = settings.BOB_SPEED
+
+    @property
+    def mod(self) -> Mod:
+        return self._mod
+
+    def update(self) -> None:
+        # bobbing motion
+        offset = self._bob_offset()
+        self.rect.centery = self.pos.y + offset * self._bob_direction
+        self._step += self._bob_speed
+        if self._step > self._bob_period:
+            self._step = 0
+            self._bob_direction *= -1
+
+    def _bob_offset(self) -> float:
+        offset = self._bob_period * (
+            self._tween(self._step / self._bob_period) - 0.5)
+        return offset
+
+
+class PistolObject(ItemObject):
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        mod = PistolMod(self._groups, pos)
+
+        # TODO(dkafri): image should not need to be passed to the super.init?
+        if self.base_image is None:
+            self._init_base_image(images.PISTOL_MOD)
+
+        super(PistolObject, self).__init__(mod, self.base_image, pos)
