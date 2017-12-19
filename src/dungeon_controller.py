@@ -1,6 +1,6 @@
 from humanoid import Player, Mob, collide_hit_rect_with_rect, Humanoid
 from pygame.sprite import spritecollide, groupcollide
-from model import Obstacle, Item, Timer, Groups, GameObject
+from model import Obstacle, Item, Groups, GameObject, Timer
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List
@@ -71,7 +71,7 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        Humanoid.init_humanoid(self._groups.walls, Timer(self))
+        Humanoid.init_humanoid(Timer(self))
         Player.init_class()
         Mob.init_class(self._map_img, self._groups)
 

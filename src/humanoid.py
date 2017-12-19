@@ -16,7 +16,6 @@ import pygame as pg
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
     humanoids_initialized = False
-    _walls: Union[None, Group] = None
     _timer: Union[None, mdl.Timer] = None
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
@@ -31,6 +30,10 @@ class Humanoid(mdl.GameObject):
 
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
+
+    @property
+    def _walls(self) -> Group:
+        return self._groups.walls
 
     @property
     def health(self) -> int:
@@ -82,9 +85,8 @@ class Humanoid(mdl.GameObject):
         return len(self.backpack) >= self.backpack_size
 
     @classmethod
-    def init_humanoid(cls, walls: mdl.Group, timer: mdl.Timer) -> None:
+    def init_humanoid(cls, timer: mdl.Timer) -> None:
         if not cls.humanoids_initialized:
-            cls._walls = walls
             cls._timer = timer
             cls.humanoids_initialized = True
 
@@ -168,7 +170,6 @@ class Mob(Humanoid):
     class_initialized = False
     _splat = None
     _map_img = None
-    _mob_group = None
 
     def __init__(self, pos: Vector2, groups: mdl.Groups,
                  player: Player) -> None:
@@ -185,6 +186,10 @@ class Mob(Humanoid):
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player
 
+    @property
+    def _mob_group(self) -> Group:
+        return self._groups.mobs
+
     @classmethod
     def init_class(cls, map_img: pg.Surface, groups: mdl.Groups) -> None:
         if not cls.class_initialized:
@@ -192,7 +197,6 @@ class Mob(Humanoid):
             splat_img = images.get_image(images.SPLAT)
             cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
-            cls._mob_group = groups.mobs
             cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:

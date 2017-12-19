@@ -1,18 +1,14 @@
 import unittest
 from typing import Union
-import sys, os
+import os
 
 from pygame.math import Vector2
 
-sys.path.append('../../')
-sys.path.append('../')
-sys.path.append('.')
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-import images
-import sounds
+
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
