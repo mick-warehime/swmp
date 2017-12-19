@@ -1,7 +1,6 @@
 import controller
 from typing import Dict, Callable, List
 import pygame as pg
-import view
 import images
 import settings
 from draw_utils import draw_text

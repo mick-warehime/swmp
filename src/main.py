@@ -5,7 +5,6 @@ import dungeon_controller as dungeon
 import decision_controller as decision
 import sounds
 import images
-import view
 from draw_utils import draw_text
 
 
