@@ -100,6 +100,23 @@ class Obstacle(GameObject):
         return self.rect
 
 
+class DynamicObject(GameObject):
+    """A time-changing GameObject with access to current time information."""
+    dynamic_initialized = False
+    _timer: Union[Timer, None] = None
+
+    @classmethod
+    def initialize_dynamic_objects(cls, timer: Timer) -> None:
+        cls._timer = timer
+        cls.dynamic_initialized = True
+
+    def _check_class_initialized(self) -> None:
+        super(DynamicObject, self)._check_class_initialized()
+        if not self.dynamic_initialized:
+            raise ValueError('DynamicObject class must be initialized before '
+                             'instantiating a DynamicObject.')
+
+
 class Item(pg.sprite.Sprite):
     def __init__(self, groups: Groups, pos: pg.math.Vector2,
                  label: str) -> None:
