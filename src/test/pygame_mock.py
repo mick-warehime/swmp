@@ -3,6 +3,7 @@ from typing import List
 
 import pygame
 
+import humanoid as hmn
 import images
 import model
 import sounds
@@ -44,3 +45,11 @@ def initialize_pygame() -> None:
     pygame.init()
     images.initialize_images()
     sounds.initialize_sounds()
+
+
+def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
+    model.GameObject.initialize_gameobjects(groups)
+    hmn.Humanoid.init_humanoid(groups.walls, timer)
+    hmn.Player.init_class()
+    blank_screen = pygame.Surface((800, 600))
+    hmn.Mob.init_class(blank_screen, groups)

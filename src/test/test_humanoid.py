@@ -13,7 +13,8 @@ import model
 import humanoid as hmn
 import images
 import sounds
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
+from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+    initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
@@ -55,32 +56,7 @@ def _make_mob(player: hmn.Player,
 
 def setUpModule() -> None:
     initialize_pygame()
-
-    try:
-        _make_player()
-        raise AssertionError('Expected a RuntimeError to be raised because '
-                             'Player is not initialized.')
-    except RuntimeError:
-        hmn.Player.init_class()
-
-    try:
-        _make_player()
-        raise AssertionError('Expected a RuntimeError to be raised because '
-                             'Humanoid is not initialized.')
-    except RuntimeError:
-        hmn.Humanoid.init_humanoid(Connection.groups.walls, Connection.timer)
-
-    player = _make_player()
-
-    try:
-        _make_mob(player)
-        raise AssertionError('Expected a RuntimeError to be raised because '
-                             'Mob is not initialized.')
-    except RuntimeError:
-        blank_screen = pygame.Surface((800, 600))
-        hmn.Mob.init_class(blank_screen, Connection.groups)
-
-    player.kill()
+    initialize_gameobjects(Connection.groups, Connection.timer)
 
 
 class ModelTest(unittest.TestCase):
