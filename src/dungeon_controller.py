@@ -1,4 +1,4 @@
-from humanoid import Player, Mob, collide_hit_rect_with_rect
+from humanoid import Player, Mob, collide_hit_rect_with_rect, Humanoid
 from pygame.sprite import spritecollide, groupcollide
 from model import Obstacle, Item, Timer, Groups
 from item_manager import ItemManager
@@ -51,22 +51,28 @@ class DungeonController(controller.Controller):
         self._map_img = self._map.make_map()
         self._map.rect = self._map_img.get_rect()
 
-        timer = Timer(self)
+        self._init_humanoids()
+
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(self._groups, timer, pos)
+                self.player = Player(self._groups, pos)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self._groups, timer, self._map_img, self.player)
+                Mob(pos, self._groups, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
                          tile_object.height)
             if tile_object.name in ['health', 'shotgun', 'pistol']:
                 ItemManager.item(self._groups, obj_center, tile_object.name)
+
+    def _init_humanoids(self) -> None:
+        Humanoid.init_humanoid(self._groups.walls, Timer(self))
+        Player.init_class()
+        Mob.init_class(self._map_img, self._groups)
 
     def init_controls(self) -> None:
 

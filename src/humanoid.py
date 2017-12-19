@@ -1,8 +1,10 @@
 from itertools import chain
 from random import choice, random
 from pygame.math import Vector2
+from pygame.sprite import Group
+
 from weapon import Weapon
-from typing import List, Dict
+from typing import List, Dict, Union
 import model as mdl
 import settings
 import images
@@ -13,18 +15,18 @@ import pygame as pg
 
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
+    humanoids_initialized = False
+    _walls: Union[None, Group] = None
+    _timer: Union[None, mdl.Timer] = None
 
-    def __init__(self, image_file: str, hit_rect: pg.Rect, pos: Vector2,
-                 max_health: int, timer: mdl.Timer, walls: mdl.Group) -> None:
-        super(Humanoid, self).__init__(image_file, hit_rect, pos)
+    def __init__(self, hit_rect: pg.Rect, pos: Vector2,
+                 max_health: int) -> None:
+        super(Humanoid, self).__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
         self._max_health = max_health
         self._health = max_health
-        self._timer = timer
-        self._walls = walls
-
         self.active_mods: Dict[mod.ModLocation, mod.Mod] = {}
 
         self.backpack: List[mdl.Item] = []
@@ -79,15 +81,26 @@ class Humanoid(mdl.GameObject):
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
+    @classmethod
+    def init_humanoid(cls, walls: mdl.Group, timer: mdl.Timer) -> None:
+        if not cls.humanoids_initialized:
+            cls._walls = walls
+            cls._timer = timer
+            cls.humanoids_initialized = True
+
 
 class Player(Humanoid):
-    def __init__(self, groups: mdl.Groups,
-                 timer: mdl.Timer, pos: Vector2) -> None:
+    class_initialized = False
 
-        super(Player, self).__init__(images.PLAYER_IMG,
-                                     settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH, timer,
-                                     groups.walls)
+    def __init__(self, groups: mdl.Groups, pos: Vector2) -> None:
+
+        if not (self.class_initialized and self.humanoids_initialized):
+            raise RuntimeError(
+                'Classes %s and %s must be initialized before an object can be'
+                ' instantiated.' % (Player, Humanoid))
+
+        super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
+                                     settings.PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, groups.all_sprites)
 
         self._groups = groups
@@ -144,23 +157,43 @@ class Player(Humanoid):
         self._rot_speed = 0
         self._vel = Vector2(0, 0)
 
+    @classmethod
+    def init_class(cls) -> None:
+        if not cls.class_initialized:
+            cls._init_base_image(images.PLAYER_IMG)
+            cls.class_initialized = True
+
 
 class Mob(Humanoid):
-    def __init__(self, pos: Vector2, groups: mdl.Groups, timer: mdl.Timer,
-                 map_img: pg.Surface, player: Player) -> None:
+    class_initialized = False
+    _splat = None
+    _map_img = None
+    _mob_group = None
 
-        super(Mob, self).__init__(images.MOB_IMG, settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH, timer,
-                                  groups.walls)
-        self._mob_group = groups.mobs
-        self._map_img = map_img
+    def __init__(self, pos: Vector2, groups: mdl.Groups,
+                 player: Player) -> None:
+
+        if not (self.class_initialized and self.humanoids_initialized):
+            raise RuntimeError(
+                'Classes %s and %s must be initialized before an object can be'
+                ' instantiated.' % (Mob, Humanoid))
+
+        super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
+                                  settings.MOB_HEALTH)
         pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player
 
-        splat_img = images.get_image(images.SPLAT)
-        self.splat = pg.transform.scale(splat_img, (64, 64))
+    @classmethod
+    def init_class(cls, map_img: pg.Surface, groups: mdl.Groups) -> None:
+        if not cls.class_initialized:
+            cls._init_base_image(images.MOB_IMG)
+            splat_img = images.get_image(images.SPLAT)
+            cls._splat = pg.transform.scale(splat_img, (64, 64))
+            cls._map_img = map_img
+            cls._mob_group = groups.mobs
+            cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:
@@ -184,7 +217,7 @@ class Mob(Humanoid):
         if self.health <= 0:
             sounds.mob_hit_sound()
             self.kill()
-            self._map_img.blit(self.splat, self.pos - Vector2(32, 32))
+            self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
 
     def _update_acc(self) -> None:
         self._acc = Vector2(1, 0).rotate(-self.rot)
