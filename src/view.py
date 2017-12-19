@@ -6,18 +6,10 @@ from humanoid import Mob, Player
 from tilemap import Camera, TiledMap
 import images
 import mod
-
+from draw_utils import draw_text
+from hud import HUD
 
 NO_SELECTION = -1
-
-
-def draw_text(screen: pg.Surface, text: str, font_name: str,
-              size: int, color: tuple, x: int, y: int,
-              align: str = "topleft") -> None:
-    fnt = pg.font.Font(font_name, size)
-    text_surface = fnt.render(text, True, color)
-    text_rect = text_surface.get_rect(**{align: (x, y)})
-    screen.blit(text_surface, text_rect)
 
 
 class DungeonView(object):
@@ -28,27 +20,7 @@ class DungeonView(object):
         dim_screen.fill((0, 0, 0, 180))
 
         # HUD size & location
-        self._hud_width = 473
-        self._hud_height = 110
-        hud_x = (settings.WIDTH - self._hud_width) / 2.0
-        hud_y = settings.HEIGHT - self._hud_height
-        self._hud_pos = (hud_x, hud_y)
-        self._hud_bar_offset = 0
-        self._bar_length = 260
-        self._bar_height = 20
-        self._hud_rect = pg.Rect(hud_x,
-                                 hud_y,
-                                 self._hud_width,
-                                 self._hud_height)
-
-        # generate rects for mods/backpack
-        self.mod_rects = self.generate_mod_rects()
-        backpack_rects, img_rects = self.generate_backpack_rects()
-        self.backpack_rects = backpack_rects
-        self.backpack_img_rects = img_rects
-
-        self._selected_mod = NO_SELECTION
-        self._selected_item = NO_SELECTION
+        self._hud = HUD(self._screen)
 
         self._draw_debug = False
         self._night = False
@@ -65,37 +37,6 @@ class DungeonView(object):
         self.mobs = Group()
         self.bullets = Group()
         self.items = Group()
-
-    def generate_mod_rects(self) -> Dict[mod.ModLocation, pg.Rect]:
-        mod_size = 62
-        x, y = self._hud_pos
-        rects: Dict[mod.ModLocation, pg.Rect] = {}
-
-        i = 0
-        for loc in mod.ModLocation:
-            x_i = x + i * (mod_size + 3)
-            fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
-            rects[loc] = fill_rect
-            i += 1
-
-        return rects
-
-    def generate_backpack_rects(self) -> List[List[pg.Rect]]:
-        item_size = 50
-        x, y = self._hud_pos
-        x += self._bar_length + 3
-        y += 4
-        rects: List[pg.Rect] = []
-        img_rects: List[pg.Rect] = []
-        for i in range(4):
-            for j in range(2):
-                x_i = x + i * (item_size + 2)
-                y_i = y + j * (item_size + 2)
-                fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
-                img_rect = pg.Rect(x_i + 5, y_i + 15, item_size, item_size)
-                rects.append(fill_rect)
-                img_rects.append(img_rect)
-        return [rects, img_rects]
 
     def set_sprites(self, all_sprites: LayeredUpdates) -> None:
         self.all_sprites = all_sprites
@@ -132,8 +73,8 @@ class DungeonView(object):
         if self._night:
             self.render_fog(player, camera)
 
-        # HUD functions
-        self.draw_hud(player)
+        # draw hud on top of everything
+        self._hud.draw(player)
 
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image
@@ -148,92 +89,20 @@ class DungeonView(object):
     def toggle_night(self) -> None:
         self._night = not self._night
 
-    def draw_hud(self, player: Player) -> None:
-        self.draw_hud_base()
-        self.draw_bar(player, 'health')
-        self.draw_bar(player, 'energy')
-        self.draw_mods(player)
-        self.draw_backpack(player)
-
-    def draw_hud_base(self) -> None:
-        x, y = self._hud_pos
-        fill_rect = pg.Rect(x, y, self._hud_width, self._hud_height)
-        pg.draw.rect(self._screen, settings.HUDGREY, fill_rect)
-
-    def draw_bar(self, player: Player, bar_type: str) -> None:
-
-        if 'health' in bar_type:
-            frac_full = player.health / settings.PLAYER_HEALTH
-            col = settings.HUDGREEN1
-            back_col = settings.HUDGREEN2
-            y_offset = 2 * self._bar_height
-        else:
-            frac_full = player.health / settings.PLAYER_HEALTH
-            col = settings.HUDBLUE1
-            back_col = settings.HUDBLUE2
-            y_offset = self._bar_height
-
-        x = self._hud_pos[0] + self._hud_bar_offset
-        y = settings.HEIGHT - y_offset - 2
-
-        frac_full = max(0.0, frac_full)
-        fill = frac_full * self._bar_length
-
-        back_rect = pg.Rect(x, y, fill, self._bar_height)
-        fill_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
-        outline_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
-
-        pg.draw.rect(self._screen, back_col, fill_rect)
-        pg.draw.rect(self._screen, col, back_rect)
-        pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
-
-    def draw_mods(self, player: Player) -> None:
-
-        for idx, loc in enumerate(self.mod_rects):
-            r = self.mod_rects[loc]
-            col = settings.HUDDARK
-            if self._selected_mod == idx:
-                col = settings.RED
-            pg.draw.rect(self._screen, col, r, 2)
-
-        for idx, loc in enumerate(player.active_mods):
-            mod = player.active_mods[loc]
-            img = mod.mod_image
-
-            img = pg.transform.scale(img, (70, 70))
-
-            r = self.mod_rects[loc]
-            self._screen.blit(img, r)
-
-            title_font = images.get_font(images.ZOMBIE_FONT)
-            draw_text(self._screen, str(idx + 1), title_font,
-                      20, settings.WHITE, r.x + 10, r.y + 10, align="center")
-
-    def draw_backpack(self, player: Player) -> None:
-        for idx, r in enumerate(self.backpack_rects):
-            col = settings.HUDDARK
-            if self._selected_item == idx:
-                col = settings.RED
-            pg.draw.rect(self._screen, col, r, 2)
-
-        for idx, item in enumerate(player.backpack):
-            r = self.backpack_img_rects[idx]
-            self._screen.blit(item.image, r)
-
     def try_click_mod(self, pos: Tuple[int, int]) -> None:
-        rects = [self.mod_rects[l] for l in mod.ModLocation]
+        rects = [self._hud.mod_rects[l] for l in mod.ModLocation]
         index = self.clicked_rect_index(rects, pos)
-        if index == self._selected_mod:
-            self._selected_mod = NO_SELECTION
+        if index == self.selected_mod:
+            self._hud.selected_mod = NO_SELECTION
         else:
-            self._selected_mod = index
+            self._hud.selected_mod = index
 
     def try_click_item(self, pos: Tuple[int, int]) -> None:
-        index = self.clicked_rect_index(self.backpack_rects, pos)
-        if index == self._selected_item:
-            self._selected_item = NO_SELECTION
+        index = self.clicked_rect_index(self._hud.backpack_rects, pos)
+        if index == self.selected_item:
+            self._hud.selected_item = NO_SELECTION
         else:
-            self._selected_item = index
+            self._hud.selected_item = index
 
     def clicked_rect_index(self, rects: List[pg.Rect],
                            pos: Tuple[int, int]) -> int:
@@ -246,4 +115,13 @@ class DungeonView(object):
 
     def clicked_hud(self, pos: Tuple[int, int]) -> bool:
         x, y = pos
-        return self._hud_rect.collidepoint(x, y)
+        return self._hud.rect.collidepoint(x, y)
+
+    def selected_item(self) -> int:
+        return self._hud.selected_item
+
+    def selected_mod(self) -> int:
+        return self._hud.selected_mod
+
+    def set_selected_item(self, idx: int) -> None:
+        self._hud.selected_item = idx

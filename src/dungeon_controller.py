@@ -177,7 +177,7 @@ class DungeonController(controller.Controller):
         method implemented separately for each item/mod type.
         if item is a mod this will equip that mod at the proper
         location'''
-        idx = self._view._selected_item
+        idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
 
@@ -190,7 +190,7 @@ class DungeonController(controller.Controller):
             print(e)
 
         if used_item:
-            self._view._selected_item = view.NO_SELECTION
+            self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self.abs_mouse_pos()
