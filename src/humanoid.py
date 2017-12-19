@@ -1,16 +1,18 @@
 from itertools import chain
 from random import choice, random
+from typing import List, Dict, Union
+
+import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group
 
-from weapon import Weapon
-from typing import List, Dict, Union
+import images
+import mod
 import model as mdl
 import settings
-import images
 import sounds
-import mod
-import pygame as pg
+from model import collide_hit_rect_with_rect
+from weapon import Weapon
 
 
 class Humanoid(mdl.GameObject):
@@ -243,17 +245,6 @@ class Mob(Humanoid):
         health_bar = pg.Rect(0, 0, width, 7)
         if self.damaged:
             pg.draw.rect(self.image, col, health_bar)
-
-
-def collide_hit_rect_with_rect(one: pg.sprite.Sprite,
-                               two: pg.sprite.Sprite) -> bool:
-    """
-
-    :param one: A Sprite object with a hit_rect field.
-    :param two: A Sprite object with a rect field.
-    :return: Whether the hit_rect and rect collide.
-    """
-    return one.hit_rect.colliderect(two.rect)
 
 
 def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,

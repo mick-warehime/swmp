@@ -137,3 +137,10 @@ class HealthPack(Item):
             self.kill()
             return True
         return False
+
+
+def collide_hit_rect_with_rect(game_obj: GameObject,
+                               sprite: pg.sprite.Sprite) -> bool:
+    """Collide the hit_rect of a GameObject with the rect of a Sprite.
+    """
+    return game_obj.hit_rect.colliderect(sprite.rect)
