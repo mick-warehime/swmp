@@ -65,8 +65,7 @@ class DungeonController(controller.Controller):
                 Mob(pos, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
-                Obstacle(self._groups.walls, pos, tile_object.width,
-                         tile_object.height)
+                Obstacle(pos, tile_object.width, tile_object.height)
             if tile_object.name in ['health', 'shotgun', 'pistol']:
                 ItemManager.item(self._groups, obj_center, tile_object.name)
 

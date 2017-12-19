@@ -52,9 +52,7 @@ class GameObject(pg.sprite.Sprite):
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
 
-        if not self.gameobjects_initialized:
-            raise ValueError('GameObjects class must be initialized before '
-                             'instantiating a GameObject.')
+        self._check_class_initialized()
 
         self.image = self.base_image
         self.pos = pos
@@ -65,6 +63,11 @@ class GameObject(pg.sprite.Sprite):
         # Used in wall collisions
         self.hit_rect = hit_rect.copy()
         self.hit_rect.center = self.rect.center
+
+    def _check_class_initialized(self) -> None:
+        if not self.gameobjects_initialized:
+            raise ValueError('GameObjects class must be initialized before '
+                             'instantiating a GameObject.')
 
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
@@ -77,9 +80,10 @@ class GameObject(pg.sprite.Sprite):
         cls.gameobjects_initialized = True
 
 
-class Obstacle(pg.sprite.Sprite):
-    def __init__(self, walls: Group, pos: Vector2, w: int, h: int) -> None:
-        pg.sprite.Sprite.__init__(self, walls)
+class Obstacle(GameObject):
+    def __init__(self, pos: Vector2, w: int, h: int) -> None:
+        self._check_class_initialized()
+        pg.sprite.Sprite.__init__(self, self._groups.walls)
 
         self.rect = pg.Rect(pos.x, pos.y, w, h)
 
