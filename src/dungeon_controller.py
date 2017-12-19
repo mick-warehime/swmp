@@ -1,6 +1,7 @@
-from humanoid import Player, Mob, collide_hit_rect_with_rect, Humanoid
+from humanoid import Player, Mob, Humanoid
 from pygame.sprite import spritecollide, groupcollide
-from model import Obstacle, Item, Groups, GameObject, Timer
+from model import Obstacle, Item, Groups, GameObject, Timer, \
+    collide_hit_rect_with_rect
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List
