@@ -8,7 +8,6 @@ import images
 from collections import namedtuple
 import sounds
 
-
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
 
@@ -48,9 +47,14 @@ class GameObject(pg.sprite.Sprite):
 
     """
     base_image: Union[pg.Surface, None] = None
+    gameobjects_initialized = False
+    _groups: Union[Groups, None] = None
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
-        # self._init_base_image(image_file)
+
+        if not self.gameobjects_initialized:
+            raise ValueError('GameObjects class must be initialized before '
+                             'instantiating a GameObject.')
 
         self.image = self.base_image
         self.pos = pos
@@ -66,6 +70,11 @@ class GameObject(pg.sprite.Sprite):
     def _init_base_image(cls, image_file: str) -> None:
         if cls.base_image is None:
             cls.base_image = images.get_image(image_file)
+
+    @classmethod
+    def initialize_gameobjects(cls, groups: Groups) -> None:
+        cls._groups = groups
+        cls.gameobjects_initialized = True
 
 
 class Obstacle(pg.sprite.Sprite):
