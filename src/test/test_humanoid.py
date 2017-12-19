@@ -37,7 +37,7 @@ def _make_player() -> hmn.Player:
     groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
 
-    player = hmn.Player(groups, pos)
+    player = hmn.Player(pos)
     player.set_weapon('pistol')
     return player
 
@@ -47,7 +47,7 @@ def _make_mob(player: hmn.Player,
     groups = Connection.groups
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
-    return hmn.Mob(groups, pos, player)
+    return hmn.Mob(groups, player)
 
 
 def setUpModule() -> None:

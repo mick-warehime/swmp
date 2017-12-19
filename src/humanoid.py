@@ -94,7 +94,7 @@ class Humanoid(mdl.GameObject):
 class Player(Humanoid):
     class_initialized = False
 
-    def __init__(self, groups: mdl.Groups, pos: Vector2) -> None:
+    def __init__(self, pos: Vector2) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
             raise RuntimeError(
@@ -103,9 +103,8 @@ class Player(Humanoid):
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH)
-        pg.sprite.Sprite.__init__(self, groups.all_sprites)
+        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
-        self._groups = groups
         self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
@@ -171,8 +170,7 @@ class Mob(Humanoid):
     _splat = None
     _map_img = None
 
-    def __init__(self, pos: Vector2, groups: mdl.Groups,
-                 player: Player) -> None:
+    def __init__(self, pos: Vector2, player: Player) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
             raise RuntimeError(
@@ -181,7 +179,8 @@ class Mob(Humanoid):
 
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH)
-        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
+        my_groups = [self._groups.all_sprites, self._groups.mobs]
+        pg.sprite.Sprite.__init__(self, my_groups)
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player

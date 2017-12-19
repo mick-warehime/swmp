@@ -58,10 +58,10 @@ class DungeonController(controller.Controller):
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(self._groups, pos)
+                self.player = Player(pos)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self._groups, self.player)
+                Mob(pos, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
