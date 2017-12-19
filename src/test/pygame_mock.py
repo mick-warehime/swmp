@@ -49,7 +49,7 @@ def initialize_pygame() -> None:
 
 def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     model.GameObject.initialize_gameobjects(groups)
-    hmn.Humanoid.init_humanoid(timer)
+    model.DynamicObject.initialize_dynamic_objects(timer)
     hmn.Player.init_class()
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)

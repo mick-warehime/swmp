@@ -1,6 +1,6 @@
 from itertools import chain
 from random import choice, random
-from typing import List, Dict, Union
+from typing import List, Dict
 
 import pygame as pg
 from pygame.math import Vector2
@@ -15,13 +15,12 @@ from model import collide_hit_rect_with_rect
 from weapon import Weapon
 
 
-class Humanoid(mdl.GameObject):
-    """GameObject with health and motion. We will add more to this later."""
-    humanoids_initialized = False
-    _timer: Union[None, mdl.Timer] = None
+class Humanoid(mdl.DynamicObject):
+    """DynamicObject with health and motion. We will add more to this later."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
+        self._check_class_initialized()
         super(Humanoid, self).__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
@@ -86,11 +85,8 @@ class Humanoid(mdl.GameObject):
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
-    @classmethod
-    def init_humanoid(cls, timer: mdl.Timer) -> None:
-        if not cls.humanoids_initialized:
-            cls._timer = timer
-            cls.humanoids_initialized = True
+    def _check_class_initialized(self) -> None:
+        super(Humanoid, self)._check_class_initialized()
 
 
 class Player(Humanoid):
@@ -98,10 +94,7 @@ class Player(Humanoid):
 
     def __init__(self, pos: Vector2) -> None:
 
-        if not (self.class_initialized and self.humanoids_initialized):
-            raise RuntimeError(
-                'Classes %s and %s must be initialized before an object can be'
-                ' instantiated.' % (Player, Humanoid))
+        self._check_class_initialized()
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH)
@@ -110,6 +103,13 @@ class Player(Humanoid):
         self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
+
+    def _check_class_initialized(self) -> None:
+        super(Player, self)._check_class_initialized()
+        if not self.class_initialized:
+            raise RuntimeError(
+                'Player class must be initialized before an object can be'
+                ' instantiated.')
 
     def move_up(self) -> None:
         self._vel += Vector2(settings.PLAYER_SPEED, 0).rotate(-self.rot)
@@ -174,10 +174,7 @@ class Mob(Humanoid):
 
     def __init__(self, pos: Vector2, player: Player) -> None:
 
-        if not (self.class_initialized and self.humanoids_initialized):
-            raise RuntimeError(
-                'Classes %s and %s must be initialized before an object can be'
-                ' instantiated.' % (Mob, Humanoid))
+        self._check_class_initialized()
 
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH)
@@ -190,6 +187,13 @@ class Mob(Humanoid):
     @property
     def _mob_group(self) -> Group:
         return self._groups.mobs
+
+    def _check_class_initialized(self) -> None:
+        super(Mob, self)._check_class_initialized()
+        if not self.class_initialized:
+            raise RuntimeError(
+                'Mob class must be initialized before an object can be'
+                ' instantiated.')
 
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
