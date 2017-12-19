@@ -1,18 +1,14 @@
 import unittest
 from typing import Union
-import sys, os
+import os
 
 from pygame.math import Vector2
 
-sys.path.append('../../')
-sys.path.append('../')
-sys.path.append('.')
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-import images
-import sounds
+
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
@@ -41,7 +37,7 @@ def _make_player() -> hmn.Player:
     groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
 
-    player = hmn.Player(groups, pos)
+    player = hmn.Player(pos)
     player.set_weapon('pistol')
     return player
 
@@ -51,7 +47,7 @@ def _make_mob(player: hmn.Player,
     groups = Connection.groups
     if pos is None:
         pos = pygame.math.Vector2(0, 0)
-    return hmn.Mob(groups, pos, player)
+    return hmn.Mob(groups, player)
 
 
 def setUpModule() -> None:

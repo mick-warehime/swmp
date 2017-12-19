@@ -30,7 +30,7 @@ def setUpModule() -> None:
 def _make_player() -> hmn.Player:
     groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(groups, pos)
+    player = hmn.Player(pos)
     player.set_weapon('pistol')
     return player
 

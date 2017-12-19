@@ -16,7 +16,6 @@ import pygame as pg
 class Humanoid(mdl.GameObject):
     """GameObject with health and motion. We will add more to this later."""
     humanoids_initialized = False
-    _walls: Union[None, Group] = None
     _timer: Union[None, mdl.Timer] = None
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
@@ -31,6 +30,10 @@ class Humanoid(mdl.GameObject):
 
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
+
+    @property
+    def _walls(self) -> Group:
+        return self._groups.walls
 
     @property
     def health(self) -> int:
@@ -82,9 +85,8 @@ class Humanoid(mdl.GameObject):
         return len(self.backpack) >= self.backpack_size
 
     @classmethod
-    def init_humanoid(cls, walls: mdl.Group, timer: mdl.Timer) -> None:
+    def init_humanoid(cls, timer: mdl.Timer) -> None:
         if not cls.humanoids_initialized:
-            cls._walls = walls
             cls._timer = timer
             cls.humanoids_initialized = True
 
@@ -92,7 +94,7 @@ class Humanoid(mdl.GameObject):
 class Player(Humanoid):
     class_initialized = False
 
-    def __init__(self, groups: mdl.Groups, pos: Vector2) -> None:
+    def __init__(self, pos: Vector2) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
             raise RuntimeError(
@@ -101,9 +103,8 @@ class Player(Humanoid):
 
         super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
                                      settings.PLAYER_HEALTH)
-        pg.sprite.Sprite.__init__(self, groups.all_sprites)
+        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
-        self._groups = groups
         self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
@@ -168,10 +169,8 @@ class Mob(Humanoid):
     class_initialized = False
     _splat = None
     _map_img = None
-    _mob_group = None
 
-    def __init__(self, pos: Vector2, groups: mdl.Groups,
-                 player: Player) -> None:
+    def __init__(self, pos: Vector2, player: Player) -> None:
 
         if not (self.class_initialized and self.humanoids_initialized):
             raise RuntimeError(
@@ -180,19 +179,23 @@ class Mob(Humanoid):
 
         super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
                                   settings.MOB_HEALTH)
-        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.mobs])
+        my_groups = [self._groups.all_sprites, self._groups.mobs]
+        pg.sprite.Sprite.__init__(self, my_groups)
 
         self.speed = choice(settings.MOB_SPEEDS)
         self.target = player
 
+    @property
+    def _mob_group(self) -> Group:
+        return self._groups.mobs
+
     @classmethod
-    def init_class(cls, map_img: pg.Surface, groups: mdl.Groups) -> None:
+    def init_class(cls, map_img: pg.Surface) -> None:
         if not cls.class_initialized:
             cls._init_base_image(images.MOB_IMG)
             splat_img = images.get_image(images.SPLAT)
             cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
-            cls._mob_group = groups.mobs
             cls.class_initialized = True
 
     def _avoid_mobs(self) -> None:

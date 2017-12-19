@@ -1,6 +1,6 @@
 from humanoid import Player, Mob, collide_hit_rect_with_rect, Humanoid
 from pygame.sprite import spritecollide, groupcollide
-from model import Obstacle, Item, Timer, Groups, GameObject
+from model import Obstacle, Item, Groups, GameObject, Timer
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List
@@ -58,10 +58,10 @@ class DungeonController(controller.Controller):
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(self._groups, pos)
+                self.player = Player(pos)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self._groups, self.player)
+                Mob(pos, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(self._groups.walls, pos, tile_object.width,
@@ -71,9 +71,9 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        Humanoid.init_humanoid(self._groups.walls, Timer(self))
+        Humanoid.init_humanoid(Timer(self))
         Player.init_class()
-        Mob.init_class(self._map_img, self._groups)
+        Mob.init_class(self._map_img)
 
     def init_controls(self) -> None:
 
