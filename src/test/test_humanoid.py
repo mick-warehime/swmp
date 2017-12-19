@@ -1,9 +1,7 @@
 import unittest
-from typing import Union
+from typing import Union, Tuple
 import os
-
 from pygame.math import Vector2
-
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
@@ -12,6 +10,8 @@ import humanoid as hmn
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
+from itertools import product
+import math
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -199,22 +199,77 @@ class ModelTest(unittest.TestCase):
         player.update()
         self.assertEqual(player.pos, original_pos)
 
-    def test_player_rot(self) -> None:
+    def test_player_turn(self) -> None:
         player = _make_player()
 
-        self.assertEqual(player.rot, 0)
+        # start player at origin facing right
+        player.pos = (0, 0)
+        player.rot = 0
 
-        player.turn_clockwise()
-        player.update()
-        expected = 320
-        self.assertEqual(player.rot, expected)
+        # +x is to the right of player - no rotation
+        player.set_mouse_pos((100, 0))
+        player.turn()
+        self.assertAlmostEqual(player.rot, 0, 1)
 
-        player.update()
-        self.assertEqual(player.rot, expected)
+        # -y is above player - faces top of screen
+        player.set_mouse_pos((0, -100))
+        player.turn()
+        self.assertAlmostEqual(player.rot, 90, 1)
 
-        player.turn_counterclockwise()
+        # +y is above below - faces bottom of screen
+        player.set_mouse_pos((0, 100))
+        player.turn()
+        self.assertAlmostEqual(player.rot, 270, 1)
+
+        # -x is left of player
+        player.set_mouse_pos((-100, 0))
+        player.turn()
+        self.assertAlmostEqual(player.rot, 180, 1)
+
+    def test_player_move_to_mouse(self) -> None:
+
+        def normalize(pos: Tuple[float, float]) \
+                -> Tuple[float, float]:
+            x, y = pos
+            length = math.sqrt(x**2 + y**2)
+            if length == 0:
+                return (0.0, 0.0)
+            return (x / length, y / length)
+
+
+        player = _make_player()
+
+        # test that the player moves in the same direction as mouse
+        possible_positions = [[0, 100, -100]] * 2
+        for x, y in product(*possible_positions):
+
+            player.pos = (0, 0)
+            player.rot = 0
+            player.set_mouse_pos((x, y))
+            player.move_towards_mouse()
+            player.update()
+
+            # player direction
+            p_hat = normalize(player.pos)
+
+            # mouse direction
+            m_hat = normalize((x, y))
+            self.assertAlmostEqual(p_hat[0], m_hat[0], 8)
+            self.assertAlmostEqual(p_hat[1], m_hat[1], 8)
+
+    def test_mouse_too_close(self) -> None:
+
+        # stop moving when you get close to the mouse
+        player = _make_player()
+
+        player.pos = (0, 0)
+        player.rot = 0
+        player.set_mouse_pos((1, 1))
+        player.move_towards_mouse()
         player.update()
-        self.assertEqual(player.rot, 0)
+
+        self.assertEqual(player.pos[0], 0)
+        self.assertEqual(player.pos[1], 0)
 
     def test_player_stop(self) -> None:
         player = _make_player()

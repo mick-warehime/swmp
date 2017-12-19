@@ -1,13 +1,13 @@
 from itertools import chain
 from random import choice, random
-from typing import List, Dict
-
 import pygame as pg
-from pygame.math import Vector2
 from pygame.sprite import Group
-
+from typing import Tuple
+import math
 import images
 import mod
+from pygame.math import Vector2
+from typing import List, Dict
 import model as mdl
 import settings
 import sounds
@@ -103,6 +103,16 @@ class Player(Humanoid):
         self._weapon = None
         self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
         self._rot_speed = 0
+        self._mouse_pos = (0, 0)
+
+    def move_towards_mouse(self) -> None:
+        self.turn()
+
+        CLOSEST_MOUSE_APPROACH = 10
+        if self.distance_to_mouse() < CLOSEST_MOUSE_APPROACH:
+            return
+
+        self.move_up()
 
     def _check_class_initialized(self) -> None:
         super(Player, self)._check_class_initialized()
@@ -123,11 +133,8 @@ class Player(Humanoid):
     def move_left(self) -> None:
         self._vel += Vector2(0, -settings.PLAYER_SPEED / 2).rotate(-self.rot)
 
-    def turn_clockwise(self) -> None:
-        self._rot_speed = -settings.PLAYER_ROT_SPEED * 2
-
-    def turn_counterclockwise(self) -> None:
-        self._rot_speed = settings.PLAYER_ROT_SPEED * 2
+    def turn(self) -> None:
+        self.rotate_towards_cursor()
 
     def set_weapon(self, label: str) -> None:
         self._weapon = Weapon(label, self._timer, self._groups)
@@ -142,13 +149,6 @@ class Player(Humanoid):
 
     def update(self) -> None:
 
-        if self.damaged:
-            try:
-                self.image.fill((255, 255, 255, next(self._damage_alpha)),
-                                special_flags=pg.BLEND_RGBA_MULT)
-            except StopIteration:
-                pass
-
         delta_rot = int(self._rot_speed * self._timer.dt)
         self.rot = (self.rot + delta_rot) % 360
 
@@ -159,6 +159,26 @@ class Player(Humanoid):
         # reset the movement after each update
         self._rot_speed = 0
         self._vel = Vector2(0, 0)
+
+    def set_rotation(self, rotation: float) -> None:
+        self.rot = int(rotation % 360)
+
+    def set_mouse_pos(self, pos: Tuple[int, int]) -> None:
+        self._mouse_pos = pos
+
+    def distance_to_mouse(self) -> float:
+        x = self._mouse_pos[0] - self.pos[0]
+        y = self._mouse_pos[1] - self.pos[1]
+
+        return math.sqrt(x ** 2 + y ** 2)
+
+    def rotate_towards_cursor(self) -> None:
+        x = self._mouse_pos[0] - self.pos[0]
+        y = self._mouse_pos[1] - self.pos[1]
+
+        angle = -(90 - math.atan2(x, y) * 180 / math.pi) % 360
+
+        self.set_rotation(angle)
 
     @classmethod
     def init_class(cls) -> None:
