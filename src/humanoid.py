@@ -190,7 +190,7 @@ class Mob(Humanoid):
         return self._groups.mobs
 
     @classmethod
-    def init_class(cls, map_img: pg.Surface, groups: mdl.Groups) -> None:
+    def init_class(cls, map_img: pg.Surface) -> None:
         if not cls.class_initialized:
             cls._init_base_image(images.MOB_IMG)
             splat_img = images.get_image(images.SPLAT)

@@ -73,7 +73,7 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         Humanoid.init_humanoid(Timer(self))
         Player.init_class()
-        Mob.init_class(self._map_img, self._groups)
+        Mob.init_class(self._map_img)
 
     def init_controls(self) -> None:
 
