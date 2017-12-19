@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import settings
 import pygame as pg
 from humanoid import Player

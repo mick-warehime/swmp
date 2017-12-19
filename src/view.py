@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 import settings
 import pygame as pg
 from pygame.sprite import LayeredUpdates, Group
@@ -6,7 +6,6 @@ from humanoid import Mob, Player
 from tilemap import Camera, TiledMap
 import images
 import mod
-from draw_utils import draw_text
 from hud import HUD
 
 NO_SELECTION = -1
@@ -99,7 +98,7 @@ class DungeonView(object):
 
     def try_click_item(self, pos: Tuple[int, int]) -> None:
         index = self.clicked_rect_index(self._hud.backpack_rects, pos)
-        if index == self.selected_item:
+        if index == self._hud.selected_item:
             self._hud.selected_item = NO_SELECTION
         else:
             self._hud.selected_item = index
