@@ -54,11 +54,11 @@ class Mod(model.Item):
 
 
 class ShotgunMod(Mod):
-    def __init__(self, groups: model.Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
+    def __init__(self, groups: model.Groups, pos: pg.math.Vector2) -> None:
         sid = ModID.SHOTGUN
         loc = ModLocation.ARMS
         img = images.get_image(images.SHOTGUN_MOD)
+        label = settings.SHOTGUN_MOD
         super(ShotgunMod, self).__init__(sid=sid,
                                          loc=loc,
                                          image=img,
@@ -68,11 +68,11 @@ class ShotgunMod(Mod):
 
 
 class PistolMod(Mod):
-    def __init__(self, groups: model.Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
+    def __init__(self, groups: model.Groups, pos: pg.math.Vector2) -> None:
         sid = ModID.PISTOL
         loc = ModLocation.ARMS
         img = images.get_image(images.PISTOL_MOD)
+        label = settings.PISTOL_MOD
         super(PistolMod, self).__init__(sid=sid,
                                         loc=loc,
                                         image=img,
@@ -82,8 +82,8 @@ class PistolMod(Mod):
 
 
 class HealthPack(Item):
-    def __init__(self, groups: Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
+    def __init__(self, groups: Groups, pos: pg.math.Vector2) -> None:
+        label = settings.HEALTHPACK_ITEM
         super(HealthPack, self).__init__(groups, pos, label)
 
     def use(self, player: Any) -> bool:

@@ -17,4 +17,4 @@ class ItemManager(object):
             raise ValueError(error_msg % (label,))
 
         ctr = item_contructors[label]
-        return ctr(groups, pos, label)
+        return ctr(groups, pos)
