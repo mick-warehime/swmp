@@ -1,8 +1,7 @@
 import settings
 import pygame as pg
-from model import Groups, Item, HealthPack
-from mod import ShotgunMod, PistolMod
-
+from model import Groups, Item
+from mod import ShotgunMod, PistolMod, HealthPack
 
 item_contructors = {settings.HEALTHPACK_ITEM: HealthPack,
                     settings.SHOTGUN_MOD: ShotgunMod,

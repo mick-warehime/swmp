@@ -3,6 +3,9 @@ import pygame as pg
 import images
 from typing import Any
 import model
+import settings
+import sounds
+from model import Item, Groups
 
 
 class ModID(Enum):
@@ -32,6 +35,7 @@ class Mod(model.Item):
         self.mod_image = image
 
     '''this will equip that mod at the proper location'''
+
     def use(self, player: Any) -> bool:
         old_mod = None
         if self.loc in player.active_mods:
@@ -75,3 +79,18 @@ class PistolMod(Mod):
                                         groups=groups,
                                         pos=pos,
                                         label=label)
+
+
+class HealthPack(Item):
+    def __init__(self, groups: Groups, pos: pg.math.Vector2,
+                 label: str) -> None:
+        super(HealthPack, self).__init__(groups, pos, label)
+
+    def use(self, player: Any) -> bool:
+        if player.health < settings.PLAYER_HEALTH:
+            sounds.play(sounds.HEALTH_UP)
+            player.increment_health(settings.HEALTH_PACK_AMOUNT)
+            player.backpack.remove(self)
+            self.kill()
+            return True
+        return False

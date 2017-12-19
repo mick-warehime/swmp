@@ -1,12 +1,13 @@
-import pygame as pg
+from collections import namedtuple
 from typing import Any, Union
+
+import pygame as pg
+import pytweening as tween
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-import pytweening as tween
-import settings
+
 import images
-from collections import namedtuple
-import sounds
+import settings
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
@@ -143,21 +144,6 @@ class Item(pg.sprite.Sprite):
 
     def use(self, player: Any) -> bool:
         raise NotImplementedError
-
-
-class HealthPack(Item):
-    def __init__(self, groups: Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
-        super(HealthPack, self).__init__(groups, pos, label)
-
-    def use(self, player: Any) -> bool:
-        if player.health < settings.PLAYER_HEALTH:
-            sounds.play(sounds.HEALTH_UP)
-            player.increment_health(settings.HEALTH_PACK_AMOUNT)
-            player.backpack.remove(self)
-            self.kill()
-            return True
-        return False
 
 
 def collide_hit_rect_with_rect(game_obj: GameObject,
