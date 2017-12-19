@@ -8,7 +8,6 @@ import images
 from collections import namedtuple
 import sounds
 
-
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
 
@@ -48,10 +47,12 @@ class GameObject(pg.sprite.Sprite):
 
     """
     base_image: Union[pg.Surface, None] = None
+    gameobjects_initialized = False
+    _groups: Union[Groups, None] = None
 
-    def __init__(self, image_file: str, hit_rect: pg.Rect,
-                 pos: Vector2) -> None:
-        self._init_base_image(image_file)
+    def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
+
+        self._check_class_initialized()
 
         self.image = self.base_image
         self.pos = pos
@@ -63,15 +64,26 @@ class GameObject(pg.sprite.Sprite):
         self.hit_rect = hit_rect.copy()
         self.hit_rect.center = self.rect.center
 
+    def _check_class_initialized(self) -> None:
+        if not self.gameobjects_initialized:
+            raise ValueError('GameObjects class must be initialized before '
+                             'instantiating a GameObject.')
+
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
         if cls.base_image is None:
             cls.base_image = images.get_image(image_file)
 
+    @classmethod
+    def initialize_gameobjects(cls, groups: Groups) -> None:
+        cls._groups = groups
+        cls.gameobjects_initialized = True
 
-class Obstacle(pg.sprite.Sprite):
-    def __init__(self, walls: Group, pos: Vector2, w: int, h: int) -> None:
-        pg.sprite.Sprite.__init__(self, walls)
+
+class Obstacle(GameObject):
+    def __init__(self, pos: Vector2, w: int, h: int) -> None:
+        self._check_class_initialized()
+        pg.sprite.Sprite.__init__(self, self._groups.walls)
 
         self.rect = pg.Rect(pos.x, pos.y, w, h)
 
@@ -86,6 +98,23 @@ class Obstacle(pg.sprite.Sprite):
     @property
     def hit_rect(self) -> pg.Rect:
         return self.rect
+
+
+class DynamicObject(GameObject):
+    """A time-changing GameObject with access to current time information."""
+    dynamic_initialized = False
+    _timer: Union[Timer, None] = None
+
+    @classmethod
+    def initialize_dynamic_objects(cls, timer: Timer) -> None:
+        cls._timer = timer
+        cls.dynamic_initialized = True
+
+    def _check_class_initialized(self) -> None:
+        super(DynamicObject, self)._check_class_initialized()
+        if not self.dynamic_initialized:
+            raise ValueError('DynamicObject class must be initialized before '
+                             'instantiating a DynamicObject.')
 
 
 class Item(pg.sprite.Sprite):
@@ -129,3 +158,10 @@ class HealthPack(Item):
             self.kill()
             return True
         return False
+
+
+def collide_hit_rect_with_rect(game_obj: GameObject,
+                               sprite: pg.sprite.Sprite) -> bool:
+    """Collide the hit_rect of a GameObject with the rect of a Sprite.
+    """
+    return game_obj.hit_rect.colliderect(sprite.rect)

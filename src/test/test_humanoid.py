@@ -1,14 +1,14 @@
 import unittest
-from typing import Union, Tuple
+from typing import Union
 import os
 from pygame.math import Vector2
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-import images
-import sounds
-from src.test.pygame_mock import MockTimer, Pygame
+
+from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+    initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
 from itertools import product
 import math
@@ -21,37 +21,51 @@ os.environ['SDL_AUDIODRIVER'] = 'dummy'
 pg = Pygame()
 
 
-def setUpModule() -> None:
-    pygame.display.set_mode((600, 400))
-    pygame.mixer.pre_init(44100, -16, 4, 2048)
-    pygame.init()
-    images.initialize_images()
-    sounds.initialize_sounds()
+class Connection(object):
+    groups = model.Groups()
+    timer = MockTimer()
 
 
-def _make_pistol(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> Weapon:
+def _make_pistol(groups: Union[None, model.Groups] = None) -> Weapon:
     if groups is None:
         groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
-    weapon = Weapon('pistol', timer, groups)
-    return weapon
+    timer = Connection.timer
+    return Weapon('pistol', timer, groups)
 
 
-def _make_player(timer: Union[None, MockTimer] = None,
-                 groups: Union[None, model.Groups] = None) -> hmn.Player:
-    if groups is None:
-        groups = model.Groups()
-    if timer is None:
-        timer = MockTimer()
+def _make_player() -> hmn.Player:
+    groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(groups, timer, pos)
+
+    player = hmn.Player(pos)
     player.set_weapon('pistol')
     return player
 
 
+def _make_mob(player: hmn.Player,
+              pos: Union[Vector2, None] = None) -> hmn.Mob:
+    groups = Connection.groups
+    if pos is None:
+        pos = pygame.math.Vector2(0, 0)
+    return hmn.Mob(groups, player)
+
+
+def setUpModule() -> None:
+    initialize_pygame()
+    initialize_gameobjects(Connection.groups, Connection.timer)
+
+
 class ModelTest(unittest.TestCase):
+    def tearDown(self) -> None:
+        groups = Connection.groups
+        groups.walls.empty()
+        groups.mobs.empty()
+        groups.bullets.empty()
+        groups.all_sprites.empty()
+        groups.items.empty()
+
+        Connection.timer.reset()
+
     def test_groups_immutable_container(self) -> None:
         groups = model.Groups()
 
@@ -93,8 +107,8 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(num_others, 0)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
-        timer = MockTimer()
-        weapon = _make_pistol(timer)
+        timer = Connection.timer
+        weapon = _make_pistol()
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
 
@@ -102,9 +116,9 @@ class ModelTest(unittest.TestCase):
         # shoot. We must wait until timer.current_time> weapon.shoot_rate -
         # weapon._last_shot
         self.assertFalse(weapon.can_shoot)
-        timer.time += weapon.shoot_rate
+        timer._time += weapon.shoot_rate
         self.assertFalse(weapon.can_shoot)
-        timer.time += 1
+        timer._time += 1
         self.assertTrue(weapon.can_shoot)
         weapon.shoot(pos, rot)
         self.assertFalse(weapon.can_shoot)
@@ -117,24 +131,24 @@ class ModelTest(unittest.TestCase):
         self.assertGreater(weapon.bullet_count, 1)
 
     def test_player_shoot_no_shot(self) -> None:
-        groups = model.Groups()
-        timer = MockTimer()
-        player = _make_player(timer=timer, groups=groups)
+        groups = Connection.groups
+        timer = Connection.timer
+        player = _make_player()
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()
         self.assertEqual(len(groups.bullets), 0)
-        timer.time += player._weapon.shoot_rate + 1
+        timer._time += player._weapon.shoot_rate + 1
         player.shoot()
         self.assertEqual(len(groups.bullets), 1)
 
     def test_player_shoot_kickback(self) -> None:
-        timer = MockTimer()
-        player = _make_player(timer=timer)
+        timer = Connection.timer
+        player = _make_player()
 
         old_vel = (player._vel.x, player._vel.y)
 
-        timer.time += player._weapon.shoot_rate + 1
+        timer._time += player._weapon.shoot_rate + 1
         player.shoot()
 
         new_vel = (player._vel.x, player._vel.y)
