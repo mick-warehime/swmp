@@ -49,7 +49,7 @@ class ModTest(unittest.TestCase):
 
         Connection.timer.reset()
 
-    def test_make_item_in_groups(self):
+    def test_make_item_in_groups(self) -> None:
         groups = Connection.groups
 
         hp = _make_item(settings.HEALTHPACK)

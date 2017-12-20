@@ -45,7 +45,6 @@ class Mod(object):
     def expended(self) -> bool:
         raise NotImplementedError
 
-    @property
     def use(self, player: Any) -> None:
         raise NotImplementedError
 
@@ -58,7 +57,6 @@ class WeaponMod(Mod):
                                         label=label)
 
     def use(self, player: Any) -> None:
-        print('Setting weapon to %s' % self.label)
         player.set_weapon(self.label)
 
     @property
@@ -100,7 +98,7 @@ class HealthPackMod(Mod):
             self._expended = True
 
     @property
-    def expended(self):
+    def expended(self) -> bool:
         return self._expended
 
 

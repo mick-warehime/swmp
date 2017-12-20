@@ -192,8 +192,6 @@ class DungeonController(controller.Controller):
                 self.player.equip(item_mod)
             else:
                 item_mod.use()
-
-
         except Exception as e:
             print(e)
 
