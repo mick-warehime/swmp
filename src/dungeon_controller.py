@@ -53,11 +53,16 @@ class DungeonController(controller.Controller):
 
         self._init_gameobjects()
 
+        # ensure the player is instantiated first
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 self.player = Player(obj_center)
+
+        for tile_object in self._map.tmxdata.objects:
+            obj_center = Vector2(tile_object.x + tile_object.width / 2,
+                                 tile_object.y + tile_object.height / 2)
             if tile_object.name == 'zombie':
                 Mob(obj_center, self.player)
             if tile_object.name == 'wall':
@@ -78,19 +83,17 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        self.bind(pg.K_q, self.player.turn)
+        self.bind(pg.K_LEFT, self.player.translate_left)
+        self.bind(pg.K_a, self.player.translate_left)
 
-        self.bind(pg.K_LEFT, self.player.move_left)
-        self.bind(pg.K_a, self.player.move_left)
+        self.bind(pg.K_RIGHT, self.player.translate_right)
+        self.bind(pg.K_d, self.player.translate_right)
 
-        self.bind(pg.K_RIGHT, self.player.move_right)
-        self.bind(pg.K_d, self.player.move_right)
+        self.bind(pg.K_UP, self.player.translate_up)
+        self.bind(pg.K_w, self.player.translate_up)
 
-        self.bind(pg.K_UP, self.player.move_towards_mouse)
-        self.bind(pg.K_w, self.player.move_towards_mouse)
-
-        self.bind(pg.K_DOWN, self.player.move_down)
-        self.bind(pg.K_s, self.player.move_down)
+        self.bind(pg.K_DOWN, self.player.translate_down)
+        self.bind(pg.K_s, self.player.translate_down)
 
         self.bind(pg.K_SPACE, self.player.shoot)
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
@@ -181,7 +184,7 @@ class DungeonController(controller.Controller):
         method implemented separately for each item/mod type.
         if item is a mod this will equip that mod at the proper
         location'''
-        idx = self._view._selected_item
+        idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
 
@@ -197,7 +200,7 @@ class DungeonController(controller.Controller):
             print(e)
 
         if used_item:
-            self._view._selected_item = view.NO_SELECTION
+            self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self.abs_mouse_pos()

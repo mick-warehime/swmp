@@ -1,9 +1,9 @@
 import controller
 from typing import Dict, Callable, List
 import pygame as pg
-import view
 import images
 import settings
+from draw_utils import draw_text
 
 
 class DecisionController(controller.Controller):
@@ -58,9 +58,9 @@ class DecisionController(controller.Controller):
 
         n_texts = len(texts) + 1
         for idx, text in enumerate(texts, 1):
-            view.draw_text(self._screen, text, title_font,
-                           40, settings.WHITE, settings.WIDTH / 2,
-                           settings.HEIGHT * idx / n_texts, align="center")
+            draw_text(self._screen, text, title_font,
+                      40, settings.WHITE, settings.WIDTH / 2,
+                      settings.HEIGHT * idx / n_texts, align="center")
         pg.display.flip()
 
     def get_text(self) -> List[str]:

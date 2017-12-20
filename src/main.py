@@ -5,7 +5,7 @@ import dungeon_controller as dungeon
 import decision_controller as decision
 import sounds
 import images
-import view
+from draw_utils import draw_text
 
 
 class Game(object):
@@ -101,20 +101,20 @@ class Game(object):
     def game_over(self) -> None:
         self.screen.fill(settings.BLACK)
         title_font = images.get_font(images.ZOMBIE_FONT)
-        view.draw_text(self.screen, "GAME OVER", title_font,
-                       100, settings.RED, settings.WIDTH / 2,
-                       settings.HEIGHT / 2, align="center")
-        view.draw_text(self.screen, "Press a key to start", title_font,
-                       75, settings.WHITE, settings.WIDTH / 2,
-                       settings.HEIGHT * 3 / 4, align="center")
+        draw_text(self.screen, "GAME OVER", title_font,
+                  100, settings.RED, settings.WIDTH / 2,
+                  settings.HEIGHT / 2, align="center")
+        draw_text(self.screen, "Press a key to start", title_font,
+                  75, settings.WHITE, settings.WIDTH / 2,
+                  settings.HEIGHT * 3 / 4, align="center")
         pg.display.flip()
 
     def pause_game(self) -> None:
         title_font = images.get_font(images.ZOMBIE_FONT)
         self.screen.blit(self.dim_screen, (0, 0))
-        view.draw_text(self.screen, "Paused", title_font, 105,
-                       settings.RED, settings.WIDTH / 2,
-                       settings.HEIGHT / 2, align="center")
+        draw_text(self.screen, "Paused", title_font, 105,
+                  settings.RED, settings.WIDTH / 2,
+                  settings.HEIGHT / 2, align="center")
 
         pg.display.flip()
 
