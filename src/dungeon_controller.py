@@ -54,12 +54,17 @@ class DungeonController(controller.Controller):
 
         self._init_gameobjects()
 
+        # ensure the player is instantiated first
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
                 pos = Vector2(obj_center.x, obj_center.y)
                 self.player = Player(pos)
+
+        for tile_object in self._map.tmxdata.objects:
+            obj_center = Vector2(tile_object.x + tile_object.width / 2,
+                                 tile_object.y + tile_object.height / 2)
             if tile_object.name == 'zombie':
                 pos = Vector2(obj_center.x, obj_center.y)
                 Mob(pos, self.player)
