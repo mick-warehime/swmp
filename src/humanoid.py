@@ -73,10 +73,31 @@ class Humanoid(mdl.DynamicObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
+    def equip(self, item_mod: mod.Mod) -> None:
+        assert item_mod.equipable
+
+        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        if item_mod in self.backpack:
+            self.backpack.remove(item_mod)
+        self.active_mods[item_mod.loc] = item_mod
+        item_mod.use(self)
+
+    def expend(self, item_mod: mod.Mod) -> None:
+        assert item_mod.mod.expendable
+        assert item_mod in self.backpack
+        item_mod.use(self)
+        if item_mod.expended:
+            self.backpack.remove(item_mod)
+
+    def _move_mod_at_loc_to_backpack(self, loc: mod.ModLocation) -> None:
+        old_mod = self.active_mods.pop(loc, None)
+        if old_mod is not None:
+            self.backpack.append(old_mod)
+
     def gain_item(self, item: mod.ItemObject) -> None:
 
         if item.mod.equipable and item.mod.loc not in self.active_mods:
-            self.active_mods[item.mod.loc] = item.mod
+            self.equip(item.mod)
             item.kill()
         elif not self.backpack_full:
             self.backpack.append(item.mod)

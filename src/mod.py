@@ -33,28 +33,20 @@ class Mod(object):
         self.image = image
         self.label = label
 
-    # TODO (dvirk): Split this logic to two different functions.
-    def use(self, player: Any) -> None:
-        """Either expend the item or move it to its equipped location."""
-        assert self in player.backpack
-        # Remove from backpack
-        player.backpack.remove(self)
-
-        if self.equipable:
-            self._move_mod_at_loc_to_backpack(player)
-            player.active_mods[self.loc] = self
-
-    def _move_mod_at_loc_to_backpack(self, player: Any) -> None:
-        old_mod = player.active_mods.pop(self.loc, None)
-        if old_mod is not None:
-            player.backpack.append(old_mod)
-
     @property
     def equipable(self) -> bool:
         return self.loc != ModLocation.BACKPACK
 
     @property
+    def expendable(self) -> bool:
+        return not self.equipable
+
+    @property
     def expended(self) -> bool:
+        raise NotImplementedError
+
+    @property
+    def use(self, player: Any) -> None:
         raise NotImplementedError
 
 
@@ -66,7 +58,7 @@ class WeaponMod(Mod):
                                         label=label)
 
     def use(self, player: Any) -> None:
-        super(WeaponMod, self).use(player)
+        print('Setting weapon to %s' % self.label)
         player.set_weapon(self.label)
 
     @property
@@ -108,7 +100,7 @@ class HealthPackMod(Mod):
             self._expended = True
 
     @property
-    def expended(self) -> bool:
+    def expended(self):
         return self._expended
 
 

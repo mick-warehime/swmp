@@ -30,7 +30,6 @@ def setUpModule() -> None:
 def _make_player() -> hmn.Player:
     pos = pygame.math.Vector2(0, 0)
     player = hmn.Player(pos)
-    player.set_weapon('pistol')
     return player
 
 
@@ -138,6 +137,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
+        self.assertEqual(player._weapon._label, 'shotgun')
 
         # adding a second arm mod goes into the backpack
         pistol = _make_item(settings.PISTOL)
@@ -149,7 +149,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(pistol.mod, player.backpack)
 
         # make sure we can swap the pistol with the shotgun
-        pistol.mod.use(player)
+        player.equip(pistol.mod)
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)

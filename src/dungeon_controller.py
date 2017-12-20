@@ -57,11 +57,9 @@ class DungeonController(controller.Controller):
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
-                pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(pos)
+                self.player = Player(obj_center)
             if tile_object.name == 'zombie':
-                pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self.player)
+                Mob(obj_center, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
@@ -189,8 +187,12 @@ class DungeonController(controller.Controller):
 
         used_item = False
         try:
-            itm = self.player.backpack[idx]
-            itm.use(self.player)
+            item_mod = self.player.backpack[idx]
+            if item_mod.equipable:
+                self.player.equip(item_mod)
+            else:
+                item_mod.use()
+
 
         except Exception as e:
             print(e)
