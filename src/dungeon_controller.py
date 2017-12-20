@@ -81,17 +81,17 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        self.bind(pg.K_LEFT, self.player.step_left)
-        self.bind(pg.K_a, self.player.step_left)
+        self.bind(pg.K_LEFT, self.player.translate_left)
+        self.bind(pg.K_a, self.player.translate_left)
 
-        self.bind(pg.K_RIGHT, self.player.step_right)
-        self.bind(pg.K_d, self.player.step_right)
+        self.bind(pg.K_RIGHT, self.player.translate_right)
+        self.bind(pg.K_d, self.player.translate_right)
 
-        self.bind(pg.K_UP, self.player.step_forward)
-        self.bind(pg.K_w, self.player.step_forward)
+        self.bind(pg.K_UP, self.player.translate_up)
+        self.bind(pg.K_w, self.player.translate_up)
 
-        self.bind(pg.K_DOWN, self.player.step_backward)
-        self.bind(pg.K_s, self.player.step_backward)
+        self.bind(pg.K_DOWN, self.player.translate_down)
+        self.bind(pg.K_s, self.player.translate_down)
 
         self.bind(pg.K_SPACE, self.player.shoot)
         self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
