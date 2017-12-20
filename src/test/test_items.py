@@ -50,6 +50,27 @@ class ModTest(unittest.TestCase):
 
         Connection.timer.reset()
 
+    def test_make_item_in_groups(self):
+        groups = Connection.groups
+
+        hp = _make_item(settings.HEALTHPACK)
+        self.assertIn(hp, groups.all_sprites)
+        self.assertIn(hp, groups.items)
+        self.assertEqual(len(groups.all_sprites), 1)
+        self.assertEqual(len(groups.items), 1)
+
+        pistol = _make_item(settings.PISTOL)
+        self.assertIn(pistol, groups.all_sprites)
+        self.assertIn(pistol, groups.items)
+        self.assertEqual(len(groups.all_sprites), 2)
+        self.assertEqual(len(groups.items), 2)
+
+        shotgun = _make_item(settings.SHOTGUN)
+        self.assertIn(shotgun, groups.all_sprites)
+        self.assertIn(shotgun, groups.items)
+        self.assertEqual(len(groups.all_sprites), 3)
+        self.assertEqual(len(groups.items), 3)
+
     def test_backpack_full(self) -> None:
         player = _make_player()
         hp = _make_item(settings.HEALTHPACK)
