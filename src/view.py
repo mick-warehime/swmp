@@ -1,12 +1,11 @@
 from typing import List, Tuple, Dict
 import settings
 import pygame as pg
-from pygame.sprite import LayeredUpdates, Group
 from humanoid import Mob, Player
+from model import Groups
 from tilemap import Camera, TiledMap
 import images
 import mod
-
 
 NO_SELECTION = -1
 
@@ -60,11 +59,9 @@ class DungeonView(object):
         self._light_mask = images.get_image(images.LIGHT_MASK)
         self._light_rect = self._light_mask.get_rect()
 
-        self.all_sprites = LayeredUpdates()
-        self.walls = Group()
-        self.mobs = Group()
-        self.bullets = Group()
-        self.items = Group()
+        # TODO(dvirk): This should not have to be instantiated here,
+        # but assigned to the view before the draw method is called.
+        self._groups = Groups()
 
     def generate_mod_rects(self) -> Dict[mod.ModLocation, pg.Rect]:
         mod_size = 62
@@ -73,6 +70,8 @@ class DungeonView(object):
 
         i = 0
         for loc in mod.ModLocation:
+            if loc == mod.ModLocation.BACKPACK:
+                continue
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
@@ -97,17 +96,8 @@ class DungeonView(object):
                 img_rects.append(img_rect)
         return [rects, img_rects]
 
-    def set_sprites(self, all_sprites: LayeredUpdates) -> None:
-        self.all_sprites = all_sprites
-
-    def set_walls(self, walls: Group) -> None:
-        self.walls = walls
-
-    def set_items(self, items: Group) -> None:
-        self.items = items
-
-    def set_mobs(self, mobs: Group) -> None:
-        self.mobs = mobs
+    def set_groups(self, groups: Groups) -> None:
+        self._groups = groups
 
     def draw(self,
              player: Player,
@@ -117,7 +107,7 @@ class DungeonView(object):
 
         self._screen.blit(map_img, camera.apply(map))
 
-        for sprite in self.all_sprites:
+        for sprite in self._groups.all_sprites:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self._screen.blit(sprite.image, camera.apply(sprite))
@@ -125,7 +115,7 @@ class DungeonView(object):
                 sprite_camera = camera.apply_rect(sprite.hit_rect)
                 pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
         if self._draw_debug:
-            for wall in self.walls:
+            for wall in self._groups.walls:
                 wall_camera = camera.apply_rect(wall.rect)
                 pg.draw.rect(self._screen, settings.CYAN, wall_camera, 1)
 
@@ -198,7 +188,7 @@ class DungeonView(object):
 
         for idx, loc in enumerate(player.active_mods):
             mod = player.active_mods[loc]
-            img = mod.mod_image
+            img = mod.image
 
             img = pg.transform.scale(img, (70, 70))
 
@@ -221,7 +211,9 @@ class DungeonView(object):
             self._screen.blit(item.image, r)
 
     def try_click_mod(self, pos: Tuple[int, int]) -> None:
-        rects = [self.mod_rects[l] for l in mod.ModLocation]
+        equipables = [loc for loc in mod.ModLocation if
+                      loc != mod.ModLocation.BACKPACK]
+        rects = [self.mod_rects[l] for l in equipables]
         index = self.clicked_rect_index(rects, pos)
         if index == self._selected_mod:
             self._selected_mod = NO_SELECTION

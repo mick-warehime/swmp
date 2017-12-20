@@ -37,10 +37,7 @@ class DungeonController(controller.Controller):
         self._camera = tilemap.Camera(self._map.width, self._map.height)
 
         self._view = view.DungeonView(screen)
-        self._view.set_sprites(self._groups.all_sprites)
-        self._view.set_walls(self._groups.walls)
-        self._view.set_items(self._groups.items)
-        self._view.set_mobs(self._groups.mobs)
+        self._view.set_groups(self._groups)
 
         self.init_controls()
 
