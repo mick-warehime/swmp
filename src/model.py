@@ -2,12 +2,10 @@ from collections import namedtuple
 from typing import Any, Union
 
 import pygame as pg
-import pytweening as tween
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 
 import images
-import settings
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))

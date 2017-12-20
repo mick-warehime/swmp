@@ -4,7 +4,7 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from typing import Any, Union
+from typing import Any
 import settings
 import sounds
 from model import DynamicObject
@@ -44,7 +44,7 @@ class Mod(object):
             self._move_mod_at_loc_to_backpack(player)
             player.active_mods[self.loc] = self
 
-    def _move_mod_at_loc_to_backpack(self, player):
+    def _move_mod_at_loc_to_backpack(self, player: Any) -> None:
         old_mod = player.active_mods.pop(self.loc, None)
         if old_mod is not None:
             player.backpack.append(old_mod)
@@ -107,7 +107,7 @@ class WeaponMod(Mod):
         player.set_weapon(self.label)
 
     @property
-    def expended(self):
+    def expended(self) -> bool:
         return False
 
 

@@ -130,8 +130,8 @@ class DungeonController(controller.Controller):
             self._playing = False
 
         # player hits items
-        items: List[ItemObject] = spritecollide(self.player, self._groups.items,
-                                                False)
+        items: List[ItemObject] = spritecollide(self.player,
+                                                self._groups.items, False)
         for item in items:
             if not self.player.backpack_full:
                 self.player.gain_item(item)
@@ -193,8 +193,8 @@ class DungeonController(controller.Controller):
         used_item = False
         try:
             itm = self.player.backpack[idx]
-            if isinstance(itm, Item):
-                used_item = itm.use(self.player)
+            itm.use(self.player)
+
         except Exception as e:
             print(e)
 
