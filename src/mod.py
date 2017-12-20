@@ -146,7 +146,7 @@ class PistolObject(ItemObject):
 
         # TODO(dkafri): image should not need to be passed to the super.init?
         if self.base_image is None:
-            self._init_base_image(images.PISTOL_MOD)
+            self._init_base_image(images.PISTOL)
 
         super(PistolObject, self).__init__(mod, self.base_image, pos)
 
@@ -158,7 +158,7 @@ class ShotgunObject(ItemObject):
 
         # TODO(dkafri): image should not need to be passed to the super.init?
         if self.base_image is None:
-            self._init_base_image(images.SHOTGUN_MOD)
+            self._init_base_image(images.SHOTGUN)
 
         super(ShotgunObject, self).__init__(mod, self.base_image, pos)
 
