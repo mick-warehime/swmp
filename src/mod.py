@@ -25,6 +25,10 @@ class ModLocation(Enum):
     BACKPACK = 4
 
 
+EQUIP_LOCATIONS = tuple(
+    [loc for loc in ModLocation if loc != ModLocation.BACKPACK])
+
+
 class Mod(object):
     def __init__(self, sid: ModID, loc: ModLocation, image: pg.Surface,
                  label: str) -> None:

@@ -78,9 +78,7 @@ class DungeonView(object):
         self._night = not self._night
 
     def try_click_mod(self, pos: Tuple[int, int]) -> None:
-        equipables = [loc for loc in mod.ModLocation if
-                      loc != mod.ModLocation.BACKPACK]
-        rects = [self._hud.mod_rects[l] for l in equipables]
+        rects = [self._hud.mod_rects[l] for l in mod.EQUIP_LOCATIONS]
         index = self.clicked_rect_index(rects, pos)
         if index == self.selected_mod:
             self._hud.selected_mod = NO_SELECTION

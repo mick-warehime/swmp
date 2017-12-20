@@ -41,9 +41,7 @@ class HUD(object):
         rects: Dict[mod.ModLocation, pg.Rect] = {}
 
         i = 0
-        for loc in mod.ModLocation:
-            if loc == mod.ModLocation.BACKPACK:
-                continue
+        for loc in mod.EQUIP_LOCATIONS:
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
