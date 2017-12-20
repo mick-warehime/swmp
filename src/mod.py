@@ -30,7 +30,7 @@ class Mod(object):
                  label: str) -> None:
         self.sid = sid
         self.loc = loc
-        self.mod_image = image
+        self.image = image
         self.label = label
 
     # TODO (dvirk): Split this logic to two different functions.
