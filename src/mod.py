@@ -56,6 +56,7 @@ class WeaponMod(Mod):
         super(WeaponMod, self).__init__(sid=sid, loc=loc, image=image,
                                         label=label)
 
+    # TODO(dkafri): Thus functionality should be handled by the Backpack.
     def use(self, player: Any) -> None:
         player.set_weapon(self.label)
 
@@ -94,7 +95,6 @@ class HealthPackMod(Mod):
         if player.damaged:
             sounds.play(sounds.HEALTH_UP)
             player.increment_health(settings.HEALTH_PACK_AMOUNT)
-            player.backpack.remove(self)
             self._expended = True
 
     @property

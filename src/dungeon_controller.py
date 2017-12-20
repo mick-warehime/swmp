@@ -63,7 +63,7 @@ class DungeonController(controller.Controller):
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
-            if tile_object.name in ['healthpack', 'shotgun', 'pistol']:
+            if tile_object.name in ['pistol', 'healthpack']:  # 'healthpack', 'shotgun',
                 ItemManager.item(obj_center, tile_object.name)
 
     def _init_gameobjects(self) -> None:
@@ -191,7 +191,8 @@ class DungeonController(controller.Controller):
             if item_mod.equipable:
                 self.player.equip(item_mod)
             else:
-                item_mod.use()
+                assert item_mod.expendable
+                self.player.expend(item_mod)
         except Exception as e:
             print(e)
 

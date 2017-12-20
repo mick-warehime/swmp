@@ -83,7 +83,7 @@ class Humanoid(mdl.DynamicObject):
         item_mod.use(self)
 
     def expend(self, item_mod: mod.Mod) -> None:
-        assert item_mod.mod.expendable
+        assert item_mod.expendable
         assert item_mod in self.backpack
         item_mod.use(self)
         if item_mod.expended:
