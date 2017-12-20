@@ -6,7 +6,7 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-
+import settings
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
@@ -178,13 +178,15 @@ class ModelTest(unittest.TestCase):
         original_pos = Vector2(0, 0)
         self.assertEqual(player.pos, original_pos)
 
-        player.move_down()
-        player.move_left()
+        player.translate_down()
+        player.translate_left()
         player.update()
-        player.move_down()
-        player.move_left()
+        player.translate_down()
+        player.translate_left()
         player.update()
-        expected = Vector2(-28, -28)
+
+        speed = 56
+        expected = Vector2(-speed, speed)
         self.assertEqual(player.pos, expected)
 
         # velocity set to zero after each update
@@ -192,10 +194,11 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(player.pos, expected)
 
         # up movement is twice as fast as other moves, so we only do it once.
-        player.move_up()
-        player.move_right()
+        player.translate_up()
+        player.translate_right()
         player.update()
-        player.move_right()
+        player.translate_right()
+        player.translate_up()
         player.update()
         self.assertEqual(player.pos, original_pos)
 
@@ -231,11 +234,10 @@ class ModelTest(unittest.TestCase):
         def normalize(pos: Tuple[float, float]) \
                 -> Tuple[float, float]:
             x, y = pos
-            length = math.sqrt(x**2 + y**2)
+            length = math.sqrt(x ** 2 + y ** 2)
             if length == 0:
                 return (0.0, 0.0)
             return (x / length, y / length)
-
 
         player = _make_player()
 
@@ -254,11 +256,11 @@ class ModelTest(unittest.TestCase):
 
             # mouse direction
             m_hat = normalize((x, y))
+
             self.assertAlmostEqual(p_hat[0], m_hat[0], 8)
             self.assertAlmostEqual(p_hat[1], m_hat[1], 8)
 
     def test_mouse_too_close(self) -> None:
-
         # stop moving when you get close to the mouse
         player = _make_player()
 
@@ -277,18 +279,18 @@ class ModelTest(unittest.TestCase):
         original_pos = Vector2(0, 0)
         self.assertEqual(player.pos, original_pos)
 
-        player.move_down()
-        player.move_left()
+        player.translate_down()
+        player.translate_left()
         player.stop_x()
         player.update()
-        expected = Vector2(0, -14)
+        expected = Vector2(0, 28)
         self.assertEqual(player.pos, expected)
 
-        player.move_down()
-        player.move_left()
+        player.translate_down()
+        player.translate_left()
         player.stop_y()
         player.update()
-        expected = Vector2(-14, -14)
+        expected = Vector2(-28, 28)
         self.assertEqual(player.pos, expected)
 
 

@@ -108,11 +108,11 @@ class Player(Humanoid):
     def move_towards_mouse(self) -> None:
         self.turn()
 
-        CLOSEST_MOUSE_APPROACH = 10
-        if self.distance_to_mouse() < CLOSEST_MOUSE_APPROACH:
+        closest_approach = 10
+        if self.distance_to_mouse() < closest_approach:
             return
 
-        self.move_up()
+        self.step_forward()
 
     def _check_class_initialized(self) -> None:
         super(Player, self)._check_class_initialized()
@@ -121,17 +121,32 @@ class Player(Humanoid):
                 'Player class must be initialized before an object can be'
                 ' instantiated.')
 
-    def move_up(self) -> None:
+    # translate_direction = slide in that direction
+    def translate_up(self) -> None:
+        self._vel += Vector2(0, -settings.PLAYER_SPEED)
+
+    def translate_down(self) -> None:
+        self._vel += Vector2(0, settings.PLAYER_SPEED)
+
+    def translate_right(self) -> None:
+        self._vel += Vector2(settings.PLAYER_SPEED, 0)
+
+    def translate_left(self) -> None:
+        self._vel += Vector2(-settings.PLAYER_SPEED, 0)
+
+    # step_direction - rotates player towards the current direction
+    # and then takes a step relative to that direction
+    def step_forward(self) -> None:
         self._vel += Vector2(settings.PLAYER_SPEED, 0).rotate(-self.rot)
 
-    def move_down(self) -> None:
-        self._vel += Vector2(-settings.PLAYER_SPEED / 2, 0).rotate(-self.rot)
+    def step_backward(self) -> None:
+        self._vel += Vector2(-settings.PLAYER_SPEED, 0).rotate(-self.rot)
 
-    def move_right(self) -> None:
-        self._vel += Vector2(0, settings.PLAYER_SPEED / 2).rotate(-self.rot)
+    def step_right(self) -> None:
+        self._vel += Vector2(0, settings.PLAYER_SPEED).rotate(-self.rot)
 
-    def move_left(self) -> None:
-        self._vel += Vector2(0, -settings.PLAYER_SPEED / 2).rotate(-self.rot)
+    def step_left(self) -> None:
+        self._vel += Vector2(0, -settings.PLAYER_SPEED).rotate(-self.rot)
 
     def turn(self) -> None:
         self.rotate_towards_cursor()
@@ -148,7 +163,7 @@ class Player(Humanoid):
             self._vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
 
     def update(self) -> None:
-
+        self.turn()
         delta_rot = int(self._rot_speed * self._timer.dt)
         self.rot = (self.rot + delta_rot) % 360
 
