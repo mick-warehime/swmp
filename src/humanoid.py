@@ -94,7 +94,7 @@ class Humanoid(mdl.DynamicObject):
         if old_mod is not None:
             self.backpack.append(old_mod)
 
-    def gain_item(self, item: mod.ItemObject) -> None:
+    def attempt_pickup(self, item: mod.ItemObject) -> None:
 
         if item.mod.equipable and item.mod.loc not in self.active_mods:
             self.equip(item.mod)

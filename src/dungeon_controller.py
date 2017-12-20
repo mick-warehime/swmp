@@ -131,9 +131,7 @@ class DungeonController(controller.Controller):
         items: List[ItemObject] = spritecollide(self.player,
                                                 self._groups.items, False)
         for item in items:
-            if not self.player.backpack_full:
-                self.player.gain_item(item)
-                item.kill()
+            self.player.attempt_pickup(item)
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,

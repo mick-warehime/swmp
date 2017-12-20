@@ -78,13 +78,13 @@ class ModTest(unittest.TestCase):
         # backpack more than once.
         for i in range(player.backpack_size):
             self.assertFalse(player.backpack_full)
-            player.gain_item(hp)
+            player.attempt_pickup(hp)
             self.assertEqual(len(player.backpack), i + 1)
         self.assertEqual(len(player.backpack), player.backpack_size)
         self.assertTrue(player.backpack_full)
 
         # Item not gained since backpack full
-        player.gain_item(hp)
+        player.attempt_pickup(hp)
         self.assertEqual(len(player.backpack), player.backpack_size)
 
     def test_use_health_pack(self) -> None:
@@ -93,7 +93,7 @@ class ModTest(unittest.TestCase):
 
         self.assertEqual(len(player.backpack), 0)
 
-        player.gain_item(hp)
+        player.attempt_pickup(hp)
 
         self.assertIn(hp.mod, player.backpack)
 
@@ -117,7 +117,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 0)
 
         hp = _make_item(settings.HEALTHPACK)
-        player.gain_item(hp)
+        player.attempt_pickup(hp)
         player.increment_health(-1)
 
         player.expend(hp.mod)
@@ -130,7 +130,7 @@ class ModTest(unittest.TestCase):
         player = _make_player()
         shotgun = _make_item(settings.SHOTGUN)
 
-        player.gain_item(shotgun)
+        player.attempt_pickup(shotgun)
 
         self.assertTrue(shotgun.mod.equipable)
         # nothing installed at arms location -> install shotgun
@@ -142,7 +142,7 @@ class ModTest(unittest.TestCase):
         # adding a second arm mod goes into the backpack
         pistol = _make_item(settings.PISTOL)
 
-        player.gain_item(pistol)
+        player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertEqual(arm_mod, shotgun.mod)
