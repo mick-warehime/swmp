@@ -144,7 +144,6 @@ class PistolObject(ItemObject):
         self._check_class_initialized()
         mod = PistolMod()
 
-        # TODO(dkafri): image should not need to be passed to the super.init?
         if self.base_image is None:
             self._init_base_image(images.PISTOL)
 
@@ -156,7 +155,6 @@ class ShotgunObject(ItemObject):
         self._check_class_initialized()
         mod = ShotgunMod()
 
-        # TODO(dkafri): image should not need to be passed to the super.init?
         if self.base_image is None:
             self._init_base_image(images.SHOTGUN)
 
@@ -168,7 +166,6 @@ class HealthPackObject(ItemObject):
         self._check_class_initialized()
         mod = HealthPackMod()
 
-        # TODO(dkafri): image should not need to be passed to the super.init?
         if self.base_image is None:
             self._init_base_image(images.HEALTH_PACK)
 
