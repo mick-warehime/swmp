@@ -1,6 +1,8 @@
 from humanoid import Player, Mob
 from pygame.sprite import spritecollide, groupcollide
-from model import Obstacle, Item, Groups, GameObject, Timer, \
+
+from mod import ItemObject
+from model import Obstacle, Groups, GameObject, Timer, \
     collide_hit_rect_with_rect, DynamicObject
 from item_manager import ItemManager
 from pygame.math import Vector2
@@ -67,7 +69,7 @@ class DungeonController(controller.Controller):
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
             if tile_object.name in ['health', 'shotgun', 'pistol']:
-                ItemManager.item(self._groups, obj_center, tile_object.name)
+                ItemManager.item(obj_center, tile_object.name)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
@@ -128,11 +130,11 @@ class DungeonController(controller.Controller):
             self._playing = False
 
         # player hits items
-        items: List[Item] = spritecollide(self.player, self._groups.items,
-                                          False)
+        items: List[ItemObject] = spritecollide(self.player, self._groups.items,
+                                                False)
         for item in items:
-            if not self.player.backpack_full():
-                self.player.add_item_to_backpack(item)
+            if not self.player.backpack_full:
+                self.player.gain_item(item)
                 item.kill()
 
         # mobs hit player
