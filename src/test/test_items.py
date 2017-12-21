@@ -28,17 +28,14 @@ def setUpModule() -> None:
 
 
 def _make_player() -> hmn.Player:
-    groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
     player = hmn.Player(pos)
-    player.set_weapon('pistol')
     return player
 
 
-def _make_item(label: str) -> model.Item:
+def _make_item(label: str) -> mod.ItemObject:
     pos = (0, 0)
-    groups = Connection.groups
-    return ItemManager.item(groups, pos, label)
+    return ItemManager.item(pos, label)
 
 
 class ModTest(unittest.TestCase):
@@ -52,78 +49,111 @@ class ModTest(unittest.TestCase):
 
         Connection.timer.reset()
 
-    def test_add_items(self) -> None:
+    def test_make_item_in_groups(self) -> None:
+        groups = Connection.groups
+
+        hp = _make_item(settings.HEALTHPACK)
+        self.assertIn(hp, groups.all_sprites)
+        self.assertIn(hp, groups.items)
+        self.assertEqual(len(groups.all_sprites), 1)
+        self.assertEqual(len(groups.items), 1)
+
+        pistol = _make_item(settings.PISTOL)
+        self.assertIn(pistol, groups.all_sprites)
+        self.assertIn(pistol, groups.items)
+        self.assertEqual(len(groups.all_sprites), 2)
+        self.assertEqual(len(groups.items), 2)
+
+        shotgun = _make_item(settings.SHOTGUN)
+        self.assertIn(shotgun, groups.all_sprites)
+        self.assertIn(shotgun, groups.items)
+        self.assertEqual(len(groups.all_sprites), 3)
+        self.assertEqual(len(groups.items), 3)
+
+    def test_backpack_full(self) -> None:
         player = _make_player()
-        hp = _make_item(settings.HEALTHPACK_ITEM)
+        hp = _make_item(settings.HEALTHPACK)
 
-        self.assertEqual(len(player.backpack), 0)
-
+        # TODO (dvirk): You should not be able to add the same object to the
+        # backpack more than once.
         for i in range(player.backpack_size):
-            player.add_item_to_backpack(hp)
+            self.assertFalse(player.backpack_full)
+            player.attempt_pickup(hp)
             self.assertEqual(len(player.backpack), i + 1)
+        self.assertEqual(len(player.backpack), player.backpack_size)
+        self.assertTrue(player.backpack_full)
 
-        self.assertTrue(player.backpack_full())
+        # Item not gained since backpack full
+        player.attempt_pickup(hp)
+        self.assertEqual(len(player.backpack), player.backpack_size)
 
     def test_use_health_pack(self) -> None:
         player = _make_player()
-        hp = _make_item(settings.HEALTHPACK_ITEM)
+        hp = _make_item(settings.HEALTHPACK)
 
         self.assertEqual(len(player.backpack), 0)
 
-        player.add_item_to_backpack(hp)
+        player.attempt_pickup(hp)
+
+        self.assertIn(hp.mod, player.backpack)
 
         # health is full
         self.assertFalse(player.damaged)
 
-        hp.use(player)
+        self.assertFalse(hp.mod.expended)
+        player.expend(hp.mod)
+        self.assertFalse(hp.mod.expended)
 
         # health pack doesn't work if health is full
-        self.assertFalse(player.damaged)
-        self.assertEqual(len(player.backpack), 1)
-
-        player.increment_health(-settings.HEALTH_PACK_AMOUNT)
-        self.assertTrue(player.damaged)
-        hp.use(player)
+        self.assertIn(hp.mod, player.backpack)
 
         # health pack fills health back up and is gone from backpack
+        player.increment_health(-settings.HEALTH_PACK_AMOUNT)
+        self.assertTrue(player.damaged)
+        player.expend(hp.mod)
+        self.assertTrue(hp.mod.expended)
+        self.assertNotIn(hp.mod, player.backpack)
         self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 0)
 
-        player.add_item_to_backpack(hp)
+        hp = _make_item(settings.HEALTHPACK)
+        player.attempt_pickup(hp)
         player.increment_health(-1)
 
-        hp.use(player)
+        player.expend(hp.mod)
 
         # health pack doesn't fill you over max health
         self.assertEqual(player.health, settings.PLAYER_HEALTH)
         self.assertEqual(len(player.backpack), 0)
 
-    def test_add_mod(self) -> None:
+    def test_add_weapons(self) -> None:
         player = _make_player()
-        shotgun = _make_item(settings.SHOTGUN_MOD)
+        shotgun = _make_item(settings.SHOTGUN)
 
-        player.add_item_to_backpack(shotgun)
+        player.attempt_pickup(shotgun)
 
+        self.assertTrue(shotgun.mod.equipable)
         # nothing installed at arms location -> install shotgun
         self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
-        self.assertEqual(arm_mod, shotgun)
+        self.assertIs(arm_mod, shotgun.mod)
+        self.assertEqual(player._weapon._label, 'shotgun')
 
         # adding a second arm mod goes into the backpack
-        pistol = _make_item(settings.PISTOL_MOD)
+        pistol = _make_item(settings.PISTOL)
 
-        player.add_item_to_backpack(pistol)
+        player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
-        self.assertEqual(arm_mod, shotgun)
-        self.assertIn(pistol, player.backpack)
+        self.assertEqual(arm_mod, shotgun.mod)
+        self.assertIn(pistol.mod, player.backpack)
 
         # make sure we can swap the pistol with the shotgun
-        pistol.use(player)
+        player.equip(pistol.mod)
         self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
-        self.assertEqual(arm_mod, pistol)
-        self.assertIn(shotgun, player.backpack)
+        self.assertEqual(arm_mod, pistol.mod)
+        self.assertIn(shotgun.mod, player.backpack)
 
 
 if __name__ == '__main__':

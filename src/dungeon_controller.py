@@ -1,6 +1,8 @@
 from humanoid import Player, Mob
 from pygame.sprite import spritecollide, groupcollide
-from model import Obstacle, Item, Groups, GameObject, Timer, \
+
+from mod import ItemObject
+from model import Obstacle, Groups, GameObject, Timer, \
     collide_hit_rect_with_rect, DynamicObject
 from item_manager import ItemManager
 from pygame.math import Vector2
@@ -35,10 +37,7 @@ class DungeonController(controller.Controller):
         self._camera = tilemap.Camera(self._map.width, self._map.height)
 
         self._view = view.DungeonView(screen)
-        self._view.set_sprites(self._groups.all_sprites)
-        self._view.set_walls(self._groups.walls)
-        self._view.set_items(self._groups.items)
-        self._view.set_mobs(self._groups.mobs)
+        self._view.set_groups(self._groups)
 
         self.init_controls()
 
@@ -59,20 +58,18 @@ class DungeonController(controller.Controller):
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'player':
-                pos = Vector2(obj_center.x, obj_center.y)
-                self.player = Player(pos)
+                self.player = Player(obj_center)
 
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
             if tile_object.name == 'zombie':
-                pos = Vector2(obj_center.x, obj_center.y)
-                Mob(pos, self.player)
+                Mob(obj_center, self.player)
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
-            if tile_object.name in ['health', 'shotgun', 'pistol']:
-                ItemManager.item(self._groups, obj_center, tile_object.name)
+            if tile_object.name in ['pistol', 'healthpack', 'shotgun']:
+                ItemManager.item(obj_center, tile_object.name)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
@@ -131,12 +128,10 @@ class DungeonController(controller.Controller):
             self._playing = False
 
         # player hits items
-        items: List[Item] = spritecollide(self.player, self._groups.items,
-                                          False)
+        items: List[ItemObject] = spritecollide(self.player,
+                                                self._groups.items, False)
         for item in items:
-            if not self.player.backpack_full():
-                self.player.add_item_to_backpack(item)
-                item.kill()
+            self.player.attempt_pickup(item)
 
         # mobs hit player
         mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
@@ -193,9 +188,12 @@ class DungeonController(controller.Controller):
 
         used_item = False
         try:
-            itm = self.player.backpack[idx]
-            if isinstance(itm, Item):
-                used_item = itm.use(self.player)
+            item_mod = self.player.backpack[idx]
+            if item_mod.equipable:
+                self.player.equip(item_mod)
+            else:
+                assert item_mod.expendable
+                self.player.expend(item_mod)
         except Exception as e:
             print(e)
 
