@@ -1,7 +1,7 @@
 import pygame as pg
 from random import uniform, randint
 from pygame.math import Vector2
-from model import Timer, Group, Groups
+from model import Timer, Group, Groups, DynamicObject
 import settings
 import sounds
 import images
@@ -47,8 +47,7 @@ class Weapon(object):
 
         for _ in range(self.bullet_count):
             spread = uniform(-self.spread, self.spread)
-            Bullet(self._timer, self._groups, origin,
-                   direction.rotate(spread), self._label)
+            Bullet(origin, direction.rotate(spread), self._label)
             sounds.fire_weapon_sound(self._label)
         MuzzleFlash(self._groups.all_sprites, origin)
 
@@ -58,21 +57,16 @@ class Weapon(object):
         return now - self._last_shot > self.shoot_rate
 
 
-class Bullet(pg.sprite.Sprite):
-    def __init__(self, timer: Timer, groups: Groups, pos: Vector2,
-                 direction: Vector2, weapon: str) -> None:
-        groups_list = [groups.all_sprites, groups.bullets]
+class Bullet(DynamicObject):
+    class_initialized = False
+
+    def __init__(self, pos: Vector2, direction: Vector2, weapon: str) -> None:
+        self._check_class_initialized()
+        groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
-        self._timer = timer
-        self._walls = groups.walls
+        self._walls = self._groups.walls
         self.weapon = weapon
 
-        blt_img = images.get_image(images.BULLET_IMG)
-
-        if weapon == 'pistol':
-            self.image = blt_img
-        else:
-            self.image = pg.transform.scale(blt_img, (10, 10))
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.pos = Vector2(pos)
@@ -95,6 +89,25 @@ class Bullet(pg.sprite.Sprite):
         lifetime = self._timer.current_time - self.spawn_time
         max_time = settings.WEAPONS[self.weapon]['bullet_lifetime']
         return lifetime > max_time
+
+    @property
+    def image(self) -> pg.Surface:
+        assert self.weapon in ('pistol', 'shotgun')
+        if self.weapon == 'pistol':
+            return self.base_image
+        else:
+            return pg.transform.scale(self.base_image, (10, 10))
+
+    @classmethod
+    def initialize_class(cls) -> None:
+        cls._init_base_image(images.BULLET_IMG)
+        cls.class_initialized = True
+
+    def _check_class_initialized(self) -> None:
+        super(Bullet, self)._check_class_initialized()
+        if not self.class_initialized:
+            raise RuntimeError('Bullets class must be initialized before '
+                               'instantiating a Bullet.')
 
 
 class MuzzleFlash(pg.sprite.Sprite):

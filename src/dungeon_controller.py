@@ -76,6 +76,7 @@ class DungeonController(controller.Controller):
         DynamicObject.initialize_dynamic_objects(Timer(self))
         Player.init_class()
         Mob.init_class(self._map_img)
+        Bullet.initialize_class()
 
     def init_controls(self) -> None:
 

@@ -7,8 +7,7 @@ from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
 
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from weapon import Weapon, Bullet, MuzzleFlash
 from itertools import product
 import math
@@ -26,11 +25,8 @@ class Connection(object):
     timer = MockTimer()
 
 
-def _make_pistol(groups: Union[None, model.Groups] = None) -> Weapon:
-    if groups is None:
-        groups = model.Groups()
-    timer = Connection.timer
-    return Weapon('pistol', timer, groups)
+def _make_pistol() -> Weapon:
+    return Weapon('pistol', Connection.timer, Connection.groups)
 
 
 def _make_player() -> hmn.Player:
@@ -66,6 +62,15 @@ def setUpModule() -> None:
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
 
+    player = _make_player()
+    player.set_weapon('pistol')
+    Connection.timer._time += player._weapon.shoot_rate + 1
+    _assert_runtime_exception_raised(player.shoot)
+    Bullet.initialize_class()
+
+    Connection.groups.empty()
+    Connection.timer.reset()
+
 
 def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
     exception_raised = False
@@ -83,13 +88,7 @@ def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
 
 class ModelTest(unittest.TestCase):
     def tearDown(self) -> None:
-        groups = Connection.groups
-        groups.walls.empty()
-        groups.mobs.empty()
-        groups.bullets.empty()
-        groups.all_sprites.empty()
-        groups.items.empty()
-
+        Connection.groups.empty()
         Connection.timer.reset()
 
     def test_groups_immutable_container(self) -> None:
@@ -108,8 +107,8 @@ class ModelTest(unittest.TestCase):
             Weapon('bad', timer, groups)
 
     def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
-        groups = model.Groups()
-        weapon = _make_pistol(groups=groups)
+        groups = Connection.groups
+        weapon = _make_pistol()
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
 
