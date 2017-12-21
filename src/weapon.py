@@ -45,10 +45,11 @@ class Weapon(object):
         direction = Vector2(1, 0).rotate(-rot)
         origin = pos + settings.BARREL_OFFSET.rotate(-rot)
 
+        make_bullet = BigBullet if self._label == 'pistol' else LittleBullet
         for _ in range(self.bullet_count):
             spread = uniform(-self.spread, self.spread)
-            Bullet(origin, direction.rotate(spread), self._label)
-            sounds.fire_weapon_sound(self._label)
+            make_bullet(origin, direction.rotate(spread))
+        sounds.fire_weapon_sound(self._label)
         MuzzleFlash(self._groups.all_sprites, origin)
 
     @property
@@ -58,49 +59,46 @@ class Weapon(object):
 
 
 class Bullet(DynamicObject):
+    """A projectile fired from weapon. Projectile size is subclass dependent."""
     class_initialized = False
+    max_lifetime = None
+    speed = None
+    damage = None
+    small_base_image = None
 
-    def __init__(self, pos: Vector2, direction: Vector2, weapon: str) -> None:
+    def __init__(self, pos: Vector2, direction: Vector2) -> None:
         self._check_class_initialized()
         groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
-        self._walls = self._groups.walls
-        self.weapon = weapon
-
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.pos = Vector2(pos)
         self.rect.center = pos
 
-        speed = settings.WEAPONS[weapon]['bullet_speed']
-        self._vel = direction * speed * uniform(0.9, 1.1)
+        self._vel = direction * self.speed * uniform(0.9, 1.1)
         self.spawn_time = self._timer.current_time
-        self.damage = settings.WEAPONS[weapon]['damage']
 
     def update(self) -> None:
         self.pos += self._vel * self._timer.dt
         self.rect.center = self.pos
-        if pg.sprite.spritecollideany(self, self._walls):
+        if pg.sprite.spritecollideany(self, self._groups.walls):
             self.kill()
-        if self._lifetime_exceeded():
+        if self._lifetime_exceeded:
             self.kill()
-
-    def _lifetime_exceeded(self) -> bool:
-        lifetime = self._timer.current_time - self.spawn_time
-        max_time = settings.WEAPONS[self.weapon]['bullet_lifetime']
-        return lifetime > max_time
 
     @property
     def image(self) -> pg.Surface:
-        assert self.weapon in ('pistol', 'shotgun')
-        if self.weapon == 'pistol':
-            return self.base_image
-        else:
-            return pg.transform.scale(self.base_image, (10, 10))
+        raise NotImplementedError
+
+    @property
+    def _lifetime_exceeded(self) -> bool:
+        lifetime = self._timer.current_time - self.spawn_time
+        return lifetime > self.max_lifetime
 
     @classmethod
     def initialize_class(cls) -> None:
         cls._init_base_image(images.BULLET_IMG)
+        cls.small_base_image = pg.transform.scale(cls.base_image, (10, 10))
         cls.class_initialized = True
 
     def _check_class_initialized(self) -> None:
@@ -108,6 +106,28 @@ class Bullet(DynamicObject):
         if not self.class_initialized:
             raise RuntimeError('Bullets class must be initialized before '
                                'instantiating a Bullet.')
+
+
+class BigBullet(Bullet):
+    """A large bullet coming out of a pistol."""
+    max_lifetime = settings.WEAPONS['pistol']['bullet_lifetime']
+    speed = settings.WEAPONS['pistol']['bullet_speed']
+    damage = settings.WEAPONS['pistol']['damage']
+
+    @property
+    def image(self) -> pg.Surface:
+        return self.base_image
+
+
+class LittleBullet(Bullet):
+    """A small bullet coming out of a shotgun."""
+    max_lifetime = settings.WEAPONS['shotgun']['bullet_lifetime']
+    speed = settings.WEAPONS['shotgun']['bullet_speed']
+    damage = settings.WEAPONS['shotgun']['damage']
+
+    @property
+    def image(self) -> pg.Surface:
+        return self.small_base_image
 
 
 class MuzzleFlash(pg.sprite.Sprite):
