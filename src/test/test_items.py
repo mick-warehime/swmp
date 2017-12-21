@@ -17,14 +17,9 @@ os.environ['SDL_VIDEODRIVER'] = 'dummy'
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 
-class Connection(object):
-    groups = model.Groups()
-    timer = MockTimer()
-
-
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(Connection.groups, Connection.timer)
+    initialize_gameobjects(ModTest.groups, ModTest.timer)
 
 
 def _make_player() -> hmn.Player:
@@ -39,12 +34,15 @@ def _make_item(label: str) -> mod.ItemObject:
 
 
 class ModTest(unittest.TestCase):
+    groups = model.Groups()
+    timer = MockTimer()
+
     def tearDown(self) -> None:
-        Connection.groups.empty()
-        Connection.timer.reset()
+        self.groups.empty()
+        self.timer.reset()
 
     def test_make_item_in_groups(self) -> None:
-        groups = Connection.groups
+        groups = self.groups
 
         hp = _make_item(settings.HEALTHPACK)
         self.assertIn(hp, groups.all_sprites)
