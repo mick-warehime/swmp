@@ -59,7 +59,8 @@ class Weapon(object):
 
 
 class Bullet(DynamicObject):
-    """A projectile fired from weapon. Projectile size is subclass dependent."""
+    """A projectile fired from weapon. Projectile size is subclass dependent.
+    """
     class_initialized = False
     max_lifetime = None
     speed = None
