@@ -13,7 +13,7 @@ class DecisionController(controller.Controller):
                  prompt: str,
                  options: List[str]) -> None:
 
-        super(DecisionController, self).__init__()
+        super().__init__()
 
         self._screen = screen
         self._prompt = prompt

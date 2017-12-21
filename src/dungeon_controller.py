@@ -22,7 +22,7 @@ class DungeonController(controller.Controller):
     def __init__(self,
                  screen: pg.Surface,
                  map_file: str) -> None:
-        super(DungeonController, self).__init__()
+        super().__init__()
 
         # initialize all variables and do all the setup for a new game
         self._groups = Groups()
