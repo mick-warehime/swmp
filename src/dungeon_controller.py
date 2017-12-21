@@ -188,14 +188,14 @@ class DungeonController(controller.Controller):
 
         used_item = False
         try:
-            item_mod = self.player.backpack[idx]
-            if item_mod.equipable:
-                self.player.equip(item_mod)
+            item_in_backpack = self.player.backpack[idx]
+            if item_in_backpack.equipable:
+                self.player.equip(item_in_backpack)
             else:
-                assert item_mod.expendable
-                self.player.expend(item_mod)
-        except Exception as e:
-            print(e)
+                if hasattr(item_in_backpack, 'expendable'):
+                    self.player.expend(item_in_backpack)
+        except IndexError:
+            pass
 
         if used_item:
             self._view.set_selected_item(view.NO_SELECTION)
