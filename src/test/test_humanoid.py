@@ -1,12 +1,12 @@
 import unittest
-from typing import Union, Tuple
+from typing import Union, Tuple, Callable
 import os
 from pygame.math import Vector2
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-import settings
+
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 from weapon import Weapon, Bullet, MuzzleFlash
@@ -34,25 +34,51 @@ def _make_pistol(groups: Union[None, model.Groups] = None) -> Weapon:
 
 
 def _make_player() -> hmn.Player:
-    groups = Connection.groups
     pos = pygame.math.Vector2(0, 0)
-
     player = hmn.Player(pos)
-    player.set_weapon('pistol')
     return player
 
 
-def _make_mob(player: hmn.Player,
+def _make_mob(player: Union[hmn.Player, None] = None,
               pos: Union[Vector2, None] = None) -> hmn.Mob:
-    groups = Connection.groups
+    if player is None:
+        player = _make_player()
     if pos is None:
-        pos = pygame.math.Vector2(0, 0)
-    return hmn.Mob(groups, player)
+        pos = player.pos + pygame.math.Vector2(100, 0)
+    return hmn.Mob(pos, player)
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(Connection.groups, Connection.timer)
+
+    # Normally I would be running unit tests, but it is not possible to check
+    #  exceptions once the classes are initialized.
+    _assert_runtime_exception_raised(_make_player)
+    model.GameObject.initialize_gameobjects(Connection.groups)
+
+    _assert_runtime_exception_raised(_make_player)
+    model.DynamicObject.initialize_dynamic_objects(Connection.timer)
+
+    _assert_runtime_exception_raised(_make_player)
+    hmn.Player.init_class()
+
+    _assert_runtime_exception_raised(_make_mob)
+    blank_screen = pygame.Surface((800, 600))
+    hmn.Mob.init_class(blank_screen)
+
+
+def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
+    exception_raised = False
+    try:
+        tested_fun()
+    except RuntimeError:
+        exception_raised = True
+    assert exception_raised
+
+
+def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
+    dist_squared = (pos_0.x - pos_1.x) ** 2 + (pos_0.y - pos_1.y) ** 2
+    return math.sqrt(dist_squared)
 
 
 class ModelTest(unittest.TestCase):
@@ -134,6 +160,7 @@ class ModelTest(unittest.TestCase):
         groups = Connection.groups
         timer = Connection.timer
         player = _make_player()
+        player.set_weapon('pistol')
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()
@@ -145,6 +172,7 @@ class ModelTest(unittest.TestCase):
     def test_player_shoot_kickback(self) -> None:
         timer = Connection.timer
         player = _make_player()
+        player.set_weapon('pistol')
 
         old_vel = (player._vel.x, player._vel.y)
 
@@ -157,9 +185,19 @@ class ModelTest(unittest.TestCase):
 
     def test_player_set_weapon(self) -> None:
         player = _make_player()
+        player.set_weapon('pistol')
         self.assertEqual(player._weapon._label, 'pistol')
         player.set_weapon('shotgun')
         self.assertEqual(player._weapon._label, 'shotgun')
+
+    def test_player_shoot_no_weapon(self) -> None:
+        groups = Connection.groups
+        player = _make_player()
+
+        # No weapon equipped so no bullets come out.
+        self.assertEqual(len(groups.bullets), 0)
+        player.shoot()
+        self.assertEqual(len(groups.bullets), 0)
 
     def test_humanoid_increment_health(self) -> None:
         player = _make_player()
@@ -244,7 +282,6 @@ class ModelTest(unittest.TestCase):
         # test that the player moves in the same direction as mouse
         possible_positions = [[0, 100, -100]] * 2
         for x, y in product(*possible_positions):
-
             player.pos = (0, 0)
             player.rot = 0
             player.set_mouse_pos((x, y))
@@ -292,6 +329,33 @@ class ModelTest(unittest.TestCase):
         player.update()
         expected = Vector2(-28, 28)
         self.assertEqual(player.pos, expected)
+
+    def test_mob_move_to_player(self) -> None:
+        player = _make_player()
+        mob = _make_mob(player)
+
+        initial_dist = _dist(player.pos, mob.pos)
+        mob.update()
+        final_dist = _dist(player.pos, mob.pos)
+
+        self.assertLess(final_dist, initial_dist)
+
+    def test_mob_damage_and_death(self) -> None:
+        groups = Connection.groups
+        mob = _make_mob()
+        mob.draw_health()
+
+        mob.increment_health(61 - mob._max_health)
+        mob.draw_health()
+        mob.increment_health(31 - 61)
+        mob.draw_health()
+        mob.increment_health(0 - 31)
+        mob.draw_health()
+
+        self.assertIn(mob, groups.mobs)
+
+        mob.update()
+        self.assertNotIn(mob, groups.mobs)
 
 
 if __name__ == '__main__':

@@ -65,8 +65,8 @@ class GameObject(pg.sprite.Sprite):
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
-            raise ValueError('GameObjects class must be initialized before '
-                             'instantiating a GameObject.')
+            raise RuntimeError('GameObjects class must be initialized before '
+                               'instantiating a GameObject.')
 
     @classmethod
     def _init_base_image(cls, image_file: str) -> None:
@@ -112,8 +112,8 @@ class DynamicObject(GameObject):
     def _check_class_initialized(self) -> None:
         super()._check_class_initialized()
         if not self.dynamic_initialized:
-            raise ValueError('DynamicObject class must be initialized before '
-                             'instantiating a DynamicObject.')
+            raise RuntimeError('DynamicObject class must be initialized before'
+                               ' instantiating a DynamicObject.')
 
 
 def collide_hit_rect_with_rect(game_obj: GameObject,
