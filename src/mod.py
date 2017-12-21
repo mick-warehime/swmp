@@ -53,9 +53,8 @@ class Mod(object):
         raise NotImplementedError
 
 
-class WeaponMod(Mod):
-    def __init__(self, sid: ModID, image: pg.Surface,
-                 label: str) -> None:
+class AttackMod(Mod):
+    def __init__(self, sid: ModID, image: pg.Surface, label: str) -> None:
         loc = ModLocation.ARMS
         super().__init__(sid=sid, loc=loc, image=image, label=label)
 
@@ -68,7 +67,7 @@ class WeaponMod(Mod):
         return False
 
 
-class ShotgunMod(WeaponMod):
+class ShotgunMod(AttackMod):
     def __init__(self) -> None:
         sid = ModID.SHOTGUN
         img = images.get_image(images.SHOTGUN_MOD)
@@ -76,7 +75,7 @@ class ShotgunMod(WeaponMod):
         super().__init__(sid=sid, image=img, label=label)
 
 
-class PistolMod(WeaponMod):
+class PistolMod(AttackMod):
     def __init__(self) -> None:
         sid = ModID.PISTOL
         img = images.get_image(images.PISTOL_MOD)
