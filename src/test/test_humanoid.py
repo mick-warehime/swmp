@@ -20,13 +20,8 @@ os.environ['SDL_AUDIODRIVER'] = 'dummy'
 pg = Pygame()
 
 
-class Connection(object):
-    groups = model.Groups()
-    timer = MockTimer()
-
-
 def _make_pistol() -> Weapon:
-    return Weapon('pistol', Connection.timer, Connection.groups)
+    return Weapon('pistol', ModelTest.timer, ModelTest.groups)
 
 
 def _make_player() -> hmn.Player:
@@ -50,10 +45,10 @@ def setUpModule() -> None:
     # Normally I would be running unit tests, but it is not possible to check
     #  exceptions once the classes are initialized.
     _assert_runtime_exception_raised(_make_player)
-    model.GameObject.initialize_gameobjects(Connection.groups)
+    model.GameObject.initialize_gameobjects(ModelTest.groups)
 
     _assert_runtime_exception_raised(_make_player)
-    model.DynamicObject.initialize_dynamic_objects(Connection.timer)
+    model.DynamicObject.initialize_dynamic_objects(ModelTest.timer)
 
     _assert_runtime_exception_raised(_make_player)
     hmn.Player.init_class()
@@ -64,12 +59,12 @@ def setUpModule() -> None:
 
     player = _make_player()
     player.set_weapon('pistol')
-    Connection.timer._time += player._weapon.shoot_rate + 1
+    ModelTest.timer._time += player._weapon.shoot_rate + 1
     _assert_runtime_exception_raised(player.shoot)
     Bullet.initialize_class()
 
-    Connection.groups.empty()
-    Connection.timer.reset()
+    ModelTest.groups.empty()
+    ModelTest.timer.reset()
 
 
 def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
@@ -87,9 +82,12 @@ def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
 
 
 class ModelTest(unittest.TestCase):
+    groups = model.Groups()
+    timer = MockTimer()
+
     def tearDown(self) -> None:
-        Connection.groups.empty()
-        Connection.timer.reset()
+        self.groups.empty()
+        self.timer.reset()
 
     def test_groups_immutable_container(self) -> None:
         groups = model.Groups()
@@ -107,7 +105,7 @@ class ModelTest(unittest.TestCase):
             Weapon('bad', timer, groups)
 
     def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
-        groups = Connection.groups
+        groups = self.groups
         weapon = _make_pistol()
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
@@ -132,7 +130,7 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(num_others, 0)
 
     def test_weapon_cannot_shoot_after_firing(self) -> None:
-        timer = Connection.timer
+        timer = self.timer
         weapon = _make_pistol()
         pos = pygame.math.Vector2(0, 0)
         rot = 0.0
@@ -156,8 +154,8 @@ class ModelTest(unittest.TestCase):
         self.assertGreater(weapon.bullet_count, 1)
 
     def test_player_shoot_no_shot(self) -> None:
-        groups = Connection.groups
-        timer = Connection.timer
+        groups = self.groups
+        timer = self.timer
         player = _make_player()
         player.set_weapon('pistol')
 
@@ -169,7 +167,7 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(len(groups.bullets), 1)
 
     def test_player_shoot_kickback(self) -> None:
-        timer = Connection.timer
+        timer = self.timer
         player = _make_player()
         player.set_weapon('pistol')
 
@@ -190,7 +188,7 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(player._weapon._label, 'shotgun')
 
     def test_player_shoot_no_weapon(self) -> None:
-        groups = Connection.groups
+        groups = self.groups
         player = _make_player()
 
         # No weapon equipped so no bullets come out.
@@ -340,7 +338,7 @@ class ModelTest(unittest.TestCase):
         self.assertLess(final_dist, initial_dist)
 
     def test_mob_damage_and_death(self) -> None:
-        groups = Connection.groups
+        groups = self.groups
         mob = _make_mob()
         mob.draw_health()
 

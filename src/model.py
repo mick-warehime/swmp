@@ -20,6 +20,7 @@ class Groups(_GroupsBase):
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
     def empty(self) -> None:
+        """Empty each group field."""
         self.walls.empty()
         self.mobs.empty()
         self.bullets.empty()
