@@ -19,6 +19,13 @@ class Groups(_GroupsBase):
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
+    def empty(self) -> None:
+        self.walls.empty()
+        self.mobs.empty()
+        self.bullets.empty()
+        self.all_sprites.empty()
+        self.items.empty()
+
 
 class Timer(object):
     """Keeps track of game time."""
