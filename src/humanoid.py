@@ -21,7 +21,7 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
-        super(Humanoid, self).__init__(hit_rect, pos)
+        super().__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
@@ -73,20 +73,42 @@ class Humanoid(mdl.DynamicObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def add_item_to_backpack(self, item: mdl.Item) -> None:
+    def equip(self, item_mod: mod.Mod) -> None:
+        assert item_mod.equipable
 
-        if isinstance(item, mod.Mod):
-            if item.loc not in self.active_mods:
-                item.use(self)
-                return
+        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        if item_mod in self.backpack:
+            self.backpack.remove(item_mod)
+        self.active_mods[item_mod.loc] = item_mod
+        item_mod.use(self)
 
-        self.backpack.append(item)
+    def expend(self, item_mod: mod.Mod) -> None:
+        assert item_mod.expendable
+        assert item_mod in self.backpack
+        item_mod.use(self)
+        if item_mod.expended:
+            self.backpack.remove(item_mod)
 
+    def _move_mod_at_loc_to_backpack(self, loc: mod.ModLocation) -> None:
+        old_mod = self.active_mods.pop(loc, None)
+        if old_mod is not None:
+            self.backpack.append(old_mod)
+
+    def attempt_pickup(self, item: mod.ItemObject) -> None:
+
+        if item.mod.equipable and item.mod.loc not in self.active_mods:
+            self.equip(item.mod)
+            item.kill()
+        elif not self.backpack_full:
+            self.backpack.append(item.mod)
+            item.kill()
+
+    @property
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
     def _check_class_initialized(self) -> None:
-        super(Humanoid, self)._check_class_initialized()
+        super()._check_class_initialized()
 
 
 class Player(Humanoid):
@@ -96,8 +118,7 @@ class Player(Humanoid):
 
         self._check_class_initialized()
 
-        super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH)
+        super().__init__(settings.PLAYER_HIT_RECT, pos, settings.PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
         self._weapon = None
@@ -115,7 +136,7 @@ class Player(Humanoid):
         self.step_forward()
 
     def _check_class_initialized(self) -> None:
-        super(Player, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.class_initialized:
             raise RuntimeError(
                 'Player class must be initialized before an object can be'
@@ -211,8 +232,7 @@ class Mob(Humanoid):
 
         self._check_class_initialized()
 
-        super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH)
+        super().__init__(settings.MOB_HIT_RECT, pos, settings.MOB_HEALTH)
         my_groups = [self._groups.all_sprites, self._groups.mobs]
         pg.sprite.Sprite.__init__(self, my_groups)
 
@@ -224,7 +244,7 @@ class Mob(Humanoid):
         return self._groups.mobs
 
     def _check_class_initialized(self) -> None:
-        super(Mob, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.class_initialized:
             raise RuntimeError(
                 'Mob class must be initialized before an object can be'

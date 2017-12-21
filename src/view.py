@@ -1,13 +1,13 @@
 from typing import List, Tuple
 import settings
 import pygame as pg
-from pygame.sprite import LayeredUpdates, Group
 from humanoid import Mob, Player
+from model import Groups
 from tilemap import Camera, TiledMap
 import images
 import mod
-from hud import HUD
 
+from hud import HUD
 NO_SELECTION = -1
 
 
@@ -31,23 +31,12 @@ class DungeonView(object):
         self._light_mask = images.get_image(images.LIGHT_MASK)
         self._light_rect = self._light_mask.get_rect()
 
-        self.all_sprites = LayeredUpdates()
-        self.walls = Group()
-        self.mobs = Group()
-        self.bullets = Group()
-        self.items = Group()
+        # TODO(dvirk): This should not have to be instantiated here,
+        # but assigned to the view before the draw method is called.
+        self._groups = Groups()
 
-    def set_sprites(self, all_sprites: LayeredUpdates) -> None:
-        self.all_sprites = all_sprites
-
-    def set_walls(self, walls: Group) -> None:
-        self.walls = walls
-
-    def set_items(self, items: Group) -> None:
-        self.items = items
-
-    def set_mobs(self, mobs: Group) -> None:
-        self.mobs = mobs
+    def set_groups(self, groups: Groups) -> None:
+        self._groups = groups
 
     def draw(self,
              player: Player,
@@ -57,7 +46,7 @@ class DungeonView(object):
 
         self._screen.blit(map_img, camera.apply(map))
 
-        for sprite in self.all_sprites:
+        for sprite in self._groups.all_sprites:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self._screen.blit(sprite.image, camera.apply(sprite))
@@ -65,7 +54,7 @@ class DungeonView(object):
                 sprite_camera = camera.apply_rect(sprite.hit_rect)
                 pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
         if self._draw_debug:
-            for wall in self.walls:
+            for wall in self._groups.walls:
                 wall_camera = camera.apply_rect(wall.rect)
                 pg.draw.rect(self._screen, settings.CYAN, wall_camera, 1)
 
@@ -89,7 +78,7 @@ class DungeonView(object):
         self._night = not self._night
 
     def try_click_mod(self, pos: Tuple[int, int]) -> None:
-        rects = [self._hud.mod_rects[l] for l in mod.ModLocation]
+        rects = [self._hud.mod_rects[l] for l in mod.EQUIP_LOCATIONS]
         index = self.clicked_rect_index(rects, pos)
         if index == self.selected_mod:
             self._hud.selected_mod = NO_SELECTION

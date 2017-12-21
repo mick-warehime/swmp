@@ -1,12 +1,11 @@
-import pygame as pg
+from collections import namedtuple
 from typing import Any, Union
+
+import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-import pytweening as tween
-import settings
+
 import images
-from collections import namedtuple
-import sounds
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
@@ -37,7 +36,7 @@ class Timer(object):
 
 
 class GameObject(pg.sprite.Sprite):
-    """In-game object with a body for collisions and an image.
+    """In-game object with a hit_rect and rect for collisions and an image.
 
     Added functionality derived from Sprite:
     Can be added/removed to Group objects --> add(*groups), remove(*groups).
@@ -58,7 +57,7 @@ class GameObject(pg.sprite.Sprite):
         self.pos = pos
         # Used in sprite collisions other than walls.
         self.rect: pg.Rect = self.image.get_rect()
-        self.rect.center = (pos.x, pos.y)
+        self.rect.center = pos
 
         # Used in wall collisions
         self.hit_rect = hit_rect.copy()
@@ -111,53 +110,10 @@ class DynamicObject(GameObject):
         cls.dynamic_initialized = True
 
     def _check_class_initialized(self) -> None:
-        super(DynamicObject, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.dynamic_initialized:
             raise RuntimeError('DynamicObject class must be initialized before'
                                ' instantiating a DynamicObject.')
-
-
-class Item(pg.sprite.Sprite):
-    def __init__(self, groups: Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
-        pg.sprite.Sprite.__init__(self, [groups.all_sprites, groups.items])
-
-        self.image = images.get_item_image(label)
-        self.rect = self.image.get_rect()
-        self.label = label
-        self.pos = pos
-        self.rect.center = pos
-        self.tween = tween.easeInOutSine
-        self.step = 0
-        self.dir = 1
-
-    def update(self) -> None:
-        # bobbing motion
-        offset = settings.BOB_RANGE * (
-            self.tween(self.step / settings.BOB_RANGE) - 0.5)
-        self.rect.centery = self.pos.y + offset * self.dir
-        self.step += settings.BOB_SPEED
-        if self.step > settings.BOB_RANGE:
-            self.step = 0
-            self.dir *= -1
-
-    def use(self, player: Any) -> bool:
-        raise NotImplementedError
-
-
-class HealthPack(Item):
-    def __init__(self, groups: Groups, pos: pg.math.Vector2,
-                 label: str) -> None:
-        super(HealthPack, self).__init__(groups, pos, label)
-
-    def use(self, player: Any) -> bool:
-        if player.health < settings.PLAYER_HEALTH:
-            sounds.play(sounds.HEALTH_UP)
-            player.increment_health(settings.HEALTH_PACK_AMOUNT)
-            player.backpack.remove(self)
-            self.kill()
-            return True
-        return False
 
 
 def collide_hit_rect_with_rect(game_obj: GameObject,

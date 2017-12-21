@@ -30,9 +30,7 @@ class HUD(object):
 
         # generate rects for mods/backpack
         self.mod_rects = self.generate_mod_rects()
-        backpack_rects, img_rects = self.generate_backpack_rects()
-        self.backpack_rects = backpack_rects
-        self.backpack_img_rects = img_rects
+        self.backpack_rects = self.generate_backpack_rects()
 
         self.selected_mod = NO_SELECTION
         self.selected_item = NO_SELECTION
@@ -43,7 +41,7 @@ class HUD(object):
         rects: Dict[mod.ModLocation, pg.Rect] = {}
 
         i = 0
-        for loc in mod.ModLocation:
+        for loc in mod.EQUIP_LOCATIONS:
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
@@ -51,22 +49,19 @@ class HUD(object):
 
         return rects
 
-    def generate_backpack_rects(self) -> List[List[pg.Rect]]:
+    def generate_backpack_rects(self) -> List[pg.Rect]:
         item_size = 50
         x, y = self._hud_pos
         x += self._bar_length + 3
         y += 4
         rects: List[pg.Rect] = []
-        img_rects: List[pg.Rect] = []
         for i in range(4):
             for j in range(2):
                 x_i = x + i * (item_size + 2)
                 y_i = y + j * (item_size + 2)
                 fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
-                img_rect = pg.Rect(x_i + 5, y_i + 15, item_size, item_size)
                 rects.append(fill_rect)
-                img_rects.append(img_rect)
-        return [rects, img_rects]
+        return rects
 
     def draw(self, player: Player) -> None:
         self.draw_hud_base()
@@ -118,7 +113,7 @@ class HUD(object):
 
         for idx, loc in enumerate(player.active_mods):
             mod = player.active_mods[loc]
-            img = mod.mod_image
+            img = mod.image
 
             img = pg.transform.scale(img, (70, 70))
 
@@ -130,12 +125,13 @@ class HUD(object):
                       20, settings.WHITE, r.x + 10, r.y + 10, align="center")
 
     def draw_backpack(self, player: Player) -> None:
-        for idx, r in enumerate(self.backpack_rects):
-            col = settings.HUDDARK
+        for idx, rect in enumerate(self.backpack_rects):
+            color = settings.HUDDARK
             if self.selected_item == idx:
-                col = settings.RED
-            pg.draw.rect(self._screen, col, r, 2)
+                color = settings.RED
+            pg.draw.rect(self._screen, color, rect, 2)
 
-        for idx, item in enumerate(player.backpack):
-            r = self.backpack_img_rects[idx]
-            self._screen.blit(item.image, r)
+        for idx, item_mod in enumerate(player.backpack):
+            rect = self.backpack_rects[idx]
+            img = pg.transform.scale(item_mod.image, (rect.width, rect.height))
+            self._screen.blit(img, rect)

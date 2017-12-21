@@ -1,21 +1,17 @@
 import settings
 import pygame as pg
-from model import Groups, Item, HealthPack
-from mod import ShotgunMod, PistolMod
+from mod import HealthPackObject, PistolObject, ShotgunObject, ItemObject
 
-
-item_contructors = {settings.HEALTHPACK_ITEM: HealthPack,
-                    settings.SHOTGUN_MOD: ShotgunMod,
-                    settings.PISTOL_MOD: PistolMod}
+item_contructors = {settings.HEALTHPACK: HealthPackObject,
+                    settings.SHOTGUN: ShotgunObject,
+                    settings.PISTOL: PistolObject}
 
 
 class ItemManager(object):
     @staticmethod
-    def item(groups: Groups, pos: pg.math.Vector2,
-             label: str) -> Item:
+    def item(pos: pg.math.Vector2, label: str) -> ItemObject:
         if label not in item_contructors:
             error_msg = 'Item label %s not recognized.'
             raise ValueError(error_msg % (label,))
 
-        ctr = item_contructors[label]
-        return ctr(groups, pos, label)
+        return item_contructors[label](pos)
