@@ -191,8 +191,7 @@ class DungeonController(controller.Controller):
             item_in_backpack = self.player.backpack[idx]
             if item_in_backpack.equipable:
                 self.player.equip(item_in_backpack)
-            else:
-                if hasattr(item_in_backpack, 'expendable'):
+            elif item_in_backpack.expendable:
                     self.player.expend(item_in_backpack)
         except IndexError:
             pass
