@@ -40,13 +40,7 @@ def _make_item(label: str) -> mod.ItemObject:
 
 class ModTest(unittest.TestCase):
     def tearDown(self) -> None:
-        groups = Connection.groups
-        groups.walls.empty()
-        groups.mobs.empty()
-        groups.bullets.empty()
-        groups.all_sprites.empty()
-        groups.items.empty()
-
+        Connection.groups.empty()
         Connection.timer.reset()
 
     def test_make_item_in_groups(self) -> None:
