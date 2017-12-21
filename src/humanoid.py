@@ -21,7 +21,7 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
-        super(Humanoid, self).__init__(hit_rect, pos)
+        super().__init__(hit_rect, pos)
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
@@ -108,7 +108,7 @@ class Humanoid(mdl.DynamicObject):
         return len(self.backpack) >= self.backpack_size
 
     def _check_class_initialized(self) -> None:
-        super(Humanoid, self)._check_class_initialized()
+        super()._check_class_initialized()
 
 
 class Player(Humanoid):
@@ -118,8 +118,7 @@ class Player(Humanoid):
 
         self._check_class_initialized()
 
-        super(Player, self).__init__(settings.PLAYER_HIT_RECT, pos,
-                                     settings.PLAYER_HEALTH)
+        super().__init__(settings.PLAYER_HIT_RECT, pos, settings.PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
         self._weapon = None
@@ -137,7 +136,7 @@ class Player(Humanoid):
         self.step_forward()
 
     def _check_class_initialized(self) -> None:
-        super(Player, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.class_initialized:
             raise RuntimeError(
                 'Player class must be initialized before an object can be'
@@ -233,8 +232,7 @@ class Mob(Humanoid):
 
         self._check_class_initialized()
 
-        super(Mob, self).__init__(settings.MOB_HIT_RECT, pos,
-                                  settings.MOB_HEALTH)
+        super().__init__(settings.MOB_HIT_RECT, pos, settings.MOB_HEALTH)
         my_groups = [self._groups.all_sprites, self._groups.mobs]
         pg.sprite.Sprite.__init__(self, my_groups)
 
@@ -246,7 +244,7 @@ class Mob(Humanoid):
         return self._groups.mobs
 
     def _check_class_initialized(self) -> None:
-        super(Mob, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.class_initialized:
             raise RuntimeError(
                 'Mob class must be initialized before an object can be'

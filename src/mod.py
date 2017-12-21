@@ -57,8 +57,7 @@ class WeaponMod(Mod):
     def __init__(self, sid: ModID, image: pg.Surface,
                  label: str) -> None:
         loc = ModLocation.ARMS
-        super(WeaponMod, self).__init__(sid=sid, loc=loc, image=image,
-                                        label=label)
+        super().__init__(sid=sid, loc=loc, image=image, label=label)
 
     # TODO(dkafri): Thus functionality should be handled by the Backpack.
     def use(self, player: Any) -> None:
@@ -74,7 +73,7 @@ class ShotgunMod(WeaponMod):
         sid = ModID.SHOTGUN
         img = images.get_image(images.SHOTGUN_MOD)
         label = settings.SHOTGUN
-        super(ShotgunMod, self).__init__(sid=sid, image=img, label=label)
+        super().__init__(sid=sid, image=img, label=label)
 
 
 class PistolMod(WeaponMod):
@@ -82,7 +81,7 @@ class PistolMod(WeaponMod):
         sid = ModID.PISTOL
         img = images.get_image(images.PISTOL_MOD)
         label = settings.PISTOL
-        super(PistolMod, self).__init__(sid=sid, image=img, label=label)
+        super().__init__(sid=sid, image=img, label=label)
 
 
 class HealthPackMod(Mod):
@@ -92,8 +91,7 @@ class HealthPackMod(Mod):
         img = images.get_image(images.HEALTH_PACK)
         label = settings.HEALTHPACK
         self._expended = False
-        super(HealthPackMod, self).__init__(sid=sid, loc=loc, image=img,
-                                            label=label)
+        super().__init__(sid=sid, loc=loc, image=img, label=label)
 
     def use(self, player: Any) -> None:
         if player.damaged:
@@ -111,7 +109,7 @@ class ItemObject(DynamicObject):
 
     def __init__(self, mod: Mod, image: pg.Surface, pos: Vector2) -> None:
         self._check_class_initialized()
-        super(ItemObject, self).__init__(image.get_rect(), pos)
+        super().__init__(image.get_rect(), pos)
 
         my_groups = [self._groups.all_sprites, self._groups.items]
         pg.sprite.Sprite.__init__(self, my_groups)
@@ -151,7 +149,7 @@ class PistolObject(ItemObject):
         if self.base_image is None:
             self._init_base_image(images.PISTOL)
 
-        super(PistolObject, self).__init__(mod, self.base_image, pos)
+        super().__init__(mod, self.base_image, pos)
 
 
 class ShotgunObject(ItemObject):
@@ -162,7 +160,7 @@ class ShotgunObject(ItemObject):
         if self.base_image is None:
             self._init_base_image(images.SHOTGUN)
 
-        super(ShotgunObject, self).__init__(mod, self.base_image, pos)
+        super().__init__(mod, self.base_image, pos)
 
 
 class HealthPackObject(ItemObject):
@@ -173,4 +171,4 @@ class HealthPackObject(ItemObject):
         if self.base_image is None:
             self._init_base_image(images.HEALTH_PACK)
 
-        super(HealthPackObject, self).__init__(mod, self.base_image, pos)
+        super().__init__(mod, self.base_image, pos)

@@ -110,7 +110,7 @@ class DynamicObject(GameObject):
         cls.dynamic_initialized = True
 
     def _check_class_initialized(self) -> None:
-        super(DynamicObject, self)._check_class_initialized()
+        super()._check_class_initialized()
         if not self.dynamic_initialized:
             raise ValueError('DynamicObject class must be initialized before '
                              'instantiating a DynamicObject.')
