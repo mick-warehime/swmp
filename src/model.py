@@ -73,7 +73,7 @@ class GameObject(pg.sprite.Sprite):
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
-            raise RuntimeError('GameObjects class must be initialized before '
+            raise RuntimeError('ObjectType class must be initialized before '
                                'instantiating a GameObject.')
 
     @classmethod

@@ -12,7 +12,7 @@ import model as mdl
 import settings
 import sounds
 from model import collide_hit_rect_with_rect
-from tilemap import Tiles
+from tilemap import ObjectType
 from weapon import Weapon
 
 # Player settings
@@ -190,7 +190,7 @@ class Player(Humanoid):
     def turn(self) -> None:
         self.rotate_towards_cursor()
 
-    def set_weapon(self, item_type: Tiles) -> None:
+    def set_weapon(self, item_type: ObjectType) -> None:
         self._weapon = Weapon(item_type, self._timer, self._groups)
 
     def shoot(self) -> None:

@@ -5,7 +5,7 @@ import settings
 import random
 
 # TODO - load sounds from JSON file -  issue#106
-from tilemap import Tiles, WEAPONS
+from tilemap import ObjectType, WEAPONS
 
 ZOMBIE_HIT = 'zombie hit'
 PLAYER_HIT = 'player hit'
@@ -23,8 +23,8 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-5.wav', 'zombie-roar-6.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
-WEAPON_SOUNDS = {Tiles.PISTOL: ['pistol.wav'],
-                 Tiles.SHOTGUN: ['shotgun.wav']}
+WEAPON_SOUNDS = {ObjectType.PISTOL: ['pistol.wav'],
+                 ObjectType.SHOTGUN: ['shotgun.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
@@ -77,7 +77,7 @@ def play(sound_name: str) -> None:
     effects.effects_sounds[sound_name].play()
 
 
-def fire_weapon_sound(weapon_type: Tiles) -> None:
+def fire_weapon_sound(weapon_type: ObjectType) -> None:
     sound = random.choice(effects.weapon_sounds[weapon_type])
     sound.play()
 

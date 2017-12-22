@@ -7,7 +7,7 @@ import sounds
 import images
 from typing import NamedTuple
 
-from tilemap import Tiles, WEAPONS
+from tilemap import ObjectType, WEAPONS
 
 WProperties = NamedTuple('Weapon', [('rate', int),
                                     ('kickback', int),
@@ -19,7 +19,7 @@ WProperties = NamedTuple('Weapon', [('rate', int),
 class Weapon(object):
     """Generates bullets or other sources of damage."""
 
-    def __init__(self, item_type: Tiles,
+    def __init__(self, item_type: ObjectType,
                  timer: Timer, groups: Groups) -> None:
         self._item_type = item_type
         self._timer = timer
@@ -30,7 +30,7 @@ class Weapon(object):
     def set_properties(self) -> WProperties:
 
         assert self._item_type in WEAPONS
-        if self._item_type == Tiles.PISTOL:
+        if self._item_type == ObjectType.PISTOL:
             return WProperties(rate=250,
                                kickback=200,
                                spread=5,
