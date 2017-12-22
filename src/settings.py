@@ -1,5 +1,3 @@
-import pygame
-
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -30,13 +28,6 @@ TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
-# Player settings
-PLAYER_HEALTH = 100
-PLAYER_SPEED = 280
-PLAYER_ROT_SPEED = 200
-PLAYER_HIT_RECT = pygame.Rect(0, 0, 35, 35)
-BARREL_OFFSET = pygame.math.Vector2(30, 10)
-
 # Weapon settings
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 500,
@@ -56,18 +47,8 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'bullet_size': 'sm',
                       'bullet_count': 12}
 
-# Mob settings
-MOB_SPEEDS = [150, 100, 75, 125]
-MOB_HIT_RECT = pygame.Rect(0, 0, 30, 30)
-MOB_HEALTH = 100
-MOB_DAMAGE = 10
-MOB_KNOCKBACK = 20
-AVOID_RADIUS = 50
-DETECT_RADIUS = 400
-
 # Effects
 FLASH_DURATION = 50
-DAMAGE_ALPHA = list(range(0, 255, 55))
 NIGHT_COLOR = (20, 20, 20)
 LIGHT_RADIUS = (500, 500)
 

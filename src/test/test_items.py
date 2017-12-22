@@ -115,7 +115,7 @@ class ModTest(unittest.TestCase):
         player.expend(hp.mod)
 
         # health pack doesn't fill you over max health
-        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertEqual(player.health, player.max_health)
         self.assertEqual(len(player.backpack), 0)
 
     def test_add_weapons(self) -> None:

@@ -43,7 +43,8 @@ class Weapon(object):
     def shoot(self, pos: Vector2, rot: Vector2) -> None:
         self._last_shot = self._timer.current_time
         direction = Vector2(1, 0).rotate(-rot)
-        origin = pos + settings.BARREL_OFFSET.rotate(-rot)
+        barrel_offset = pg.math.Vector2(30, 10)
+        origin = pos + barrel_offset.rotate(-rot)
 
         make_bullet = BigBullet if self._label == 'pistol' else LittleBullet
         for _ in range(self.bullet_count):
