@@ -6,7 +6,7 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-
+from settings import ItemType
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from weapon import Weapon, Bullet, MuzzleFlash
 from itertools import product
@@ -21,7 +21,7 @@ pg = Pygame()
 
 
 def _make_pistol() -> Weapon:
-    return Weapon('pistol', ModelTest.timer, ModelTest.groups)
+    return Weapon(ItemType.pistol, ModelTest.timer, ModelTest.groups)
 
 
 def _make_player() -> hmn.Player:
@@ -58,7 +58,7 @@ def setUpModule() -> None:
     hmn.Mob.init_class(blank_screen)
 
     player = _make_player()
-    player.set_weapon('pistol')
+    player.set_weapon(ItemType.pistol)
     ModelTest.timer._time += player._weapon.shoot_rate + 1
     _assert_runtime_exception_raised(player.shoot)
     Bullet.initialize_class()
@@ -97,12 +97,6 @@ class ModelTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             groups.walls = Group()
-
-    def test_weapon_wrong_label_raises_exception(self) -> None:
-        with self.assertRaisesRegex(ValueError, 'not defined in settings.py.'):
-            groups = model.Groups()
-            timer = MockTimer()
-            Weapon('bad', timer, groups)
 
     def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
         groups = self.groups
@@ -146,18 +140,11 @@ class ModelTest(unittest.TestCase):
         weapon.shoot(pos, rot)
         self.assertFalse(weapon.can_shoot)
 
-    def test_weapon_set(self) -> None:
-        weapon = _make_pistol()
-
-        self.assertLess(weapon.bullet_count, 2)
-        weapon.set('shotgun')
-        self.assertGreater(weapon.bullet_count, 1)
-
     def test_player_shoot_no_shot(self) -> None:
         groups = self.groups
         timer = self.timer
         player = _make_player()
-        player.set_weapon('pistol')
+        player.set_weapon(ItemType.pistol)
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()
@@ -169,7 +156,7 @@ class ModelTest(unittest.TestCase):
     def test_player_shoot_kickback(self) -> None:
         timer = self.timer
         player = _make_player()
-        player.set_weapon('pistol')
+        player.set_weapon(ItemType.pistol)
 
         old_vel = (player._vel.x, player._vel.y)
 
@@ -182,10 +169,10 @@ class ModelTest(unittest.TestCase):
 
     def test_player_set_weapon(self) -> None:
         player = _make_player()
-        player.set_weapon('pistol')
-        self.assertEqual(player._weapon._label, 'pistol')
-        player.set_weapon('shotgun')
-        self.assertEqual(player._weapon._label, 'shotgun')
+        player.set_weapon(ItemType.pistol)
+        self.assertEqual(player._weapon._item_type, ItemType.pistol)
+        player.set_weapon(ItemType.shotgun)
+        self.assertEqual(player._weapon._item_type, ItemType.shotgun)
 
     def test_player_shoot_no_weapon(self) -> None:
         groups = self.groups

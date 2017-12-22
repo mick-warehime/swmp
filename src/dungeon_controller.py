@@ -68,8 +68,9 @@ class DungeonController(controller.Controller):
             if tile_object.name == 'wall':
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
-            if tile_object.name in ['pistol', 'healthpack', 'shotgun']:
-                ItemManager.item(obj_center, tile_object.name)
+            if ItemManager.is_item(tile_object.name):
+                item_type = ItemManager.get_item_type(tile_object.name)
+                ItemManager.item(obj_center, item_type)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
