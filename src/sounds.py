@@ -18,7 +18,7 @@ class SoundEffects(object):
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
         self.player_hit_sounds: List[pg.mixer.Sound] = []
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[str, List[pg.mixer.Sound]] = {}
+        self.weapon_sounds: Dict[settings.ItemType, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
@@ -29,7 +29,7 @@ class SoundEffects(object):
         for label, file_name in settings.EFFECTS_SOUNDS.items():
             sound_path = os.path.join(snd_folder, file_name)
             self.effects_sounds[label] = pg.mixer.Sound(sound_path)
-        for weapon in settings.WEAPON_SOUNDS:
+        for weapon in settings.WEAPONS:
             self.weapon_sounds[weapon] = []
             for sound_file in settings.WEAPON_SOUNDS[weapon]:
                 s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
@@ -60,8 +60,8 @@ def play(sound_name: str) -> None:
     effects.effects_sounds[sound_name].play()
 
 
-def fire_weapon_sound(weapon_name: str) -> None:
-    sound = random.choice(effects.weapon_sounds[weapon_name])
+def fire_weapon_sound(weapon_type: settings.ItemType) -> None:
+    sound = random.choice(effects.weapon_sounds[weapon_type])
     sound.play()
 
 

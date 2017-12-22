@@ -5,40 +5,58 @@ from model import Timer, Group, Groups, DynamicObject
 import settings
 import sounds
 import images
+from typing import NamedTuple
+from settings import ItemType
+
+
+WProperties = NamedTuple('Weapon', [('rate', int),
+                                    ('kickback', int),
+                                    ('spread', float),
+                                    ('bullet_size', str),
+                                    ('bullet_count', int)])
 
 
 class Weapon(object):
     """Generates bullets or other sources of damage."""
 
-    def __init__(self, label: str, timer: Timer, groups: Groups) -> None:
-        self._label = ''
-        self.set(label)
+    def __init__(self, item_type: ItemType,
+                 timer: Timer, groups: Groups) -> None:
+        self._item_type = item_type
         self._timer = timer
         self._groups = groups
         self._last_shot = timer.current_time
+        self._properties = self.set_properties()
 
-    def set(self, label: str) -> None:
-        if label not in settings.WEAPONS:
-            raise ValueError('Weapon \'%s\' not defined in settings.py. '
-                             'Allowed values: %s.'
-                             % (label, settings.WEAPONS.keys()))
-        self._label = label
+    def set_properties(self) -> WProperties:
+
+        if self._item_type == ItemType.pistol:
+            return WProperties(rate=250,
+                               kickback=200,
+                               spread=5,
+                               bullet_size='lg',
+                               bullet_count=1)
+
+        return WProperties(rate=900,
+                           kickback=300,
+                           spread=20,
+                           bullet_size='sm',
+                           bullet_count=12)
 
     @property
     def shoot_rate(self) -> int:
-        return settings.WEAPONS[self._label]['rate']
+        return self._properties.rate
 
     @property
     def kick_back(self) -> int:
-        return settings.WEAPONS[self._label]['kickback']
+        return self._properties.kickback
 
     @property
     def bullet_count(self) -> int:
-        return settings.WEAPONS[self._label]['bullet_count']
+        return self._properties.bullet_count
 
     @property
-    def spread(self) -> int:
-        return settings.WEAPONS[self._label]['spread']
+    def bullet_size(self) -> str:
+        return self._properties.bullet_size
 
     def shoot(self, pos: Vector2, rot: Vector2) -> None:
         self._last_shot = self._timer.current_time
@@ -46,11 +64,15 @@ class Weapon(object):
         barrel_offset = pg.math.Vector2(30, 10)
         origin = pos + barrel_offset.rotate(-rot)
 
-        make_bullet = BigBullet if self._label == 'pistol' else LittleBullet
+        make_bullet = BigBullet
+        if self.bullet_size == 'sm':
+            make_bullet = LittleBullet
+
+        spread = self._properties.spread
         for _ in range(self.bullet_count):
-            spread = uniform(-self.spread, self.spread)
+            spread = uniform(-spread, spread)
             make_bullet(origin, direction.rotate(spread))
-        sounds.fire_weapon_sound(self._label)
+        sounds.fire_weapon_sound(self._item_type)
         MuzzleFlash(self._groups.all_sprites, origin)
 
     @property
@@ -63,9 +85,9 @@ class Bullet(DynamicObject):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
     class_initialized = False
-    max_lifetime = None
-    speed = None
-    damage = None
+    max_lifetime: int = 0
+    speed: int = 0
+    damage: int = 0
     small_base_image = None
 
     def __init__(self, pos: Vector2, direction: Vector2) -> None:
@@ -112,9 +134,9 @@ class Bullet(DynamicObject):
 
 class BigBullet(Bullet):
     """A large bullet coming out of a pistol."""
-    max_lifetime = settings.WEAPONS['pistol']['bullet_lifetime']
-    speed = settings.WEAPONS['pistol']['bullet_speed']
-    damage = settings.WEAPONS['pistol']['damage']
+    max_lifetime = 1000
+    speed = 500
+    damage = 75
 
     @property
     def image(self) -> pg.Surface:
@@ -123,9 +145,9 @@ class BigBullet(Bullet):
 
 class LittleBullet(Bullet):
     """A small bullet coming out of a shotgun."""
-    max_lifetime = settings.WEAPONS['shotgun']['bullet_lifetime']
-    speed = settings.WEAPONS['shotgun']['bullet_speed']
-    damage = settings.WEAPONS['shotgun']['damage']
+    max_lifetime = 500
+    speed = 400
+    damage = 25
 
     @property
     def image(self) -> pg.Surface:

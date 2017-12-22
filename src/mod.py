@@ -15,12 +15,6 @@ BOB_RANGE = 10
 BOB_SPEED = 0.3
 
 
-class ModID(Enum):
-    PISTOL = 0
-    SHOTGUN = 1
-    HEALTHPACK = 2
-
-
 class ModLocation(Enum):
     __order__ = 'ARMS LEGS CHEST HEAD BACKPACK'
     ARMS = 0
@@ -35,12 +29,14 @@ EQUIP_LOCATIONS = tuple(
 
 
 class Mod(object):
-    def __init__(self, sid: ModID, loc: ModLocation, image: pg.Surface,
-                 label: str) -> None:
-        self.sid = sid
+    def __init__(self,
+                 item_type: settings.ItemType,
+                 loc: ModLocation,
+                 image: pg.Surface,
+                 ) -> None:
+        self.item_type = item_type
         self.loc = loc
         self.image = image
-        self.label = label
 
     @property
     def equipable(self) -> bool:
@@ -59,14 +55,15 @@ class Mod(object):
 
 
 class WeaponMod(Mod):
-    def __init__(self, sid: ModID, image: pg.Surface,
-                 label: str) -> None:
+    def __init__(self,
+                 item_type: settings.ItemType,
+                 image: pg.Surface) -> None:
         loc = ModLocation.ARMS
-        super().__init__(sid=sid, loc=loc, image=image, label=label)
+        super().__init__(item_type=item_type, loc=loc, image=image)
 
     # TODO(dkafri): Thus functionality should be handled by the Backpack.
     def use(self, player: Any) -> None:
-        player.set_weapon(self.label)
+        player.set_weapon(self.item_type)
 
     @property
     def expended(self) -> bool:
@@ -75,28 +72,25 @@ class WeaponMod(Mod):
 
 class ShotgunMod(WeaponMod):
     def __init__(self) -> None:
-        sid = ModID.SHOTGUN
         img = images.get_image(images.SHOTGUN_MOD)
-        label = settings.SHOTGUN
-        super().__init__(sid=sid, image=img, label=label)
+        item_type = settings.ItemType.shotgun
+        super().__init__(item_type=item_type, image=img)
 
 
 class PistolMod(WeaponMod):
     def __init__(self) -> None:
-        sid = ModID.PISTOL
         img = images.get_image(images.PISTOL_MOD)
-        label = settings.PISTOL
-        super().__init__(sid=sid, image=img, label=label)
+        item_type = settings.ItemType.pistol
+        super().__init__(item_type=item_type, image=img)
 
 
 class HealthPackMod(Mod):
     def __init__(self) -> None:
-        sid = ModID.HEALTHPACK
         loc = ModLocation.BACKPACK
         img = images.get_image(images.HEALTH_PACK)
-        label = settings.HEALTHPACK
+        item_type = settings.ItemType.healthpack
         self._expended = False
-        super().__init__(sid=sid, loc=loc, image=img, label=label)
+        super().__init__(item_type=item_type, loc=loc, image=img)
 
     def use(self, player: Any) -> None:
         if player.damaged:

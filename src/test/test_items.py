@@ -1,8 +1,7 @@
 import os
 import unittest
-
 import pygame
-
+import weapon
 import humanoid as hmn
 import mod
 import model
@@ -44,19 +43,19 @@ class ModTest(unittest.TestCase):
     def test_make_item_in_groups(self) -> None:
         groups = self.groups
 
-        hp = _make_item(settings.HEALTHPACK)
+        hp = _make_item(settings.ItemType.healthpack)
         self.assertIn(hp, groups.all_sprites)
         self.assertIn(hp, groups.items)
         self.assertEqual(len(groups.all_sprites), 1)
         self.assertEqual(len(groups.items), 1)
 
-        pistol = _make_item(settings.PISTOL)
+        pistol = _make_item(settings.ItemType.pistol)
         self.assertIn(pistol, groups.all_sprites)
         self.assertIn(pistol, groups.items)
         self.assertEqual(len(groups.all_sprites), 2)
         self.assertEqual(len(groups.items), 2)
 
-        shotgun = _make_item(settings.SHOTGUN)
+        shotgun = _make_item(settings.ItemType.shotgun)
         self.assertIn(shotgun, groups.all_sprites)
         self.assertIn(shotgun, groups.items)
         self.assertEqual(len(groups.all_sprites), 3)
@@ -64,7 +63,7 @@ class ModTest(unittest.TestCase):
 
     def test_backpack_full(self) -> None:
         player = _make_player()
-        hp = _make_item(settings.HEALTHPACK)
+        hp = _make_item(settings.ItemType.healthpack)
 
         # TODO (dvirk): You should not be able to add the same object to the
         # backpack more than once.
@@ -81,7 +80,7 @@ class ModTest(unittest.TestCase):
 
     def test_use_health_pack(self) -> None:
         player = _make_player()
-        hp = _make_item(settings.HEALTHPACK)
+        hp = _make_item(settings.ItemType.healthpack)
 
         self.assertEqual(len(player.backpack), 0)
 
@@ -108,7 +107,7 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 0)
 
-        hp = _make_item(settings.HEALTHPACK)
+        hp = _make_item(settings.ItemType.healthpack)
         player.attempt_pickup(hp)
         player.increment_health(-1)
 
@@ -120,7 +119,7 @@ class ModTest(unittest.TestCase):
 
     def test_add_weapons(self) -> None:
         player = _make_player()
-        shotgun = _make_item(settings.SHOTGUN)
+        shotgun = _make_item(settings.ItemType.shotgun)
 
         player.attempt_pickup(shotgun)
 
@@ -129,10 +128,10 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
-        self.assertEqual(player._weapon._label, 'shotgun')
+        self.assertEqual(player._weapon._item_type, weapon.ItemType.shotgun)
 
         # adding a second arm mod goes into the backpack
-        pistol = _make_item(settings.PISTOL)
+        pistol = _make_item(settings.ItemType.pistol)
 
         player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)

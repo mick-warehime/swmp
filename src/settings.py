@@ -1,3 +1,12 @@
+from enum import Enum
+
+
+class ItemType(Enum):
+    pistol = 0
+    shotgun = 1
+    healthpack = 2
+
+
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -28,25 +37,6 @@ TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
-# Weapon settings
-WEAPONS = {}
-WEAPONS['pistol'] = {'bullet_speed': 500,
-                     'bullet_lifetime': 1000,
-                     'rate': 250,
-                     'kickback': 200,
-                     'spread': 5,
-                     'damage': 50,
-                     'bullet_size': 'lg',
-                     'bullet_count': 1}
-WEAPONS['shotgun'] = {'bullet_speed': 400,
-                      'bullet_lifetime': 500,
-                      'rate': 900,
-                      'kickback': 300,
-                      'spread': 20,
-                      'damage': 15,
-                      'bullet_size': 'sm',
-                      'bullet_count': 12}
-
 # Effects
 FLASH_DURATION = 50
 NIGHT_COLOR = (20, 20, 20)
@@ -68,13 +58,10 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-5.wav', 'zombie-roar-6.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
-WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
-                 'shotgun': ['shotgun.wav']}
+WEAPON_SOUNDS = {ItemType.pistol: ['pistol.wav'],
+                 ItemType.shotgun: ['shotgun.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
 
-# Items
-PISTOL = 'pistol'
-SHOTGUN = 'shotgun'
-HEALTHPACK = 'healthpack'
+WEAPONS = [ItemType.pistol, ItemType.shotgun]
