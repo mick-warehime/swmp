@@ -5,7 +5,7 @@ from humanoid import Mob, Player
 from model import Groups
 from tilemap import Camera, TiledMap
 import images
-import mod
+import mods
 
 from hud import HUD
 NO_SELECTION = -1
@@ -78,7 +78,7 @@ class DungeonView(object):
         self._night = not self._night
 
     def try_click_mod(self, pos: Tuple[int, int]) -> None:
-        rects = [self._hud.mod_rects[l] for l in mod.EQUIP_LOCATIONS]
+        rects = [self._hud.mod_rects[l] for l in mods.EQUIP_LOCATIONS]
         index = self.clicked_rect_index(rects, pos)
         if index == self.selected_mod:
             self._hud.selected_mod = NO_SELECTION

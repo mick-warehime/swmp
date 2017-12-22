@@ -3,7 +3,7 @@ import settings
 import pygame as pg
 from humanoid import Player
 import images
-import mod
+import mods
 from draw_utils import draw_text
 
 NO_SELECTION = -1
@@ -35,13 +35,13 @@ class HUD(object):
         self.selected_mod = NO_SELECTION
         self.selected_item = NO_SELECTION
 
-    def generate_mod_rects(self) -> Dict[mod.ModLocation, pg.Rect]:
+    def generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
         mod_size = 62
         x, y = self._hud_pos
-        rects: Dict[mod.ModLocation, pg.Rect] = {}
+        rects: Dict[mods.ModLocation, pg.Rect] = {}
 
         i = 0
-        for loc in mod.EQUIP_LOCATIONS:
+        for loc in mods.EQUIP_LOCATIONS:
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
@@ -112,8 +112,7 @@ class HUD(object):
             pg.draw.rect(self._screen, col, r, 2)
 
         for idx, loc in enumerate(player.active_mods):
-            mod = player.active_mods[loc]
-            img = mod.image
+            img = player.active_mods[loc].equipped_image
 
             img = pg.transform.scale(img, (70, 70))
 
@@ -133,5 +132,8 @@ class HUD(object):
 
         for idx, item_mod in enumerate(player.backpack):
             rect = self.backpack_rects[idx]
-            img = pg.transform.scale(item_mod.image, (rect.width, rect.height))
-            self._screen.blit(img, rect)
+            img = item_mod.backpack_image
+            img_rect = img.get_rect()
+            img_rect.center = rect.center
+
+            self._screen.blit(img, img_rect)

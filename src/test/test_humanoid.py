@@ -6,6 +6,7 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
+from mods import ShotgunMod
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from tilemap import ObjectType
 from weapon import Weapon, Bullet, MuzzleFlash
@@ -62,6 +63,10 @@ def setUpModule() -> None:
     ModelTest.timer._time += player._weapon.shoot_rate + 1
     _assert_runtime_exception_raised(player.shoot)
     Bullet.initialize_class()
+
+    # I would call this in test_mod.py, but it looks like the coverage
+    # command somehow initializes ShotgunMod too early there.
+    _assert_runtime_exception_raised(ShotgunMod)
 
     ModelTest.groups.empty()
     ModelTest.timer.reset()
