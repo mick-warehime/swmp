@@ -12,7 +12,8 @@ import model as mdl
 import settings
 import sounds
 from model import collide_hit_rect_with_rect
-from weapon import Weapon, ItemType
+from tilemap import ObjectType
+from weapon import Weapon
 
 # Player settings
 PLAYER_HEALTH = 100
@@ -189,7 +190,7 @@ class Player(Humanoid):
     def turn(self) -> None:
         self.rotate_towards_cursor()
 
-    def set_weapon(self, item_type: ItemType) -> None:
+    def set_weapon(self, item_type: ObjectType) -> None:
         self._weapon = Weapon(item_type, self._timer, self._groups)
 
     def shoot(self) -> None:

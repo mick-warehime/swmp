@@ -1,32 +1,17 @@
-from settings import ItemType
 import pygame as pg
 from mod import HealthPackObject, PistolObject, ShotgunObject, ItemObject
+from tilemap import ObjectType
 
-item_contructors = {ItemType.healthpack: HealthPackObject,
-                    ItemType.shotgun: ShotgunObject,
-                    ItemType.pistol: PistolObject}
+item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,
+                    ObjectType.SHOTGUN: ShotgunObject,
+                    ObjectType.PISTOL: PistolObject}
 
 
 class ItemManager(object):
     @staticmethod
-    def item(pos: pg.math.Vector2, item_type: ItemType) -> ItemObject:
-        return item_contructors[item_type](pos)
+    def item(pos: pg.math.Vector2, label: str) -> ItemObject:
+        if label not in item_contructors:
+            error_msg = 'Item label %s not recognized.'
+            raise ValueError(error_msg % (label,))
 
-    @staticmethod
-    def is_item(label: str) -> bool:
-        try:
-            ItemManager.get_item_type(label)
-            return True
-        except ValueError:
-            return False
-
-    @staticmethod
-    def get_item_type(label: str) -> ItemType:
-        if label == 'pistol':
-            return ItemType.pistol
-        if label == 'shotgun':
-            return ItemType.shotgun
-        if label == 'healthpack':
-            return ItemType.healthpack
-
-        raise ValueError('unknown item type \'%s\'' % label)
+        return item_contructors[label](pos)

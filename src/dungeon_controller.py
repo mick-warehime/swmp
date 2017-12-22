@@ -57,20 +57,19 @@ class DungeonController(controller.Controller):
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
-            if tile_object.name == 'player':
+            if tile_object.name == tilemap.ObjectType.PLAYER:
                 self.player = Player(obj_center)
 
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
-            if tile_object.name == 'zombie':
+            if tile_object.name == tilemap.ObjectType.ZOMBIE:
                 Mob(obj_center, self.player)
-            if tile_object.name == 'wall':
+            if tile_object.name == tilemap.ObjectType.WALL:
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
-            if ItemManager.is_item(tile_object.name):
-                item_type = ItemManager.get_item_type(tile_object.name)
-                ItemManager.item(obj_center, item_type)
+            if tile_object.name in tilemap.ITEMS:
+                ItemManager.item(obj_center, tile_object.name)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)

@@ -1,7 +1,23 @@
+from enum import unique, Enum
+
 import pygame as pg
 import pytmx
 
 from settings import WIDTH, HEIGHT
+
+
+@unique
+class ObjectType(Enum):
+    PLAYER = 'player'
+    ZOMBIE = 'zombie'
+    WALL = 'wall'
+    PISTOL = 'pistol'
+    HEALTHPACK = 'healthpack'
+    SHOTGUN = 'shotgun'
+
+
+ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL)
+WEAPONS = (ObjectType.SHOTGUN, ObjectType.PISTOL)
 
 
 class TiledMap:
@@ -10,6 +26,21 @@ class TiledMap:
         self.width = tm.width * tm.tilewidth
         self.height = tm.height * tm.tileheight
         self.tmxdata = tm
+
+        self._validate_tmxdata()
+        self._format_tileobject_names()
+
+    def _format_tileobject_names(self) -> None:
+        for tile_object in self.tmxdata.objects:
+            tile_object.name = ObjectType(tile_object.name)
+
+    def _validate_tmxdata(self) -> None:
+        expected_names = {tile.value for tile in ObjectType}
+        names = {obj.name for obj in self.tmxdata.objects}
+        bad_names = names - expected_names
+        if bad_names:
+            raise ValueError(
+                'Tile names %s not recognized.' % (list(bad_names)))
 
     def render(self, surface: pg.Surface) -> None:
         ti = self.tmxdata.get_tile_image_by_gid

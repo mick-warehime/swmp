@@ -5,11 +5,12 @@ from pygame.math import Vector2
 
 import images
 from typing import Any
-import settings
 import sounds
 from model import DynamicObject
 
 # Items
+from tilemap import ObjectType
+
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3
@@ -30,7 +31,7 @@ EQUIP_LOCATIONS = tuple(
 
 class Mod(object):
     def __init__(self,
-                 item_type: settings.ItemType,
+                 item_type: ObjectType,
                  loc: ModLocation,
                  image: pg.Surface,
                  ) -> None:
@@ -54,9 +55,8 @@ class Mod(object):
         raise NotImplementedError
 
 
-class WeaponMod(Mod):
-    def __init__(self,
-                 item_type: settings.ItemType,
+class AttackMod(Mod):
+    def __init__(self, item_type: ObjectType,
                  image: pg.Surface) -> None:
         loc = ModLocation.ARMS
         super().__init__(item_type=item_type, loc=loc, image=image)
@@ -70,17 +70,17 @@ class WeaponMod(Mod):
         return False
 
 
-class ShotgunMod(WeaponMod):
+class ShotgunMod(AttackMod):
     def __init__(self) -> None:
         img = images.get_image(images.SHOTGUN_MOD)
-        item_type = settings.ItemType.shotgun
+        item_type = ObjectType.SHOTGUN
         super().__init__(item_type=item_type, image=img)
 
 
-class PistolMod(WeaponMod):
+class PistolMod(AttackMod):
     def __init__(self) -> None:
         img = images.get_image(images.PISTOL_MOD)
-        item_type = settings.ItemType.pistol
+        item_type = ObjectType.PISTOL
         super().__init__(item_type=item_type, image=img)
 
 
@@ -88,7 +88,7 @@ class HealthPackMod(Mod):
     def __init__(self) -> None:
         loc = ModLocation.BACKPACK
         img = images.get_image(images.HEALTH_PACK)
-        item_type = settings.ItemType.healthpack
+        item_type = ObjectType.HEALTHPACK
         self._expended = False
         super().__init__(item_type=item_type, loc=loc, image=img)
 
