@@ -136,5 +136,4 @@ class HUD(object):
             img_rect = img.get_rect()
             img_rect.center = rect.center
 
-            # img = pg.transform.scale(img, (rect.width, rect.height))
             self._screen.blit(img, img_rect)
