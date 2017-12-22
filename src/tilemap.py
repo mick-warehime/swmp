@@ -17,6 +17,7 @@ class Tiles(Enum):
 
 
 ITEM_TILES = (Tiles.HEALTHPACK, Tiles.SHOTGUN, Tiles.PISTOL)
+WEAPONS = (Tiles.SHOTGUN, Tiles.PISTOL)
 
 
 class TiledMap:

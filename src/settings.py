@@ -1,12 +1,3 @@
-from enum import Enum
-
-
-class ItemType(Enum):
-    pistol = 0
-    shotgun = 1
-    healthpack = 2
-
-
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -49,5 +40,3 @@ BULLET_LAYER = 3
 MOB_LAYER = 2
 EFFECTS_LAYER = 4
 ITEMS_LAYER = 1
-
-WEAPONS = [ItemType.pistol, ItemType.shotgun]

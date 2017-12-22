@@ -6,8 +6,8 @@ import settings
 import sounds
 import images
 from typing import NamedTuple
-from settings import ItemType
 
+from tilemap import Tiles, WEAPONS
 
 WProperties = NamedTuple('Weapon', [('rate', int),
                                     ('kickback', int),
@@ -19,7 +19,7 @@ WProperties = NamedTuple('Weapon', [('rate', int),
 class Weapon(object):
     """Generates bullets or other sources of damage."""
 
-    def __init__(self, item_type: ItemType,
+    def __init__(self, item_type: Tiles,
                  timer: Timer, groups: Groups) -> None:
         self._item_type = item_type
         self._timer = timer
@@ -29,7 +29,8 @@ class Weapon(object):
 
     def set_properties(self) -> WProperties:
 
-        if self._item_type == ItemType.pistol:
+        assert self._item_type in WEAPONS
+        if self._item_type == Tiles.PISTOL:
             return WProperties(rate=250,
                                kickback=200,
                                spread=5,
@@ -64,9 +65,7 @@ class Weapon(object):
         barrel_offset = pg.math.Vector2(30, 10)
         origin = pos + barrel_offset.rotate(-rot)
 
-        make_bullet = BigBullet
-        if self.bullet_size == 'sm':
-            make_bullet = LittleBullet
+        make_bullet = LittleBullet if self.bullet_size == 'sm' else BigBullet
 
         spread = self._properties.spread
         for _ in range(self.bullet_count):

@@ -5,7 +5,6 @@ import weapon
 import humanoid as hmn
 import mod
 import model
-import settings
 from item_manager import ItemManager
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
@@ -109,7 +108,7 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 0)
 
-        hp = _make_item(Tiles.ItemType.healthpack)
+        hp = _make_item(Tiles.HEALTHPACK)
         player.attempt_pickup(hp)
         player.increment_health(-1)
 
@@ -121,7 +120,7 @@ class ModTest(unittest.TestCase):
 
     def test_add_weapons(self) -> None:
         player = _make_player()
-        shotgun = _make_item(Tiles.ItemType.shotgun)
+        shotgun = _make_item(Tiles.SHOTGUN)
 
         player.attempt_pickup(shotgun)
 
@@ -133,7 +132,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(player._weapon._item_type, weapon.ItemType.shotgun)
 
         # adding a second arm mod goes into the backpack
-        pistol = _make_item(Tiles.ItemType.pistol)
+        pistol = _make_item(Tiles.PISTOL)
 
         player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)
