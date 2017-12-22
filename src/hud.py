@@ -133,5 +133,8 @@ class HUD(object):
         for idx, item_mod in enumerate(player.backpack):
             rect = self.backpack_rects[idx]
             img = item_mod.backpack_image
-            img = pg.transform.scale(img, (rect.width, rect.height))
-            self._screen.blit(img, rect)
+            img_rect = img.get_rect()
+            img_rect.center = rect.center
+
+            # img = pg.transform.scale(img, (rect.width, rect.height))
+            self._screen.blit(img, img_rect)
