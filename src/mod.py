@@ -36,9 +36,9 @@ def initialize_classes() -> None:
 
 
 class Mod(object):
-    def __init__(self,
-                 item_type: ObjectType, loc: ModLocation) -> None:
-        self.item_type = item_type
+    class_initialized = True
+
+    def __init__(self, loc: ModLocation) -> None:
         self.loc = loc
 
     @property
@@ -64,6 +64,12 @@ class Mod(object):
     def backpack_image(self) -> pg.Surface:
         raise NotImplementedError
 
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        if not cls.class_initialized:
+            raise RuntimeError('Class %s must be initialized before '
+                               'instantiating an object.' % (cls,))
+
 
 class ShotgunMod(Mod):
     _equipped_image = None
@@ -72,12 +78,11 @@ class ShotgunMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        item_type = ObjectType.SHOTGUN
         loc = ModLocation.ARMS
-        super(ShotgunMod, self).__init__(item_type=item_type, loc=loc)
+        super(ShotgunMod, self).__init__(loc=loc)
 
     def use(self, player: Any) -> None:
-        player.set_weapon(self.item_type)
+        player.set_weapon(ObjectType.SHOTGUN)
 
     @property
     def expended(self) -> bool:
@@ -97,12 +102,6 @@ class ShotgunMod(Mod):
     def backpack_image(self) -> pg.Surface:
         return self._backpack_image
 
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
-
 
 class PistolMod(Mod):
     _equipped_image = None
@@ -111,12 +110,11 @@ class PistolMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        item_type = ObjectType.PISTOL
         loc = ModLocation.ARMS
-        super(PistolMod, self).__init__(item_type=item_type, loc=loc)
+        super(PistolMod, self).__init__(loc=loc)
 
     def use(self, player: Any) -> None:
-        player.set_weapon(self.item_type)
+        player.set_weapon(ObjectType.PISTOL)
 
     @property
     def expended(self) -> bool:
@@ -136,12 +134,6 @@ class PistolMod(Mod):
     def backpack_image(self) -> pg.Surface:
         return self._backpack_image
 
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
-
 
 class HealthPackMod(Mod):
     _backpack_image = None
@@ -150,9 +142,8 @@ class HealthPackMod(Mod):
     def __init__(self) -> None:
         self._check_class_initialized()
         loc = ModLocation.BACKPACK
-        item_type = ObjectType.HEALTHPACK
         self._expended = False
-        super().__init__(item_type=item_type, loc=loc)
+        super().__init__(loc=loc)
 
     def use(self, player: Any) -> None:
         if player.damaged:
@@ -168,12 +159,6 @@ class HealthPackMod(Mod):
     @property
     def expended(self) -> bool:
         return self._expended
-
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
 
     @property
     def backpack_image(self) -> pg.Surface:
