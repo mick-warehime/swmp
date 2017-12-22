@@ -8,6 +8,6 @@ def setUpModule() -> None:
 
 
 class SoundTest(unittest.TestCase):
-    def test_load_soudns(self) -> None:
+    def test_load_sounds(self) -> None:
         se = sounds.SoundEffects()
         self.assertTrue(se is not None)
