@@ -1,10 +1,10 @@
-import settings
 import pygame as pg
 from mod import HealthPackObject, PistolObject, ShotgunObject, ItemObject
+from tilemap import Tiles
 
-item_contructors = {settings.HEALTHPACK: HealthPackObject,
-                    settings.SHOTGUN: ShotgunObject,
-                    settings.PISTOL: PistolObject}
+item_contructors = {Tiles.HEALTHPACK: HealthPackObject,
+                    Tiles.SHOTGUN: ShotgunObject,
+                    Tiles.PISTOL: PistolObject}
 
 
 class ItemManager(object):
