@@ -7,6 +7,7 @@ from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
+from tilemap import ObjectType
 from weapon import Weapon, Bullet, MuzzleFlash
 from itertools import product
 import math
@@ -20,7 +21,7 @@ pg = Pygame()
 
 
 def _make_pistol() -> Weapon:
-    return Weapon(ItemType.pistol, ModelTest.timer, ModelTest.groups)
+    return Weapon(ObjectType.PISTOL, ModelTest.timer, ModelTest.groups)
 
 
 def _make_player() -> hmn.Player:
@@ -57,7 +58,7 @@ def setUpModule() -> None:
     hmn.Mob.init_class(blank_screen)
 
     player = _make_player()
-    player.set_weapon(ItemType.pistol)
+    player.set_weapon(ObjectType.PISTOL)
     ModelTest.timer._time += player._weapon.shoot_rate + 1
     _assert_runtime_exception_raised(player.shoot)
     Bullet.initialize_class()
@@ -143,7 +144,7 @@ class ModelTest(unittest.TestCase):
         groups = self.groups
         timer = self.timer
         player = _make_player()
-        player.set_weapon(ItemType.pistol)
+        player.set_weapon(ObjectType.PISTOL)
 
         self.assertEqual(len(groups.bullets), 0)
         player.shoot()
@@ -155,7 +156,7 @@ class ModelTest(unittest.TestCase):
     def test_player_shoot_kickback(self) -> None:
         timer = self.timer
         player = _make_player()
-        player.set_weapon(ItemType.pistol)
+        player.set_weapon(ObjectType.PISTOL)
 
         old_vel = (player._vel.x, player._vel.y)
 
@@ -168,10 +169,10 @@ class ModelTest(unittest.TestCase):
 
     def test_player_set_weapon(self) -> None:
         player = _make_player()
-        player.set_weapon(ItemType.pistol)
-        self.assertEqual(player._weapon._item_type, ItemType.pistol)
-        player.set_weapon(ItemType.shotgun)
-        self.assertEqual(player._weapon._item_type, ItemType.shotgun)
+        player.set_weapon(ObjectType.PISTOL)
+        self.assertEqual(player._weapon._item_type, ObjectType.PISTOL)
+        player.set_weapon(ObjectType.SHOTGUN)
+        self.assertEqual(player._weapon._item_type, ObjectType.SHOTGUN)
 
     def test_player_shoot_no_weapon(self) -> None:
         groups = self.groups
