@@ -38,9 +38,6 @@ def initialize_classes() -> None:
 class Mod(object):
     class_initialized = True
 
-    def __init__(self, loc: ModLocation) -> None:
-        self.loc = loc
-
     @property
     def equipable(self) -> bool:
         return self.loc != ModLocation.BACKPACK
@@ -48,6 +45,10 @@ class Mod(object):
     @property
     def expendable(self) -> bool:
         return not self.equipable
+
+    @property
+    def loc(self) -> ModLocation:
+        raise NotImplementedError
 
     @property
     def expended(self) -> bool:
@@ -72,14 +73,13 @@ class Mod(object):
 
 
 class ShotgunMod(Mod):
+    loc = ModLocation.ARMS
     _equipped_image = None
     _backpack_image = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        loc = ModLocation.ARMS
-        super(ShotgunMod, self).__init__(loc=loc)
 
     def use(self, player: Any) -> None:
         player.set_weapon(ObjectType.SHOTGUN)
@@ -104,14 +104,13 @@ class ShotgunMod(Mod):
 
 
 class PistolMod(Mod):
+    loc = ModLocation.ARMS
     _equipped_image = None
     _backpack_image = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        loc = ModLocation.ARMS
-        super(PistolMod, self).__init__(loc=loc)
 
     def use(self, player: Any) -> None:
         player.set_weapon(ObjectType.PISTOL)
@@ -136,14 +135,13 @@ class PistolMod(Mod):
 
 
 class HealthPackMod(Mod):
+    loc = ModLocation.BACKPACK
     _backpack_image = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        loc = ModLocation.BACKPACK
         self._expended = False
-        super().__init__(loc=loc)
 
     def use(self, player: Any) -> None:
         if player.damaged:
