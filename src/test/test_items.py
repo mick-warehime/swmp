@@ -100,7 +100,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(hp.mod, player.backpack)
 
         # health pack fills health back up and is gone from backpack
-        player.increment_health(-settings.HEALTH_PACK_AMOUNT)
+        player.increment_health(-mod.HEALTH_PACK_AMOUNT)
         self.assertTrue(player.damaged)
         player.expend(hp.mod)
         self.assertTrue(hp.mod.expended)

@@ -60,11 +60,6 @@ MOB_LAYER = 2
 EFFECTS_LAYER = 4
 ITEMS_LAYER = 1
 
-# Items
-HEALTH_PACK_AMOUNT = 20
-BOB_RANGE = 10
-BOB_SPEED = 0.3
-
 # Sounds
 BG_MUSIC = 'espionage.ogg'
 PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']

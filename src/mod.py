@@ -9,6 +9,11 @@ import settings
 import sounds
 from model import DynamicObject
 
+# Items
+HEALTH_PACK_AMOUNT = 20
+BOB_RANGE = 10
+BOB_SPEED = 0.3
+
 
 class ModID(Enum):
     PISTOL = 0
@@ -96,7 +101,7 @@ class HealthPackMod(Mod):
     def use(self, player: Any) -> None:
         if player.damaged:
             sounds.play(sounds.HEALTH_UP)
-            player.increment_health(settings.HEALTH_PACK_AMOUNT)
+            player.increment_health(HEALTH_PACK_AMOUNT)
             self._expended = True
 
     @property
@@ -117,10 +122,10 @@ class ItemObject(DynamicObject):
         self.image = image
         self._mod = mod
         self._tween = tween.easeInOutSine
-        self._step = 0
+        self._step = 0.0
         self._bob_direction = 1
-        self._bob_period = settings.BOB_RANGE
-        self._bob_speed = settings.BOB_SPEED
+        self._bob_period = BOB_RANGE
+        self._bob_speed = BOB_SPEED
 
     @property
     def mod(self) -> Mod:
@@ -132,7 +137,7 @@ class ItemObject(DynamicObject):
         self.rect.centery = self.pos.y + offset * self._bob_direction
         self._step += self._bob_speed
         if self._step > self._bob_period:
-            self._step = 0
+            self._step = 0.0
             self._bob_direction *= -1
 
     def _bob_offset(self) -> float:
