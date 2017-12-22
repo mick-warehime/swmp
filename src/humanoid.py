@@ -12,7 +12,23 @@ import model as mdl
 import settings
 import sounds
 from model import collide_hit_rect_with_rect
-from weapon import Weapon
+from weapon import Weapon, ItemType
+
+# Player settings
+PLAYER_HEALTH = 100
+PLAYER_SPEED = 280
+PLAYER_ROT_SPEED = 200
+PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+
+# Mob settings
+MOB_SPEEDS = [150, 100, 75, 125]
+MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
+MOB_HEALTH = 100
+MOB_DAMAGE = 10
+MOB_KNOCKBACK = 20
+AVOID_RADIUS = 50
+DETECT_RADIUS = 400
+DAMAGE_ALPHA = list(range(0, 255, 55))
 
 
 class Humanoid(mdl.DynamicObject):
@@ -118,11 +134,12 @@ class Player(Humanoid):
 
         self._check_class_initialized()
 
-        super().__init__(settings.PLAYER_HIT_RECT, pos, settings.PLAYER_HEALTH)
+        super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
+        self.max_health = PLAYER_HEALTH
         self._weapon = None
-        self._damage_alpha = chain(settings.DAMAGE_ALPHA * 4)
+        self._damage_alpha = chain(DAMAGE_ALPHA * 4)
         self._rot_speed = 0
         self._mouse_pos = (0, 0)
 
@@ -144,36 +161,36 @@ class Player(Humanoid):
 
     # translate_direction = slide in that direction
     def translate_up(self) -> None:
-        self._vel += Vector2(0, -settings.PLAYER_SPEED)
+        self._vel += Vector2(0, -PLAYER_SPEED)
 
     def translate_down(self) -> None:
-        self._vel += Vector2(0, settings.PLAYER_SPEED)
+        self._vel += Vector2(0, PLAYER_SPEED)
 
     def translate_right(self) -> None:
-        self._vel += Vector2(settings.PLAYER_SPEED, 0)
+        self._vel += Vector2(PLAYER_SPEED, 0)
 
     def translate_left(self) -> None:
-        self._vel += Vector2(-settings.PLAYER_SPEED, 0)
+        self._vel += Vector2(-PLAYER_SPEED, 0)
 
     # step_direction - rotates player towards the current direction
     # and then takes a step relative to that direction
     def step_forward(self) -> None:
-        self._vel += Vector2(settings.PLAYER_SPEED, 0).rotate(-self.rot)
+        self._vel += Vector2(PLAYER_SPEED, 0).rotate(-self.rot)
 
     def step_backward(self) -> None:
-        self._vel += Vector2(-settings.PLAYER_SPEED, 0).rotate(-self.rot)
+        self._vel += Vector2(-PLAYER_SPEED, 0).rotate(-self.rot)
 
     def step_right(self) -> None:
-        self._vel += Vector2(0, settings.PLAYER_SPEED).rotate(-self.rot)
+        self._vel += Vector2(0, PLAYER_SPEED).rotate(-self.rot)
 
     def step_left(self) -> None:
-        self._vel += Vector2(0, -settings.PLAYER_SPEED).rotate(-self.rot)
+        self._vel += Vector2(0, -PLAYER_SPEED).rotate(-self.rot)
 
     def turn(self) -> None:
         self.rotate_towards_cursor()
 
-    def set_weapon(self, label: str) -> None:
-        self._weapon = Weapon(label, self._timer, self._groups)
+    def set_weapon(self, item_type: ItemType) -> None:
+        self._weapon = Weapon(item_type, self._timer, self._groups)
 
     def shoot(self) -> None:
         if not self._weapon:
@@ -232,11 +249,11 @@ class Mob(Humanoid):
 
         self._check_class_initialized()
 
-        super().__init__(settings.MOB_HIT_RECT, pos, settings.MOB_HEALTH)
+        super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
         my_groups = [self._groups.all_sprites, self._groups.mobs]
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.speed = choice(settings.MOB_SPEEDS)
+        self.speed = choice(MOB_SPEEDS)
         self.target = player
 
     @property
@@ -263,7 +280,7 @@ class Mob(Humanoid):
         for mob in self._mob_group:
             if mob != self:
                 dist = self.pos - mob.pos
-                if 0 < dist.length() < settings.AVOID_RADIUS:
+                if 0 < dist.length() < AVOID_RADIUS:
                     self._acc += dist.normalize()
 
     def update(self) -> None:
@@ -291,7 +308,7 @@ class Mob(Humanoid):
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:
-        return target_dist.length_squared() < settings.DETECT_RADIUS ** 2
+        return target_dist.length_squared() < DETECT_RADIUS ** 2
 
     def draw_health(self) -> None:
         if self.health > 60:
@@ -300,7 +317,7 @@ class Mob(Humanoid):
             col = settings.YELLOW
         else:
             col = settings.RED
-        width = int(self.rect.width * self.health / settings.MOB_HEALTH)
+        width = int(self.rect.width * self.health / MOB_HEALTH)
         health_bar = pg.Rect(0, 0, width, 7)
         if self.damaged:
             pg.draw.rect(self.image, col, health_bar)

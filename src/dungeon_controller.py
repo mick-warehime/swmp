@@ -1,6 +1,6 @@
 from humanoid import Player, Mob
+import humanoid
 from pygame.sprite import spritecollide, groupcollide
-
 from mod import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     collide_hit_rect_with_rect, DynamicObject
@@ -140,13 +140,13 @@ class DungeonController(controller.Controller):
         for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-settings.MOB_DAMAGE)
+                self.player.increment_health(-humanoid.MOB_DAMAGE)
             zombie.stop_x()
             zombie.stop_y()
             if self.player.health <= 0:
                 self._playing = False
         if mobs:
-            knock_back = pg.math.Vector2(settings.MOB_KNOCKBACK, 0)
+            knock_back = pg.math.Vector2(humanoid.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
         # bullets hit mobs

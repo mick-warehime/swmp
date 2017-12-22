@@ -1,8 +1,7 @@
 import os
 import unittest
-
 import pygame
-
+import weapon
 import humanoid as hmn
 import mod
 import model
@@ -102,7 +101,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(hp.mod, player.backpack)
 
         # health pack fills health back up and is gone from backpack
-        player.increment_health(-settings.HEALTH_PACK_AMOUNT)
+        player.increment_health(-mod.HEALTH_PACK_AMOUNT)
         self.assertTrue(player.damaged)
         player.expend(hp.mod)
         self.assertTrue(hp.mod.expended)
@@ -110,19 +109,19 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
         self.assertEqual(len(player.backpack), 0)
 
-        hp = _make_item(Tiles.HEALTHPACK)
+        hp = _make_item(Tiles.ItemType.healthpack)
         player.attempt_pickup(hp)
         player.increment_health(-1)
 
         player.expend(hp.mod)
 
         # health pack doesn't fill you over max health
-        self.assertEqual(player.health, settings.PLAYER_HEALTH)
+        self.assertEqual(player.health, player.max_health)
         self.assertEqual(len(player.backpack), 0)
 
     def test_add_weapons(self) -> None:
         player = _make_player()
-        shotgun = _make_item(Tiles.SHOTGUN)
+        shotgun = _make_item(Tiles.ItemType.shotgun)
 
         player.attempt_pickup(shotgun)
 
@@ -131,10 +130,10 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
-        self.assertEqual(player._weapon._label, 'shotgun')
+        self.assertEqual(player._weapon._item_type, weapon.ItemType.shotgun)
 
         # adding a second arm mod goes into the backpack
-        pistol = _make_item(Tiles.PISTOL)
+        pistol = _make_item(Tiles.ItemType.pistol)
 
         player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)
