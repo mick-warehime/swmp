@@ -112,8 +112,7 @@ class HUD(object):
             pg.draw.rect(self._screen, col, r, 2)
 
         for idx, loc in enumerate(player.active_mods):
-            mod = player.active_mods[loc]
-            img = mod.image
+            img = player.active_mods[loc].equipped_image
 
             img = pg.transform.scale(img, (70, 70))
 
@@ -133,5 +132,6 @@ class HUD(object):
 
         for idx, item_mod in enumerate(player.backpack):
             rect = self.backpack_rects[idx]
-            img = pg.transform.scale(item_mod.image, (rect.width, rect.height))
+            img = item_mod.backpack_image
+            img = pg.transform.scale(img, (rect.width, rect.height))
             self._screen.blit(img, rect)

@@ -29,15 +29,17 @@ EQUIP_LOCATIONS = tuple(
     [loc for loc in ModLocation if loc != ModLocation.BACKPACK])
 
 
+def initialize_classes() -> None:
+    PistolMod.initialize_class()
+    ShotgunMod.initialize_class()
+    HealthPackMod.initialize_class()
+
+
 class Mod(object):
     def __init__(self,
-                 item_type: ObjectType,
-                 loc: ModLocation,
-                 image: pg.Surface,
-                 ) -> None:
+                 item_type: ObjectType, loc: ModLocation) -> None:
         self.item_type = item_type
         self.loc = loc
-        self.image = image
 
     @property
     def equipable(self) -> bool:
@@ -54,14 +56,26 @@ class Mod(object):
     def use(self, player: Any) -> None:
         raise NotImplementedError
 
+    @property
+    def equipped_image(self) -> pg.Surface:
+        raise NotImplementedError
 
-class AttackMod(Mod):
-    def __init__(self, item_type: ObjectType,
-                 image: pg.Surface) -> None:
+    @property
+    def backpack_image(self) -> pg.Surface:
+        raise NotImplementedError
+
+
+class ShotgunMod(Mod):
+    _equipped_image = None
+    _backpack_image = None
+    class_initialized = False
+
+    def __init__(self) -> None:
+        self._check_class_initialized()
+        item_type = ObjectType.SHOTGUN
         loc = ModLocation.ARMS
-        super().__init__(item_type=item_type, loc=loc, image=image)
+        super(ShotgunMod, self).__init__(item_type=item_type, loc=loc)
 
-    # TODO(dkafri): Thus functionality should be handled by the Backpack.
     def use(self, player: Any) -> None:
         player.set_weapon(self.item_type)
 
@@ -69,28 +83,76 @@ class AttackMod(Mod):
     def expended(self) -> bool:
         return False
 
+    @classmethod
+    def initialize_class(cls) -> None:
+        cls._equipped_image = images.get_image(images.SHOTGUN_MOD)
+        cls._backpack_image = images.get_image(images.SHOTGUN)
+        cls.class_initialized = True
 
-class ShotgunMod(AttackMod):
+    @property
+    def equipped_image(self) -> pg.Surface:
+        return self._equipped_image
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        return self._backpack_image
+
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        if not cls.class_initialized:
+            raise RuntimeError('Class %s must be initialized before '
+                               'instantiating an object.' % (cls,))
+
+
+class PistolMod(Mod):
+    _equipped_image = None
+    _backpack_image = None
+    class_initialized = False
+
     def __init__(self) -> None:
-        img = images.get_image(images.SHOTGUN_MOD)
-        item_type = ObjectType.SHOTGUN
-        super().__init__(item_type=item_type, image=img)
-
-
-class PistolMod(AttackMod):
-    def __init__(self) -> None:
-        img = images.get_image(images.PISTOL_MOD)
+        self._check_class_initialized()
         item_type = ObjectType.PISTOL
-        super().__init__(item_type=item_type, image=img)
+        loc = ModLocation.ARMS
+        super(PistolMod, self).__init__(item_type=item_type, loc=loc)
+
+    def use(self, player: Any) -> None:
+        player.set_weapon(self.item_type)
+
+    @property
+    def expended(self) -> bool:
+        return False
+
+    @classmethod
+    def initialize_class(cls) -> None:
+        cls._equipped_image = images.get_image(images.PISTOL_MOD)
+        cls._backpack_image = images.get_image(images.PISTOL)
+        cls.class_initialized = True
+
+    @property
+    def equipped_image(self) -> pg.Surface:
+        return self._equipped_image
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        return self._backpack_image
+
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        if not cls.class_initialized:
+            raise RuntimeError('Class %s must be initialized before '
+                               'instantiating an object.' % (cls,))
 
 
 class HealthPackMod(Mod):
+    _backpack_image = None
+    class_initialized = False
+
     def __init__(self) -> None:
+        self._check_class_initialized()
         loc = ModLocation.BACKPACK
-        img = images.get_image(images.HEALTH_PACK)
         item_type = ObjectType.HEALTHPACK
         self._expended = False
-        super().__init__(item_type=item_type, loc=loc, image=img)
+        super().__init__(item_type=item_type, loc=loc)
 
     def use(self, player: Any) -> None:
         if player.damaged:
@@ -98,9 +160,28 @@ class HealthPackMod(Mod):
             player.increment_health(HEALTH_PACK_AMOUNT)
             self._expended = True
 
+    @classmethod
+    def initialize_class(cls) -> None:
+        cls._backpack_image = images.get_image(images.HEALTH_PACK)
+        cls.class_initialized = True
+
     @property
     def expended(self) -> bool:
         return self._expended
+
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        if not cls.class_initialized:
+            raise RuntimeError('Class %s must be initialized before '
+                               'instantiating an object.' % (cls,))
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        return self._backpack_image
+
+    @property
+    def equipped_image(self) -> pg.Surface:
+        raise RuntimeError('Healthpack has no equipped image.')
 
 
 class ItemObject(DynamicObject):

@@ -1,3 +1,4 @@
+import mod
 from humanoid import Player, Mob
 import humanoid
 from pygame.sprite import spritecollide, groupcollide
@@ -77,6 +78,7 @@ class DungeonController(controller.Controller):
         Player.init_class()
         Mob.init_class(self._map_img)
         Bullet.initialize_class()
+        mod.initialize_classes()
 
     def init_controls(self) -> None:
 
