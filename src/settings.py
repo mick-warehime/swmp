@@ -50,18 +50,4 @@ MOB_LAYER = 2
 EFFECTS_LAYER = 4
 ITEMS_LAYER = 1
 
-# Sounds
-BG_MUSIC = 'espionage.ogg'
-PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
-ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
-                      'zombie-roar-2.wav', 'zombie-roar-3.wav',
-                      'zombie-roar-5.wav', 'zombie-roar-6.wav',
-                      'zombie-roar-7.wav']
-ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
-WEAPON_SOUNDS = {ItemType.pistol: ['pistol.wav'],
-                 ItemType.shotgun: ['shotgun.wav']}
-EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
-                  'health_up': 'health_pack.wav',
-                  'gun_pickup': 'gun_pickup.wav'}
-
 WEAPONS = [ItemType.pistol, ItemType.shotgun]
