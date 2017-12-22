@@ -68,7 +68,6 @@ def setUpModule() -> None:
     # command somehow initializes ShotgunMod too early there.
     _assert_runtime_exception_raised(ShotgunMod)
 
-
     ModelTest.groups.empty()
     ModelTest.timer.reset()
 
