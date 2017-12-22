@@ -5,7 +5,7 @@ import pygame
 
 import humanoid as hmn
 import images
-import mod
+import mods
 import model
 import sounds
 
@@ -54,4 +54,4 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     hmn.Player.init_class()
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
-    mod.initialize_classes()
+    mods.initialize_classes()

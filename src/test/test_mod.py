@@ -3,7 +3,7 @@ from typing import Callable
 import os
 from pygame.math import Vector2
 import model
-from mod import ShotgunMod, Mod, PistolObject
+from mods import ShotgunMod, Mod, PistolObject
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 

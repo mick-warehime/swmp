@@ -6,7 +6,7 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-from mod import ShotgunMod
+from mods import ShotgunMod
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from tilemap import ObjectType
 from weapon import Weapon, Bullet, MuzzleFlash

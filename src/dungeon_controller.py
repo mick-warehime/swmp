@@ -1,8 +1,8 @@
-import mod
+import mods
 from humanoid import Player, Mob
 import humanoid
 from pygame.sprite import spritecollide, groupcollide
-from mod import ItemObject
+from mods import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     collide_hit_rect_with_rect, DynamicObject
 from item_manager import ItemManager
@@ -78,7 +78,7 @@ class DungeonController(controller.Controller):
         Player.init_class()
         Mob.init_class(self._map_img)
         Bullet.initialize_class()
-        mod.initialize_classes()
+        mods.initialize_classes()
 
     def init_controls(self) -> None:
 

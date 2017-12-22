@@ -5,7 +5,7 @@ from pygame.sprite import Group
 from typing import Tuple
 import math
 import images
-import mod
+import mods
 from pygame.math import Vector2
 from typing import List, Dict
 import model as mdl
@@ -44,7 +44,7 @@ class Humanoid(mdl.DynamicObject):
         self.rot = 0
         self._max_health = max_health
         self._health = max_health
-        self.active_mods: Dict[mod.ModLocation, mod.Mod] = {}
+        self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
         self.backpack: List[mdl.Item] = []
         self.backpack_size = 8
@@ -90,7 +90,7 @@ class Humanoid(mdl.DynamicObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def equip(self, item_mod: mod.Mod) -> None:
+    def equip(self, item_mod: mods.Mod) -> None:
         assert item_mod.equipable
 
         self._move_mod_at_loc_to_backpack(item_mod.loc)
@@ -99,19 +99,19 @@ class Humanoid(mdl.DynamicObject):
         self.active_mods[item_mod.loc] = item_mod
         item_mod.use(self)
 
-    def expend(self, item_mod: mod.Mod) -> None:
+    def expend(self, item_mod: mods.Mod) -> None:
         assert item_mod.expendable
         assert item_mod in self.backpack
         item_mod.use(self)
         if item_mod.expended:
             self.backpack.remove(item_mod)
 
-    def _move_mod_at_loc_to_backpack(self, loc: mod.ModLocation) -> None:
+    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
             self.backpack.append(old_mod)
 
-    def attempt_pickup(self, item: mod.ItemObject) -> None:
+    def attempt_pickup(self, item: mods.ItemObject) -> None:
 
         if item.mod.equipable and item.mod.loc not in self.active_mods:
             self.equip(item.mod)

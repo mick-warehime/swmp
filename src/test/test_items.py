@@ -3,7 +3,7 @@ import unittest
 import pygame
 import weapon
 import humanoid as hmn
-import mod
+import mods
 import model
 from item_manager import ItemManager
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -28,7 +28,7 @@ def _make_player() -> hmn.Player:
     return player
 
 
-def _make_item(label: str) -> mod.ItemObject:
+def _make_item(label: str) -> mods.ItemObject:
     pos = (0, 0)
     return ItemManager.item(pos, label)
 
@@ -100,7 +100,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(hp.mod, player.backpack)
 
         # health pack fills health back up and is gone from backpack
-        player.increment_health(-mod.HEALTH_PACK_AMOUNT)
+        player.increment_health(-mods.HEALTH_PACK_AMOUNT)
         self.assertTrue(player.damaged)
         player.expend(hp.mod)
         self.assertTrue(hp.mod.expended)
@@ -127,7 +127,7 @@ class ModTest(unittest.TestCase):
         self.assertTrue(shotgun.mod.equipable)
         # nothing installed at arms location -> install shotgun
         self.assertEqual(len(player.backpack), 0)
-        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
         self.assertEqual(player._weapon._item_type, ObjectType.SHOTGUN)
 
@@ -136,14 +136,14 @@ class ModTest(unittest.TestCase):
 
         player.attempt_pickup(pistol)
         self.assertEqual(len(player.backpack), 1)
-        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, shotgun.mod)
         self.assertIn(pistol.mod, player.backpack)
 
         # make sure we can swap the pistol with the shotgun
         player.equip(pistol.mod)
         self.assertEqual(len(player.backpack), 1)
-        arm_mod = player.active_mods[mod.ModLocation.ARMS]
+        arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, player.backpack)
 
