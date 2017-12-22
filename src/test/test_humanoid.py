@@ -6,7 +6,6 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoid as hmn
-from settings import ItemType
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from weapon import Weapon, Bullet, MuzzleFlash
 from itertools import product

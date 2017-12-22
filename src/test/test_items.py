@@ -129,7 +129,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mod.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
-        self.assertEqual(player._weapon._item_type, weapon.ItemType.shotgun)
+        self.assertEqual(player._weapon._item_type, ObjectType.SHOTGUN)
 
         # adding a second arm mod goes into the backpack
         pistol = _make_item(ObjectType.PISTOL)
