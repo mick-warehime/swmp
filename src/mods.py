@@ -4,13 +4,8 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from typing import Any
-import sounds
 from abilities import Ability, FireShotgun, FirePistol, Heal
 from model import DynamicObject
-
-# Items
-from tilemap import ObjectType
 
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
