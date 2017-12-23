@@ -16,6 +16,7 @@ import view
 import settings
 import sounds
 import controller
+import conflict
 
 
 class DungeonController(controller.Controller):
@@ -30,8 +31,6 @@ class DungeonController(controller.Controller):
         self._clock = pg.time.Clock()
         self.dt = 0
 
-        self._playing = True
-
         self.init_map(map_file)
 
         self._camera = tilemap.Camera(self._map.width, self._map.height)
@@ -40,6 +39,8 @@ class DungeonController(controller.Controller):
         self._view.set_groups(self._groups)
 
         self.init_controls()
+
+        self._conflict = conflict.Conflict(self._groups.conflicts)
 
     def init_map(self, map_file: str) -> None:
 
@@ -63,13 +64,23 @@ class DungeonController(controller.Controller):
         for tile_object in self._map.tmxdata.objects:
             obj_center = Vector2(tile_object.x + tile_object.width / 2,
                                  tile_object.y + tile_object.height / 2)
+
+            is_quest_object = self.is_quest_object(tile_object.type)
+
             if tile_object.name == tilemap.ObjectType.ZOMBIE:
-                Mob(obj_center, self.player)
+                Mob(obj_center, self.player, quest=is_quest_object)
             if tile_object.name == tilemap.ObjectType.WALL:
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
             if tile_object.name in tilemap.ITEMS:
                 ItemManager.item(obj_center, tile_object.name)
+
+    @staticmethod
+    def is_quest_object(object_type: str) -> bool:
+        if not object_type:
+            return False
+        quest_type = tilemap.ObjectType.QUEST
+        return tilemap.ObjectType(object_type) == quest_type
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
@@ -124,10 +135,6 @@ class DungeonController(controller.Controller):
         self._groups.all_sprites.update()
         self._camera.update(self.player)
 
-        # game over?
-        if not self._groups.mobs:
-            self._playing = False
-
         # player hits items
         items: List[ItemObject] = spritecollide(self.player,
                                                 self._groups.items, False)
@@ -160,12 +167,15 @@ class DungeonController(controller.Controller):
 
         self.set_previous_input()
 
+        # update the conflict to see if the scene has been resolved
+        self._conflict.update()
+
     def get_fps(self) -> float:
         return self._clock.get_fps()
 
     # the owning object needs to know this
     def dungeon_over(self) -> bool:
-        return not self._playing
+        return self._conflict.is_resolved()
 
     def try_handle_hud(self) -> bool:
         pos = self.get_clicked_pos()

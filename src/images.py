@@ -6,6 +6,7 @@ import random
 PLAYER_IMG = 'manBlue_gun.png'
 BULLET_IMG = 'bullet.png'
 MOB_IMG = 'zombie1_hold.png'
+QMOB_IMG = 'zombie_red.png'
 SPLAT = 'splat green.png'
 MUZZLE_FLASH1 = 'whitePuff15.png'
 MUZZLE_FLASH2 = 'whitePuff16.png'
@@ -21,7 +22,7 @@ PISTOL_MOD = 'mod_pistol.png'
 ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
               MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
               MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, SHOTGUN,
-              SHOTGUN_MOD, PISTOL, PISTOL_MOD]
+              SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG]
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'

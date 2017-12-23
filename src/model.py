@@ -8,14 +8,16 @@ from pygame.sprite import Group, LayeredUpdates
 import images
 
 _GroupsBase = namedtuple('_GroupsBase',
-                         ('walls', 'bullets', 'items', 'mobs', 'all_sprites'))
+                         ('walls', 'bullets',
+                          'items', 'mobs',
+                          'conflicts', 'all_sprites'))
 
 
 class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
     def __new__(cls) -> _GroupsBase:
-        args = [Group() for _ in range(4)]
+        args = [Group() for _ in range(5)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
@@ -26,6 +28,7 @@ class Groups(_GroupsBase):
         self.bullets.empty()
         self.all_sprites.empty()
         self.items.empty()
+        self.conflicts.empty()
 
 
 class Timer(object):

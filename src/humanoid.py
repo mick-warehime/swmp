@@ -246,16 +246,27 @@ class Mob(Humanoid):
     _splat = None
     _map_img = None
 
-    def __init__(self, pos: Vector2, player: Player) -> None:
+    def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
 
         self._check_class_initialized()
 
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
-        my_groups = [self._groups.all_sprites, self._groups.mobs]
+
+        if quest:
+            my_groups = [self._groups.all_sprites, self._groups.mobs,
+                         self._groups.conflicts]
+        else:
+            my_groups = [self._groups.all_sprites, self._groups.mobs]
+
         pg.sprite.Sprite.__init__(self, my_groups)
 
         self.speed = choice(MOB_SPEEDS)
         self.target = player
+
+        if quest:
+            self.base_image = images.get_image(images.QMOB_IMG)
+            self.speed *= 1.5
+
 
     @property
     def _mob_group(self) -> Group:

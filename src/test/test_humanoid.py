@@ -36,7 +36,7 @@ def _make_mob(player: Union[hmn.Player, None] = None,
         player = _make_player()
     if pos is None:
         pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player)
+    return hmn.Mob(pos, player, quest=False)
 
 
 def setUpModule() -> None:
