@@ -8,13 +8,12 @@ import sounds
 from humanoids import Humanoid
 
 from model import Timer
-from mods import HEALTH_PACK_AMOUNT
 from tilemap import ObjectType
 from weapons import BigBullet, LittleBullet, MuzzleFlash
 
 
 def initialize_classes(timer: Timer) -> None:
-    FireProjectile.initialize_class(timer)
+    CoolDownAbility.initialize_class(timer)
 
 
 class Ability(object):
@@ -142,12 +141,13 @@ class HealthReference(object):
 class Heal(CoolDownAbility):
     """A healing ability with a timed cooldown and finite use count."""
     _cool_down: Union[int, None] = 300
-    _heal_amount = HEALTH_PACK_AMOUNT
 
-    def __init__(self, humanoid: Humanoid, num_uses: int) -> None:
+    def __init__(self, humanoid: Humanoid, num_uses: int,
+                 heal_amount: int) -> None:
         super().__init__()
         self.uses_left = num_uses
         self._health_ref = HealthReference(humanoid)
+        self._heal_amount = heal_amount
 
     @property
     def can_use(self) -> bool:
