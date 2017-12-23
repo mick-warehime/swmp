@@ -199,17 +199,6 @@ class Player(Humanoid):
     def turn(self) -> None:
         self.rotate_towards_cursor()
 
-    def set_weapon(self, item_type: ObjectType) -> None:
-        self._weapon = weapons.Weapon(item_type, self._timer, self._groups)
-
-    def shoot(self) -> None:
-        if not self._weapon:
-            return
-
-        if self._weapon.can_shoot:
-            self._weapon.shoot(self.pos, self.rot)
-            self._vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
-
     def update(self) -> None:
         self.turn()
         delta_rot = int(self._rot_speed * self._timer.dt)
