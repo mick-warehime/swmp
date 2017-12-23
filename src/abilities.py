@@ -61,6 +61,7 @@ class CoolDownAbility(Ability):
 
 
 class FireProjectile(CoolDownAbility):
+    _kickback: Union[int, None] = None
     _spread: Union[int, None] = None
     _projectile_count: Union[None, int] = None
     _make_projectile: Union[None, Callable] = None
@@ -77,6 +78,8 @@ class FireProjectile(CoolDownAbility):
         for _ in range(self._projectile_count):
             spread = uniform(-self._spread, self._spread)
             self._make_projectile(origin, direction.rotate(spread))
+
+        humanoid._vel = Vector2(-self._kickback, 0).rotate(-rot)
         self._fire_effects(origin)
 
     def _fire_effects(self, origin: Vector2) -> None:
@@ -86,6 +89,7 @@ class FireProjectile(CoolDownAbility):
 
 
 class FirePistol(FireProjectile):
+    _kickback = 200
     _cool_down = 250
     _spread = 5
     _projectile_count = 1
@@ -97,6 +101,7 @@ class FirePistol(FireProjectile):
 
 
 class FireShotgun(FireProjectile):
+    _kickback = 300
     _cool_down = 900
     _spread = 20
     _projectile_count = 12
