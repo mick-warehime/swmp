@@ -2,7 +2,7 @@ import pygame as pg
 from random import uniform, randint
 from pygame.math import Vector2
 
-from model import Timer, Group, Groups, DynamicObject
+from model import Timer, Groups, DynamicObject
 import settings
 import sounds
 import images
@@ -73,7 +73,7 @@ class Weapon(object):
             spread = uniform(-spread, spread)
             make_bullet(origin, direction.rotate(spread))
         sounds.fire_weapon_sound(self._item_type)
-        MuzzleFlash(self._groups.all_sprites, origin)
+        MuzzleFlash(origin)
 
     @property
     def can_shoot(self) -> bool:
@@ -154,9 +154,10 @@ class LittleBullet(Bullet):
         return self.small_base_image
 
 
-class MuzzleFlash(pg.sprite.Sprite):
-    def __init__(self, all_sprites: Group, pos: Vector2) -> None:
-        pg.sprite.Sprite.__init__(self, all_sprites)
+class MuzzleFlash(DynamicObject):
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
         size = randint(20, 50)
 
         flash_img = images.get_muzzle_flash()
@@ -165,8 +166,12 @@ class MuzzleFlash(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.pos = pos
         self.rect.center = pos
-        self.spawn_time = pg.time.get_ticks()
+        self._spawn_time = self._timer.current_time
 
     def update(self) -> None:
-        if pg.time.get_ticks() - self.spawn_time > settings.FLASH_DURATION:
+        if self._fade_out():
             self.kill()
+
+    def _fade_out(self) -> bool:
+        time_elapsed = self._timer.current_time - self._spawn_time
+        return time_elapsed > settings.FLASH_DURATION
