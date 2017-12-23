@@ -265,8 +265,7 @@ class Mob(Humanoid):
 
         if quest:
             self.base_image = images.get_image(images.QMOB_IMG)
-            self.speed *= 1.5
-
+            self.speed *= 2
 
     @property
     def _mob_group(self) -> Group:
