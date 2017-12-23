@@ -34,7 +34,7 @@ class MockTimer(model.Timer):
         return self._time
 
     @current_time.setter
-    def set_current_time(self, new_time: int) -> None:
+    def current_time(self, new_time: int) -> None:
         self._time = new_time
 
     @property
