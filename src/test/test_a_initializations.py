@@ -7,10 +7,9 @@ from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoids as hmn
 from abilities import FirePistol, CoolDownAbility
-from mods import ShotgunMod, ModLocation
+from mods import ShotgunMod
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
-from tilemap import ObjectType
-from weapons import Bullet, MuzzleFlash
+from weapons import Bullet
 from itertools import product
 import math
 
@@ -64,7 +63,7 @@ def _initialization_tests() -> None:
 
     _assert_runtime_exception_raised(shoot)
     Bullet.initialize_class()
-    # I would call this in test_mod.py, but it looks like the coverage
+    # I would call this in test_mods.py, but it looks like the coverage
     # command somehow initializes ShotgunMod too early there.
     _assert_runtime_exception_raised(ShotgunMod)
     ModelTest.groups.empty()

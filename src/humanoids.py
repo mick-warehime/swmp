@@ -7,7 +7,7 @@ import math
 import images
 import mods
 from pygame.math import Vector2
-from typing import List, Dict
+from typing import Dict
 import model as mdl
 import settings
 import sounds
@@ -44,7 +44,7 @@ class Humanoid(mdl.DynamicObject):
         self._health = max_health
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
-        self.backpack: List[mdl.Item] = []
+        self.backpack: Dict[int, mdl.Item] = {}
         self.backpack_size = 8
 
     @property
@@ -90,8 +90,7 @@ class Humanoid(mdl.DynamicObject):
 
     def equip(self, item_mod: mods.Mod) -> None:
         self._move_mod_at_loc_to_backpack(item_mod.loc)
-        if item_mod in self.backpack:
-            self.backpack.remove(item_mod)
+        self.remove_from_backpack(item_mod)
         self.active_mods[item_mod.loc] = item_mod
 
     def ability_caller(self, loc: mods.ModLocation) -> Callable:
@@ -110,13 +109,30 @@ class Humanoid(mdl.DynamicObject):
         if item_mod.ability.can_use:
             item_mod.ability.use(self)
 
+    def remove_from_backpack(self, item_mod: mods.Mod) -> None:
+        for pocket in self.backpack:
+            if self.backpack[pocket] == item_mod:
+                del self.backpack[pocket]
+                break
+
+    def expend(self, item_mod: mods.Mod) -> None:
+        assert item_mod.expendable
+        assert item_mod in self.backpack.values()
+        item_mod.use(self)
         if item_mod.expended:
-            self.active_mods.pop(loc)
+            self.remove_from_backpack(item_mod)
+
+    def add_to_backpack(self, item_mod: mods.Mod) -> None:
+        for pocket in range(self.backpack_size):
+            if pocket not in self.backpack:
+                self.backpack[pocket] = item_mod
+                return
+        raise Exception('no room in backpack for %s', item_mod)
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
-            self.backpack.append(old_mod)
+            self.add_to_backpack(old_mod)
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
 
@@ -124,7 +140,7 @@ class Humanoid(mdl.DynamicObject):
             self.equip(item.mod)
             item.kill()
         elif not self.backpack_full:
-            self.backpack.append(item.mod)
+            self.add_to_backpack(item.mod)
             item.kill()
 
     @property
@@ -242,16 +258,26 @@ class Mob(Humanoid):
     _splat = None
     _map_img = None
 
-    def __init__(self, pos: Vector2, player: Player) -> None:
+    def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
 
         self._check_class_initialized()
 
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
-        my_groups = [self._groups.all_sprites, self._groups.mobs]
+
+        if quest:
+            my_groups = [self._groups.all_sprites, self._groups.mobs,
+                         self._groups.conflicts]
+        else:
+            my_groups = [self._groups.all_sprites, self._groups.mobs]
+
         pg.sprite.Sprite.__init__(self, my_groups)
 
         self.speed = choice(MOB_SPEEDS)
         self.target = player
+
+        if quest:
+            self.base_image = images.get_image(images.QMOB_IMG)
+            self.speed *= 2
 
     @property
     def _mob_group(self) -> Group:
