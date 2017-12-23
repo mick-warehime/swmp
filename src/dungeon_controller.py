@@ -202,8 +202,7 @@ class DungeonController(controller.Controller):
             if item_in_backpack.equipable:
                 self.player.equip(item_in_backpack)
             elif item_in_backpack.expendable:
-                    self.player.expend(item_in_backpack)
-
+                self.player.expend(item_in_backpack)
 
         if used_item:
             self._view.set_selected_item(view.NO_SELECTION)
