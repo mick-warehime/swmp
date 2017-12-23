@@ -5,11 +5,11 @@ from pygame.math import Vector2
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
-import humanoid as hmn
+import humanoids as hmn
 from mods import ShotgunMod
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
 from tilemap import ObjectType
-from weapon import Weapon, Bullet, MuzzleFlash
+from weapons import Weapon, Bullet, MuzzleFlash
 from itertools import product
 import math
 

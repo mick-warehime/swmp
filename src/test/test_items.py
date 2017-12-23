@@ -1,8 +1,8 @@
 import os
 import unittest
 import pygame
-import weapon
-import humanoid as hmn
+import weapons
+import humanoids as hmn
 import mods
 import model
 from item_manager import ItemManager

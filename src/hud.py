@@ -1,7 +1,7 @@
 from typing import List, Dict
 import settings
 import pygame as pg
-from humanoid import Player
+from humanoids import Player
 import images
 import mods
 from draw_utils import draw_text

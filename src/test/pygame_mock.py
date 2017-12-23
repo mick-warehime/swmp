@@ -3,7 +3,7 @@ from typing import List
 
 import pygame
 
-import humanoid as hmn
+import humanoids as hmn
 import images
 import mods
 import model

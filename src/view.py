@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import settings
 import pygame as pg
-from humanoid import Mob, Player
+from humanoids import Mob, Player
 from model import Groups
 from tilemap import Camera, TiledMap
 import images

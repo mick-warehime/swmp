@@ -1,6 +1,7 @@
 import pygame as pg
 from random import uniform, randint
 from pygame.math import Vector2
+
 from model import Timer, Group, Groups, DynamicObject
 import settings
 import sounds
