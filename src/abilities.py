@@ -153,8 +153,8 @@ class Heal(CoolDownAbility):
     @property
     def can_use(self) -> bool:
         can_use = super().can_use
-        can_use &= self._health_ref.damaged
-        can_use &= self.uses_left > 0
+        can_use = can_use and self._health_ref.damaged
+        can_use = can_use and self.uses_left > 0
         return can_use
 
     def use(self) -> None:
