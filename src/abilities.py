@@ -7,7 +7,6 @@ from pygame.math import Vector2
 import sounds
 from humanoids import Humanoid
 
-# from weapons import LittleBullet, BigBullet, MuzzleFlash
 from model import Timer
 from mods import HEALTH_PACK_AMOUNT
 from tilemap import ObjectType
