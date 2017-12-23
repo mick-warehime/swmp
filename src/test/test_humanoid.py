@@ -42,7 +42,7 @@ def setUpModule() -> None:
     _initialization_tests()
 
 
-def _initialization_tests():
+def _initialization_tests() -> None:
     # Normally I would be running unit tests, but it is not possible to check
     #  exceptions once the classes are initialized.
     _assert_runtime_exception_raised(_make_player)
@@ -59,7 +59,7 @@ def _initialization_tests():
     player = _make_player()
     fire_pistol = FirePistol()
 
-    def shoot():
+    def shoot() -> None:
         fire_pistol.use(player)
 
     _assert_runtime_exception_raised(shoot)

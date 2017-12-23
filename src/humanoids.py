@@ -12,8 +12,6 @@ import model as mdl
 import settings
 import sounds
 from model import collide_hit_rect_with_rect
-from tilemap import ObjectType
-import weapons
 
 # Player settings
 PLAYER_HEALTH = 100

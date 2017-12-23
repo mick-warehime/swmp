@@ -35,7 +35,7 @@ class ModTest(unittest.TestCase):
         self.groups.empty()
         self.timer.reset()
 
-    def test_fire_projectile_cannot_shoot_at_first(self):
+    def test_fire_projectile_cannot_shoot_at_first(self) -> None:
         fire_pistol = FirePistol()
 
         self.assertFalse(fire_pistol.can_use)
@@ -68,7 +68,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(num_flashes, 1)
         self.assertEqual(num_others, 1)
 
-    def test_fireprojectile_use_ignores_can_use(self):
+    def test_fireprojectile_use_ignores_can_use(self) -> None:
         player = _make_player()
         fire_pistol = FirePistol()
 
