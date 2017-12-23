@@ -7,6 +7,10 @@ import settings
 import images
 
 
+def initialize_classes() -> None:
+    Bullet.initialize_class()
+
+
 class Bullet(DynamicObject):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
