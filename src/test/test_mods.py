@@ -46,9 +46,6 @@ class ModTest(unittest.TestCase):
             mod_base.expended
 
         with self.assertRaises(NotImplementedError):
-            mod_base.use(None)
-
-        with self.assertRaises(NotImplementedError):
             mod_base.equipped_image
 
         with self.assertRaises(NotImplementedError):

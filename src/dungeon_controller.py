@@ -202,13 +202,10 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        used_item = False
-        if idx in self.player.backpack:
+        index_occupied = len(self.player.backpack) > idx
+        if index_occupied:
             item_in_backpack = self.player.backpack[idx]
             self.player.equip(item_in_backpack)
-            used_item = True
-
-        if used_item:
             self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:
