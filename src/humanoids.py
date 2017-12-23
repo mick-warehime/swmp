@@ -2,7 +2,7 @@ from itertools import chain
 from random import choice, random
 import pygame as pg
 from pygame.sprite import Group
-from typing import Tuple
+from typing import Tuple, Callable
 import math
 import images
 import mods
@@ -91,20 +91,29 @@ class Humanoid(mdl.DynamicObject):
         self._vel.y = 0
 
     def equip(self, item_mod: mods.Mod) -> None:
-        assert item_mod.equipable
-
         self._move_mod_at_loc_to_backpack(item_mod.loc)
         if item_mod in self.backpack:
             self.backpack.remove(item_mod)
         self.active_mods[item_mod.loc] = item_mod
-        item_mod.use(self)
 
-    def expend(self, item_mod: mods.Mod) -> None:
-        assert item_mod.expendable
-        assert item_mod in self.backpack
-        item_mod.use(self)
+    def ability_caller(self, loc: mods.ModLocation) -> Callable:
+        def called_ability() -> None:
+            return self._use_ability_at(loc)
+
+        return called_ability
+
+    def _use_ability_at(self, loc: mods.ModLocation) -> None:
+        if loc not in self.active_mods:
+            return
+        item_mod = self.active_mods[loc]
+        assert loc == item_mod.loc
+        assert not item_mod.expended
+
+        if item_mod.ability.can_use:
+            item_mod.ability.use(self)
+
         if item_mod.expended:
-            self.backpack.remove(item_mod)
+            self.active_mods.pop(loc)
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         old_mod = self.active_mods.pop(loc, None)
@@ -113,7 +122,7 @@ class Humanoid(mdl.DynamicObject):
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
 
-        if item.mod.equipable and item.mod.loc not in self.active_mods:
+        if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
         elif not self.backpack_full:

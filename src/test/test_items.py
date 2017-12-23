@@ -93,7 +93,7 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
 
         self.assertFalse(hp.mod.expended)
-        player.expend(hp.mod)
+        player._use_ability_at(hp.mod)
         self.assertFalse(hp.mod.expended)
 
         # health pack doesn't work if health is full
@@ -102,7 +102,7 @@ class ModTest(unittest.TestCase):
         # health pack fills health back up and is gone from backpack
         player.increment_health(-mods.HEALTH_PACK_AMOUNT)
         self.assertTrue(player.damaged)
-        player.expend(hp.mod)
+        player._use_ability_at(hp.mod)
         self.assertTrue(hp.mod.expended)
         self.assertNotIn(hp.mod, player.backpack)
         self.assertFalse(player.damaged)
@@ -112,7 +112,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(hp)
         player.increment_health(-1)
 
-        player.expend(hp.mod)
+        player._use_ability_at(hp.mod)
 
         # health pack doesn't fill you over max health
         self.assertEqual(player.health, player.max_health)

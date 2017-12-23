@@ -101,8 +101,11 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_DOWN, self.player.translate_down)
         self.bind(pg.K_s, self.player.translate_down)
 
-        self.bind(pg.K_SPACE, self.player.shoot)
-        self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
+        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
+        self.bind(pg.K_SPACE, arms_ability)
+        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
+
+        self.bind(pg.K_r, self.player.ability_caller(mods.ModLocation.CHEST))
 
         # equip / use
         self.bind_down(pg.K_e, self.use_item_in_backpack)
@@ -195,10 +198,7 @@ class DungeonController(controller.Controller):
         used_item = False
         try:
             item_in_backpack = self.player.backpack[idx]
-            if item_in_backpack.equipable:
-                self.player.equip(item_in_backpack)
-            elif item_in_backpack.expendable:
-                self.player.expend(item_in_backpack)
+            self.player.equip(item_in_backpack)
         except IndexError:
             pass
 

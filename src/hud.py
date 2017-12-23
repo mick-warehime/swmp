@@ -41,7 +41,7 @@ class HUD(object):
         rects: Dict[mods.ModLocation, pg.Rect] = {}
 
         i = 0
-        for loc in mods.EQUIP_LOCATIONS:
+        for loc in mods.ModLocation:
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
@@ -114,10 +114,11 @@ class HUD(object):
         for idx, loc in enumerate(player.active_mods):
             img = player.active_mods[loc].equipped_image
 
-            img = pg.transform.scale(img, (70, 70))
+            img = pg.transform.scale(img, (50, 50))
 
-            r = self.mod_rects[loc]
-            self._screen.blit(img, r)
+            img_rect = img.get_rect()
+            img_rect.center = self.mod_rects[loc].center
+            self._screen.blit(img, img_rect)
 
             title_font = images.get_font(images.ZOMBIE_FONT)
             draw_text(self._screen, str(idx + 1), title_font,
