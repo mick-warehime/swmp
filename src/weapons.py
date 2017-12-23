@@ -2,83 +2,9 @@ import pygame as pg
 from random import uniform, randint
 from pygame.math import Vector2
 
-from model import Timer, Groups, DynamicObject
+from model import DynamicObject
 import settings
-import sounds
 import images
-from typing import NamedTuple
-
-from tilemap import ObjectType, WEAPONS
-
-WProperties = NamedTuple('Weapon', [('rate', int),
-                                    ('kickback', int),
-                                    ('spread', float),
-                                    ('bullet_size', str),
-                                    ('bullet_count', int)])
-
-
-class Weapon(object):
-    """Generates bullets or other sources of damage."""
-
-    def __init__(self, item_type: ObjectType,
-                 timer: Timer, groups: Groups) -> None:
-        self._item_type = item_type
-        self._timer = timer
-        self._groups = groups
-        self._last_shot = timer.current_time
-        self._properties = self.set_properties()
-
-    def set_properties(self) -> WProperties:
-
-        assert self._item_type in WEAPONS
-        if self._item_type == ObjectType.PISTOL:
-            return WProperties(rate=250,
-                               kickback=200,
-                               spread=5,
-                               bullet_size='lg',
-                               bullet_count=1)
-
-        return WProperties(rate=900,
-                           kickback=300,
-                           spread=20,
-                           bullet_size='sm',
-                           bullet_count=12)
-
-    @property
-    def shoot_rate(self) -> int:
-        return self._properties.rate
-
-    @property
-    def kick_back(self) -> int:
-        return self._properties.kickback
-
-    @property
-    def bullet_count(self) -> int:
-        return self._properties.bullet_count
-
-    @property
-    def bullet_size(self) -> str:
-        return self._properties.bullet_size
-
-    def shoot(self, pos: Vector2, rot: Vector2) -> None:
-        self._last_shot = self._timer.current_time
-        direction = Vector2(1, 0).rotate(-rot)
-        barrel_offset = pg.math.Vector2(30, 10)
-        origin = pos + barrel_offset.rotate(-rot)
-
-        make_bullet = LittleBullet if self.bullet_size == 'sm' else BigBullet
-
-        spread = self._properties.spread
-        for _ in range(self.bullet_count):
-            spread = uniform(-spread, spread)
-            make_bullet(origin, direction.rotate(spread))
-        sounds.fire_weapon_sound(self._item_type)
-        MuzzleFlash(origin)
-
-    @property
-    def can_shoot(self) -> bool:
-        now = self._timer.current_time
-        return now - self._last_shot > self.shoot_rate
 
 
 class Bullet(DynamicObject):
