@@ -3,6 +3,7 @@ from typing import List
 
 import pygame
 
+import abilities
 import humanoids as hmn
 import images
 import mods
@@ -55,3 +56,4 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
     mods.initialize_classes()
+    abilities.initialize_classes(timer)
