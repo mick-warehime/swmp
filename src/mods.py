@@ -6,6 +6,7 @@ from pygame.math import Vector2
 import images
 from typing import Any
 import sounds
+from abilities import Ability, FireShotgun, FirePistol, Heal
 from model import DynamicObject
 
 # Items
@@ -54,6 +55,9 @@ class Mod(object):
     def expended(self) -> bool:
         raise NotImplementedError
 
+    def ability(self) -> Ability:
+        raise NotImplementedError
+
     def use(self, player: Any) -> None:
         raise NotImplementedError
 
@@ -80,9 +84,13 @@ class ShotgunMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
+        self._ability = FireShotgun()
 
     def use(self, player: Any) -> None:
         player.set_weapon(ObjectType.SHOTGUN)
+
+    def ability(self) -> Ability:
+        return self._ability
 
     @property
     def expended(self) -> bool:
@@ -111,9 +119,13 @@ class PistolMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
+        self._ability = FirePistol()
 
     def use(self, player: Any) -> None:
         player.set_weapon(ObjectType.PISTOL)
+
+    def ability(self) -> Ability:
+        return self._ability
 
     @property
     def expended(self) -> bool:
@@ -142,12 +154,16 @@ class HealthPackMod(Mod):
     def __init__(self) -> None:
         self._check_class_initialized()
         self._expended = False
+        self._ability = Heal(1, HEALTH_PACK_AMOUNT)
 
     def use(self, player: Any) -> None:
         if player.damaged:
             sounds.play(sounds.HEALTH_UP)
             player.increment_health(HEALTH_PACK_AMOUNT)
             self._expended = True
+
+    def ability(self) -> Ability:
+        return self._ability
 
     @classmethod
     def initialize_class(cls) -> None:

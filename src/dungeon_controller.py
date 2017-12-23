@@ -1,3 +1,4 @@
+import abilities
 import mods
 from humanoids import Player, Mob
 import humanoids
@@ -74,11 +75,13 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        DynamicObject.initialize_dynamic_objects(Timer(self))
+        timer = Timer(self)
+        DynamicObject.initialize_dynamic_objects(timer)
         Player.init_class()
         Mob.init_class(self._map_img)
         Bullet.initialize_class()
         mods.initialize_classes()
+        abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:
 
@@ -195,7 +198,7 @@ class DungeonController(controller.Controller):
             if item_in_backpack.equipable:
                 self.player.equip(item_in_backpack)
             elif item_in_backpack.expendable:
-                    self.player.expend(item_in_backpack)
+                self.player.expend(item_in_backpack)
         except IndexError:
             pass
 

@@ -5,7 +5,7 @@ from typing import Union, Callable
 from pygame.math import Vector2
 
 import sounds
-from humanoids import Humanoid
+from typing import Any
 
 from model import Timer
 from tilemap import ObjectType
@@ -20,7 +20,7 @@ class Ability(object):
     """Abstract base class for a generic Humanoid ability."""
     class_initialized = True
 
-    def use(self) -> None:
+    def use(self, humanoid: Any) -> None:
         raise NotImplementedError
 
     @property
@@ -46,31 +46,18 @@ class CoolDownAbility(Ability):
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
         cls._timer = timer
-        cls.class_initialized
+        cls.class_initialized = True
 
     @property
     def can_use(self) -> bool:
         now = self._timer.current_time
         return now - self._last_use > self._cool_down
 
-    def use(self) -> None:
+    def use(self, humanoid: Any) -> None:
         raise NotImplementedError
 
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
-
-
-class PositionReference(object):
-    def __init__(self, humanoid: Humanoid) -> None:
-        self._humanoid = humanoid
-
-    @property
-    def pos(self) -> Vector2:
-        return self._humanoid.pos
-
-    @property
-    def rot(self) -> Vector2:
-        return self._humanoid.rot
 
 
 class FireProjectile(CoolDownAbility):
@@ -78,14 +65,10 @@ class FireProjectile(CoolDownAbility):
     _projectile_count: Union[None, int] = None
     _make_projectile: Union[None, Callable] = None
 
-    def __init__(self, humanoid: Humanoid) -> None:
-        super().__init__()
-        self._pos_ref = PositionReference(humanoid)
-
-    def use(self) -> None:
+    def use(self, humanoid: Any) -> None:
         self._update_last_use()
-        pos = self._pos_ref.pos
-        rot = self._pos_ref.rot
+        pos = humanoid.pos
+        rot = humanoid.rot
 
         direction = Vector2(1, 0).rotate(-rot)
         barrel_offset = Vector2(30, 10)
@@ -102,7 +85,7 @@ class FireProjectile(CoolDownAbility):
         raise NotImplementedError
 
 
-class FireBigBullet(FireProjectile):
+class FirePistol(FireProjectile):
     _cool_down = 250
     _spread = 5
     _projectile_count = 1
@@ -113,7 +96,7 @@ class FireBigBullet(FireProjectile):
         MuzzleFlash(origin)
 
 
-class FireLittleBullet(FireProjectile):
+class FireShotgun(FireProjectile):
     _cool_down = 900
     _spread = 20
     _projectile_count = 12
@@ -124,40 +107,24 @@ class FireLittleBullet(FireProjectile):
         MuzzleFlash(origin)
 
 
-class HealthReference(object):
-    """Represents the health of a humanoid."""
-
-    def __init__(self, humanoid: Humanoid) -> None:
-        self._humanoid = humanoid
-
-    @property
-    def damaged(self) -> bool:
-        return self._humanoid.damaged
-
-    def increment_health(self, amount: int) -> None:
-        self._humanoid.increment_health(amount)
-
-
 class Heal(CoolDownAbility):
     """A healing ability with a timed cooldown and finite use count."""
     _cool_down: Union[int, None] = 300
 
-    def __init__(self, humanoid: Humanoid, num_uses: int,
-                 heal_amount: int) -> None:
+    def __init__(self, num_uses: int, heal_amount: int) -> None:
         super().__init__()
         self.uses_left = num_uses
-        self._health_ref = HealthReference(humanoid)
         self._heal_amount = heal_amount
 
     @property
     def can_use(self) -> bool:
         can_use = super().can_use
-        can_use = can_use and self._health_ref.damaged
         can_use = can_use and self.uses_left > 0
         return can_use
 
-    def use(self) -> None:
-        self._update_last_use()
-        self.uses_left -= 1
-        sounds.play(sounds.HEALTH_UP)
-        self._health_ref.increment_health(self._heal_amount)
+    def use(self, humanoid: Any) -> None:
+        if humanoid.damaged:
+            self._update_last_use()
+            self.uses_left -= 1
+            sounds.play(sounds.HEALTH_UP)
+            humanoid.increment_health(self._heal_amount)
