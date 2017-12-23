@@ -11,7 +11,7 @@ from humanoids import Humanoid
 from model import Timer
 from mods import HEALTH_PACK_AMOUNT
 from tilemap import ObjectType
-from weapons import BigBullet, LittleBullet
+from weapons import BigBullet, LittleBullet, MuzzleFlash
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -96,9 +96,9 @@ class FireProjectile(CoolDownAbility):
         for _ in range(self._projectile_count):
             spread = uniform(-self._spread, self._spread)
             self._make_projectile(origin, direction.rotate(spread))
-        self._fire_effects()
+        self._fire_effects(origin)
 
-    def _fire_effects(self) -> None:
+    def _fire_effects(self, origin: Vector2) -> None:
         """Other effects that happen when used, such as making a sound or a
         muzzle flash."""
         raise NotImplementedError
@@ -110,9 +110,9 @@ class FireBigBullet(FireProjectile):
     _projectile_count = 1
     _make_projectile = BigBullet
 
-    def _fire_effects(self) -> None:
+    def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.PISTOL)
-        # MuzzleFlash(self._groups.all_sprites, origin)
+        MuzzleFlash(origin)
 
 
 class FireLittleBullet(FireProjectile):
@@ -121,9 +121,9 @@ class FireLittleBullet(FireProjectile):
     _projectile_count = 12
     _make_projectile = LittleBullet
 
-    def _fire_effects(self) -> None:
+    def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.SHOTGUN)
-        # MuzzleFlash(self._groups.all_sprites, origin)
+        MuzzleFlash(origin)
 
 
 class HealthReference(object):
