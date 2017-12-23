@@ -6,11 +6,8 @@ import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoids as hmn
-from abilities import FirePistol, CoolDownAbility
-from mods import ShotgunMod
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
-from weapons import Bullet
 from itertools import product
 import math
 

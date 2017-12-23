@@ -86,7 +86,7 @@ class InitsTest(unittest.TestCase):
         self.groups.empty()
         self.timer.reset()
 
-    def test_pass(self):
+    def test_pass(self) -> None:
         pass
 
 
