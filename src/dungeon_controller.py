@@ -197,14 +197,13 @@ class DungeonController(controller.Controller):
             return
 
         used_item = False
-        try:
+        if idx in self.player.backpack:
             item_in_backpack = self.player.backpack[idx]
             if item_in_backpack.equipable:
                 self.player.equip(item_in_backpack)
             elif item_in_backpack.expendable:
                     self.player.expend(item_in_backpack)
-        except IndexError:
-            pass
+
 
         if used_item:
             self._view.set_selected_item(view.NO_SELECTION)
