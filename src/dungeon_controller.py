@@ -167,9 +167,6 @@ class DungeonController(controller.Controller):
 
         self.set_previous_input()
 
-        # update the conflict to see if the scene has been resolved
-        self._conflict.update()
-
     def get_fps(self) -> float:
         return self._clock.get_fps()
 

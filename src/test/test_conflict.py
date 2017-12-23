@@ -23,10 +23,8 @@ class ConflictTest(unittest.TestCase):
         # 99 kills
         for i in range(n_sprites-1):
             sprites[i].kill()
-            c.update()
             self.assertFalse(c.is_resolved())
 
         # verify killing the last mob resolves the conflict
         sprites[-1].kill()
-        c.update()
         self.assertTrue(c.is_resolved())

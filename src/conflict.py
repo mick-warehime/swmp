@@ -8,7 +8,4 @@ class Conflict(object):
         self.objects = conflict_objects
 
     def is_resolved(self) -> bool:
-        return self.size == 0
-
-    def update(self) -> None:
-        self.size = len(self.objects)
+        return len(self.objects) == 0
