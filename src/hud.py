@@ -122,7 +122,8 @@ class HUD(object):
 
             title_font = images.get_font(images.ZOMBIE_FONT)
             draw_text(self._screen, str(idx + 1), title_font,
-                      20, settings.WHITE, r.x + 10, r.y + 10, align="center")
+                      20, settings.WHITE, img_rect.x, img_rect.y,
+                      align="center")
 
     def draw_backpack(self, player: Player) -> None:
         for idx, rect in enumerate(self.backpack_rects):
