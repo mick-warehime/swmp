@@ -9,6 +9,7 @@ import images
 import mods
 import model
 import sounds
+import weapons
 
 
 class Key(object):
@@ -61,3 +62,4 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     hmn.Mob.init_class(blank_screen)
     mods.initialize_classes()
     abilities.initialize_classes(timer)
+    weapons.initialize_classes()
