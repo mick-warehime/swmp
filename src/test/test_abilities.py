@@ -18,7 +18,7 @@ pg = Pygame()
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(ModTest.groups, ModTest.timer)
+    initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
 
 
 def _make_player() -> hmn.Player:
@@ -27,7 +27,7 @@ def _make_player() -> hmn.Player:
     return player
 
 
-class ModTest(unittest.TestCase):
+class AbilitiesTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
 
