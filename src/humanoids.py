@@ -48,7 +48,6 @@ class Humanoid(mdl.DynamicObject):
         self._acc = Vector2(0, 0)
         self.rot = 0
 
-
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
         self.backpack: List[mods.Mod] = []
@@ -323,7 +322,7 @@ class Mob(Humanoid):
     def _target_close(target_dist: Vector2) -> bool:
         return target_dist.length_squared() < DETECT_RADIUS ** 2
 
-    def _health_bar_color(self):
+    def _health_bar_color(self) -> tuple:
         if self.health > 60:
             col = settings.GREEN
         elif self.health > 30:
