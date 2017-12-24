@@ -107,6 +107,9 @@ class Obstacle(GameObject):
         raise RuntimeError('Obstacle image is meant to be drawn in the '
                            'background.')
 
+    def update(self) -> None:
+        raise RuntimeError('Obstacle is not meant to be updated.')
+
 
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information.
