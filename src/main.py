@@ -29,7 +29,7 @@ class Game(object):
         self.paused = False
 
     def new(self) -> None:
-        level = "level1.tmx"
+        level = "goto.tmx"
 
         self.dungeon = dungeon.DungeonController(self.screen, level)
         self.dungeon.bind(pg.K_ESCAPE, self.quit)
