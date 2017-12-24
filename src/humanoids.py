@@ -37,7 +37,12 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
-        super().__init__(hit_rect, pos)
+        super().__init__(pos)
+
+        # Used in wall collisions
+        self.hit_rect = hit_rect.copy()
+        self.hit_rect.center = self.rect.center
+
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0

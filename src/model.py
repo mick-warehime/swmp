@@ -61,7 +61,7 @@ class GameObject(pg.sprite.Sprite):
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
 
-    def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
+    def __init__(self, pos: Vector2) -> None:
 
         self._check_class_initialized()
 
@@ -71,9 +71,7 @@ class GameObject(pg.sprite.Sprite):
         self.rect: pg.Rect = self.image.get_rect()
         self.rect.center = pos
 
-        # Used in wall collisions
-        self.hit_rect = hit_rect.copy()
-        self.hit_rect.center = self.rect.center
+
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -139,7 +137,7 @@ class Waypoint(DynamicObject):
 
         hit_rect = pg.Rect(pos.x, pos.y,
                            settings.TILESIZE, settings.TILESIZE)
-        super().__init__(hit_rect, pos)
+        super().__init__(pos)
         self.player = player
 
         waypoint_groups = [self._groups.all_sprites, self._groups.conflicts]
