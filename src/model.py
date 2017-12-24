@@ -6,6 +6,7 @@ from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 
 import images
+from settings import TILESIZE
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets',
@@ -47,7 +48,7 @@ class Timer(object):
 
 
 class GameObject(pg.sprite.Sprite):
-    """In-game object with a hit_rect and rect for collisions and an image.
+    """In-game object with a rect for collisions and an image.
 
     Added functionality derived from Sprite:
     Can be added/removed to Group objects --> add(*groups), remove(*groups).
@@ -55,20 +56,29 @@ class GameObject(pg.sprite.Sprite):
     update() method that is referenced when a group is updated.
     alive() : True iff sprite belongs to any group.
 
+    Instructions for subclassing GameObject:
+
+    In the __init__:
+      Make sure to call `self._check_class_initialized()'
+      Before calling super().__init__(pos), make sure that all attributes
+      necessary to access the image property are initialized.
+    Note:
+      By default, the rect attribute will be a copy of the image's original
+      rect.
+
+    GameObject.initialize_gameobjects() must be called before instantiating any
+    subclasses.
     """
-    base_image: Union[pg.Surface, None] = None
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
 
     def __init__(self, pos: Vector2) -> None:
-
         self._check_class_initialized()
 
-        self.image = self.base_image
-        self.pos = pos
+        self.pos = Vector2(pos.x, pos.y)
         # Used in sprite collisions
-        self.rect: pg.Rect = self.image.get_rect()
-        self.rect.center = pos
+        self.rect: pg.Rect = self.image.get_rect().copy()
+        self.rect.center = Vector2(pos.x, pos.y)
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -76,34 +86,40 @@ class GameObject(pg.sprite.Sprite):
                                'instantiating a GameObject.')
 
     @classmethod
-    def _init_base_image(cls, image_file: str) -> None:
-        if cls.base_image is None:
-            cls.base_image = images.get_image(image_file)
-
-    @classmethod
     def initialize_gameobjects(cls, groups: Groups) -> None:
         cls._groups = groups
         cls.gameobjects_initialized = True
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 class Obstacle(GameObject):
-    def __init__(self, pos: Vector2, w: int, h: int) -> None:
+    def __init__(self, top_left: Vector2, w: int, h: int) -> None:
         self._check_class_initialized()
         pg.sprite.Sprite.__init__(self, self._groups.walls)
 
-        self.rect = pg.Rect(pos.x, pos.y, w, h)
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
     @property
-    def x(self) -> int:
-        return self.rect.x
+    def image(self) -> pg.Surface:
+        raise RuntimeError('Obstacle image is meant to be drawn in the '
+                           'background.')
 
-    @property
-    def y(self) -> int:
-        return self.rect.y
+    def update(self) -> None:
+        raise RuntimeError('Obstacle is not meant to be updated.')
 
 
 class DynamicObject(GameObject):
-    """A time-changing GameObject with access to current time information."""
+    """A time-changing GameObject with access to current time information.
+
+    Instructions for subclassing:
+    Follow instructions for GameObject.
+
+    DynamicObject.initialize_dynamic_objects() must be called before
+    instantiating any subclasses.
+    """
     dynamic_initialized = False
     _timer: Union[Timer, None] = None
 
@@ -118,16 +134,18 @@ class DynamicObject(GameObject):
             raise RuntimeError('DynamicObject class must be initialized before'
                                ' instantiating a DynamicObject.')
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
 class Waypoint(DynamicObject):
-    def __init__(self, pos: Vector2, player: Any) -> None:
-        img = images.get_image(images.WAYPOINT_IMG)
-        base_image = pg.transform.scale(img, (50, 50))
-        self.base_image = base_image
+    _image = None
 
+    def __init__(self, pos: Vector2, player: Any) -> None:
         super().__init__(pos)
         self.player = player
 
@@ -137,3 +155,10 @@ class Waypoint(DynamicObject):
     def update(self) -> None:
         if self.rect.colliderect(self.player.rect):
             self.kill()
+
+    @property
+    def image(self) -> pg.Surface:
+        if Waypoint._image is None:
+            img = images.get_image(images.WAYPOINT_IMG)
+            Waypoint._image = pg.transform.scale(img, (TILESIZE, TILESIZE))
+        return self._image

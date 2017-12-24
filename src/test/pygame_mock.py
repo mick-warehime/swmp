@@ -57,9 +57,6 @@ def initialize_pygame() -> None:
 def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     model.GameObject.initialize_gameobjects(groups)
     model.DynamicObject.initialize_dynamic_objects(timer)
-    hmn.Player.init_class()
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
-    mods.initialize_classes()
     abilities.initialize_classes(timer)
-    weapons.initialize_classes()

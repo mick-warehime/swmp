@@ -214,14 +214,9 @@ class HumanoidsTest(unittest.TestCase):
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
         mob = _make_mob()
-        mob.draw_health()
-
         mob.increment_health(61 - mob._max_health)
-        mob.draw_health()
         mob.increment_health(31 - 61)
-        mob.draw_health()
         mob.increment_health(0 - 31)
-        mob.draw_health()
 
         self.assertIn(mob, groups.mobs)
 

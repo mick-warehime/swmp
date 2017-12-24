@@ -35,8 +35,9 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
+        self._health = max_health
+        self._max_health = max_health
         super().__init__(pos)
-
         # Used in wall collisions
         self.hit_rect: pg.Rect = hit_rect.copy()
         # For some reason, mypy cannot infer the type of hit_rect in the line
@@ -46,8 +47,7 @@ class Humanoid(mdl.DynamicObject):
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
-        self._max_health = max_health
-        self._health = max_health
+
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
         self.backpack: List[mods.Mod] = []
@@ -64,6 +64,10 @@ class Humanoid(mdl.DynamicObject):
     @property
     def damaged(self) -> bool:
         return self.health < self._max_health
+
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
 
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
@@ -87,7 +91,6 @@ class Humanoid(mdl.DynamicObject):
         self.rect.center = self.hit_rect.center  # type: ignore
 
     def _match_image_to_rot(self) -> None:
-        self.image = pg.transform.rotate(self.base_image, self.rot)
         self.rect = self.image.get_rect()
 
     def stop_x(self) -> None:
@@ -128,7 +131,6 @@ class Humanoid(mdl.DynamicObject):
             self.backpack.append(old_mod)
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
-
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
@@ -140,17 +142,11 @@ class Humanoid(mdl.DynamicObject):
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-
 
 class Player(Humanoid):
-    class_initialized = False
-
     def __init__(self, pos: Vector2) -> None:
-
         self._check_class_initialized()
-
+        self.rot = 0
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
@@ -168,12 +164,10 @@ class Player(Humanoid):
 
         self.step_forward()
 
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.class_initialized:
-            raise RuntimeError(
-                'Player class must be initialized before an object can be'
-                ' instantiated.')
+    @property
+    def image(self) -> pg.Surface:
+        base_image = images.get_image(images.PLAYER_IMG)
+        return pg.transform.rotate(base_image, self.rot)
 
     # translate_direction = slide in that direction
     def translate_up(self) -> None:
@@ -238,12 +232,6 @@ class Player(Humanoid):
 
         self.set_rotation(angle)
 
-    @classmethod
-    def init_class(cls) -> None:
-        if not cls.class_initialized:
-            cls._init_base_image(images.PLAYER_IMG)
-            cls.class_initialized = True
-
 
 class Mob(Humanoid):
     class_initialized = False
@@ -251,9 +239,8 @@ class Mob(Humanoid):
     _map_img = None
 
     def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
-
         self._check_class_initialized()
-
+        self.rot = 0
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
         if quest:
@@ -285,11 +272,21 @@ class Mob(Humanoid):
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
         if not cls.class_initialized:
-            cls._init_base_image(images.MOB_IMG)
             splat_img = images.get_image(images.SPLAT)
             cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
             cls.class_initialized = True
+
+    @property
+    def image(self) -> pg.Surface:
+        base_image = images.get_image(images.MOB_IMG)
+        image = pg.transform.rotate(base_image, self.rot)
+        if self.damaged:
+            col = self._health_bar_color()
+            width = int(self.rect.width * self.health / MOB_HEALTH)
+            health_bar = pg.Rect(0, 0, width, 7)
+            pg.draw.rect(image, col, health_bar)
+        return image
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:
@@ -325,28 +322,18 @@ class Mob(Humanoid):
     def _target_close(target_dist: Vector2) -> bool:
         return target_dist.length_squared() < DETECT_RADIUS ** 2
 
-    def draw_health(self) -> None:
+    def _health_bar_color(self) -> tuple:
         if self.health > 60:
             col = settings.GREEN
         elif self.health > 30:
             col = settings.YELLOW
         else:
             col = settings.RED
-        width = int(self.rect.width * self.health / MOB_HEALTH)
-        health_bar = pg.Rect(0, 0, width, 7)
-        if self.damaged:
-            pg.draw.rect(self.image, col, health_bar)
+        return col
 
 
 def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
                                    x_or_y: str) -> None:
-    """
-
-    :param hmn: A sprite object with a hit_rect
-    :param group:
-    :param x_or_y:
-    :return:
-    """
     assert x_or_y == 'x' or x_or_y == 'y'
     if x_or_y == 'x':
         hits = pg.sprite.spritecollide(hmn, group, False,

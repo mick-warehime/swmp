@@ -90,10 +90,7 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         timer = Timer(self)
         DynamicObject.initialize_dynamic_objects(timer)
-        Player.init_class()
         Mob.init_class(self._map_img)
-        Bullet.initialize_class()
-        mods.initialize_classes()
         abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:

@@ -20,15 +20,7 @@ class ModLocation(Enum):
     HEAD = 3
 
 
-def initialize_classes() -> None:
-    PistolMod.initialize_class()
-    ShotgunMod.initialize_class()
-    HealthPackMod.initialize_class()
-
-
 class Mod(object):
-    class_initialized = True
-
     @property
     def loc(self) -> ModLocation:
         raise NotImplementedError
@@ -49,21 +41,11 @@ class Mod(object):
     def backpack_image(self) -> pg.Surface:
         raise NotImplementedError
 
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
-
 
 class ShotgunMod(Mod):
     loc = ModLocation.ARMS
-    _equipped_image = None
-    _backpack_image = None
-    class_initialized = False
 
     def __init__(self) -> None:
-        self._check_class_initialized()
         self._ability = FireShotgun()
 
     @property
@@ -74,29 +56,19 @@ class ShotgunMod(Mod):
     def expended(self) -> bool:
         return False
 
-    @classmethod
-    def initialize_class(cls) -> None:
-        cls._equipped_image = images.get_image(images.SHOTGUN_MOD)
-        cls._backpack_image = images.get_image(images.SHOTGUN)
-        cls.class_initialized = True
-
     @property
     def equipped_image(self) -> pg.Surface:
-        return self._equipped_image
+        return images.get_image(images.SHOTGUN_MOD)
 
     @property
     def backpack_image(self) -> pg.Surface:
-        return self._backpack_image
+        return images.get_image(images.SHOTGUN)
 
 
 class PistolMod(Mod):
     loc = ModLocation.ARMS
-    _equipped_image = None
-    _backpack_image = None
-    class_initialized = False
 
     def __init__(self) -> None:
-        self._check_class_initialized()
         self._ability = FirePistol()
 
     @property
@@ -107,28 +79,19 @@ class PistolMod(Mod):
     def expended(self) -> bool:
         return False
 
-    @classmethod
-    def initialize_class(cls) -> None:
-        cls._equipped_image = images.get_image(images.PISTOL_MOD)
-        cls._backpack_image = images.get_image(images.PISTOL)
-        cls.class_initialized = True
-
     @property
     def equipped_image(self) -> pg.Surface:
-        return self._equipped_image
+        return images.get_image(images.PISTOL_MOD)
 
     @property
     def backpack_image(self) -> pg.Surface:
-        return self._backpack_image
+        return images.get_image(images.PISTOL)
 
 
 class HealthPackMod(Mod):
     loc = ModLocation.CHEST
-    _backpack_image = None
-    class_initialized = False
 
     def __init__(self) -> None:
-        self._check_class_initialized()
         self._expended = False
         self._ability = Heal(1, HEALTH_PACK_AMOUNT)
 
@@ -136,35 +99,29 @@ class HealthPackMod(Mod):
     def ability(self) -> Ability:
         return self._ability
 
-    @classmethod
-    def initialize_class(cls) -> None:
-        cls._backpack_image = images.get_image(images.HEALTH_PACK)
-        cls.class_initialized = True
-
     @property
     def expended(self) -> bool:
         return self._ability.uses_left <= 0
 
     @property
     def backpack_image(self) -> pg.Surface:
-        return self._backpack_image
+        return images.get_image(images.HEALTH_PACK)
 
     @property
     def equipped_image(self) -> pg.Surface:
-        return self._backpack_image
+        return images.get_image(images.HEALTH_PACK)
 
 
 class ItemObject(DynamicObject):
     """A bobbing in-game object that can be picked up."""
 
-    def __init__(self, mod: Mod, image: pg.Surface, pos: Vector2) -> None:
+    def __init__(self, mod: Mod, pos: Vector2) -> None:
         self._check_class_initialized()
         super().__init__(pos)
 
         my_groups = [self._groups.all_sprites, self._groups.items]
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.image = image
         self._mod = mod
         self._tween = tween.easeInOutSine
         self._step = 0.0
@@ -190,16 +147,21 @@ class ItemObject(DynamicObject):
             self._tween(self._step / self._bob_period) - 0.5)
         return offset
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
         mod = PistolMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.PISTOL)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.PISTOL)
 
 
 class ShotgunObject(ItemObject):
@@ -207,10 +169,11 @@ class ShotgunObject(ItemObject):
         self._check_class_initialized()
         mod = ShotgunMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.SHOTGUN)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.SHOTGUN)
 
 
 class HealthPackObject(ItemObject):
@@ -218,7 +181,8 @@ class HealthPackObject(ItemObject):
         self._check_class_initialized()
         mod = HealthPackMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.HEALTH_PACK)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.HEALTH_PACK)
