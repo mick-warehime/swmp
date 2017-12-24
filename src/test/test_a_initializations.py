@@ -38,6 +38,7 @@ def _make_mob(player: Union[hmn.Player, None] = None,
 
 def setUpModule() -> None:
     initialize_pygame()
+    _initialization_tests()
 
 
 def _initialization_tests() -> None:
@@ -52,16 +53,7 @@ def _initialization_tests() -> None:
     hmn.Mob.init_class(blank_screen)
     _assert_runtime_exception_raised(CoolDownAbility)
     CoolDownAbility.initialize_class(InitsTest.timer)
-    player = _make_player()
-    fire_pistol = FirePistol()
 
-    def shoot() -> None:
-        fire_pistol.use(player)
-
-    _assert_runtime_exception_raised(shoot)
-    # I would call this in test_mods.py, but it looks like the coverage
-    # command somehow initializes ShotgunMod too early there.
-    _assert_runtime_exception_raised(ShotgunMod)
     InitsTest.groups.empty()
     InitsTest.timer.reset()
 
@@ -72,7 +64,8 @@ def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
         tested_fun()
     except RuntimeError:
         exception_raised = True
-    assert exception_raised
+    assert exception_raised, 'Expected a RuntimeError to be raised for ' \
+                             'function call %s' % (tested_fun,)
 
 
 class InitsTest(unittest.TestCase):
@@ -85,8 +78,6 @@ class InitsTest(unittest.TestCase):
 
     def test_pass(self) -> None:
         pass
-
-
 
 
 if __name__ == '__main__':

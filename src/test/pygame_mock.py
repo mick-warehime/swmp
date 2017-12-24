@@ -59,5 +59,4 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     model.DynamicObject.initialize_dynamic_objects(timer)
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
-    mods.initialize_classes()
     abilities.initialize_classes(timer)
