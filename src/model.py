@@ -56,6 +56,18 @@ class GameObject(pg.sprite.Sprite):
     update() method that is referenced when a group is updated.
     alive() : True iff sprite belongs to any group.
 
+    Instructions for subclassing GameObject:
+
+    In the __init__:
+      Make sure to call `self._check_class_initialized()'
+      Before calling super().__init__(pos), make sure that all attributes
+      necessary to access the image property are initialized.
+    Note:
+      By default, the rect attribute will be a copy of the image's original
+      rect.
+
+    GameObject.initialize_gameobjects() must be called before instantiating any
+    subclasses.
     """
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
@@ -97,7 +109,14 @@ class Obstacle(GameObject):
 
 
 class DynamicObject(GameObject):
-    """A time-changing GameObject with access to current time information."""
+    """A time-changing GameObject with access to current time information.
+
+    Instructions for subclassing:
+    Follow instructions for GameObject.
+
+    DynamicObject.initialize_dynamic_objects() must be called before
+    instantiating any subclasses.
+    """
     dynamic_initialized = False
     _timer: Union[Timer, None] = None
 
