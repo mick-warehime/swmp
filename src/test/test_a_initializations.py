@@ -47,8 +47,6 @@ def _initialization_tests() -> None:
     model.GameObject.initialize_gameobjects(InitsTest.groups)
     _assert_runtime_exception_raised(_make_player)
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
-    _assert_runtime_exception_raised(_make_player)
-    hmn.Player.init_class()
     _assert_runtime_exception_raised(_make_mob)
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
@@ -61,7 +59,6 @@ def _initialization_tests() -> None:
         fire_pistol.use(player)
 
     _assert_runtime_exception_raised(shoot)
-    Bullet.initialize_class()
     # I would call this in test_mods.py, but it looks like the coverage
     # command somehow initializes ShotgunMod too early there.
     _assert_runtime_exception_raised(ShotgunMod)

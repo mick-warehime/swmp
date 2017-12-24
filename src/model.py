@@ -6,6 +6,7 @@ from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 
 import images
+from settings import TILESIZE
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets',
@@ -56,7 +57,6 @@ class GameObject(pg.sprite.Sprite):
     alive() : True iff sprite belongs to any group.
 
     """
-    # base_image: Union[pg.Surface, None] = None
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
 
@@ -73,11 +73,6 @@ class GameObject(pg.sprite.Sprite):
         if not self.gameobjects_initialized:
             raise RuntimeError('GameObject class must be initialized before '
                                'instantiating a GameObject.')
-
-    @classmethod
-    def _init_base_image(cls, image_file: str) -> None:
-        if cls.base_image is None:
-            cls.base_image = images.get_image(image_file)
 
     @classmethod
     def initialize_gameobjects(cls, groups: Groups) -> None:
@@ -112,7 +107,6 @@ class Obstacle(GameObject):
 
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information."""
-
     dynamic_initialized = False
     _timer: Union[Timer, None] = None
 
@@ -136,6 +130,8 @@ class DynamicObject(GameObject):
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
 class Waypoint(DynamicObject):
+    _image = None
+
     def __init__(self, pos: Vector2, player: Any) -> None:
         super().__init__(pos)
         self.player = player
@@ -149,4 +145,7 @@ class Waypoint(DynamicObject):
 
     @property
     def image(self) -> pg.Surface:
-        return images.get_image(images.WAYPOINT_IMG)
+        if Waypoint._image is None:
+            img = images.get_image(images.WAYPOINT_IMG)
+            Waypoint._image = pg.transform.scale(img, (TILESIZE,TILESIZE))
+        return self._image

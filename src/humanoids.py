@@ -36,7 +36,6 @@ class Humanoid(mdl.DynamicObject):
                  max_health: int) -> None:
         self._check_class_initialized()
         super().__init__(pos)
-
         # Used in wall collisions
         self.hit_rect: pg.Rect = hit_rect.copy()
         # For some reason, mypy cannot infer the type of hit_rect in the line
@@ -91,7 +90,6 @@ class Humanoid(mdl.DynamicObject):
         self.rect.center = self.hit_rect.center  # type: ignore
 
     def _match_image_to_rot(self) -> None:
-        self.image = pg.transform.rotate(self.base_image, self.rot)
         self.rect = self.image.get_rect()
 
     def stop_x(self) -> None:
@@ -132,7 +130,6 @@ class Humanoid(mdl.DynamicObject):
             self.backpack.append(old_mod)
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
-
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
@@ -146,12 +143,9 @@ class Humanoid(mdl.DynamicObject):
 
 
 class Player(Humanoid):
-    class_initialized = True
-
     def __init__(self, pos: Vector2) -> None:
-
         self._check_class_initialized()
-
+        self.rot = 0
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
@@ -171,14 +165,8 @@ class Player(Humanoid):
 
     @property
     def image(self) -> pg.Surface:
-        return images.get_image(images.PLAYER_IMG)
-
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.class_initialized:
-            raise RuntimeError(
-                'Player class must be initialized before an object can be'
-                ' instantiated.')
+        base_image = images.get_image(images.PLAYER_IMG)
+        return pg.transform.rotate(base_image, self.rot)
 
     # translate_direction = slide in that direction
     def translate_up(self) -> None:
@@ -243,12 +231,6 @@ class Player(Humanoid):
 
         self.set_rotation(angle)
 
-    @classmethod
-    def init_class(cls) -> None:
-        if not cls.class_initialized:
-            cls._init_base_image(images.PLAYER_IMG)
-            cls.class_initialized = True
-
 
 class Mob(Humanoid):
     class_initialized = False
@@ -258,7 +240,7 @@ class Mob(Humanoid):
     def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
 
         self._check_class_initialized()
-
+        self.rot = 0
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
         if quest:
@@ -297,7 +279,8 @@ class Mob(Humanoid):
 
     @property
     def image(self) -> pg.Surface:
-        return images.get_image(images.MOB_IMG)
+        base_image = images.get_image(images.MOB_IMG)
+        return pg.transform.rotate(base_image, self.rot)
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:

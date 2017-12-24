@@ -157,14 +157,13 @@ class HealthPackMod(Mod):
 class ItemObject(DynamicObject):
     """A bobbing in-game object that can be picked up."""
 
-    def __init__(self, mod: Mod, image: pg.Surface, pos: Vector2) -> None:
+    def __init__(self, mod: Mod, pos: Vector2) -> None:
         self._check_class_initialized()
         super().__init__(pos)
 
         my_groups = [self._groups.all_sprites, self._groups.items]
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.image = image
         self._mod = mod
         self._tween = tween.easeInOutSine
         self._step = 0.0
@@ -190,16 +189,21 @@ class ItemObject(DynamicObject):
             self._tween(self._step / self._bob_period) - 0.5)
         return offset
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
         mod = PistolMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.PISTOL)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.PISTOL)
 
 
 class ShotgunObject(ItemObject):
@@ -207,10 +211,11 @@ class ShotgunObject(ItemObject):
         self._check_class_initialized()
         mod = ShotgunMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.SHOTGUN)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.SHOTGUN)
 
 
 class HealthPackObject(ItemObject):
@@ -218,7 +223,8 @@ class HealthPackObject(ItemObject):
         self._check_class_initialized()
         mod = HealthPackMod()
 
-        if self.base_image is None:
-            self._init_base_image(images.HEALTH_PACK)
+        super().__init__(mod, pos)
 
-        super().__init__(mod, self.base_image, pos)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.HEALTH_PACK)
