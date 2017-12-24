@@ -2,7 +2,7 @@ from typing import List, Tuple
 import settings
 import pygame as pg
 from humanoids import Player
-from model import Groups, Obstacle
+from model import Groups
 from tilemap import Camera, TiledMap
 import images
 import mods
@@ -59,7 +59,7 @@ class DungeonView(object):
         # draw hud on top of everything
         self._hud.draw(player)
 
-    def _draw_debug_rects(self, camera):
+    def _draw_debug_rects(self, camera: Camera) -> None:
         for sprite in self._groups.all_sprites:
             if hasattr(sprite, 'hit_rect'):
                 rect = sprite.hit_rect
