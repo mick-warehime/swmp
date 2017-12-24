@@ -13,8 +13,6 @@ import settings
 import sounds
 
 # Player settings
-from model import GameObject
-
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280
 PLAYER_ROT_SPEED = 200
@@ -40,8 +38,10 @@ class Humanoid(mdl.DynamicObject):
         super().__init__(pos)
 
         # Used in wall collisions
-        self.hit_rect = hit_rect.copy()
-        self.hit_rect.center = self.rect.center
+        self.hit_rect: pg.Rect = hit_rect.copy()
+        # For some reason, mypy cannot infer the type of hit_rect in the line
+        #  below.
+        self.hit_rect.center = self.rect.center  # type: ignore
 
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
@@ -82,7 +82,9 @@ class Humanoid(mdl.DynamicObject):
         _collide_hit_rect_in_direction(self, self._walls, 'x')
         self.hit_rect.centery = self.pos.y
         _collide_hit_rect_in_direction(self, self._walls, 'y')
-        self.rect.center = self.hit_rect.center
+        # For some reason, mypy cannot infer the type of hit_rect in the line
+        #  below.
+        self.rect.center = self.hit_rect.center  # type: ignore
 
     def _match_image_to_rot(self) -> None:
         self.image = pg.transform.rotate(self.base_image, self.rot)

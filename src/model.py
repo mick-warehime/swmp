@@ -6,7 +6,6 @@ from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 
 import images
-import settings
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets',
@@ -69,9 +68,7 @@ class GameObject(pg.sprite.Sprite):
         self.pos = pos
         # Used in sprite collisions other than walls.
         self.rect: pg.Rect = self.image.get_rect()
-        self.rect.center = pos
-
-
+        self.rect.center = (pos.x, pos.y)
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -135,8 +132,6 @@ class Waypoint(DynamicObject):
         base_image = pg.transform.scale(img, (50, 50))
         self.base_image = base_image
 
-        hit_rect = pg.Rect(pos.x, pos.y,
-                           settings.TILESIZE, settings.TILESIZE)
         super().__init__(pos)
         self.player = player
 
