@@ -205,7 +205,7 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        if idx in self.player.backpack:
+        if idx + 1 >= len(self.player.backpack):
             item_in_backpack = self.player.backpack[idx]
             self.player.equip(item_in_backpack)
             self._view.set_selected_item(view.NO_SELECTION)
