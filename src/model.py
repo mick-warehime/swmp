@@ -68,7 +68,7 @@ class GameObject(pg.sprite.Sprite):
         self.pos = pos
         # Used in sprite collisions other than walls.
         self.rect: pg.Rect = self.image.get_rect()
-        self.rect.center = (pos.x, pos.y)
+        self.rect.center = pos
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
