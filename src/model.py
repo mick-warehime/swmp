@@ -62,6 +62,9 @@ class GameObject(pg.sprite.Sprite):
       Make sure to call `self._check_class_initialized()'
       Before calling super().__init__(pos), make sure that all attributes
       necessary to access the image property are initialized.
+
+    Implement the abstact property image.
+
     Note:
       By default, the rect attribute will be a copy of the image's original
       rect.
