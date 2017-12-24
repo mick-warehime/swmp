@@ -8,6 +8,7 @@ import images
 import mods
 
 from hud import HUD
+
 NO_SELECTION = -1
 
 
@@ -50,13 +51,13 @@ class DungeonView(object):
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self._screen.blit(sprite.image, camera.apply(sprite))
-            if self._draw_debug and hasattr(sprite, 'hit_rect'):
-                sprite_camera = camera.apply_rect(sprite.hit_rect)
+            if self._draw_debug:
+                if hasattr(sprite, 'hit_rect'):
+                    rect = sprite.hit_rect
+                else:
+                    rect = sprite.rect
+                sprite_camera = camera.apply_rect(rect)
                 pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
-        if self._draw_debug:
-            for wall in self._groups.walls:
-                wall_camera = camera.apply_rect(wall.rect)
-                pg.draw.rect(self._screen, settings.CYAN, wall_camera, 1)
 
         if self._night:
             self.render_fog(player, camera)

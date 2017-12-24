@@ -159,7 +159,7 @@ class ItemObject(DynamicObject):
 
     def __init__(self, mod: Mod, image: pg.Surface, pos: Vector2) -> None:
         self._check_class_initialized()
-        super().__init__(image.get_rect(), pos)
+        super().__init__(pos)
 
         my_groups = [self._groups.all_sprites, self._groups.items]
         pg.sprite.Sprite.__init__(self, my_groups)

@@ -4,7 +4,7 @@ from typing import Any, Union
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-import settings
+
 import images
 
 _GroupsBase = namedtuple('_GroupsBase',
@@ -60,19 +60,15 @@ class GameObject(pg.sprite.Sprite):
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
 
-    def __init__(self, hit_rect: pg.Rect, pos: Vector2) -> None:
+    def __init__(self, pos: Vector2) -> None:
 
         self._check_class_initialized()
 
         self.image = self.base_image
         self.pos = pos
-        # Used in sprite collisions other than walls.
+        # Used in sprite collisions
         self.rect: pg.Rect = self.image.get_rect()
         self.rect.center = pos
-
-        # Used in wall collisions
-        self.hit_rect = hit_rect.copy()
-        self.hit_rect.center = self.rect.center
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -105,10 +101,6 @@ class Obstacle(GameObject):
     def y(self) -> int:
         return self.rect.y
 
-    @property
-    def hit_rect(self) -> pg.Rect:
-        return self.rect
-
 
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information."""
@@ -127,13 +119,6 @@ class DynamicObject(GameObject):
                                ' instantiating a DynamicObject.')
 
 
-def collide_hit_rect_with_rect(game_obj: GameObject,
-                               sprite: pg.sprite.Sprite) -> bool:
-    """Collide the hit_rect of a GameObject with the rect of a Sprite.
-    """
-    return game_obj.hit_rect.colliderect(sprite.rect)
-
-
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
@@ -143,14 +128,12 @@ class Waypoint(DynamicObject):
         base_image = pg.transform.scale(img, (50, 50))
         self.base_image = base_image
 
-        hit_rect = pg.Rect(pos.x, pos.y,
-                           settings.TILESIZE, settings.TILESIZE)
-        super().__init__(hit_rect, pos)
+        super().__init__(pos)
         self.player = player
 
         waypoint_groups = [self._groups.all_sprites, self._groups.conflicts]
         pg.sprite.Sprite.__init__(self, waypoint_groups)
 
     def update(self) -> None:
-        if collide_hit_rect_with_rect(self, self.player):
+        if self.rect.colliderect(self.player.rect):
             self.kill()
