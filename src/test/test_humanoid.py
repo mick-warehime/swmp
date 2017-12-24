@@ -5,11 +5,9 @@ from pygame.math import Vector2
 import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
-import humanoid as hmn
-from mods import ShotgunMod
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
-from tilemap import ObjectType
-from weapon import Weapon, Bullet, MuzzleFlash
+import humanoids as hmn
+from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+    initialize_gameobjects
 from itertools import product
 import math
 
@@ -19,10 +17,6 @@ os.environ['SDL_VIDEODRIVER'] = 'dummy'
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 pg = Pygame()
-
-
-def _make_pistol() -> Weapon:
-    return Weapon(ObjectType.PISTOL, ModelTest.timer, ModelTest.groups)
 
 
 def _make_player() -> hmn.Player:
@@ -42,34 +36,7 @@ def _make_mob(player: Union[hmn.Player, None] = None,
 
 def setUpModule() -> None:
     initialize_pygame()
-
-    # Normally I would be running unit tests, but it is not possible to check
-    #  exceptions once the classes are initialized.
-    _assert_runtime_exception_raised(_make_player)
-    model.GameObject.initialize_gameobjects(ModelTest.groups)
-
-    _assert_runtime_exception_raised(_make_player)
-    model.DynamicObject.initialize_dynamic_objects(ModelTest.timer)
-
-    _assert_runtime_exception_raised(_make_player)
-    hmn.Player.init_class()
-
-    _assert_runtime_exception_raised(_make_mob)
-    blank_screen = pygame.Surface((800, 600))
-    hmn.Mob.init_class(blank_screen)
-
-    player = _make_player()
-    player.set_weapon(ObjectType.PISTOL)
-    ModelTest.timer._time += player._weapon.shoot_rate + 1
-    _assert_runtime_exception_raised(player.shoot)
-    Bullet.initialize_class()
-
-    # I would call this in test_mod.py, but it looks like the coverage
-    # command somehow initializes ShotgunMod too early there.
-    _assert_runtime_exception_raised(ShotgunMod)
-
-    ModelTest.groups.empty()
-    ModelTest.timer.reset()
+    initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
 
 
 def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
@@ -86,7 +53,7 @@ def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
     return math.sqrt(dist_squared)
 
 
-class ModelTest(unittest.TestCase):
+class HumanoidsTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
 
@@ -102,91 +69,6 @@ class ModelTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             groups.walls = Group()
-
-    def test_weapon_shoot_instantiates_bullet_and_flash(self) -> None:
-        groups = self.groups
-        weapon = _make_pistol()
-        pos = pygame.math.Vector2(0, 0)
-        rot = 0.0
-
-        self.assertEqual(len(groups.all_sprites), 0)
-        weapon.shoot(pos, rot)
-        # Check if a MuzzleFlash and Bullet sprite were created
-        sprites = groups.all_sprites
-        num_bullets = 0
-        num_flashes = 0
-        num_others = 0
-        for sp in sprites:
-            if isinstance(sp, Bullet):
-                num_bullets += 1
-            elif isinstance(sp, MuzzleFlash):
-                num_flashes += 1
-            else:
-                num_others += 1
-
-        self.assertEqual(num_bullets, 1)
-        self.assertEqual(num_flashes, 1)
-        self.assertEqual(num_others, 0)
-
-    def test_weapon_cannot_shoot_after_firing(self) -> None:
-        timer = self.timer
-        weapon = _make_pistol()
-        pos = pygame.math.Vector2(0, 0)
-        rot = 0.0
-
-        # Weapon is instantiated at the current time, so at first it cannot
-        # shoot. We must wait until timer.current_time> weapon.shoot_rate -
-        # weapon._last_shot
-        self.assertFalse(weapon.can_shoot)
-        timer._time += weapon.shoot_rate
-        self.assertFalse(weapon.can_shoot)
-        timer._time += 1
-        self.assertTrue(weapon.can_shoot)
-        weapon.shoot(pos, rot)
-        self.assertFalse(weapon.can_shoot)
-
-    def test_player_shoot_no_shot(self) -> None:
-        groups = self.groups
-        timer = self.timer
-        player = _make_player()
-        player.set_weapon(ObjectType.PISTOL)
-
-        self.assertEqual(len(groups.bullets), 0)
-        player.shoot()
-        self.assertEqual(len(groups.bullets), 0)
-        timer._time += player._weapon.shoot_rate + 1
-        player.shoot()
-        self.assertEqual(len(groups.bullets), 1)
-
-    def test_player_shoot_kickback(self) -> None:
-        timer = self.timer
-        player = _make_player()
-        player.set_weapon(ObjectType.PISTOL)
-
-        old_vel = (player._vel.x, player._vel.y)
-
-        timer._time += player._weapon.shoot_rate + 1
-        player.shoot()
-
-        new_vel = (player._vel.x, player._vel.y)
-        expected_vel = (-player._weapon.kick_back + old_vel[0], old_vel[1])
-        self.assertEqual(new_vel, expected_vel)
-
-    def test_player_set_weapon(self) -> None:
-        player = _make_player()
-        player.set_weapon(ObjectType.PISTOL)
-        self.assertEqual(player._weapon._item_type, ObjectType.PISTOL)
-        player.set_weapon(ObjectType.SHOTGUN)
-        self.assertEqual(player._weapon._item_type, ObjectType.SHOTGUN)
-
-    def test_player_shoot_no_weapon(self) -> None:
-        groups = self.groups
-        player = _make_player()
-
-        # No weapon equipped so no bullets come out.
-        self.assertEqual(len(groups.bullets), 0)
-        player.shoot()
-        self.assertEqual(len(groups.bullets), 0)
 
     def test_humanoid_increment_health(self) -> None:
         player = _make_player()

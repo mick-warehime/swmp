@@ -3,11 +3,13 @@ from typing import List
 
 import pygame
 
-import humanoid as hmn
+import abilities
+import humanoids as hmn
 import images
 import mods
 import model
 import sounds
+import weapons
 
 
 class Key(object):
@@ -32,6 +34,10 @@ class MockTimer(model.Timer):
     def current_time(self) -> int:
         return self._time
 
+    @current_time.setter
+    def current_time(self, new_time: int) -> None:
+        self._time = new_time
+
     @property
     def dt(self) -> float:
         return 0.1
@@ -55,3 +61,5 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
     mods.initialize_classes()
+    abilities.initialize_classes(timer)
+    weapons.initialize_classes()

@@ -1,6 +1,7 @@
+import abilities
 import mods
-from humanoid import Player, Mob
-import humanoid
+from humanoids import Player, Mob
+import humanoids
 from pygame.sprite import spritecollide, groupcollide
 from mods import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
@@ -8,7 +9,7 @@ from model import Obstacle, Groups, GameObject, Timer, \
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple
-from weapon import Bullet
+from weapons import Bullet
 from os import path
 from random import random
 import pygame as pg
@@ -85,11 +86,13 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        DynamicObject.initialize_dynamic_objects(Timer(self))
+        timer = Timer(self)
+        DynamicObject.initialize_dynamic_objects(timer)
         Player.init_class()
         Mob.init_class(self._map_img)
         Bullet.initialize_class()
         mods.initialize_classes()
+        abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:
 
@@ -109,8 +112,11 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_DOWN, self.player.translate_down)
         self.bind(pg.K_s, self.player.translate_down)
 
-        self.bind(pg.K_SPACE, self.player.shoot)
-        self.bind_mouse(controller.MOUSE_LEFT, self.player.shoot)
+        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
+        self.bind(pg.K_SPACE, arms_ability)
+        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
+
+        self.bind(pg.K_r, self.player.ability_caller(mods.ModLocation.CHEST))
 
         # equip / use
         self.bind_down(pg.K_e, self.use_item_in_backpack)
@@ -149,13 +155,13 @@ class DungeonController(controller.Controller):
         for zombie in mobs:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-humanoid.MOB_DAMAGE)
+                self.player.increment_health(-humanoids.MOB_DAMAGE)
             zombie.stop_x()
             zombie.stop_y()
             if self.player.health <= 0:
                 self._playing = False
         if mobs:
-            knock_back = pg.math.Vector2(humanoid.MOB_KNOCKBACK, 0)
+            knock_back = pg.math.Vector2(humanoids.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
         # bullets hit mobs
@@ -196,15 +202,10 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        used_item = False
-        if idx in self.player.backpack:
+        index_occupied = len(self.player.backpack) > idx
+        if index_occupied:
             item_in_backpack = self.player.backpack[idx]
-            if item_in_backpack.equipable:
-                self.player.equip(item_in_backpack)
-            elif item_in_backpack.expendable:
-                self.player.expend(item_in_backpack)
-
-        if used_item:
+            self.player.equip(item_in_backpack)
             self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:

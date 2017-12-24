@@ -4,12 +4,8 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from typing import Any
-import sounds
+from abilities import Ability, FireShotgun, FirePistol, Heal
 from model import DynamicObject
-
-# Items
-from tilemap import ObjectType
 
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
@@ -17,16 +13,11 @@ BOB_SPEED = 0.3
 
 
 class ModLocation(Enum):
-    __order__ = 'ARMS LEGS CHEST HEAD BACKPACK'
+    __order__ = 'ARMS LEGS CHEST HEAD'
     ARMS = 0
     LEGS = 1
     CHEST = 2
     HEAD = 3
-    BACKPACK = 4
-
-
-EQUIP_LOCATIONS = tuple(
-    [loc for loc in ModLocation if loc != ModLocation.BACKPACK])
 
 
 def initialize_classes() -> None:
@@ -39,14 +30,6 @@ class Mod(object):
     class_initialized = True
 
     @property
-    def equipable(self) -> bool:
-        return self.loc != ModLocation.BACKPACK
-
-    @property
-    def expendable(self) -> bool:
-        return not self.equipable
-
-    @property
     def loc(self) -> ModLocation:
         raise NotImplementedError
 
@@ -54,7 +37,8 @@ class Mod(object):
     def expended(self) -> bool:
         raise NotImplementedError
 
-    def use(self, player: Any) -> None:
+    @property
+    def ability(self) -> Ability:
         raise NotImplementedError
 
     @property
@@ -80,9 +64,11 @@ class ShotgunMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
+        self._ability = FireShotgun()
 
-    def use(self, player: Any) -> None:
-        player.set_weapon(ObjectType.SHOTGUN)
+    @property
+    def ability(self) -> Ability:
+        return self._ability
 
     @property
     def expended(self) -> bool:
@@ -111,9 +97,11 @@ class PistolMod(Mod):
 
     def __init__(self) -> None:
         self._check_class_initialized()
+        self._ability = FirePistol()
 
-    def use(self, player: Any) -> None:
-        player.set_weapon(ObjectType.PISTOL)
+    @property
+    def ability(self) -> Ability:
+        return self._ability
 
     @property
     def expended(self) -> bool:
@@ -135,19 +123,18 @@ class PistolMod(Mod):
 
 
 class HealthPackMod(Mod):
-    loc = ModLocation.BACKPACK
+    loc = ModLocation.CHEST
     _backpack_image = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
         self._expended = False
+        self._ability = Heal(1, HEALTH_PACK_AMOUNT)
 
-    def use(self, player: Any) -> None:
-        if player.damaged:
-            sounds.play(sounds.HEALTH_UP)
-            player.increment_health(HEALTH_PACK_AMOUNT)
-            self._expended = True
+    @property
+    def ability(self) -> Ability:
+        return self._ability
 
     @classmethod
     def initialize_class(cls) -> None:
@@ -156,7 +143,7 @@ class HealthPackMod(Mod):
 
     @property
     def expended(self) -> bool:
-        return self._expended
+        return self._ability.uses_left <= 0
 
     @property
     def backpack_image(self) -> pg.Surface:
@@ -164,7 +151,7 @@ class HealthPackMod(Mod):
 
     @property
     def equipped_image(self) -> pg.Surface:
-        raise RuntimeError('Healthpack has no equipped image.')
+        return self._backpack_image
 
 
 class ItemObject(DynamicObject):

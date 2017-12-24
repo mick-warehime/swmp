@@ -2,7 +2,7 @@ from itertools import chain
 from random import choice, random
 import pygame as pg
 from pygame.sprite import Group
-from typing import Tuple
+from typing import Tuple, Callable, List
 import math
 import images
 import mods
@@ -12,8 +12,6 @@ import model as mdl
 import settings
 import sounds
 from model import collide_hit_rect_with_rect
-from tilemap import ObjectType
-from weapon import Weapon
 
 # Player settings
 PLAYER_HEALTH = 100
@@ -46,7 +44,7 @@ class Humanoid(mdl.DynamicObject):
         self._health = max_health
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
-        self.backpack: Dict[int, mdl.Item] = {}
+        self.backpack: List[mods.Mod] = []
         self.backpack_size = 8
 
     @property
@@ -91,45 +89,43 @@ class Humanoid(mdl.DynamicObject):
         self._vel.y = 0
 
     def equip(self, item_mod: mods.Mod) -> None:
-        assert item_mod.equipable
-
+        if item_mod in self.backpack:
+            self.backpack.remove(item_mod)
         self._move_mod_at_loc_to_backpack(item_mod.loc)
-        self.remove_from_backpack(item_mod)
         self.active_mods[item_mod.loc] = item_mod
-        item_mod.use(self)
 
-    def remove_from_backpack(self, item_mod: mods.Mod) -> None:
-        for pocket in self.backpack:
-            if self.backpack[pocket] == item_mod:
-                del self.backpack[pocket]
-                break
+    def ability_caller(self, loc: mods.ModLocation) -> Callable:
+        def called_ability() -> None:
+            return self._use_ability_at(loc)
 
-    def expend(self, item_mod: mods.Mod) -> None:
-        assert item_mod.expendable
-        assert item_mod in self.backpack.values()
-        item_mod.use(self)
+        return called_ability
+
+    def _use_ability_at(self, loc: mods.ModLocation) -> None:
+        if loc not in self.active_mods:
+            return
+        item_mod = self.active_mods[loc]
+        assert loc == item_mod.loc
+        assert not item_mod.expended
+
+        if item_mod.ability.can_use:
+            item_mod.ability.use(self)
+
         if item_mod.expended:
-            self.remove_from_backpack(item_mod)
-
-    def add_to_backpack(self, item_mod: mods.Mod) -> None:
-        for pocket in range(self.backpack_size):
-            if pocket not in self.backpack:
-                self.backpack[pocket] = item_mod
-                return
-        raise Exception('no room in backpack for %s', item_mod)
+            self.active_mods.pop(item_mod.loc)
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
+        assert not self.backpack_full
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
-            self.add_to_backpack(old_mod)
+            self.backpack.append(old_mod)
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
 
-        if item.mod.equipable and item.mod.loc not in self.active_mods:
+        if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
         elif not self.backpack_full:
-            self.add_to_backpack(item.mod)
+            self.backpack.append(item.mod)
             item.kill()
 
     @property
@@ -151,7 +147,6 @@ class Player(Humanoid):
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
         self.max_health = PLAYER_HEALTH
-        self._weapon = None
         self._damage_alpha = chain(DAMAGE_ALPHA * 4)
         self._rot_speed = 0
         self._mouse_pos = (0, 0)
@@ -201,17 +196,6 @@ class Player(Humanoid):
 
     def turn(self) -> None:
         self.rotate_towards_cursor()
-
-    def set_weapon(self, item_type: ObjectType) -> None:
-        self._weapon = Weapon(item_type, self._timer, self._groups)
-
-    def shoot(self) -> None:
-        if not self._weapon:
-            return
-
-        if self._weapon.can_shoot:
-            self._weapon.shoot(self.pos, self.rot)
-            self._vel = Vector2(-self._weapon.kick_back, 0).rotate(-self.rot)
 
     def update(self) -> None:
         self.turn()

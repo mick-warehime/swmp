@@ -1,7 +1,7 @@
 from typing import List, Dict
 import settings
 import pygame as pg
-from humanoid import Player
+from humanoids import Player
 import images
 import mods
 from draw_utils import draw_text
@@ -41,7 +41,7 @@ class HUD(object):
         rects: Dict[mods.ModLocation, pg.Rect] = {}
 
         i = 0
-        for loc in mods.EQUIP_LOCATIONS:
+        for loc in mods.ModLocation:
             x_i = x + i * (mod_size + 3)
             fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
             rects[loc] = fill_rect
@@ -114,14 +114,16 @@ class HUD(object):
         for idx, loc in enumerate(player.active_mods):
             img = player.active_mods[loc].equipped_image
 
-            img = pg.transform.scale(img, (70, 70))
+            img = pg.transform.scale(img, (50, 50))
 
-            r = self.mod_rects[loc]
-            self._screen.blit(img, r)
+            img_rect = img.get_rect()
+            img_rect.center = self.mod_rects[loc].center
+            self._screen.blit(img, img_rect)
 
             title_font = images.get_font(images.ZOMBIE_FONT)
             draw_text(self._screen, str(idx + 1), title_font,
-                      20, settings.WHITE, r.x + 10, r.y + 10, align="center")
+                      20, settings.WHITE, img_rect.x, img_rect.y,
+                      align="center")
 
     def draw_backpack(self, player: Player) -> None:
         for idx, rect in enumerate(self.backpack_rects):
@@ -130,8 +132,7 @@ class HUD(object):
                 color = settings.RED
             pg.draw.rect(self._screen, color, rect, 2)
 
-        for idx in player.backpack:
-            item_mod = player.backpack[idx]
+        for idx, item_mod in enumerate(player.backpack):
             rect = self.backpack_rects[idx]
             img = item_mod.backpack_image
             img_rect = img.get_rect()
