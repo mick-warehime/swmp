@@ -25,7 +25,6 @@ class Bullet(DynamicObject):
         groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
         self.rect = self.image.get_rect()
-        self.hit_rect = self.rect
         self.pos = Vector2(pos)
         self.rect.center = pos
 
