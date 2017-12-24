@@ -385,6 +385,5 @@ def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
 
 def collide_hit_rect_with_rect(humanoid: Humanoid,
                                sprite: pg.sprite.Sprite) -> bool:
-    """Collide the hit_rect of a GameObject with the rect of a Sprite.
-    """
+    """Collide the hit_rect of a Humanoid with the rect of a Sprite. """
     return humanoid.hit_rect.colliderect(sprite.rect)
