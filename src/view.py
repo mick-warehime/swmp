@@ -2,7 +2,7 @@ from typing import List, Tuple
 import settings
 import pygame as pg
 from humanoids import Player
-from model import Groups
+from model import Groups, Obstacle
 from tilemap import Camera, TiledMap
 import images
 import mods
@@ -49,19 +49,28 @@ class DungeonView(object):
 
         for sprite in self._groups.all_sprites:
             self._screen.blit(sprite.image, camera.apply(sprite))
-            if self._draw_debug:
-                if hasattr(sprite, 'hit_rect'):
-                    rect = sprite.hit_rect
-                else:
-                    rect = sprite.rect
-                sprite_camera = camera.apply_rect(rect)
-                pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
+
+        if self._draw_debug:
+            self._draw_debug_rects(camera)
 
         if self._night:
             self.render_fog(player, camera)
 
         # draw hud on top of everything
         self._hud.draw(player)
+
+    def _draw_debug_rects(self, camera):
+        for sprite in self._groups.all_sprites:
+            if hasattr(sprite, 'hit_rect'):
+                rect = sprite.hit_rect
+            else:
+                rect = sprite.rect
+            sprite_camera = camera.apply_rect(rect)
+            pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
+        for obstacle in self._groups.walls:
+            assert obstacle not in self._groups.all_sprites
+            sprite_camera = camera.apply_rect(obstacle.rect)
+            pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
 
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image

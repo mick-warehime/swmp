@@ -84,19 +84,11 @@ class GameObject(pg.sprite.Sprite):
 
 
 class Obstacle(GameObject):
-    def __init__(self, pos: Vector2, w: int, h: int) -> None:
+    def __init__(self, top_left: Vector2, w: int, h: int) -> None:
         self._check_class_initialized()
         pg.sprite.Sprite.__init__(self, self._groups.walls)
 
-        self.rect = pg.Rect(pos.x, pos.y, w, h)
-
-    @property
-    def x(self) -> int:
-        return self.rect.x
-
-    @property
-    def y(self) -> int:
-        return self.rect.y
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
     @property
     def image(self) -> pg.Surface:
