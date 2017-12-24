@@ -101,10 +101,6 @@ class Obstacle(GameObject):
     def y(self) -> int:
         return self.rect.y
 
-    @property
-    def hit_rect(self) -> pg.Rect:
-        return self.rect
-
 
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information."""
