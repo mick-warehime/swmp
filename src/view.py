@@ -48,8 +48,6 @@ class DungeonView(object):
         self._screen.blit(map_img, camera.apply(map))
 
         for sprite in self._groups.all_sprites:
-            if isinstance(sprite, Mob):
-                sprite.draw_health()
             self._screen.blit(sprite.image, camera.apply(sprite))
             if self._draw_debug:
                 if hasattr(sprite, 'hit_rect'):

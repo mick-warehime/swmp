@@ -35,6 +35,8 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
+        self._health = max_health
+        self._max_health = max_health
         super().__init__(pos)
         # Used in wall collisions
         self.hit_rect: pg.Rect = hit_rect.copy()
@@ -45,8 +47,8 @@ class Humanoid(mdl.DynamicObject):
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
         self.rot = 0
-        self._max_health = max_health
-        self._health = max_health
+
+
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
         self.backpack: List[mods.Mod] = []
@@ -279,7 +281,13 @@ class Mob(Humanoid):
     @property
     def image(self) -> pg.Surface:
         base_image = images.get_image(images.MOB_IMG)
-        return pg.transform.rotate(base_image, self.rot)
+        image = pg.transform.rotate(base_image, self.rot)
+        if self.damaged:
+            col = self._health_bar_color()
+            width = int(self.rect.width * self.health / MOB_HEALTH)
+            health_bar = pg.Rect(0, 0, width, 7)
+            pg.draw.rect(image, col, health_bar)
+        return image
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:
@@ -315,17 +323,14 @@ class Mob(Humanoid):
     def _target_close(target_dist: Vector2) -> bool:
         return target_dist.length_squared() < DETECT_RADIUS ** 2
 
-    def draw_health(self) -> None:
+    def _health_bar_color(self):
         if self.health > 60:
             col = settings.GREEN
         elif self.health > 30:
             col = settings.YELLOW
         else:
             col = settings.RED
-        width = int(self.rect.width * self.health / MOB_HEALTH)
-        health_bar = pg.Rect(0, 0, width, 7)
-        if self.damaged:
-            pg.draw.rect(self.image, col, health_bar)
+        return col
 
 
 def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
