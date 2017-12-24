@@ -4,8 +4,9 @@ from typing import Any, Union
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-import settings
+
 import images
+import settings
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets',
@@ -127,13 +128,6 @@ class DynamicObject(GameObject):
                                ' instantiating a DynamicObject.')
 
 
-def collide_hit_rect_with_rect(game_obj: GameObject,
-                               sprite: pg.sprite.Sprite) -> bool:
-    """Collide the hit_rect of a GameObject with the rect of a Sprite.
-    """
-    return game_obj.hit_rect.colliderect(sprite.rect)
-
-
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
@@ -152,5 +146,5 @@ class Waypoint(DynamicObject):
         pg.sprite.Sprite.__init__(self, waypoint_groups)
 
     def update(self) -> None:
-        if collide_hit_rect_with_rect(self, self.player):
+        if self.rect.colliderect(self.player.rect):
             self.kill()

@@ -1,11 +1,11 @@
 import abilities
 import mods
-from humanoids import Player, Mob
+from humanoids import Player, Mob, collide_hit_rect_with_rect
 import humanoids
 from pygame.sprite import spritecollide, groupcollide
 from mods import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
-    collide_hit_rect_with_rect, DynamicObject, Waypoint
+    DynamicObject, Waypoint
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple

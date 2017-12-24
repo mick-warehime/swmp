@@ -11,9 +11,10 @@ from typing import Dict
 import model as mdl
 import settings
 import sounds
-from model import collide_hit_rect_with_rect
 
 # Player settings
+from model import GameObject
+
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280
 PLAYER_ROT_SPEED = 200
@@ -373,3 +374,10 @@ def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
                 hmn.pos.y = hits[0].rect.bottom + hmn.hit_rect.height / 2
             hmn.stop_y()
             hmn.hit_rect.centery = hmn.pos.y
+
+
+def collide_hit_rect_with_rect(humanoid: Humanoid,
+                               sprite: pg.sprite.Sprite) -> bool:
+    """Collide the hit_rect of a GameObject with the rect of a Sprite.
+    """
+    return humanoid.hit_rect.colliderect(sprite.rect)
