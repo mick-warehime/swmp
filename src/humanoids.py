@@ -65,6 +65,10 @@ class Humanoid(mdl.DynamicObject):
     def damaged(self) -> bool:
         return self.health < self._max_health
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
         new_health = min(new_health, self._max_health)
@@ -153,12 +157,9 @@ class Humanoid(mdl.DynamicObject):
     def backpack_full(self) -> bool:
         return len(self.backpack) >= self.backpack_size
 
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-
 
 class Player(Humanoid):
-    class_initialized = False
+    class_initialized = True
 
     def __init__(self, pos: Vector2) -> None:
 
@@ -180,6 +181,10 @@ class Player(Humanoid):
             return
 
         self.step_forward()
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.PLAYER_IMG)
 
     def _check_class_initialized(self) -> None:
         super()._check_class_initialized()
@@ -298,11 +303,14 @@ class Mob(Humanoid):
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
         if not cls.class_initialized:
-            cls._init_base_image(images.MOB_IMG)
             splat_img = images.get_image(images.SPLAT)
             cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
             cls.class_initialized = True
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.MOB_IMG)
 
     def _avoid_mobs(self) -> None:
         for mob in self._mob_group:
@@ -353,13 +361,6 @@ class Mob(Humanoid):
 
 def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
                                    x_or_y: str) -> None:
-    """
-
-    :param hmn: A sprite object with a hit_rect
-    :param group:
-    :param x_or_y:
-    :return:
-    """
     assert x_or_y == 'x' or x_or_y == 'y'
     if x_or_y == 'x':
         hits = pg.sprite.spritecollide(hmn, group, False,

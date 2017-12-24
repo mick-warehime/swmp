@@ -47,7 +47,7 @@ class Timer(object):
 
 
 class GameObject(pg.sprite.Sprite):
-    """In-game object with a hit_rect and rect for collisions and an image.
+    """In-game object with a rect for collisions and an image.
 
     Added functionality derived from Sprite:
     Can be added/removed to Group objects --> add(*groups), remove(*groups).
@@ -56,7 +56,7 @@ class GameObject(pg.sprite.Sprite):
     alive() : True iff sprite belongs to any group.
 
     """
-    base_image: Union[pg.Surface, None] = None
+    # base_image: Union[pg.Surface, None] = None
     gameobjects_initialized = False
     _groups: Union[Groups, None] = None
 
@@ -64,7 +64,6 @@ class GameObject(pg.sprite.Sprite):
 
         self._check_class_initialized()
 
-        self.image = self.base_image
         self.pos = pos
         # Used in sprite collisions
         self.rect: pg.Rect = self.image.get_rect()
@@ -85,6 +84,10 @@ class GameObject(pg.sprite.Sprite):
         cls._groups = groups
         cls.gameobjects_initialized = True
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 class Obstacle(GameObject):
     def __init__(self, pos: Vector2, w: int, h: int) -> None:
@@ -101,9 +104,15 @@ class Obstacle(GameObject):
     def y(self) -> int:
         return self.rect.y
 
+    @property
+    def image(self) -> pg.Surface:
+        raise RuntimeError('Obstacle image is meant to be drawn in the '
+                           'background.')
+
 
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information."""
+
     dynamic_initialized = False
     _timer: Union[Timer, None] = None
 
@@ -118,16 +127,16 @@ class DynamicObject(GameObject):
             raise RuntimeError('DynamicObject class must be initialized before'
                                ' instantiating a DynamicObject.')
 
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
 
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
 class Waypoint(DynamicObject):
     def __init__(self, pos: Vector2, player: Any) -> None:
-        img = images.get_image(images.WAYPOINT_IMG)
-        base_image = pg.transform.scale(img, (50, 50))
-        self.base_image = base_image
-
         super().__init__(pos)
         self.player = player
 
@@ -137,3 +146,7 @@ class Waypoint(DynamicObject):
     def update(self) -> None:
         if self.rect.colliderect(self.player.rect):
             self.kill()
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.WAYPOINT_IMG)
