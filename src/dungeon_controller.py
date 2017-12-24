@@ -4,7 +4,7 @@ import humanoid
 from pygame.sprite import spritecollide, groupcollide
 from mods import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
-    collide_hit_rect_with_rect, DynamicObject
+    collide_hit_rect_with_rect, DynamicObject, Waypoint
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple
@@ -75,6 +75,8 @@ class DungeonController(controller.Controller):
                 Obstacle(pos, tile_object.width, tile_object.height)
             if tile_object.name in tilemap.ITEMS:
                 ItemManager.item(obj_center, tile_object.name)
+            if tile_object.name == tilemap.ObjectType.WAYPOINT:
+                Waypoint(obj_center, self.player)
 
     @staticmethod
     def is_quest_object(object_type: str) -> bool:

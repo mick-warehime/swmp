@@ -15,6 +15,7 @@ class ObjectType(Enum):
     HEALTHPACK = 'healthpack'
     SHOTGUN = 'shotgun'
     QUEST = 'quest'
+    WAYPOINT = 'waypoint'
 
 
 ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL)
