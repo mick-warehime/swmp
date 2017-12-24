@@ -90,7 +90,7 @@ class Humanoid(mdl.DynamicObject):
         #  below.
         self.rect.center = self.hit_rect.center  # type: ignore
 
-    def _match_image_to_rot(self) -> None:
+    def _match_rect_to_image(self) -> None:
         self.rect = self.image.get_rect()
 
     def stop_x(self) -> None:
@@ -204,7 +204,7 @@ class Player(Humanoid):
         delta_rot = int(self._rot_speed * self._timer.dt)
         self.rot = (self.rot + delta_rot) % 360
 
-        self._match_image_to_rot()
+        self._match_rect_to_image()
         self._update_trajectory()
         self._collide_with_walls()
 
@@ -302,7 +302,7 @@ class Mob(Humanoid):
                 sounds.mob_moan_sound()
             self.rot = target_dist.angle_to(Vector2(1, 0))
 
-            self._match_image_to_rot()
+            self._match_rect_to_image()
             self._update_acc()
             self._update_trajectory()
             self._collide_with_walls()
