@@ -134,6 +134,9 @@ def collide_hit_rect_with_rect(game_obj: GameObject,
     return game_obj.hit_rect.colliderect(sprite.rect)
 
 
+# waypoint objects appear as blue spirals on the map (for now).
+# when the player runs into one of these objects they dissappear from the game
+# they can serve as the end of a dungeon or as an area that must be explored
 class Waypoint(DynamicObject):
     def __init__(self, pos: Vector2, player: Any) -> None:
         img = images.get_image(images.WAYPOINT_IMG)
