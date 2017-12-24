@@ -61,13 +61,12 @@ class GameObject(pg.sprite.Sprite):
     _groups: Union[Groups, None] = None
 
     def __init__(self, pos: Vector2) -> None:
-
         self._check_class_initialized()
 
-        self.pos = pos
+        self.pos = Vector2(pos.x, pos.y)
         # Used in sprite collisions
         self.rect: pg.Rect = self.image.get_rect().copy()
-        self.rect.center = pos
+        self.rect.center = Vector2(pos.x, pos.y)
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -147,5 +146,5 @@ class Waypoint(DynamicObject):
     def image(self) -> pg.Surface:
         if Waypoint._image is None:
             img = images.get_image(images.WAYPOINT_IMG)
-            Waypoint._image = pg.transform.scale(img, (TILESIZE,TILESIZE))
+            Waypoint._image = pg.transform.scale(img, (TILESIZE, TILESIZE))
         return self._image

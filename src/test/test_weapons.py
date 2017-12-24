@@ -39,6 +39,7 @@ class WeaponsTest(unittest.TestCase):
 
     def test_fire_projectile_distance_independent_of_count(self) -> None:
         player = _make_player()
+        num_updates = 100
 
         FireShotgun._projectile_count = 1
         fire_little_bullet = FireShotgun()
@@ -49,7 +50,7 @@ class WeaponsTest(unittest.TestCase):
         bullet = self.groups.bullets.sprites()[0]
         first_pos = Vector2(bullet.pos.x, bullet.pos.y)
 
-        for _ in range(100):
+        for _ in range(num_updates):
             self.groups.bullets.update()
 
         one_disp = (bullet.pos - first_pos).length()
@@ -63,7 +64,7 @@ class WeaponsTest(unittest.TestCase):
         bullet = self.groups.bullets.sprites()[0]
         first_pos = Vector2(bullet.pos.x, bullet.pos.y)
 
-        for _ in range(100):
+        for _ in range(num_updates):
             self.groups.bullets.update()
 
         many_disp = (bullet.pos - first_pos).length()

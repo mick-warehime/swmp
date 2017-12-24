@@ -45,7 +45,7 @@ class Bullet(DynamicObject):
 class BigBullet(Bullet):
     """A large bullet coming out of a pistol."""
     max_lifetime = 1000
-    speed = 500
+    speed = 400
     damage = 75
 
     @property
@@ -56,7 +56,7 @@ class BigBullet(Bullet):
 class LittleBullet(Bullet):
     """A small bullet coming out of a shotgun."""
     max_lifetime = 500
-    speed = 100
+    speed = 500
     damage = 25
     _image = None
 
