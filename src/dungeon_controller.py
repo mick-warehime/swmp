@@ -118,7 +118,8 @@ class DungeonController(controller.Controller):
         self.bind(pg.K_SPACE, arms_ability)
         self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
 
-        self.bind(pg.K_r, self.player.ability_caller(mods.ModLocation.CHEST))
+        chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
+        self.bind_down(pg.K_r, chest_ability)
 
         # equip / use
         self.bind_down(pg.K_e, self.use_item_in_backpack)
@@ -204,8 +205,7 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        index_occupied = len(self.player.backpack) > idx
-        if index_occupied:
+        if idx in self.player.backpack:
             item_in_backpack = self.player.backpack[idx]
             self.player.equip(item_in_backpack)
             self._view.set_selected_item(view.NO_SELECTION)
