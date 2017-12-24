@@ -20,6 +20,7 @@ class Bullet(DynamicObject):
         groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
+        assert direction.is_normalized()
         self._vel = direction * self.speed * uniform(0.9, 1.1)
         self.spawn_time = self._timer.current_time
 
@@ -55,7 +56,7 @@ class BigBullet(Bullet):
 class LittleBullet(Bullet):
     """A small bullet coming out of a shotgun."""
     max_lifetime = 500
-    speed = 400
+    speed = 100
     damage = 25
     _image = None
 

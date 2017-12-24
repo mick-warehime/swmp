@@ -66,7 +66,7 @@ class GameObject(pg.sprite.Sprite):
 
         self.pos = pos
         # Used in sprite collisions
-        self.rect: pg.Rect = self.image.get_rect()
+        self.rect: pg.Rect = self.image.get_rect().copy()
         self.rect.center = pos
 
     def _check_class_initialized(self) -> None:

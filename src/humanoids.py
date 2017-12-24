@@ -238,7 +238,6 @@ class Mob(Humanoid):
     _map_img = None
 
     def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
-
         self._check_class_initialized()
         self.rot = 0
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
