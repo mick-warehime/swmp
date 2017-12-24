@@ -1,6 +1,8 @@
 import os
 import unittest
 import pygame
+from pygame.math import Vector2
+
 import humanoids as hmn
 import mods
 import model
@@ -28,7 +30,7 @@ def _make_player() -> hmn.Player:
 
 
 def _make_item(label: str) -> mods.ItemObject:
-    pos = (0, 0)
+    pos = Vector2(0, 0)
     return ItemManager.item(pos, label)
 
 
