@@ -91,7 +91,7 @@ class ModTest(unittest.TestCase):
 
         hp_2 = _make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp_2)
-        self.assertIn(hp_2.mod, player.backpack.values())
+        self.assertIn(hp_2.mod, player.backpack)
 
         # health is full
         self.assertFalse(player.damaged)
@@ -114,7 +114,7 @@ class ModTest(unittest.TestCase):
         use_hp_mod()
 
         self.assertTrue(hp.mod.expended)
-        self.assertNotIn(hp.mod, player.backpack.values())
+        self.assertNotIn(hp.mod, player.backpack)
         self.assertFalse(player.damaged)
         self.assertEqual(len(player.active_mods.values()), 0)
 
@@ -137,7 +137,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(shotgun)
 
         # nothing installed at arms location -> install shotgun
-        self.assertEqual(len(player.backpack.values()), 0)
+        self.assertEqual(len(player.backpack), 0)
         arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
 
@@ -145,17 +145,17 @@ class ModTest(unittest.TestCase):
         pistol = _make_item(ObjectType.PISTOL)
 
         player.attempt_pickup(pistol)
-        self.assertEqual(len(player.backpack.values()), 1)
+        self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
-        self.assertIn(pistol.mod, player.backpack.values())
+        self.assertIn(pistol.mod, player.backpack)
 
         # make sure we can swap the pistol with the shotgun
         player.equip(pistol.mod)
-        self.assertEqual(len(player.backpack.values()), 1)
+        self.assertEqual(len(player.backpack), 1)
         arm_mod = player.active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
-        self.assertIn(shotgun.mod, player.backpack.values())
+        self.assertIn(shotgun.mod, player.backpack)
 
 
 if __name__ == '__main__':
