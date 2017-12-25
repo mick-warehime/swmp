@@ -180,6 +180,8 @@ class DungeonController(controller.Controller):
 
     # the owning object needs to know this
     def dungeon_over(self) -> bool:
+        if self.player.health <= 0:
+            return True
         return self._conflict.is_resolved()
 
     def try_handle_hud(self) -> bool:
