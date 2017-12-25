@@ -9,7 +9,7 @@ from typing import Any
 
 from model import Timer
 from tilemap import ObjectType
-from weapons import BigBullet, LittleBullet, MuzzleFlash
+from weapons import BigBullet, LittleBullet, MuzzleFlash, Vomit
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -98,6 +98,17 @@ class FirePistol(FireProjectile):
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.PISTOL)
         MuzzleFlash(origin)
+
+
+class SpewVomit(FireProjectile):
+    _kickback = 0
+    _cool_down = 250
+    _spread = 5
+    _projectile_count = 1
+    _make_projectile = Vomit
+
+    def _fire_effects(self, origin: Vector2) -> None:
+        sounds.spew_vomit_sound()
 
 
 class FireShotgun(FireProjectile):
