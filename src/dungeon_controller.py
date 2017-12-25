@@ -70,7 +70,7 @@ class DungeonController(controller.Controller):
             is_quest_object = self.is_quest_object(tile_object.type)
 
             if tile_object.name == tilemap.ObjectType.ZOMBIE:
-                Mob(obj_center, self.player, quest=is_quest_object)
+                Mob(obj_center, self.player, is_quest=is_quest_object)
             if tile_object.name == tilemap.ObjectType.WALL:
                 pos = Vector2(tile_object.x, tile_object.y)
                 Obstacle(pos, tile_object.width, tile_object.height)
