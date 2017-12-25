@@ -238,12 +238,13 @@ class Mob(Humanoid):
     _splat = None
     _map_img = None
 
-    def __init__(self, pos: Vector2, player: Player, quest: bool) -> None:
+    def __init__(self, pos: Vector2, player: Player, is_quest: bool) -> None:
         self._check_class_initialized()
         self.rot = 0
+        self.is_quest = is_quest
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
-        if quest:
+        if is_quest:
             my_groups = [self._groups.all_sprites, self._groups.mobs,
                          self._groups.conflicts]
         else:
@@ -254,8 +255,7 @@ class Mob(Humanoid):
         self.speed = choice(MOB_SPEEDS)
         self.target = player
 
-        if quest:
-            self.base_image = images.get_image(images.QMOB_IMG)
+        if is_quest:
             self.speed *= 2
 
     @property
@@ -279,7 +279,10 @@ class Mob(Humanoid):
 
     @property
     def image(self) -> pg.Surface:
-        base_image = images.get_image(images.MOB_IMG)
+        if self.is_quest:
+            base_image = images.get_image(images.QMOB_IMG)
+        else:
+            base_image = images.get_image(images.MOB_IMG)
         image = pg.transform.rotate(base_image, self.rot)
         if self.damaged:
             col = self._health_bar_color()
