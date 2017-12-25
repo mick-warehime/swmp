@@ -1,7 +1,6 @@
 import pygame as pg
 from typing import List, Dict
 import os
-import settings
 import random
 
 # TODO - load sounds from JSON file -  issue#106
