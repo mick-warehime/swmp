@@ -69,6 +69,16 @@ class LittleBullet(Projectile):
         return self._image
 
 
+class Vomit(Projectile):
+    max_lifetime = 600
+    speed = 300
+    damage = 50
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.VOMIT)
+
+
 class MuzzleFlash(DynamicObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()

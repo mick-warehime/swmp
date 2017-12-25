@@ -18,12 +18,13 @@ SHOTGUN = 'obj_shotgun.png'
 PISTOL = 'obj_pistol.png'
 SHOTGUN_MOD = 'mod_shotgun.png'
 PISTOL_MOD = 'mod_pistol.png'
+VOMIT = 'vomit.png'
 WAYPOINT_IMG = 'waypoint.png'
 
 ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
               MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
               MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, SHOTGUN,
-              SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG,
+              SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG, VOMIT,
               WAYPOINT_IMG]
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
