@@ -1,17 +1,13 @@
 import unittest
-from typing import Union, Tuple, Callable
+from typing import Union, Callable
 import os
 from pygame.math import Vector2
 import pygame
-from pygame.sprite import Group, LayeredUpdates
 import model
 import humanoids as hmn
-from abilities import FirePistol, CoolDownAbility
-from mods import ShotgunMod
+from abilities import CoolDownAbility
+
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
-from weapons import Bullet
-from itertools import product
-import math
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
