@@ -18,7 +18,7 @@ import view
 import settings
 import sounds
 import controller
-import conflict
+import quest
 
 
 class DungeonController(controller.Controller):
@@ -42,7 +42,7 @@ class DungeonController(controller.Controller):
 
         self.init_controls()
 
-        self._conflict = conflict.Conflict(self._groups.conflicts)
+        self._conflict = quest.Conflict(self._groups.conflicts)
 
     def init_map(self, map_file: str) -> None:
 
