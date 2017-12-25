@@ -9,7 +9,7 @@ from model import Obstacle, Groups, GameObject, Timer, \
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple
-from weapons import Bullet
+from weapons import Projectile
 from os import path
 from random import random
 import pygame as pg
@@ -165,9 +165,9 @@ class DungeonController(controller.Controller):
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
         # bullets hit mobs
-        hits: Dict[Mob, List[Bullet]] = groupcollide(self._groups.mobs,
-                                                     self._groups.bullets,
-                                                     False, True)
+        hits: Dict[Mob, List[Projectile]] = groupcollide(self._groups.mobs,
+                                                         self._groups.bullets,
+                                                         False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.stop_x()

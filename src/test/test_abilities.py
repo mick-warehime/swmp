@@ -6,7 +6,7 @@ import humanoids as hmn
 from abilities import FirePistol, FireShotgun, Heal
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
-from weapons import Bullet, MuzzleFlash
+from weapons import Projectile, MuzzleFlash
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
@@ -51,13 +51,13 @@ class AbilitiesTest(unittest.TestCase):
 
         self.assertEqual(len(groups.all_sprites), 1)
         fire_pistol.use(player)
-        # Check if a MuzzleFlash and Bullet sprite were created
+        # Check if a MuzzleFlash and Projectile sprite were created
         sprites = groups.all_sprites
         num_bullets = 0
         num_flashes = 0
         num_others = 0
         for sp in sprites:
-            if isinstance(sp, Bullet):
+            if isinstance(sp, Projectile):
                 num_bullets += 1
             elif isinstance(sp, MuzzleFlash):
                 num_flashes += 1

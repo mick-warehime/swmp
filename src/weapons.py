@@ -7,7 +7,7 @@ import settings
 import images
 
 
-class Bullet(DynamicObject):
+class Projectile(DynamicObject):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
     max_lifetime: int = 0
@@ -42,7 +42,7 @@ class Bullet(DynamicObject):
         return lifetime > self.max_lifetime
 
 
-class BigBullet(Bullet):
+class BigBullet(Projectile):
     """A large bullet coming out of a pistol."""
     max_lifetime = 1000
     speed = 400
@@ -53,7 +53,7 @@ class BigBullet(Bullet):
         return images.get_image(images.BULLET_IMG)
 
 
-class LittleBullet(Bullet):
+class LittleBullet(Projectile):
     """A small bullet coming out of a shotgun."""
     max_lifetime = 500
     speed = 500
