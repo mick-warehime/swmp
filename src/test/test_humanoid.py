@@ -39,15 +39,6 @@ def setUpModule() -> None:
     initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
 
 
-def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
-    exception_raised = False
-    try:
-        tested_fun()
-    except RuntimeError:
-        exception_raised = True
-    assert exception_raised
-
-
 def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
     dist_squared = (pos_0.x - pos_1.x) ** 2 + (pos_0.y - pos_1.y) ** 2
     return math.sqrt(dist_squared)
