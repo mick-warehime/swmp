@@ -1,5 +1,5 @@
 import unittest
-import conflict
+from dungeon_controller import Conflict
 from pygame.sprite import Group, Sprite
 
 
@@ -16,7 +16,7 @@ class ConflictTest(unittest.TestCase):
             sprites.append(s)
 
         # verify we start with a conflict
-        c = conflict.Conflict(g)
+        c = Conflict(g)
         self.assertFalse(c.is_resolved())
 
         # verify the conflict isn't over after the first
