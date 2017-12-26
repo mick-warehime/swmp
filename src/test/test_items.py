@@ -163,7 +163,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, backpack)
 
-    def test_mod_stacking_in_active_mods(self):
+    def test_mod_stacking_in_active_mods(self) -> None:
         player = _make_player()
         pos = Vector2(0, 0)
         hp = mods.HealthPackObject(pos)
@@ -183,7 +183,7 @@ class ModTest(unittest.TestCase):
         player_mod = player.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 3)
 
-    def test_mod_stacking_in_backpack(self):
+    def test_mod_stacking_in_backpack(self) -> None:
         player = _make_player()
         pos = Vector2(0, 0)
 

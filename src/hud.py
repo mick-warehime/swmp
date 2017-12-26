@@ -129,7 +129,8 @@ class HUD(object):
             if mod.stackable:
                 self._draw_mod_ammo(img_rect, mod, title_font)
 
-    def _draw_mod_ammo(self, img_rect, mod, title_font):
+    def _draw_mod_ammo(self, img_rect: pg.Surface, mod: mods.Mod,
+                       title_font: str) -> None:
         assert hasattr(mod.ability, 'uses_left')
         num_uses = mod.ability.uses_left
 
