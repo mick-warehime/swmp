@@ -1,6 +1,7 @@
 coverage==4.4.2
 flake8==3.5.0
 mypy==0.550
+networkx=2.0
 pygame==1.9.3
 pytweening>=1.0.3
 pytmx>=3.21.3
