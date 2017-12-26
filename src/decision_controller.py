@@ -73,7 +73,7 @@ class DecisionController(controller.Controller):
         return option_texts
 
     def wait_for_decision(self) -> int:
-
+        self.draw()
         while self.choice == -1:
             pg.event.wait()
             self.handle_input()

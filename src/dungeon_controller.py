@@ -5,7 +5,7 @@ import humanoids
 from pygame.sprite import spritecollide, groupcollide
 from mods import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Waypoint
+    DynamicObject, Waypoint, Group
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple
@@ -18,7 +18,6 @@ import view
 import settings
 import sounds
 import controller
-import quest
 
 
 class DungeonController(controller.Controller):
@@ -42,7 +41,7 @@ class DungeonController(controller.Controller):
 
         self.init_controls()
 
-        self._conflict = quest.Conflict(self._groups.conflicts)
+        self._conflict = Conflict(self._groups.conflicts)
 
     def init_map(self, map_file: str) -> None:
 
@@ -180,9 +179,10 @@ class DungeonController(controller.Controller):
 
     # the owning object needs to know this
     def dungeon_over(self) -> bool:
-        if self.player.health <= 0:
-            return True
         return self._conflict.is_resolved()
+
+    def game_over(self) -> bool:
+        return self.player.health <= 0
 
     def try_handle_hud(self) -> bool:
         pos = self.get_clicked_pos()
@@ -221,3 +221,13 @@ class DungeonController(controller.Controller):
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
+
+
+class Conflict(object):
+    def __init__(self, conflict_objects: Group) -> None:
+        self.initial_size = len(conflict_objects)
+        self.size = len(conflict_objects)
+        self.objects = conflict_objects
+
+    def is_resolved(self) -> bool:
+        return len(self.objects) == 0

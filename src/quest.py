@@ -1,11 +1,38 @@
-from model import Group
+from dungeon_controller import DungeonController
+from decision_controller import DecisionController
+import pygame as pg
+from typing import List, Any
+
+COMPLETE = -1
 
 
-class Conflict(object):
-    def __init__(self, conflict_objects: Group) -> None:
-        self.initial_size = len(conflict_objects)
-        self.size = len(conflict_objects)
-        self.objects = conflict_objects
+class Quest(object):
+    def __init__(self,
+                 screen: pg.Surface,
+                 quit_func: Any) -> None:
+        self._screen = screen
+        self._scenes: List[Any] = []
+        self._current = 0
+        self.game_over = False
+        self._quit_func = quit_func
 
-    def is_resolved(self) -> bool:
-        return len(self.objects) == 0
+    def next(self) -> DungeonController:
+        if self._current > 2:
+            return COMPLETE
+
+        description = 'level %d - find the exit'
+        descr_i = description % self._current
+
+        self._current += 1
+        self.show_intro(descr_i)
+
+        dungeon = DungeonController(self._screen, 'goto.tmx')
+
+        return dungeon
+
+    def show_intro(self, description: str) -> None:
+        screen = self._screen
+        options = ['continue']
+        dc = DecisionController(screen, description, options)
+        dc.bind(pg.K_ESCAPE, self._quit_func)
+        dc.wait_for_decision()

@@ -1,11 +1,10 @@
 import pygame as pg
 import sys
 import settings
-import dungeon_controller as dungeon
-import decision_controller as decision
 import sounds
 import images
 from draw_utils import draw_text
+import quest
 
 
 class Game(object):
@@ -29,37 +28,35 @@ class Game(object):
         self.paused = False
 
     def new(self) -> None:
-        level = "goto.tmx"
 
-        self.dungeon = dungeon.DungeonController(self.screen, level)
-        self.dungeon.bind(pg.K_ESCAPE, self.quit)
-        self.dungeon.bind_down(pg.K_p, self.toggle_paused)
-
+        self.quest = quest.Quest(self.screen, self.quit)
+        self.next_dungeon()
         sounds.play(sounds.LEVEL_START)
 
-    def first_level_decision(self) -> str:
-
-        prompt = 'Do you go into the swamp?'
-        options = ['No', 'Yes', 'Maybe']
-        dec = decision.DecisionController(self.screen, prompt, options)
-        dec.bind(pg.K_ESCAPE, self.quit)
-
-        dec.draw()
-
-        response = dec.wait_for_decision()
-
-        return 'level{}.tmx'.format(response)
+    def next_dungeon(self) -> None:
+        self.dungeon = self.quest.next()
+        if self.dungeon != quest.COMPLETE:
+            self.dungeon.bind(pg.K_ESCAPE, self.quit)
+            self.dungeon.bind_down(pg.K_p, self.toggle_paused)
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
-        while not self.dungeon.dungeon_over():
+        while True:
+            if self.dungeon == quest.COMPLETE:
+                break
+
             self.events()
             self.update()
-            self.draw()
 
             if self.paused:
                 self.pause_game()
+
+            if self.dungeon.game_over():
+                break
+
+            if self.dungeon.dungeon_over():
+                self.next_dungeon()
 
     @staticmethod
     def quit() -> None:
@@ -69,8 +66,6 @@ class Game(object):
     def update(self) -> None:
         # always update the controller
         self.dungeon.update()
-
-    def draw(self) -> None:
         self.dungeon.draw()
 
     def events(self) -> None:
