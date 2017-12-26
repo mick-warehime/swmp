@@ -89,7 +89,7 @@ class PistolMod(Mod):
 
 
 class VomitMod(Mod):
-    loc = ModLocation.ARMS
+    loc = ModLocation.HEAD
 
     def __init__(self) -> None:
         self._ability = SpewVomit()
