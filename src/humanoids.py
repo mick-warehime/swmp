@@ -132,7 +132,7 @@ class Humanoid(mdl.DynamicObject):
             self.backpack.add_mod(old_mod)
 
     def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.backpack:
+        if item_mod in self.backpack:  # type: ignore
             self.backpack.remove_mod(item_mod)
         self._move_mod_at_loc_to_backpack(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
@@ -153,11 +153,11 @@ class Backpack(object):
     def is_full(self) -> bool:
         return self._slots_filled == self.size
 
-    def add_mod(self, mod: mods.Mod) ->None:
+    def add_mod(self, mod: mods.Mod) -> None:
         self._slots[self._first_empty_slot()] = mod
         self._slots_filled += 1
 
-    def _first_empty_slot(self)-> int:
+    def _first_empty_slot(self) -> int:
         assert not self.is_full
         for slot, mod in enumerate(self._slots):
             if mod is None:
@@ -165,7 +165,7 @@ class Backpack(object):
                 break
         return empty_slot
 
-    def remove_mod(self, mod: mods.Mod) ->None:
+    def remove_mod(self, mod: mods.Mod) -> None:
         assert mod in self._slots
         empty_slot = self._slots.index(mod)
         self._slots[empty_slot] = None
