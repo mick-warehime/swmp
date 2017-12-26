@@ -1,5 +1,5 @@
 import unittest
-from typing import Union, Tuple, Callable
+from typing import Union, Tuple
 import os
 from pygame.math import Vector2
 import pygame
