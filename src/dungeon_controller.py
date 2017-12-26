@@ -209,10 +209,9 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        inventory = self.player.inventory
-        if idx + 1 <= len(inventory.backpack):
-            item_in_backpack = inventory.backpack[idx]
-            self.player.equip(item_in_backpack)
+        backpack = self.player.backpack
+        if backpack.slot_occupied(idx):
+            self.player.equip(backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:

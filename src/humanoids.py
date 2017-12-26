@@ -48,7 +48,7 @@ class Humanoid(mdl.DynamicObject):
         self._acc = Vector2(0, 0)
         self.rot = 0
 
-        self.inventory = Inventory()
+        self.backpack = Backpack()
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
     @property
@@ -121,55 +121,64 @@ class Humanoid(mdl.DynamicObject):
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
-        elif not self.inventory.backpack_full:
-            self.inventory.add_to_backpack(item.mod)
+        elif not self.backpack.is_full:
+            self.backpack.add_mod(item.mod)
             item.kill()
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
-        assert not self.inventory.backpack_full
+        assert not self.backpack.is_full
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
-            self.inventory.add_to_backpack(old_mod)
+            self.backpack.add_mod(old_mod)
 
     def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.inventory.backpack:
-            self.inventory.remove_from_backpack(item_mod)
+        if item_mod in self.backpack._slots:
+            self.backpack.remove_mod(item_mod)
         self._move_mod_at_loc_to_backpack(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
 
 
-class Inventory(object):
+class Backpack(object):
     """Stores the mods available to a Humanoid."""
 
     def __init__(self) -> None:
 
         backpack_size = 8
-        self.backpack_size = 8
-        self.backpack: List[Union[mods.Mod, None]] = [None] * backpack_size
+        self.size = 8
+        self._slots: List[Union[mods.Mod, None]] = [None] * backpack_size
 
-        self._backpack_slots_filled = 0
+        self._slots_filled = 0
 
     @property
-    def backpack_full(self) -> bool:
-        return self._backpack_slots_filled == self.backpack_size
+    def is_full(self) -> bool:
+        return self._slots_filled == self.size
 
-    def add_to_backpack(self, mod: mods.Mod):
-        self.backpack[self._first_empty_slot()] = mod
-        self._backpack_slots_filled += 1
+    def add_mod(self, mod: mods.Mod):
+        self._slots[self._first_empty_slot()] = mod
+        self._slots_filled += 1
 
     def _first_empty_slot(self):
-        assert not self.backpack_full
-        for slot, mod in enumerate(self.backpack):
+        assert not self.is_full
+        for slot, mod in enumerate(self._slots):
             if mod is None:
                 empty_slot = slot
                 break
         return empty_slot
 
-    def remove_from_backpack(self, mod: mods.Mod):
-        assert mod in self.backpack
-        empty_slot = self.backpack.index(mod)
-        self.backpack[empty_slot] = None
-        self._backpack_slots_filled -= 1
+    def remove_mod(self, mod: mods.Mod):
+        assert mod in self._slots
+        empty_slot = self._slots.index(mod)
+        self._slots[empty_slot] = None
+        self._slots_filled -= 1
+
+    def slot_occupied(self, slot: int) -> bool:
+        return self._slots[slot] is not None
+
+    def __getitem__(self, index: int):
+        return self._slots[index]
+
+    def __len__(self) -> int:
+        return self.size
 
 
 class Player(Humanoid):

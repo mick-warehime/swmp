@@ -67,25 +67,25 @@ class ModTest(unittest.TestCase):
         player = _make_player()
         hp = _make_item(ObjectType.HEALTHPACK)
 
-        backpack = player.inventory.backpack
-        self.assertEqual(len(backpack), player.inventory.backpack_size)
+        backpack = player.backpack
+        self.assertEqual(len(backpack), player.backpack.size)
         # TODO (dvirk): You should not be able to add the same object to the
         # backpack more than once.
 
-        for i in range(player.inventory.backpack_size + 1):
-            self.assertFalse(player.inventory.backpack_full)
+        for i in range(player.backpack.size + 1):
+            self.assertFalse(player.backpack.is_full)
             player.attempt_pickup(hp)
-        self.assertTrue(player.inventory.backpack_full)
+        self.assertTrue(player.backpack.is_full)
 
         # Item not gained since backpack full
         player.attempt_pickup(hp)
-        self.assertEqual(len(backpack), player.inventory.backpack_size)
+        self.assertEqual(len(backpack), player.backpack.size)
 
     def test_use_health_pack(self) -> None:
         player = _make_player()
         hp = _make_item(ObjectType.HEALTHPACK)
 
-        backpack = player.inventory.backpack
+        backpack = player.backpack
 
         player.attempt_pickup(hp)
         # healthpack goes straight to active mods.
@@ -141,7 +141,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(shotgun)
 
         # nothing installed at arms location -> install shotgun
-        backpack = player.inventory.backpack
+        backpack = player.backpack
         self.assertNotIn(shotgun.mod, backpack)
         active_mods = player.active_mods
         arm_mod = active_mods[mods.ModLocation.ARMS]

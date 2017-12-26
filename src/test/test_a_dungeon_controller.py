@@ -108,9 +108,9 @@ class DungeonControllerTest(unittest.TestCase):
         health_pack_1 = HealthPackObject(pos)
         player.attempt_pickup(health_pack_1)
 
-        self.assertEqual(player.inventory.backpack.index(health_pack_1.mod), 1)
+        self.assertIs(player.backpack[1], health_pack_1.mod)
         player.equip(shotgun.mod)
-        self.assertEqual(player.inventory.backpack.index(health_pack_1.mod), 1)
+        self.assertIs(player.backpack[1], health_pack_1.mod)
 
 
 
