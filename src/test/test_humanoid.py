@@ -1,5 +1,5 @@
 import unittest
-from typing import Union, Tuple, Callable
+from typing import Union, Tuple
 import os
 from pygame.math import Vector2
 import pygame
@@ -37,15 +37,6 @@ def _make_mob(player: Union[hmn.Player, None] = None,
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
-
-
-def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
-    exception_raised = False
-    try:
-        tested_fun()
-    except RuntimeError:
-        exception_raised = True
-    assert exception_raised
 
 
 def _dist(pos_0: Vector2, pos_1: Vector2) -> float:

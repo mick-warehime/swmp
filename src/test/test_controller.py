@@ -1,9 +1,9 @@
 import unittest
 from itertools import product
 
-from . import pygame_mock
 import controller
 import decision_controller
+from test import pygame_mock
 
 pg = pygame_mock.Pygame()
 controller.pg.mouse = pg.mouse

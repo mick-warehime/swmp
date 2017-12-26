@@ -118,7 +118,7 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_r, chest_ability)
 
         # equip / use
-        self.bind_down(pg.K_e, self.use_item_in_backpack)
+        self.bind_down(pg.K_e, self.equip_mod_in_backpack)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -202,19 +202,16 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
-    def use_item_in_backpack(self) -> None:
-        '''use an item if the user selects an item in the backpack
-        and hits the 'use' button binding. item.use is a virtual
-        method implemented separately for each item/mod type.
-        if item is a mod this will equip that mod at the proper
-        location'''
+    def equip_mod_in_backpack(self) -> None:
+        '''equip amod if the user selects it in the backpack and hits the
+        'equip' button binding.'''
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
 
-        if idx + 1 >= len(self.player.backpack):
-            item_in_backpack = self.player.backpack[idx]
-            self.player.equip(item_in_backpack)
+        backpack = self.player.backpack
+        if backpack.slot_occupied(idx):
+            self.player.equip(backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
     def pass_mouse_pos_to_player(self) -> None:

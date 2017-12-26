@@ -2,7 +2,7 @@ from itertools import chain
 from random import choice, random
 import pygame as pg
 from pygame.sprite import Group
-from typing import Tuple, Callable, List
+from typing import Tuple, Callable, List, Union
 import math
 import images
 import mods
@@ -48,10 +48,8 @@ class Humanoid(mdl.DynamicObject):
         self._acc = Vector2(0, 0)
         self.rot = 0
 
+        self.backpack = Backpack()
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
-
-        self.backpack: List[mods.Mod] = []
-        self.backpack_size = 8
 
     @property
     def _walls(self) -> Group:
@@ -99,22 +97,11 @@ class Humanoid(mdl.DynamicObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.backpack:
-            self.backpack.remove(item_mod)
-        self._move_mod_at_loc_to_backpack(item_mod.loc)
-        self.active_mods[item_mod.loc] = item_mod
-
-    def ability_caller(self, loc: mods.ModLocation) -> Callable:
-        def called_ability() -> None:
-            return self._use_ability_at(loc)
-
-        return called_ability
-
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
-        if loc not in self.active_mods:
+        active_mods = self.active_mods
+        if loc not in active_mods:
             return
-        item_mod = self.active_mods[loc]
+        item_mod = active_mods[loc]
         assert loc == item_mod.loc
         assert not item_mod.expended
 
@@ -122,25 +109,76 @@ class Humanoid(mdl.DynamicObject):
             item_mod.ability.use(self)
 
         if item_mod.expended:
-            self.active_mods.pop(item_mod.loc)
+            active_mods.pop(item_mod.loc)
 
-    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
-        assert not self.backpack_full
-        old_mod = self.active_mods.pop(loc, None)
-        if old_mod is not None:
-            self.backpack.append(old_mod)
+    def ability_caller(self, loc: mods.ModLocation) -> Callable:
+        def called_ability() -> None:
+            return self._use_ability_at(loc)
+
+        return called_ability
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
-        elif not self.backpack_full:
-            self.backpack.append(item.mod)
+        elif not self.backpack.is_full:
+            self.backpack.add_mod(item.mod)
             item.kill()
 
+    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
+        assert not self.backpack.is_full
+        old_mod = self.active_mods.pop(loc, None)
+        if old_mod is not None:
+            self.backpack.add_mod(old_mod)
+
+    def equip(self, item_mod: mods.Mod) -> None:
+        if item_mod in self.backpack:  # type: ignore
+            self.backpack.remove_mod(item_mod)
+        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        self.active_mods[item_mod.loc] = item_mod
+
+
+class Backpack(object):
+    """Stores the mods available to a Humanoid."""
+
+    def __init__(self) -> None:
+
+        backpack_size = 8
+        self.size = 8
+        self._slots: List[Union[mods.Mod, None]] = [None] * backpack_size
+
+        self._slots_filled = 0
+
     @property
-    def backpack_full(self) -> bool:
-        return len(self.backpack) >= self.backpack_size
+    def is_full(self) -> bool:
+        return self._slots_filled == self.size
+
+    def add_mod(self, mod: mods.Mod) -> None:
+        self._slots[self._first_empty_slot()] = mod
+        self._slots_filled += 1
+
+    def _first_empty_slot(self) -> int:
+        assert not self.is_full
+        for slot, mod in enumerate(self._slots):
+            if mod is None:
+                empty_slot = slot
+                break
+        return empty_slot
+
+    def remove_mod(self, mod: mods.Mod) -> None:
+        assert mod in self._slots
+        empty_slot = self._slots.index(mod)
+        self._slots[empty_slot] = None
+        self._slots_filled -= 1
+
+    def slot_occupied(self, slot: int) -> bool:
+        return self._slots[slot] is not None
+
+    def __getitem__(self, index: int) -> Union[mods.Mod, None]:
+        return self._slots[index]
+
+    def __len__(self) -> int:
+        return self.size
 
 
 class Player(Humanoid):
