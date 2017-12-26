@@ -44,9 +44,6 @@ def _make_mob(player: Union[hmn.Player, None] = None,
 
 def setUpModule() -> None:
     initialize_pygame()
-    level = 'test_level.tmx'
-    blank_screen = pygame.Surface((800, 600))
-    DungeonControllerTest.dng_ctrl = DungeonController(blank_screen, level)
 
 
 def tearDownModule() -> None:
@@ -94,8 +91,7 @@ class DungeonControllerTest(unittest.TestCase):
         dng_ctrl.equip_mod_in_backpack()
         self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
-    def test_items_do_not_move_in_backpack_after_equip(self):
-
+    def test_items_do_not_move_in_backpack_after_equip(self) -> None:
         player = _make_player()
 
         pos = Vector2(0, 0)
@@ -111,7 +107,6 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertIs(player.backpack[1], health_pack_1.mod)
         player.equip(shotgun.mod)
         self.assertIs(player.backpack[1], health_pack_1.mod)
-
 
 
 if __name__ == '__main__':

@@ -153,11 +153,11 @@ class Backpack(object):
     def is_full(self) -> bool:
         return self._slots_filled == self.size
 
-    def add_mod(self, mod: mods.Mod):
+    def add_mod(self, mod: mods.Mod) ->None:
         self._slots[self._first_empty_slot()] = mod
         self._slots_filled += 1
 
-    def _first_empty_slot(self):
+    def _first_empty_slot(self)-> int:
         assert not self.is_full
         for slot, mod in enumerate(self._slots):
             if mod is None:
@@ -165,7 +165,7 @@ class Backpack(object):
                 break
         return empty_slot
 
-    def remove_mod(self, mod: mods.Mod):
+    def remove_mod(self, mod: mods.Mod) ->None:
         assert mod in self._slots
         empty_slot = self._slots.index(mod)
         self._slots[empty_slot] = None
@@ -174,7 +174,7 @@ class Backpack(object):
     def slot_occupied(self, slot: int) -> bool:
         return self._slots[slot] is not None
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> Union[mods.Mod, None]:
         return self._slots[index]
 
     def __len__(self) -> int:
