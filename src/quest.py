@@ -38,13 +38,16 @@ class Quest(object):
         tiled_map_file = self._current_node
         self.show_intro(tiled_map_file)
 
-        dungeon = DungeonController(self._screen, self._current_node)
+        dungeon = self.load_dungeon()
 
-        self.next_node()
+        self.update_node()
 
         return dungeon
 
-    def next_node(self) -> None:
+    def load_dungeon(self) -> DungeonController:
+        return DungeonController(self._screen, self._current_node)
+
+    def update_node(self) -> None:
         neighbors = self._scene_graph.neighbors(self._current_node)
         neighbors = list(neighbors)
         if len(neighbors) == 0:
