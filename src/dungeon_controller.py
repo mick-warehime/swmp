@@ -203,11 +203,8 @@ class DungeonController(controller.Controller):
         return self._view.clicked_hud(pos)
 
     def equip_item_in_backpack(self) -> None:
-        '''use an item if the user selects an item in the backpack
-        and hits the 'use' button binding. item.use is a virtual
-        method implemented separately for each item/mod type.
-        if item is a mod this will equip that mod at the proper
-        location'''
+        '''equip an item if the user selects an item in the backpack
+        and hits the 'equip' button binding.'''
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
