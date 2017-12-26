@@ -1,4 +1,5 @@
 from enum import Enum
+
 import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2

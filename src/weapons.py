@@ -1,10 +1,11 @@
-import pygame as pg
 from random import uniform, randint
+
+import pygame as pg
 from pygame.math import Vector2
 
-from model import DynamicObject
-import settings
 import images
+import settings
+from model import DynamicObject
 
 
 class Projectile(DynamicObject):

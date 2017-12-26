@@ -13,12 +13,14 @@ class ObjectType(Enum):
     WALL = 'wall'
     PISTOL = 'pistol'
     HEALTHPACK = 'healthpack'
+    ROCK = 'rock'
     SHOTGUN = 'shotgun'
     QUEST = 'quest'
     WAYPOINT = 'waypoint'
 
 
-ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL)
+ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
+         ObjectType.ROCK)
 WEAPONS = (ObjectType.SHOTGUN, ObjectType.PISTOL)
 
 

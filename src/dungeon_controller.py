@@ -1,23 +1,25 @@
-import abilities
-import mods
-from humanoids import Player, Mob, collide_hit_rect_with_rect
-import humanoids
-from pygame.sprite import spritecollide, groupcollide
-from mods import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Waypoint, Group
-from item_manager import ItemManager
-from pygame.math import Vector2
-from typing import Dict, List, Tuple
-from weapons import Projectile
 from os import path
 from random import random
+from typing import Dict, List, Tuple
+
 import pygame as pg
-import tilemap
-import view
+from pygame.math import Vector2
+from pygame.sprite import spritecollide, groupcollide
+
+import abilities
+import controller
+import humanoids
+import mods
 import settings
 import sounds
-import controller
+import tilemap
+import view
+from humanoids import Player, Mob, collide_hit_rect_with_rect
+from items.item_manager import ItemManager
+from model import Obstacle, Groups, GameObject, Timer, \
+    DynamicObject, Waypoint, Group
+from mods import ItemObject
+from weapons import Projectile
 
 
 class DungeonController(controller.Controller):

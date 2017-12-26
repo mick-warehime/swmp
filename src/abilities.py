@@ -1,12 +1,11 @@
 """Module for defining Humanoid abilities."""
 from random import uniform
+from typing import Any
 from typing import Union, Callable
 
 from pygame.math import Vector2
 
 import sounds
-from typing import Any
-
 from model import Timer
 from tilemap import ObjectType
 from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit
