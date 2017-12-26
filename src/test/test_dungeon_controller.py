@@ -63,7 +63,7 @@ class DungeonControllerTest(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_health_pack_in_backpack_does_not_prevent_equip(self):
+    def test_health_pack_in_backpack_does_not_prevent_equip(self) -> None:
         dng_ctrl = _make_dungeon_controller()
         player = dng_ctrl.player
 
