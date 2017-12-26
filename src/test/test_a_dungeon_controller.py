@@ -49,6 +49,16 @@ def setUpModule() -> None:
     DungeonControllerTest.dng_ctrl = DungeonController(blank_screen, level)
 
 
+def tearDownModule() -> None:
+    from model import GameObject, DynamicObject
+    GameObject.gameobjects_initialized = False
+    DynamicObject.dynamic_initialized = False
+    from humanoids import Mob
+    Mob.class_initialized = False
+    from abilities import CoolDownAbility
+    CoolDownAbility.class_initialized = False
+
+
 def _make_dungeon_controller() -> DungeonController:
     level = 'test_level.tmx'
     blank_screen = pygame.Surface((800, 600))
@@ -56,7 +66,6 @@ def _make_dungeon_controller() -> DungeonController:
 
 
 class DungeonControllerTest(unittest.TestCase):
-
     def tearDown(self) -> None:
         pass
 
