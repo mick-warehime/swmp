@@ -37,11 +37,11 @@ class ThrowRock(FireProjectile):
 
     def __init__(self) -> None:
         super().__init__()
-        self.num_uses = 1
+        self.uses_left = 1
 
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.play('grunt')
-        self.num_uses -= 1
+        self.uses_left -= 1
 
 
 class RockMod(Mod):
@@ -56,7 +56,7 @@ class RockMod(Mod):
 
     @property
     def expended(self) -> bool:
-        return self._ability.num_uses <= 0
+        return self._ability.uses_left <= 0
 
     @property
     def stackable(self) -> bool:

@@ -125,7 +125,7 @@ class Humanoid(mdl.DynamicObject):
         mod_at_loc = self.active_mods[item.mod.loc]
 
         if isinstance(mod_at_loc, type(item.mod)) and item.mod.stackable:
-            mod_at_loc.increment_uses(item.mod.ability.num_uses)
+            mod_at_loc.increment_uses(item.mod.ability.uses_left)
             item.kill()
             return
 

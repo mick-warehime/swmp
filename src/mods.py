@@ -48,8 +48,8 @@ class Mod(object):
 
     def increment_uses(self, num_uses: int) -> None:
         assert self.stackable
-        assert hasattr(self.ability, 'num_uses')
-        self.ability.num_uses += num_uses
+        assert hasattr(self.ability, 'uses_left')
+        self.ability.uses_left += num_uses
 
 
 class ShotgunMod(Mod):

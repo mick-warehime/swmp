@@ -112,7 +112,8 @@ class HUD(object):
             pg.draw.rect(self._screen, col, r, 2)
 
         for idx, loc in enumerate(player.active_mods):
-            img = player.active_mods[loc].equipped_image
+            mod = player.active_mods[loc]
+            img = mod.equipped_image
 
             img = pg.transform.scale(img, (50, 50))
 
@@ -124,6 +125,19 @@ class HUD(object):
             draw_text(self._screen, str(idx + 1), title_font,
                       20, settings.WHITE, img_rect.x, img_rect.y,
                       align="center")
+
+            if mod.stackable:
+                self._draw_mod_ammo(img_rect, mod, title_font)
+
+    def _draw_mod_ammo(self, img_rect, mod, title_font):
+        assert hasattr(mod.ability, 'uses_left')
+        num_uses = mod.ability.uses_left
+
+        x_coord = img_rect.x + img_rect.width
+        y_coord = img_rect.y + img_rect.height
+        draw_text(self._screen, str(num_uses), title_font,
+                  20, settings.RED, x_coord, y_coord,
+                  align="center")
 
     def draw_backpack(self, player: Player) -> None:
         for idx, rect in enumerate(self.backpack_rects):
@@ -141,3 +155,7 @@ class HUD(object):
             img_rect.center = rect.center
 
             self._screen.blit(img, img_rect)
+
+            if item_mod.stackable:
+                self._draw_mod_ammo(img_rect, item_mod,
+                                    images.get_font(images.ZOMBIE_FONT))
