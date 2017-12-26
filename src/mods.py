@@ -4,7 +4,8 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit
+from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit, \
+    ThrowRock
 from model import DynamicObject
 
 HEALTH_PACK_AMOUNT = 20
@@ -86,6 +87,29 @@ class PistolMod(Mod):
     @property
     def backpack_image(self) -> pg.Surface:
         return images.get_image(images.PISTOL)
+
+
+class Rock(Mod):
+    loc = ModLocation.ARMS
+
+    def __init__(self) -> None:
+        self._ability = ThrowRock()
+
+    @property
+    def ability(self) -> Ability:
+        return self._ability
+
+    @property
+    def expended(self) -> bool:
+        return self._ability.num_uses <= 0
+
+    @property
+    def equipped_image(self) -> pg.Surface:
+        return images.get_image(images.ROCK)
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        return images.get_image(images.ROCK)
 
 
 class VomitMod(Mod):
