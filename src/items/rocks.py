@@ -11,7 +11,7 @@ from weapons import Projectile
 
 class Rock(Projectile):
     max_lifetime = 800
-    speed = 150
+    speed = 250
     damage = 25
     rock_size = (10, 10)
 
@@ -23,7 +23,7 @@ class Rock(Projectile):
 
         return pg.transform.scale(image, self.rock_size)
 
-    def kill(self):
+    def kill(self) -> None:
         RockObject(self.pos)
         super().kill()
 
@@ -35,7 +35,7 @@ class ThrowRock(FireProjectile):
     _projectile_count = 1
     _make_projectile = Rock
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.num_uses = 1
 
