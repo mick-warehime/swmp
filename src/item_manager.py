@@ -1,10 +1,12 @@
 import pygame as pg
-from mods import HealthPackObject, PistolObject, ShotgunObject, ItemObject
+from mods import HealthPackObject, PistolObject, ShotgunObject, ItemObject, \
+    RockObject
 from tilemap import ObjectType
 
 item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,
                     ObjectType.SHOTGUN: ShotgunObject,
-                    ObjectType.PISTOL: PistolObject}
+                    ObjectType.PISTOL: PistolObject,
+                    ObjectType.ROCK: RockObject}
 
 
 class ItemManager(object):
