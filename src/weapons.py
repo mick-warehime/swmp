@@ -91,12 +91,15 @@ class Rock(Projectile):
     max_lifetime = 800
     speed = 150
     damage = 25
+    rock_size = (10, 10)
 
     @property
     def image(self) -> pg.Surface:
-        angle = self._timer.current_time % 360
+        angle = self._timer.current_time // 2 % 360
         image = images.get_image(images.ROCK)
-        return pg.transform.rotate(image, angle)
+        image = pg.transform.rotate(image, angle)
+
+        return pg.transform.scale(image, self.rock_size)
 
 
 class MuzzleFlash(DynamicObject):
