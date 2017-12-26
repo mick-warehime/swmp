@@ -7,12 +7,10 @@ from pygame.math import Vector2
 import pygame
 
 import controller
-import model
 import humanoids as hmn
 from dungeon_controller import DungeonController
 from mods import PistolObject, ShotgunObject, HealthPackObject
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import Pygame, initialize_pygame
 
 from test import pygame_mock
 from view import DungeonView
