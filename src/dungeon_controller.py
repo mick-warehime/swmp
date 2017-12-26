@@ -119,7 +119,7 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_r, chest_ability)
 
         # equip / use
-        self.bind_down(pg.K_e, self.use_item_in_backpack)
+        self.bind_down(pg.K_e, self.equip_item_in_backpack)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -202,7 +202,7 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
-    def use_item_in_backpack(self) -> None:
+    def equip_item_in_backpack(self) -> None:
         '''use an item if the user selects an item in the backpack
         and hits the 'use' button binding. item.use is a virtual
         method implemented separately for each item/mod type.
