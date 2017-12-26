@@ -214,6 +214,8 @@ class PistolObject(ItemObject):
 
 
 class RockObject(ItemObject):
+    rock_size = (15, 15)
+
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
         mod = RockMod()
@@ -222,7 +224,8 @@ class RockObject(ItemObject):
 
     @property
     def image(self) -> pg.Surface:
-        return images.get_image(images.ROCK)
+        image = images.get_image(images.ROCK)
+        return pg.transform.scale(image, self.rock_size)
 
 
 class ShotgunObject(ItemObject):
