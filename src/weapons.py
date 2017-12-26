@@ -87,6 +87,18 @@ class EnemyVomit(Projectile):
         return images.get_image(images.VOMIT)
 
 
+class Rock(Projectile):
+    max_lifetime = 800
+    speed = 150
+    damage = 25
+
+    @property
+    def image(self) -> pg.Surface:
+        angle = self._timer.current_time % 360
+        image = images.get_image(images.ROCK)
+        return pg.transform.rotate(image, angle)
+
+
 class MuzzleFlash(DynamicObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
