@@ -77,7 +77,7 @@ class LittleBullet(Projectile):
 class EnemyVomit(Projectile):
     max_lifetime = 600
     speed = 300
-    damage = 50
+    damage = 20
 
     def __init__(self, pos: Vector2, direction: Vector2) -> None:
         super().__init__(pos, direction, hits_player=True)
