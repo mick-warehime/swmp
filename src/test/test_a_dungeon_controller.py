@@ -90,9 +90,9 @@ class DungeonControllerTest(unittest.TestCase):
         pistol_mod = pistol.mod
         shotgun_mod = shotgun.mod
         weapon_loc = pistol_mod.loc
-        self.assertEqual(player.inventory.active_mods[weapon_loc], pistol_mod)
+        self.assertEqual(player.active_mods[weapon_loc], pistol_mod)
         dng_ctrl.equip_mod_in_backpack()
-        self.assertEqual(player.inventory.active_mods[weapon_loc], shotgun_mod)
+        self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
     def test_items_do_not_move_in_backpack_after_equip(self):
 
@@ -109,7 +109,7 @@ class DungeonControllerTest(unittest.TestCase):
         player.attempt_pickup(health_pack_1)
 
         self.assertEqual(player.inventory.backpack.index(health_pack_1.mod), 1)
-        player.inventory.equip(shotgun.mod)
+        player.equip(shotgun.mod)
         self.assertEqual(player.inventory.backpack.index(health_pack_1.mod), 1)
 
 

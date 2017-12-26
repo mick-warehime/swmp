@@ -49,6 +49,7 @@ class Humanoid(mdl.DynamicObject):
         self.rot = 0
 
         self.inventory = Inventory()
+        self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
     @property
     def _walls(self) -> Group:
@@ -97,7 +98,7 @@ class Humanoid(mdl.DynamicObject):
         self._vel.y = 0
 
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
-        active_mods = self.inventory.active_mods
+        active_mods = self.active_mods
         if loc not in active_mods:
             return
         item_mod = active_mods[loc]
@@ -117,19 +118,30 @@ class Humanoid(mdl.DynamicObject):
         return called_ability
 
     def attempt_pickup(self, item: mods.ItemObject) -> None:
-        if item.mod.loc not in self.inventory.active_mods:
-            self.inventory.equip(item.mod)
+        if item.mod.loc not in self.active_mods:
+            self.equip(item.mod)
             item.kill()
         elif not self.inventory.backpack_full:
             self.inventory.add_to_backpack(item.mod)
             item.kill()
+
+    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
+        assert not self.inventory.backpack_full
+        old_mod = self.active_mods.pop(loc, None)
+        if old_mod is not None:
+            self.inventory.add_to_backpack(old_mod)
+
+    def equip(self, item_mod: mods.Mod) -> None:
+        if item_mod in self.inventory.backpack:
+            self.inventory.remove_from_backpack(item_mod)
+        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        self.active_mods[item_mod.loc] = item_mod
 
 
 class Inventory(object):
     """Stores the mods available to a Humanoid."""
 
     def __init__(self) -> None:
-        self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
         backpack_size = 8
         self.backpack_size = 8
@@ -140,18 +152,6 @@ class Inventory(object):
     @property
     def backpack_full(self) -> bool:
         return self._backpack_slots_filled == self.backpack_size
-
-    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
-        assert not self.backpack_full
-        old_mod = self.active_mods.pop(loc, None)
-        if old_mod is not None:
-            self.add_to_backpack(old_mod)
-
-    def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.backpack:
-            self.remove_from_backpack(item_mod)
-        self._move_mod_at_loc_to_backpack(item_mod.loc)
-        self.active_mods[item_mod.loc] = item_mod
 
     def add_to_backpack(self, mod: mods.Mod):
         self.backpack[self._first_empty_slot()] = mod

@@ -90,7 +90,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(hp)
         # healthpack goes straight to active mods.
         self.assertNotIn(hp.mod, backpack)
-        active_mods = player.inventory.active_mods
+        active_mods = player.active_mods
         self.assertIn(hp.mod, active_mods.values())
 
         hp_2 = _make_item(ObjectType.HEALTHPACK)
@@ -143,7 +143,7 @@ class ModTest(unittest.TestCase):
         # nothing installed at arms location -> install shotgun
         backpack = player.inventory.backpack
         self.assertNotIn(shotgun.mod, backpack)
-        active_mods = player.inventory.active_mods
+        active_mods = player.active_mods
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
 
@@ -157,7 +157,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(pistol.mod, backpack)
 
         # make sure we can swap the pistol with the shotgun
-        player.inventory.equip(pistol.mod)
+        player.equip(pistol.mod)
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, backpack)
