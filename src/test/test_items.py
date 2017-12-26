@@ -8,6 +8,7 @@ import humanoids as hmn
 import model
 import mods
 from items.item_manager import ItemManager
+from items.rocks import RockObject
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 # This allows for running tests without actually generating a screen display
@@ -161,6 +162,47 @@ class ModTest(unittest.TestCase):
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, backpack)
+
+    def test_mod_stacking_in_active_mods(self):
+        player = _make_player()
+        pos = Vector2(0, 0)
+        hp = mods.HealthPackObject(pos)
+
+        self.assertNotIn(hp.mod.loc, player.active_mods)
+
+        player.attempt_pickup(hp)
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertIs(player_mod, hp.mod)
+        self.assertEqual(player_mod.ability.uses_left, 1)
+
+        player.attempt_pickup(mods.HealthPackObject(pos))
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertEqual(player_mod.ability.uses_left, 2)
+
+        player.attempt_pickup(mods.HealthPackObject(pos))
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertEqual(player_mod.ability.uses_left, 3)
+
+    def test_mod_stacking_in_backpack(self):
+        player = _make_player()
+        pos = Vector2(0, 0)
+
+        player.attempt_pickup(mods.PistolObject(pos))
+
+        self.assertFalse(player.backpack.slot_occupied(0))
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertTrue(player.backpack.slot_occupied(0))
+        self.assertEqual(player.backpack[0].ability.uses_left, 1)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 2)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 3)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 4)
 
 
 if __name__ == '__main__':
