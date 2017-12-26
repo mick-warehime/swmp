@@ -164,6 +164,14 @@ class DungeonController(controller.Controller):
             knock_back = pg.math.Vector2(humanoids.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
+        # enemy projectiles hit player
+        projectiles: List[Projectile] = spritecollide(
+            self.player, self._groups.enemy_projectiles, True,
+            collide_hit_rect_with_rect)
+
+        for projectile in projectiles:
+            self.player.increment_health(-projectile.damage)
+
         # bullets hit mobs
         hits: Dict[Mob, List[Projectile]] = groupcollide(self._groups.mobs,
                                                          self._groups.bullets,
