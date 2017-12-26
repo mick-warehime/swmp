@@ -35,12 +35,21 @@ class Mod(object):
         raise NotImplementedError
 
     @property
+    def stackable(self) -> bool:
+        raise NotImplementedError
+
+    @property
     def equipped_image(self) -> pg.Surface:
         raise NotImplementedError
 
     @property
     def backpack_image(self) -> pg.Surface:
         raise NotImplementedError
+
+    def increment_uses(self, num_uses: int) -> None:
+        assert self.stackable
+        assert hasattr(self.ability, 'num_uses')
+        self.ability.num_uses += num_uses
 
 
 class ShotgunMod(Mod):
@@ -55,6 +64,10 @@ class ShotgunMod(Mod):
 
     @property
     def expended(self) -> bool:
+        return False
+
+    @property
+    def stackable(self) -> bool:
         return False
 
     @property
@@ -81,6 +94,10 @@ class PistolMod(Mod):
         return False
 
     @property
+    def stackable(self) -> bool:
+        return False
+
+    @property
     def equipped_image(self) -> pg.Surface:
         return images.get_image(images.PISTOL_MOD)
 
@@ -101,6 +118,10 @@ class VomitMod(Mod):
 
     @property
     def expended(self) -> bool:
+        return False
+
+    @property
+    def stackable(self) -> bool:
         return False
 
     @property
@@ -128,6 +149,10 @@ class HealthPackMod(Mod):
     @property
     def expended(self) -> bool:
         return self._ability.uses_left <= 0
+
+    @property
+    def stackable(self) -> bool:
+        return True
 
     @property
     def backpack_image(self) -> pg.Surface:

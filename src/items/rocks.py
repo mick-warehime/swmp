@@ -59,6 +59,10 @@ class RockMod(Mod):
         return self._ability.num_uses <= 0
 
     @property
+    def stackable(self) -> bool:
+        return True
+
+    @property
     def equipped_image(self) -> pg.Surface:
         return images.get_image(images.ROCK)
 
