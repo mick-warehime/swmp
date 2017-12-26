@@ -67,14 +67,14 @@ class ModTest(unittest.TestCase):
         player = _make_player()
         hp = _make_item(ObjectType.HEALTHPACK)
 
+        backpack = player.inventory.backpack
+        self.assertEqual(len(backpack), player.inventory.backpack_size)
         # TODO (dvirk): You should not be able to add the same object to the
         # backpack more than once.
-        backpack = player.inventory.backpack
+
         for i in range(player.inventory.backpack_size + 1):
             self.assertFalse(player.inventory.backpack_full)
             player.attempt_pickup(hp)
-            self.assertEqual(len(backpack), i)
-        self.assertEqual(len(backpack), player.inventory.backpack_size)
         self.assertTrue(player.inventory.backpack_full)
 
         # Item not gained since backpack full
@@ -86,7 +86,6 @@ class ModTest(unittest.TestCase):
         hp = _make_item(ObjectType.HEALTHPACK)
 
         backpack = player.inventory.backpack
-        self.assertEqual(len(backpack), 0)
 
         player.attempt_pickup(hp)
         # healthpack goes straight to active mods.
@@ -143,7 +142,7 @@ class ModTest(unittest.TestCase):
 
         # nothing installed at arms location -> install shotgun
         backpack = player.inventory.backpack
-        self.assertEqual(len(backpack), 0)
+        self.assertNotIn(shotgun.mod, backpack)
         active_mods = player.inventory.active_mods
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
@@ -152,14 +151,13 @@ class ModTest(unittest.TestCase):
         pistol = _make_item(ObjectType.PISTOL)
 
         player.attempt_pickup(pistol)
-        self.assertEqual(len(backpack), 1)
+        self.assertIn(pistol.mod, backpack)
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
         self.assertIn(pistol.mod, backpack)
 
         # make sure we can swap the pistol with the shotgun
         player.inventory.equip(pistol.mod)
-        self.assertEqual(len(backpack), 1)
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, backpack)

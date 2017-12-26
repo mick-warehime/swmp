@@ -2,7 +2,7 @@ from itertools import chain
 from random import choice, random
 import pygame as pg
 from pygame.sprite import Group
-from typing import Tuple, Callable, List
+from typing import Tuple, Callable, List, Union
 import math
 import images
 import mods
@@ -121,34 +121,55 @@ class Humanoid(mdl.DynamicObject):
             self.inventory.equip(item.mod)
             item.kill()
         elif not self.inventory.backpack_full:
-            self.inventory.backpack.append(item.mod)
+            self.inventory.add_to_backpack(item.mod)
             item.kill()
 
 
 class Inventory(object):
     """Stores the mods available to a Humanoid."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
 
-        self.backpack: List[mods.Mod] = []
+        backpack_size = 8
         self.backpack_size = 8
+        self.backpack: List[Union[mods.Mod, None]] = [None] * backpack_size
+
+        self._backpack_slots_filled = 0
 
     @property
     def backpack_full(self) -> bool:
-        return len(self.backpack) >= self.backpack_size
+        return self._backpack_slots_filled == self.backpack_size
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         assert not self.backpack_full
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
-            self.backpack.append(old_mod)
+            self.add_to_backpack(old_mod)
 
     def equip(self, item_mod: mods.Mod) -> None:
         if item_mod in self.backpack:
-            self.backpack.remove(item_mod)
+            self.remove_from_backpack(item_mod)
         self._move_mod_at_loc_to_backpack(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
+
+    def add_to_backpack(self, mod: mods.Mod):
+        self.backpack[self._first_empty_slot()] = mod
+        self._backpack_slots_filled += 1
+
+    def _first_empty_slot(self):
+        assert not self.backpack_full
+        for slot, mod in enumerate(self.backpack):
+            if mod is None:
+                empty_slot = slot
+                break
+        return empty_slot
+
+    def remove_from_backpack(self, mod: mods.Mod):
+        assert mod in self.backpack
+        empty_slot = self.backpack.index(mod)
+        self.backpack[empty_slot] = None
+        self._backpack_slots_filled -= 1
 
 
 class Player(Humanoid):
