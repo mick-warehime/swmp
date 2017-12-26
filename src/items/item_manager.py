@@ -1,6 +1,6 @@
 import pygame as pg
-from mods import HealthPackObject, PistolObject, ShotgunObject, ItemObject, \
-    RockObject
+from mods import HealthPackObject, PistolObject, ShotgunObject, ItemObject
+from items.rocks import RockObject
 from tilemap import ObjectType
 
 item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,

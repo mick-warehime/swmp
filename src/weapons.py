@@ -1,10 +1,11 @@
-import pygame as pg
 from random import uniform, randint
+
+import pygame as pg
 from pygame.math import Vector2
 
-from model import DynamicObject
-import settings
 import images
+import settings
+from model import DynamicObject
 
 
 class Projectile(DynamicObject):
@@ -85,21 +86,6 @@ class EnemyVomit(Projectile):
     @property
     def image(self) -> pg.Surface:
         return images.get_image(images.VOMIT)
-
-
-class Rock(Projectile):
-    max_lifetime = 800
-    speed = 150
-    damage = 25
-    rock_size = (10, 10)
-
-    @property
-    def image(self) -> pg.Surface:
-        angle = self._timer.current_time // 2 % 360
-        image = images.get_image(images.ROCK)
-        image = pg.transform.rotate(image, angle)
-
-        return pg.transform.scale(image, self.rock_size)
 
 
 class MuzzleFlash(DynamicObject):

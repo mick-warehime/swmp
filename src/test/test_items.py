@@ -1,15 +1,15 @@
 import os
 import unittest
+
 import pygame
 from pygame.math import Vector2
 
 import humanoids as hmn
-import mods
 import model
-from item_manager import ItemManager
+import mods
+from items.item_manager import ItemManager
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
-
 # This allows for running tests without actually generating a screen display
 # or audio output.
 from tilemap import ObjectType

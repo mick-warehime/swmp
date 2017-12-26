@@ -1,15 +1,14 @@
 """Module for defining Humanoid abilities."""
 from random import uniform
+from typing import Any
 from typing import Union, Callable
 
 from pygame.math import Vector2
 
 import sounds
-from typing import Any
-
 from model import Timer
 from tilemap import ObjectType
-from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit, Rock
+from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -121,22 +120,6 @@ class FireShotgun(FireProjectile):
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.SHOTGUN)
         MuzzleFlash(origin)
-
-
-class ThrowRock(FireProjectile):
-    _kickback = 0
-    _cool_down = 500
-    _spread = 10
-    _projectile_count = 1
-    _make_projectile = Rock
-
-    def __init__(self):
-        super().__init__()
-        self.num_uses = 1
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.play('grunt')
-        self.num_uses -= 1
 
 
 class Heal(CoolDownAbility):

@@ -1,11 +1,11 @@
 from enum import Enum
+
 import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit, \
-    ThrowRock
+from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit
 from model import DynamicObject
 
 HEALTH_PACK_AMOUNT = 20
@@ -87,29 +87,6 @@ class PistolMod(Mod):
     @property
     def backpack_image(self) -> pg.Surface:
         return images.get_image(images.PISTOL)
-
-
-class RockMod(Mod):
-    loc = ModLocation.ARMS
-
-    def __init__(self) -> None:
-        self._ability = ThrowRock()
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return self._ability.num_uses <= 0
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.ROCK)
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.ROCK)
 
 
 class VomitMod(Mod):
@@ -211,21 +188,6 @@ class PistolObject(ItemObject):
     @property
     def image(self) -> pg.Surface:
         return images.get_image(images.PISTOL)
-
-
-class RockObject(ItemObject):
-    rock_size = (15, 15)
-
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = RockMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        image = images.get_image(images.ROCK)
-        return pg.transform.scale(image, self.rock_size)
 
 
 class ShotgunObject(ItemObject):
