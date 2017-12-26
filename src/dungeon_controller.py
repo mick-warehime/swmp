@@ -119,7 +119,7 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_r, chest_ability)
 
         # equip / use
-        self.bind_down(pg.K_e, self.equip_item_in_backpack)
+        self.bind_down(pg.K_e, self.equip_mod_in_backpack)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -202,9 +202,9 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
-    def equip_item_in_backpack(self) -> None:
-        '''equip an item if the user selects an item in the backpack
-        and hits the 'equip' button binding.'''
+    def equip_mod_in_backpack(self) -> None:
+        '''equip amod if the user selects it in the backpack and hits the
+        'equip' button binding.'''
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return

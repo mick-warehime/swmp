@@ -85,7 +85,7 @@ class DungeonControllerTest(unittest.TestCase):
         shotgun_mod = shotgun.mod
         weapon_loc = pistol_mod.loc
         self.assertEqual(player.active_mods[weapon_loc], pistol_mod)
-        dng_ctrl.equip_item_in_backpack()
+        dng_ctrl.equip_mod_in_backpack()
         self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
 
