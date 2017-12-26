@@ -6,7 +6,6 @@ from pygame.math import Vector2
 import model
 import humanoids as hmn
 from abilities import FireShotgun
-from mods import ShotgunObject, ModLocation
 from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
     initialize_gameobjects
 

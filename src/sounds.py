@@ -1,7 +1,6 @@
 import pygame as pg
 from typing import List, Dict
 import os
-import settings
 import random
 
 # TODO - load sounds from JSON file -  issue#106
@@ -35,7 +34,7 @@ class SoundEffects(object):
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
         self.player_hit_sounds: List[pg.mixer.Sound] = []
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[settings.ItemType, List[pg.mixer.Sound]] = {}
+        self.weapon_sounds: Dict[ObjectType, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
@@ -80,6 +79,10 @@ def play(sound_name: str) -> None:
 def fire_weapon_sound(weapon_type: ObjectType) -> None:
     sound = random.choice(effects.weapon_sounds[weapon_type])
     sound.play()
+
+
+def spew_vomit_sound() -> None:
+    effects.zombie_moan_sounds[2].play()
 
 
 def player_hit_sound() -> None:

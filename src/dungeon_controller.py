@@ -9,7 +9,7 @@ from model import Obstacle, Groups, GameObject, Timer, \
 from item_manager import ItemManager
 from pygame.math import Vector2
 from typing import Dict, List, Tuple
-from weapons import Bullet
+from weapons import Projectile
 from os import path
 from random import random
 import pygame as pg
@@ -164,10 +164,18 @@ class DungeonController(controller.Controller):
             knock_back = pg.math.Vector2(humanoids.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
 
+        # enemy projectiles hit player
+        projectiles: List[Projectile] = spritecollide(
+            self.player, self._groups.enemy_projectiles, True,
+            collide_hit_rect_with_rect)
+
+        for projectile in projectiles:
+            self.player.increment_health(-projectile.damage)
+
         # bullets hit mobs
-        hits: Dict[Mob, List[Bullet]] = groupcollide(self._groups.mobs,
-                                                     self._groups.bullets,
-                                                     False, True)
+        hits: Dict[Mob, List[Projectile]] = groupcollide(self._groups.mobs,
+                                                         self._groups.bullets,
+                                                         False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.stop_x()

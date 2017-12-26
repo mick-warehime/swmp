@@ -7,17 +7,22 @@ import settings
 import images
 
 
-class Bullet(DynamicObject):
+class Projectile(DynamicObject):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
     max_lifetime: int = 0
     speed: int = 0
     damage: int = 0
 
-    def __init__(self, pos: Vector2, direction: Vector2) -> None:
+    def __init__(self, pos: Vector2, direction: Vector2,
+                 hits_player: bool = False) -> None:
         self._check_class_initialized()
         super().__init__(pos)
-        groups_list = [self._groups.all_sprites, self._groups.bullets]
+        if hits_player:
+            groups_list = [self._groups.all_sprites,
+                           self._groups.enemy_projectiles]
+        else:
+            groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
         assert direction.is_normalized()
@@ -42,7 +47,7 @@ class Bullet(DynamicObject):
         return lifetime > self.max_lifetime
 
 
-class BigBullet(Bullet):
+class BigBullet(Projectile):
     """A large bullet coming out of a pistol."""
     max_lifetime = 1000
     speed = 400
@@ -53,7 +58,7 @@ class BigBullet(Bullet):
         return images.get_image(images.BULLET_IMG)
 
 
-class LittleBullet(Bullet):
+class LittleBullet(Projectile):
     """A small bullet coming out of a shotgun."""
     max_lifetime = 500
     speed = 500
@@ -67,6 +72,19 @@ class LittleBullet(Bullet):
             small_img = pg.transform.scale(bullet_img, (10, 10))
             LittleBullet._image = small_img
         return self._image
+
+
+class EnemyVomit(Projectile):
+    max_lifetime = 600
+    speed = 300
+    damage = 20
+
+    def __init__(self, pos: Vector2, direction: Vector2) -> None:
+        super().__init__(pos, direction, hits_player=True)
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.VOMIT)
 
 
 class MuzzleFlash(DynamicObject):

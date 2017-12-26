@@ -139,7 +139,7 @@
 0,0,0,0,0,0,0,0,0,2684354853,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="Obstacles">
+ <objectgroup name="GameObjects">
   <object id="1" name="player" x="336" y="208" width="32" height="32"/>
   <object id="2" name="wall" x="448" y="320" width="320" height="64"/>
   <object id="3" name="wall" x="448" y="960" width="960" height="64"/>
@@ -166,7 +166,8 @@
   <object id="37" name="wall" x="1296" y="704" width="48" height="48"/>
   <object id="38" name="wall" x="1280" y="384" width="16" height="256"/>
   <object id="40" name="zombie" x="784" y="208" width="32" height="32"/>
-  <object id="42" name="zombie" x="1072" y="816" width="32" height="32"/>
+  <object id="42" name="zombie" x="1072" y="816" width="32" height="32"
+  type="quest"/>
   <object id="46" name="wall" x="784" y="1232" width="32" height="32"/>
   <object id="47" name="wall" x="1104" y="1296" width="32" height="32"/>
   <object id="48" name="wall" x="608" y="1504" width="64" height="64"/>

@@ -257,6 +257,8 @@ class Mob(Humanoid):
 
         if is_quest:
             self.speed *= 2
+            self._vomit_mod = mods.VomitMod()
+            self.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     @property
     def _mob_group(self) -> Group:
@@ -303,12 +305,16 @@ class Mob(Humanoid):
         if self._target_close(target_dist):
             if random() < 0.002:
                 sounds.mob_moan_sound()
+
             self.rot = target_dist.angle_to(Vector2(1, 0))
 
             self._match_rect_to_image()
             self._update_acc()
             self._update_trajectory()
             self._collide_with_walls()
+
+            if self.is_quest and random() < 0.01:
+                self.ability_caller(self._vomit_mod.loc)()
 
         if self.health <= 0:
             sounds.mob_hit_sound()
