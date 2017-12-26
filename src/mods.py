@@ -89,7 +89,7 @@ class PistolMod(Mod):
         return images.get_image(images.PISTOL)
 
 
-class Rock(Mod):
+class RockMod(Mod):
     loc = ModLocation.ARMS
 
     def __init__(self) -> None:
@@ -211,6 +211,18 @@ class PistolObject(ItemObject):
     @property
     def image(self) -> pg.Surface:
         return images.get_image(images.PISTOL)
+
+
+class RockObject(ItemObject):
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        mod = RockMod()
+
+        super().__init__(mod, pos)
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.ROCK)
 
 
 class ShotgunObject(ItemObject):
