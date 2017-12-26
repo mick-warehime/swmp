@@ -69,31 +69,34 @@ class ModTest(unittest.TestCase):
 
         # TODO (dvirk): You should not be able to add the same object to the
         # backpack more than once.
-        for i in range(player.backpack_size + 1):
-            self.assertFalse(player.backpack_full)
+        backpack = player.inventory.backpack
+        for i in range(player.inventory.backpack_size + 1):
+            self.assertFalse(player.inventory.backpack_full)
             player.attempt_pickup(hp)
-            self.assertEqual(len(player.backpack), i)
-        self.assertEqual(len(player.backpack), player.backpack_size)
-        self.assertTrue(player.backpack_full)
+            self.assertEqual(len(backpack), i)
+        self.assertEqual(len(backpack), player.inventory.backpack_size)
+        self.assertTrue(player.inventory.backpack_full)
 
         # Item not gained since backpack full
         player.attempt_pickup(hp)
-        self.assertEqual(len(player.backpack), player.backpack_size)
+        self.assertEqual(len(backpack), player.inventory.backpack_size)
 
     def test_use_health_pack(self) -> None:
         player = _make_player()
         hp = _make_item(ObjectType.HEALTHPACK)
 
-        self.assertEqual(len(player.backpack), 0)
+        backpack = player.inventory.backpack
+        self.assertEqual(len(backpack), 0)
 
         player.attempt_pickup(hp)
         # healthpack goes straight to active mods.
-        self.assertNotIn(hp.mod, player.backpack)
-        self.assertIn(hp.mod, player.active_mods.values())
+        self.assertNotIn(hp.mod, backpack)
+        active_mods = player.inventory.active_mods
+        self.assertIn(hp.mod, active_mods.values())
 
         hp_2 = _make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp_2)
-        self.assertIn(hp_2.mod, player.backpack)
+        self.assertIn(hp_2.mod, backpack)
 
         # health is full
         self.assertFalse(player.damaged)
@@ -104,7 +107,7 @@ class ModTest(unittest.TestCase):
         self.assertFalse(hp.mod.expended)
 
         # health pack doesn't work if health is full
-        self.assertIn(hp.mod, player.active_mods.values())
+        self.assertIn(hp.mod, active_mods.values())
 
         # health pack fills health back up and is gone from active_mods
         player.increment_health(-mods.HEALTH_PACK_AMOUNT)
@@ -116,9 +119,9 @@ class ModTest(unittest.TestCase):
         use_hp_mod()
 
         self.assertTrue(hp.mod.expended)
-        self.assertNotIn(hp.mod, player.backpack)
+        self.assertNotIn(hp.mod, backpack)
         self.assertFalse(player.damaged)
-        self.assertEqual(len(player.active_mods.values()), 0)
+        self.assertEqual(len(active_mods.values()), 0)
 
         hp = _make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)
@@ -130,7 +133,7 @@ class ModTest(unittest.TestCase):
 
         # health pack doesn't fill you over max health
         self.assertEqual(player.health, player.max_health)
-        self.assertEqual(len(player.active_mods.values()), 0)
+        self.assertEqual(len(active_mods.values()), 0)
 
     def test_add_weapons(self) -> None:
         player = _make_player()
@@ -139,25 +142,27 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(shotgun)
 
         # nothing installed at arms location -> install shotgun
-        self.assertEqual(len(player.backpack), 0)
-        arm_mod = player.active_mods[mods.ModLocation.ARMS]
+        backpack = player.inventory.backpack
+        self.assertEqual(len(backpack), 0)
+        active_mods = player.inventory.active_mods
+        arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
 
         # adding a second arm mod goes into the backpack
         pistol = _make_item(ObjectType.PISTOL)
 
         player.attempt_pickup(pistol)
-        self.assertEqual(len(player.backpack), 1)
-        arm_mod = player.active_mods[mods.ModLocation.ARMS]
+        self.assertEqual(len(backpack), 1)
+        arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
-        self.assertIn(pistol.mod, player.backpack)
+        self.assertIn(pistol.mod, backpack)
 
         # make sure we can swap the pistol with the shotgun
-        player.equip(pistol.mod)
-        self.assertEqual(len(player.backpack), 1)
-        arm_mod = player.active_mods[mods.ModLocation.ARMS]
+        player.inventory.equip(pistol.mod)
+        self.assertEqual(len(backpack), 1)
+        arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
-        self.assertIn(shotgun.mod, player.backpack)
+        self.assertIn(shotgun.mod, backpack)
 
 
 if __name__ == '__main__':

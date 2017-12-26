@@ -48,10 +48,7 @@ class Humanoid(mdl.DynamicObject):
         self._acc = Vector2(0, 0)
         self.rot = 0
 
-        self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
-
-        self.backpack: List[mods.Mod] = []
-        self.backpack_size = 8
+        self.inventory = Inventory()
 
     @property
     def _walls(self) -> Group:
@@ -99,22 +96,11 @@ class Humanoid(mdl.DynamicObject):
     def stop_y(self) -> None:
         self._vel.y = 0
 
-    def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.backpack:
-            self.backpack.remove(item_mod)
-        self._move_mod_at_loc_to_backpack(item_mod.loc)
-        self.active_mods[item_mod.loc] = item_mod
-
-    def ability_caller(self, loc: mods.ModLocation) -> Callable:
-        def called_ability() -> None:
-            return self._use_ability_at(loc)
-
-        return called_ability
-
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
-        if loc not in self.active_mods:
+        active_mods = self.inventory.active_mods
+        if loc not in active_mods:
             return
-        item_mod = self.active_mods[loc]
+        item_mod = active_mods[loc]
         assert loc == item_mod.loc
         assert not item_mod.expended
 
@@ -122,7 +108,35 @@ class Humanoid(mdl.DynamicObject):
             item_mod.ability.use(self)
 
         if item_mod.expended:
-            self.active_mods.pop(item_mod.loc)
+            active_mods.pop(item_mod.loc)
+
+    def ability_caller(self, loc: mods.ModLocation) -> Callable:
+        def called_ability() -> None:
+            return self._use_ability_at(loc)
+
+        return called_ability
+
+    def attempt_pickup(self, item: mods.ItemObject) -> None:
+        if item.mod.loc not in self.inventory.active_mods:
+            self.inventory.equip(item.mod)
+            item.kill()
+        elif not self.inventory.backpack_full:
+            self.inventory.backpack.append(item.mod)
+            item.kill()
+
+
+class Inventory(object):
+    """Stores the mods available to a Humanoid."""
+
+    def __init__(self):
+        self.active_mods: Dict[mods.ModLocation, mods.Mod] = {}
+
+        self.backpack: List[mods.Mod] = []
+        self.backpack_size = 8
+
+    @property
+    def backpack_full(self) -> bool:
+        return len(self.backpack) >= self.backpack_size
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         assert not self.backpack_full
@@ -130,17 +144,11 @@ class Humanoid(mdl.DynamicObject):
         if old_mod is not None:
             self.backpack.append(old_mod)
 
-    def attempt_pickup(self, item: mods.ItemObject) -> None:
-        if item.mod.loc not in self.active_mods:
-            self.equip(item.mod)
-            item.kill()
-        elif not self.backpack_full:
-            self.backpack.append(item.mod)
-            item.kill()
-
-    @property
-    def backpack_full(self) -> bool:
-        return len(self.backpack) >= self.backpack_size
+    def equip(self, item_mod: mods.Mod) -> None:
+        if item_mod in self.backpack:
+            self.backpack.remove(item_mod)
+        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        self.active_mods[item_mod.loc] = item_mod
 
 
 class Player(Humanoid):
