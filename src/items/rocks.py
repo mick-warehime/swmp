@@ -23,6 +23,10 @@ class Rock(Projectile):
 
         return pg.transform.scale(image, self.rock_size)
 
+    def kill(self):
+        RockObject(self.pos)
+        super().kill()
+
 
 class ThrowRock(FireProjectile):
     _kickback = 0
