@@ -166,7 +166,7 @@ class Backpack(object):
         matching_mods = [md for md in self._slots if isinstance(md, type(mod))]
         if matching_mods and mod.stackable:
             assert len(matching_mods) == 1
-            matching_mods[0].increment_uses(mod.ability.num_uses)
+            matching_mods[0].increment_uses(mod.ability.uses_left)
             return
 
         self._slots[self._first_empty_slot()] = mod
