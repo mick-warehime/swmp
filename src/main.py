@@ -34,7 +34,7 @@ class Game(object):
         sounds.play(sounds.LEVEL_START)
 
     def next_dungeon(self) -> None:
-        self.dungeon = self.quest.next()
+        self.dungeon = self.quest.next_dungeon()
         if self.dungeon != quest.COMPLETE:
             self.dungeon.bind(pg.K_ESCAPE, self.quit)
             self.dungeon.bind_down(pg.K_p, self.toggle_paused)
