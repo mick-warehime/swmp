@@ -58,7 +58,6 @@ def _make_dungeon_controller() -> DungeonController:
 
 
 class DungeonControllerTest(unittest.TestCase):
-    dng_ctrl = None
 
     def tearDown(self) -> None:
         pass
