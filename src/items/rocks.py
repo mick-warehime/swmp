@@ -44,21 +44,6 @@ class ThrowRock(FireProjectile):
         self.num_uses -= 1
 
 
-class RockObject(ItemObject):
-    rock_size = (15, 15)
-
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = RockMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        image = images.get_image(images.ROCK)
-        return pg.transform.scale(image, self.rock_size)
-
-
 class RockMod(Mod):
     loc = ModLocation.ARMS
 
@@ -80,3 +65,18 @@ class RockMod(Mod):
     @property
     def backpack_image(self) -> pg.Surface:
         return images.get_image(images.ROCK)
+
+
+class RockObject(ItemObject):
+    rock_size = (15, 15)
+
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        mod = RockMod()
+
+        super().__init__(mod, pos)
+
+    @property
+    def image(self) -> pg.Surface:
+        image = images.get_image(images.ROCK)
+        return pg.transform.scale(image, self.rock_size)
