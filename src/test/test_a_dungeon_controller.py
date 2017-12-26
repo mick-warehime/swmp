@@ -101,12 +101,12 @@ class DungeonControllerTest(unittest.TestCase):
         player.attempt_pickup(shotgun)  # shotgun mod goes to slot 0 in backpack
 
         player.attempt_pickup(HealthPackObject(pos))
-        health_pack_1 = HealthPackObject(pos)
-        player.attempt_pickup(health_pack_1)
+        shotgun_2 = ShotgunObject(pos)
+        player.attempt_pickup(shotgun_2)
 
-        self.assertIs(player.backpack[1], health_pack_1.mod)
+        self.assertIs(player.backpack[1], shotgun_2.mod)
         player.equip(shotgun.mod)
-        self.assertIs(player.backpack[1], health_pack_1.mod)
+        self.assertIs(player.backpack[1], shotgun_2.mod)
 
 
 if __name__ == '__main__':
