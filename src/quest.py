@@ -13,7 +13,6 @@ class Quest(object):
         self._screen = screen
         self._scenes: List[Any] = []
         self._current = 0
-        self.game_over = False
         self._quit_func = quit_func
 
     def next(self) -> DungeonController:
