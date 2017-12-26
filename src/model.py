@@ -9,7 +9,7 @@ import images
 from settings import TILESIZE
 
 _GroupsBase = namedtuple('_GroupsBase',
-                         ('walls', 'bullets',
+                         ('walls', 'bullets', 'enemy_projectiles',
                           'items', 'mobs',
                           'conflicts', 'all_sprites'))
 
@@ -18,7 +18,7 @@ class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
     def __new__(cls) -> _GroupsBase:
-        args = [Group() for _ in range(5)]
+        args = [Group() for _ in range(6)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
@@ -30,6 +30,7 @@ class Groups(_GroupsBase):
         self.all_sprites.empty()
         self.items.empty()
         self.conflicts.empty()
+        self.enemy_projectiles.empty()
 
 
 class Timer(object):

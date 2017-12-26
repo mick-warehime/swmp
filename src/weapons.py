@@ -14,10 +14,15 @@ class Projectile(DynamicObject):
     speed: int = 0
     damage: int = 0
 
-    def __init__(self, pos: Vector2, direction: Vector2) -> None:
+    def __init__(self, pos: Vector2, direction: Vector2,
+                 hits_player: bool = False) -> None:
         self._check_class_initialized()
         super().__init__(pos)
-        groups_list = [self._groups.all_sprites, self._groups.bullets]
+        if hits_player:
+            groups_list = [self._groups.all_sprites,
+                           self._groups.enemy_projectiles]
+        else:
+            groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
         assert direction.is_normalized()
@@ -69,10 +74,13 @@ class LittleBullet(Projectile):
         return self._image
 
 
-class Vomit(Projectile):
+class EnemyVomit(Projectile):
     max_lifetime = 600
     speed = 300
     damage = 50
+
+    def __init__(self, pos: Vector2, direction: Vector2) -> None:
+        super().__init__(pos, direction, hits_player=True)
 
     @property
     def image(self) -> pg.Surface:
