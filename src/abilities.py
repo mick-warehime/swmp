@@ -136,6 +136,7 @@ class ThrowRock(FireProjectile):
 
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.play('grunt')
+        self.num_uses -= 1
 
 
 class Heal(CoolDownAbility):
