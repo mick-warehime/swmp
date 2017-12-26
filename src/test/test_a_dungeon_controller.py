@@ -94,6 +94,25 @@ class DungeonControllerTest(unittest.TestCase):
         dng_ctrl.equip_mod_in_backpack()
         self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
+    def test_items_do_not_move_in_backpack_after_equip(self):
+
+        player = _make_player()
+
+        pos = Vector2(0, 0)
+        shotgun = ShotgunObject(pos)
+
+        player.attempt_pickup(PistolObject(pos))
+        player.attempt_pickup(shotgun)  # shotgun mod goes to slot 0 in backpack
+
+        player.attempt_pickup(HealthPackObject(pos))
+        health_pack_1 = HealthPackObject(pos)
+        player.attempt_pickup(health_pack_1)
+
+        self.assertEqual(player.backpack.index(health_pack_1.mod), 1)
+        player.equip(shotgun.mod)
+        self.assertEqual(player.backpack.index(health_pack_1.mod), 1)
+
+
 
 if __name__ == '__main__':
     unittest.main()
