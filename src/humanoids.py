@@ -132,7 +132,7 @@ class Humanoid(mdl.DynamicObject):
             self.backpack.add_mod(old_mod)
 
     def equip(self, item_mod: mods.Mod) -> None:
-        if item_mod in self.backpack._slots:
+        if item_mod in self.backpack:
             self.backpack.remove_mod(item_mod)
         self._move_mod_at_loc_to_backpack(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
