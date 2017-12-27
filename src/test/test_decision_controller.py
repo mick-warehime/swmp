@@ -45,6 +45,17 @@ class DecisionControllerTest(unittest.TestCase):
 
         self.assertEqual(dc.choice, 3)
 
+    def test_get_text(self) -> None:
+        prompt = 'Do you go into the swamp?'
+        options = ['one', 'two', 'three']
+        dc = decision_controller.DecisionController(None, prompt, options)
+
+        text = dc.get_text()
+
+        # ensure the text presents three options with the correct label
+        for number in ['1', '2', '3']:
+            self.assertTrue(any([number in el for el in text]))
+
 
 if __name__ == '__main__':
     unittest.main()
