@@ -13,12 +13,10 @@ def make_player() -> hmn.Player:
     return player
 
 
-def make_mob(player: Union[hmn.Player, None] = None,
-              pos: Union[Vector2, None] = None) -> hmn.Mob:
+def make_mob(player: Union[hmn.Player, None] = None) -> hmn.Mob:
     if player is None:
         player = make_player()
-    if pos is None:
-        pos = player.pos + pygame.math.Vector2(100, 0)
+    pos = player.pos + pygame.math.Vector2(100, 0)
     return hmn.Mob(pos, player, is_quest=False)
 
 
