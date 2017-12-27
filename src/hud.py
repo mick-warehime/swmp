@@ -15,14 +15,14 @@ class HUD(object):
         self._screen = screen
 
         # HUD size & location
-        self._hud_width = 473
-        self._hud_height = 110
+        self._hud_width = 283
+        self._hud_height = 60
         hud_x = (settings.WIDTH - self._hud_width) / 2.0
         hud_y = settings.HEIGHT - self._hud_height
         self._hud_pos = (hud_x, hud_y)
         self._hud_bar_offset = 0
-        self._bar_length = 260
-        self._bar_height = 20
+        self._bar_length = 20
+        self._bar_height = 75
         self.rect = pg.Rect(hud_x,
                             hud_y,
                             self._hud_width,
@@ -39,7 +39,7 @@ class HUD(object):
         mod_size = 62
         x, y = self._hud_pos
         rects: Dict[mods.ModLocation, pg.Rect] = {}
-
+        x += self._bar_length
         i = 0
         for loc in mods.ModLocation:
             x_i = x + i * (mod_size + 3)
@@ -51,16 +51,14 @@ class HUD(object):
 
     def generate_backpack_rects(self) -> List[pg.Rect]:
         item_size = 50
-        x, y = self._hud_pos
-        x += self._bar_length + 3
-        y += 4
+        x = settings.WIDTH - item_size - 4
+        y = 100
         rects: List[pg.Rect] = []
-        for i in range(4):
-            for j in range(2):
-                x_i = x + i * (item_size + 2)
-                y_i = y + j * (item_size + 2)
-                fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
-                rects.append(fill_rect)
+        for j in range(8):
+            x_i = x
+            y_i = y + j * (item_size + 2)
+            fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
+            rects.append(fill_rect)
         return rects
 
     def draw(self, player: Player) -> None:
@@ -71,9 +69,20 @@ class HUD(object):
         self.draw_backpack(player)
 
     def draw_hud_base(self) -> None:
+
+        # hud base
         x, y = self._hud_pos
         fill_rect = pg.Rect(x, y, self._hud_width, self._hud_height)
         pg.draw.rect(self._screen, settings.HUDGREY, fill_rect)
+
+        # backpack base
+        x_b_i = self.backpack_rects[0][0] - 2
+        x_b_f = self.backpack_rects[0][0] - 2
+        y_b_i = self.backpack_rects[0][1]
+        y_b_f = self.backpack_rects[-1][1] - 45
+
+        b_fill = pg.Rect(x_b_i, y_b_i,x_b_f, y_b_f)
+        pg.draw.rect(self._screen, settings.HUDGREY, b_fill)
 
     def draw_bar(self, player: Player, bar_type: str) -> None:
 
@@ -81,20 +90,20 @@ class HUD(object):
             frac_full = player.health / player.max_health
             col = settings.HUDGREEN1
             back_col = settings.HUDGREEN2
-            y_offset = 2 * self._bar_height
+            x_offset = 0
         else:
             frac_full = player.health / player.max_health
             col = settings.HUDBLUE1
             back_col = settings.HUDBLUE2
-            y_offset = self._bar_height
+            x_offset = self._hud_width
 
-        x = self._hud_pos[0] + self._hud_bar_offset
-        y = settings.HEIGHT - y_offset - 2
+        x = self._hud_pos[0] + self._hud_bar_offset + x_offset
+        y = settings.HEIGHT - self._bar_height
 
         frac_full = max(0.0, frac_full)
-        fill = frac_full * self._bar_length
+        fill = frac_full * self._bar_height
 
-        back_rect = pg.Rect(x, y, fill, self._bar_height)
+        back_rect = pg.Rect(x, y, self._bar_length, fill)
         fill_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
         outline_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
 
