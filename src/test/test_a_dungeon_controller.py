@@ -1,35 +1,12 @@
 import unittest
-from typing import Union, Any
-import os
+from typing import Any
 from unittest.mock import Mock
 from pygame.math import Vector2
-import pygame
-import humanoids as hmn
-from dungeon_controller import DungeonController
 from mods import PistolObject, ShotgunObject, HealthPackObject
 from src.test.pygame_mock import initialize_pygame
 from view import DungeonView
 import tilemap
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-
-def _make_player() -> hmn.Player:
-    pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(pos)
-    return player
-
-
-def _make_mob(player: Union[hmn.Player, None] = None,
-              pos: Union[Vector2, None] = None) -> hmn.Mob:
-    if player is None:
-        player = _make_player()
-    if pos is None:
-        pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player, is_quest=False)
+from src.test.testing_utilities import make_dungeon_controller, make_player
 
 
 def setUpModule() -> None:
@@ -46,15 +23,9 @@ def tearDownModule() -> None:
     CoolDownAbility.class_initialized = False
 
 
-def _make_dungeon_controller() -> DungeonController:
-    level = 'test_level.tmx'
-    blank_screen = pygame.Surface((800, 600))
-    return DungeonController(blank_screen, level)
-
-
 class DungeonControllerTest(unittest.TestCase):
     def test_health_pack_in_backpack_does_not_prevent_equip(self) -> None:
-        dng_ctrl = _make_dungeon_controller()
+        dng_ctrl = make_dungeon_controller()
         player = dng_ctrl.player
 
         pos = Vector2(0, 0)
@@ -79,7 +50,7 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
     def test_items_do_not_move_in_backpack_after_equip(self) -> None:
-        player = _make_player()
+        player = make_player()
 
         pos = Vector2(0, 0)
         shotgun = ShotgunObject(pos)
@@ -96,7 +67,7 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertIs(player.backpack[1], shotgun_2.mod)
 
     def test_quest_object(self) -> None:
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
         for obj_type in tilemap.ObjectType:
             is_quest = dungeon.is_quest_object(obj_type)
             if obj_type == tilemap.ObjectType.QUEST:
@@ -105,14 +76,14 @@ class DungeonControllerTest(unittest.TestCase):
                 self.assertFalse(is_quest)
 
     def test_game_over(self) -> None:
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
         player = dungeon.player
         dungeon.player.increment_health(- 2 * player.max_health)
 
         self.assertTrue(dungeon.game_over())
 
     def test_dungeon_over(self) -> None:
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
         # dungeon isn't over when we start
         self.assertFalse(dungeon.dungeon_over())
 
@@ -123,7 +94,7 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertTrue(dungeon.dungeon_over())
 
     def test_equip_nothing_from_backpack(self) -> None:
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
 
         # ensure this method doesn't fail (nothing selected)
         dungeon.equip_mod_in_backpack()
@@ -140,7 +111,7 @@ class DungeonControllerTest(unittest.TestCase):
         for func in [origin, far_awway]:
             dungeon_controller.pg.mouse.get_pos = func
 
-            dungeon = _make_dungeon_controller()
+            dungeon = make_dungeon_controller()
             dungeon.pass_mouse_pos_to_player()
 
             self.assertEqual(dungeon.player._mouse_pos, func())
@@ -150,7 +121,7 @@ class DungeonControllerTest(unittest.TestCase):
         def not_clicked() -> Any:
             return controller.NOT_CLICKED
 
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
         dungeon.get_clicked_pos = not_clicked
 
         self.assertFalse(dungeon.try_handle_hud())
@@ -159,14 +130,14 @@ class DungeonControllerTest(unittest.TestCase):
         def clicked() -> Any:
             return (-1000, -4000)
 
-        dungeon = _make_dungeon_controller()
+        dungeon = make_dungeon_controller()
         dungeon.get_clicked_pos = clicked
 
         self.assertFalse(dungeon.try_handle_hud())
 
     def test_set_player(self) -> None:
-        dungeon = _make_dungeon_controller()
-        player = _make_player()
+        dungeon = make_dungeon_controller()
+        player = make_player()
         pos = Vector2(0, 0)
         pistol = PistolObject(pos)
         shotgun = ShotgunObject(pos)
@@ -180,10 +151,9 @@ class DungeonControllerTest(unittest.TestCase):
         # make sure the player in the dungeon has 10 less health and the pistol
         # equiped and the shotgun in the backpack
         set_player = dungeon.player
-        self.assertEqual(set_player.health, player.max_health-10)
+        self.assertEqual(set_player.health, player.max_health - 10)
         self.assertEqual(set_player.backpack._slots_filled, 1)
         self.assertEqual(len(set_player.active_mods.values()), 1)
-
 
 
 if __name__ == '__main__':

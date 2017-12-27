@@ -1,30 +1,15 @@
 import unittest
-import os
-import pygame
 import model
-import humanoids as hmn
 from abilities import FirePistol, FireShotgun, Heal
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from weapons import Projectile, MuzzleFlash
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
+from src.test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
-
-
-def _make_player() -> hmn.Player:
-    pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(pos)
-    return player
 
 
 class AbilitiesTest(unittest.TestCase):
@@ -46,7 +31,7 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_fireprojectile_use_instantiates_bullet_and_flash(self) -> None:
         groups = self.groups
-        player = _make_player()
+        player = make_player()
         fire_pistol = FirePistol()
 
         self.assertEqual(len(groups.all_sprites), 1)
@@ -69,7 +54,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(num_others, 1)
 
     def test_fireprojectile_use_ignores_can_use(self) -> None:
-        player = _make_player()
+        player = make_player()
         fire_pistol = FirePistol()
 
         self.assertEqual(len(self.groups.bullets), 0)
@@ -78,7 +63,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(len(self.groups.bullets), 1)
 
     def test_fireprojectile_cannot_use_after_firing(self) -> None:
-        player = _make_player()
+        player = make_player()
         fire_pistol = FirePistol()
         self.timer.current_time += FirePistol._cool_down + 1
 
@@ -87,7 +72,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertFalse(fire_pistol.can_use)
 
     def test_player_shoot_kickback(self) -> None:
-        player = _make_player()
+        player = make_player()
         fire_pistol = FirePistol()
 
         old_vel = (player._vel.x, player._vel.y)
@@ -98,7 +83,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(new_vel, expected_vel)
 
     def test_fire_shotgun_many_bullets(self) -> None:
-        player = _make_player()
+        player = make_player()
         fire_shotty = FireShotgun()
 
         self.assertEqual(len(self.groups.bullets), 0)
@@ -107,7 +92,7 @@ class AbilitiesTest(unittest.TestCase):
                          FireShotgun._projectile_count)
 
     def test_heal_player_not_damaged(self) -> None:
-        player = _make_player()
+        player = make_player()
         heal_amount = 10
         heal = Heal(3, heal_amount)
 
@@ -118,7 +103,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(heal.uses_left, 3)
 
     def test_heal_player_damaged_to_full(self) -> None:
-        player = _make_player()
+        player = make_player()
         heal_amount = 10
         heal = Heal(3, heal_amount)
 
@@ -129,7 +114,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_correct_amount(self) -> None:
-        player = _make_player()
+        player = make_player()
         heal_amount = 10
         heal = Heal(3, heal_amount)
 

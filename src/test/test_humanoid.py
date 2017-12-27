@@ -1,37 +1,13 @@
 import unittest
-from typing import Union, Tuple
-import os
+from typing import Tuple
 from pygame.math import Vector2
-import pygame
 from pygame.sprite import Group, LayeredUpdates
 import model
-import humanoids as hmn
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from itertools import product
 import math
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
-
-
-def _make_player() -> hmn.Player:
-    pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(pos)
-    return player
-
-
-def _make_mob(player: Union[hmn.Player, None] = None,
-              pos: Union[Vector2, None] = None) -> hmn.Mob:
-    if player is None:
-        player = _make_player()
-    if pos is None:
-        pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player, is_quest=False)
+from src.test.testing_utilities import make_player, make_mob
 
 
 def setUpModule() -> None:
@@ -62,7 +38,7 @@ class HumanoidsTest(unittest.TestCase):
             groups.walls = Group()
 
     def test_humanoid_increment_health(self) -> None:
-        player = _make_player()
+        player = make_player()
         max_health = player.health
 
         player.increment_health(-1)
@@ -73,7 +49,7 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.health, 0)
 
     def test_player_move(self) -> None:
-        player = _make_player()
+        player = make_player()
 
         original_pos = Vector2(0, 0)
         self.assertEqual(player.pos, original_pos)
@@ -103,7 +79,7 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.pos, original_pos)
 
     def test_player_turn(self) -> None:
-        player = _make_player()
+        player = make_player()
 
         # start player at origin facing right
         player.pos = (0, 0)
@@ -139,7 +115,7 @@ class HumanoidsTest(unittest.TestCase):
                 return (0.0, 0.0)
             return (x / length, y / length)
 
-        player = _make_player()
+        player = make_player()
 
         # test that the player moves in the same direction as mouse
         possible_positions = [[0, 100, -100]] * 2
@@ -161,7 +137,7 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_mouse_too_close(self) -> None:
         # stop moving when you get close to the mouse
-        player = _make_player()
+        player = make_player()
 
         player.pos = (0, 0)
         player.rot = 0
@@ -173,7 +149,7 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.pos[1], 0)
 
     def test_player_stop(self) -> None:
-        player = _make_player()
+        player = make_player()
 
         original_pos = Vector2(0, 0)
         self.assertEqual(player.pos, original_pos)
@@ -193,8 +169,8 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.pos, expected)
 
     def test_mob_move_to_player(self) -> None:
-        player = _make_player()
-        mob = _make_mob(player)
+        player = make_player()
+        mob = make_mob(player)
 
         initial_dist = _dist(player.pos, mob.pos)
         mob.update()
@@ -204,7 +180,7 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
-        mob = _make_mob()
+        mob = make_mob()
         mob.increment_health(61 - mob._max_health)
         mob.increment_health(31 - 61)
         mob.increment_health(0 - 31)

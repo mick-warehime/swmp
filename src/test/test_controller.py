@@ -165,6 +165,10 @@ class ControllerTest(unittest.TestCase):
         ctrl.handle_input()
         self.assertEqual(self.b, test_string_b)
 
+        controller.pg.key.pressed[self.c_key] = 1
+        ctrl.handle_input()
+        self.assertEqual(self.c, test_string_c)
+
         self.a = ''
         self.b = ''
         self.c = ''
