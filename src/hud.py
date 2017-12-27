@@ -109,7 +109,7 @@ class HUD(object):
         back_rect = pg.Rect(x, y_off, self._bar_length, fill)
         fill_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
         outline_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
-        print(back_rect, frac_full)
+
         pg.draw.rect(self._screen, back_col, fill_rect)
         pg.draw.rect(self._screen, col, back_rect)
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
