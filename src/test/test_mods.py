@@ -20,15 +20,6 @@ def setUpModule() -> None:
     initialize_gameobjects(ModTest.groups, ModTest.timer)
 
 
-def _assert_runtime_exception_raised(tested_fun: Callable) -> None:
-    exception_raised = False
-    try:
-        tested_fun()
-    except RuntimeError:
-        exception_raised = True
-    assert exception_raised
-
-
 class ModTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
