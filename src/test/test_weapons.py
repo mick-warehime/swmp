@@ -1,31 +1,15 @@
 import unittest
-import os
-
 from pygame.math import Vector2
-
 import model
-import humanoids as hmn
 from abilities import FireShotgun
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame, \
+from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
+from testing_utilities import make_player
 
 
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(WeaponsTest.groups, WeaponsTest.timer)
-
-
-def _make_player() -> hmn.Player:
-    pos = Vector2(0, 0)
-    player = hmn.Player(pos)
-    return player
 
 
 class WeaponsTest(unittest.TestCase):
@@ -37,7 +21,7 @@ class WeaponsTest(unittest.TestCase):
         self.timer.reset()
 
     def test_fire_projectile_distance_independent_of_count(self) -> None:
-        player = _make_player()
+        player = make_player()
         num_updates = 100
 
         FireShotgun._projectile_count = 1

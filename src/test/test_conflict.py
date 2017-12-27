@@ -4,7 +4,6 @@ from pygame.sprite import Group, Sprite
 
 
 class ConflictTest(unittest.TestCase):
-
     def test_kill_all_conflict(self) -> None:
         # conflict = kill 100 enemies
         g = Group()
@@ -21,7 +20,7 @@ class ConflictTest(unittest.TestCase):
 
         # verify the conflict isn't over after the first
         # 99 kills
-        for i in range(n_sprites-1):
+        for i in range(n_sprites - 1):
             sprites[i].kill()
             self.assertFalse(c.is_resolved())
 

@@ -1,35 +1,11 @@
 import unittest
-from typing import Union, Callable
-import os
-from pygame.math import Vector2
+from typing import Callable
 import pygame
 import model
 import humanoids as hmn
 from abilities import CoolDownAbility
-
-from src.test.pygame_mock import MockTimer, Pygame, initialize_pygame
-
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
-
-
-def _make_player() -> hmn.Player:
-    pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(pos)
-    return player
-
-
-def _make_mob(player: Union[hmn.Player, None] = None,
-              pos: Union[Vector2, None] = None) -> hmn.Mob:
-    if player is None:
-        player = _make_player()
-    if pos is None:
-        pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player, is_quest=False)
+from src.test.pygame_mock import MockTimer, initialize_pygame
+from testing_utilities import make_player, make_mob
 
 
 def setUpModule() -> None:
@@ -40,11 +16,11 @@ def setUpModule() -> None:
 def _initialization_tests() -> None:
     # Normally I would be running unit tests, but it is not possible to check
     #  exceptions once the classes are initialized.
-    _assert_runtime_exception_raised(_make_player)
+    _assert_runtime_exception_raised(make_player)
     model.GameObject.initialize_gameobjects(InitsTest.groups)
-    _assert_runtime_exception_raised(_make_player)
+    _assert_runtime_exception_raised(make_player)
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
-    _assert_runtime_exception_raised(_make_mob)
+    _assert_runtime_exception_raised(make_mob)
     blank_screen = pygame.Surface((800, 600))
     hmn.Mob.init_class(blank_screen)
     _assert_runtime_exception_raised(CoolDownAbility)

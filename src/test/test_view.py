@@ -5,11 +5,6 @@ import pygame
 import settings
 from test.pygame_mock import initialize_pygame
 
-# This allows for running tests without actually generating a screen display
-# or audio output.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
 
 def setUpModule() -> None:
     initialize_pygame()
