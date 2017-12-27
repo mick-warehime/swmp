@@ -1,17 +1,15 @@
 import unittest
 from itertools import product
-
 import controller
-import decision_controller
 from test import pygame_mock
-
-pg = pygame_mock.Pygame()
-controller.pg.mouse = pg.mouse
-controller.pg.key = pg.key
 
 
 class ControllerTest(unittest.TestCase):
     def setUp(self) -> None:
+        pg = pygame_mock.Pygame()
+        controller.pg.mouse = pg.mouse
+        controller.pg.key = pg.key
+
         self.a_key: int = 0
         self.b_key: int = 1
         self.c_key: int = 2
@@ -42,7 +40,7 @@ class ControllerTest(unittest.TestCase):
         test_string = 'set a'
         ctrl.bind(self.a_key, lambda: self.set_a(test_string))
 
-        pg.key.pressed[self.a_key] = 1
+        controller.pg.key.pressed[self.a_key] = 1
 
         # test we set the key
         self.assertEqual(len(ctrl.bindings), 1)
@@ -60,7 +58,7 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind_down(self.a_key, lambda: self.set_a(test_string))
 
         # function is called when you press the key
-        pg.key.pressed[self.a_key] = 1
+        controller.pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
         ctrl.set_previous_input()
         self.assertEqual(self.a, test_string)
@@ -69,19 +67,19 @@ class ControllerTest(unittest.TestCase):
         self.a = ''
 
         # nothing happens if you keep it help down
-        pg.key.pressed[self.a_key] = 1
+        controller.pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
         ctrl.set_previous_input()
         self.assertEqual(self.a, '')
 
         # nothing happens when you release
-        pg.key.pressed[self.a_key] = 0
+        controller.pg.key.pressed[self.a_key] = 0
         ctrl.handle_input()
         ctrl.set_previous_input()
         self.assertEqual(self.a, '')
 
         # function called again when you press down
-        pg.key.pressed[self.a_key] = 1
+        controller.pg.key.pressed[self.a_key] = 1
         ctrl.handle_input()
         ctrl.set_previous_input()
         self.assertEqual(self.a, test_string)
@@ -92,7 +90,7 @@ class ControllerTest(unittest.TestCase):
         test_string = 'set a'
         ctrl.bind_mouse(self.a_key, lambda: self.set_a(test_string))
 
-        pg.mouse.pressed[self.a_key] = 1
+        controller.pg.mouse.pressed[self.a_key] = 1
 
         ctrl.handle_input()
         self.assertEqual(self.a, test_string)
@@ -119,11 +117,11 @@ class ControllerTest(unittest.TestCase):
         # every combination of 3 keys and two mouse presses
         for key_1, key_2, key_3, mouse_1, mouse_2 in product(*[[0, 1]] * 5):
             # press the keys
-            pg.key.pressed[0] = key_1
-            pg.key.pressed[1] = key_2
-            pg.key.pressed[2] = key_3
-            pg.mouse.pressed[0] = mouse_1
-            pg.mouse.pressed[1] = mouse_2
+            controller.pg.key.pressed[0] = key_1
+            controller.pg.key.pressed[1] = key_2
+            controller.pg.key.pressed[2] = key_3
+            controller.pg.mouse.pressed[0] = mouse_1
+            controller.pg.mouse.pressed[1] = mouse_2
 
             # .handle_input() combinations
             ctrl.handle_input()
@@ -163,7 +161,7 @@ class ControllerTest(unittest.TestCase):
         # ensure we haven't changed this yet
         self.assertEqual(self.b, '')
 
-        pg.key.pressed[self.b_key] = 1
+        controller.pg.key.pressed[self.b_key] = 1
         ctrl.handle_input()
         self.assertEqual(self.b, test_string_b)
 
@@ -171,51 +169,13 @@ class ControllerTest(unittest.TestCase):
         self.b = ''
         self.c = ''
 
-        pg.key.pressed[self.a_key] = 1
-        pg.key.pressed[self.b_key] = 1
-        pg.key.pressed[self.c_key] = 1
+        controller.pg.key.pressed[self.a_key] = 1
+        controller.pg.key.pressed[self.b_key] = 1
+        controller.pg.key.pressed[self.c_key] = 1
         ctrl.handle_input(only_handle=[self.a_key])
         self.assertEqual(self.a, test_string_a)
         self.assertEqual(self.b, '')
         self.assertEqual(self.c, '')
-
-
-class DecisionControllerTest(unittest.TestCase):
-    def test_set_option_0(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
-
-        key0 = controller.pg.K_1
-        pg.key.pressed[key0] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 1)
-
-    def test_set_option_1(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
-
-        key1 = controller.pg.K_2
-        pg.key.pressed[key1] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 2)
-
-    def test_set_option_2(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
-
-        key2 = controller.pg.K_3
-        pg.key.pressed[key2] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 3)
 
 
 if __name__ == '__main__':
