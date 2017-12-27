@@ -8,6 +8,7 @@ import humanoids as hmn
 import model
 import mods
 from items.item_manager import ItemManager
+from items.rocks import RockObject
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 # This allows for running tests without actually generating a screen display
@@ -65,7 +66,7 @@ class ModTest(unittest.TestCase):
 
     def test_backpack_full(self) -> None:
         player = _make_player()
-        hp = _make_item(ObjectType.HEALTHPACK)
+        pistol = _make_item(ObjectType.PISTOL)
 
         backpack = player.backpack
         self.assertEqual(len(backpack), player.backpack.size)
@@ -74,11 +75,11 @@ class ModTest(unittest.TestCase):
 
         for i in range(player.backpack.size + 1):
             self.assertFalse(player.backpack.is_full)
-            player.attempt_pickup(hp)
+            player.attempt_pickup(pistol)
         self.assertTrue(player.backpack.is_full)
 
         # Item not gained since backpack full
-        player.attempt_pickup(hp)
+        player.attempt_pickup(pistol)
         self.assertEqual(len(backpack), player.backpack.size)
 
     def test_use_health_pack(self) -> None:
@@ -89,13 +90,14 @@ class ModTest(unittest.TestCase):
 
         player.attempt_pickup(hp)
         # healthpack goes straight to active mods.
-        self.assertNotIn(hp.mod, backpack)
+        self.assertNotIn(hp.mod, backpack)  # healthpack added to stack.
         active_mods = player.active_mods
         self.assertIn(hp.mod, active_mods.values())
 
         hp_2 = _make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp_2)
-        self.assertIn(hp_2.mod, backpack)
+
+        self.assertNotIn(hp_2.mod, backpack)
 
         # health is full
         self.assertFalse(player.damaged)
@@ -117,10 +119,10 @@ class ModTest(unittest.TestCase):
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
 
-        self.assertTrue(hp.mod.expended)
+        self.assertFalse(hp.mod.expended)
+        self.assertEqual(hp.mod.ability.uses_left, 1)
         self.assertNotIn(hp.mod, backpack)
         self.assertFalse(player.damaged)
-        self.assertEqual(len(active_mods.values()), 0)
 
         hp = _make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)
@@ -132,7 +134,6 @@ class ModTest(unittest.TestCase):
 
         # health pack doesn't fill you over max health
         self.assertEqual(player.health, player.max_health)
-        self.assertEqual(len(active_mods.values()), 0)
 
     def test_add_weapons(self) -> None:
         player = _make_player()
@@ -161,6 +162,47 @@ class ModTest(unittest.TestCase):
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertEqual(arm_mod, pistol.mod)
         self.assertIn(shotgun.mod, backpack)
+
+    def test_mod_stacking_in_active_mods(self) -> None:
+        player = _make_player()
+        pos = Vector2(0, 0)
+        hp = mods.HealthPackObject(pos)
+
+        self.assertNotIn(hp.mod.loc, player.active_mods)
+
+        player.attempt_pickup(hp)
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertIs(player_mod, hp.mod)
+        self.assertEqual(player_mod.ability.uses_left, 1)
+
+        player.attempt_pickup(mods.HealthPackObject(pos))
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertEqual(player_mod.ability.uses_left, 2)
+
+        player.attempt_pickup(mods.HealthPackObject(pos))
+        player_mod = player.active_mods[hp.mod.loc]
+        self.assertEqual(player_mod.ability.uses_left, 3)
+
+    def test_mod_stacking_in_backpack(self) -> None:
+        player = _make_player()
+        pos = Vector2(0, 0)
+
+        player.attempt_pickup(mods.PistolObject(pos))
+
+        self.assertFalse(player.backpack.slot_occupied(0))
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertTrue(player.backpack.slot_occupied(0))
+        self.assertEqual(player.backpack[0].ability.uses_left, 1)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 2)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 3)
+
+        player.attempt_pickup(RockObject(pos))
+        self.assertEqual(player.backpack[0].ability.uses_left, 4)
 
 
 if __name__ == '__main__':

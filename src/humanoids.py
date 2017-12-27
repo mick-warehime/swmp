@@ -121,9 +121,18 @@ class Humanoid(mdl.DynamicObject):
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
-        elif not self.backpack.is_full:
+            return
+        mod_at_loc = self.active_mods[item.mod.loc]
+
+        if isinstance(mod_at_loc, type(item.mod)) and item.mod.stackable:
+            mod_at_loc.increment_uses(item.mod.ability.uses_left)
+            item.kill()
+            return
+
+        if not self.backpack.is_full:
             self.backpack.add_mod(item.mod)
             item.kill()
+            return
 
     def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
         assert not self.backpack.is_full
@@ -154,6 +163,12 @@ class Backpack(object):
         return self._slots_filled == self.size
 
     def add_mod(self, mod: mods.Mod) -> None:
+        matching_mods = [md for md in self._slots if isinstance(md, type(mod))]
+        if matching_mods and mod.stackable:
+            assert len(matching_mods) == 1
+            matching_mods[0].increment_uses(mod.ability.uses_left)
+            return
+
         self._slots[self._first_empty_slot()] = mod
         self._slots_filled += 1
 
