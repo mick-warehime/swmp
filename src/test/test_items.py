@@ -6,7 +6,7 @@ from items.rocks import RockObject
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
-from testing_utilities import make_player, make_item
+from src.test.testing_utilities import make_player, make_item
 
 
 def setUpModule() -> None:

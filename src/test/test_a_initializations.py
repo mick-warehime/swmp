@@ -5,7 +5,7 @@ import model
 import humanoids as hmn
 from abilities import CoolDownAbility
 from src.test.pygame_mock import MockTimer, initialize_pygame
-from testing_utilities import make_player, make_mob
+from src.test.testing_utilities import make_player, make_mob
 
 
 def setUpModule() -> None:

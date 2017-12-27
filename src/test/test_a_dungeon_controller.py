@@ -6,7 +6,7 @@ from mods import PistolObject, ShotgunObject, HealthPackObject
 from src.test.pygame_mock import initialize_pygame
 from view import DungeonView
 import tilemap
-from testing_utilities import make_dungeon_controller, make_player
+from src.test.testing_utilities import make_dungeon_controller, make_player
 
 
 def setUpModule() -> None:

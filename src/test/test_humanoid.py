@@ -7,7 +7,7 @@ from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from itertools import product
 import math
-from testing_utilities import make_player, make_mob
+from src.test.testing_utilities import make_player, make_mob
 
 
 def setUpModule() -> None:
