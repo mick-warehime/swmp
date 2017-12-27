@@ -81,7 +81,7 @@ class HUD(object):
         y_b_i = self.backpack_rects[0][1]
         y_b_f = self.backpack_rects[-1][1] - 45
 
-        b_fill = pg.Rect(x_b_i, y_b_i,x_b_f, y_b_f)
+        b_fill = pg.Rect(x_b_i, y_b_i, x_b_f, y_b_f)
         pg.draw.rect(self._screen, settings.HUDGREY, b_fill)
 
     def draw_bar(self, player: Player, bar_type: str) -> None:
