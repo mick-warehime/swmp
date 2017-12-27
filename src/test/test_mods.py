@@ -5,9 +5,6 @@ from mods import Mod, PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 
-# needs to be here otherwise we load a screen
-import dummy_audio_video
-
 
 def setUpModule() -> None:
     initialize_pygame()
