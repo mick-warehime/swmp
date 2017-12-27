@@ -121,3 +121,6 @@ class DungeonView(object):
 
     def set_selected_item(self, idx: int) -> None:
         self._hud.selected_item = idx
+
+    def toggle_hide_backpack(self) -> None:
+        self._hud.toggle_hide_backpack()

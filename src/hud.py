@@ -16,7 +16,7 @@ class HUD(object):
 
         # HUD size & location
         self._hud_width = 283
-        self._hud_height = 60
+        self._hud_height = 68
         hud_x = (settings.WIDTH - self._hud_width) / 2.0
         hud_y = settings.HEIGHT - self._hud_height
         self._hud_pos = (hud_x, hud_y)
@@ -34,6 +34,7 @@ class HUD(object):
 
         self.selected_mod = NO_SELECTION
         self.selected_item = NO_SELECTION
+        self._backpack_hidden = True
 
     def generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
         mod_size = 62
@@ -75,6 +76,7 @@ class HUD(object):
         fill_rect = pg.Rect(x, y, self._hud_width, self._hud_height)
         pg.draw.rect(self._screen, settings.HUDGREY, fill_rect)
 
+    def draw_backpack_base(self) -> None:
         # backpack base
         x_b_i = self.backpack_rects[0][0] - 2
         x_b_f = self.backpack_rects[0][0] - 2
@@ -153,6 +155,11 @@ class HUD(object):
                   align="center")
 
     def draw_backpack(self, player: Player) -> None:
+        if self._backpack_hidden:
+            return
+
+        self.draw_backpack_base()
+
         for idx, rect in enumerate(self.backpack_rects):
             color = settings.HUDDARK
             if self.selected_item == idx:
@@ -172,3 +179,6 @@ class HUD(object):
             if item_mod.stackable:
                 self._draw_mod_ammo(img_rect, item_mod,
                                     images.get_font(images.ZOMBIE_FONT))
+
+    def toggle_hide_backpack(self) -> None:
+        self._backpack_hidden = not self._backpack_hidden
