@@ -16,7 +16,7 @@ class HUD(object):
 
         # HUD size & location
         self._hud_width = 283
-        self._hud_height = 60
+        self._hud_height = 68
         hud_x = (settings.WIDTH - self._hud_width) / 2.0
         hud_y = settings.HEIGHT - self._hud_height
         self._hud_pos = (hud_x, hud_y)
