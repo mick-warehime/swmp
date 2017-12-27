@@ -21,6 +21,7 @@ class Quest(object):
         self._current = 0
         self._quit_func = quit_func
         self._current_scene = self._root_scene()
+        self._player: Any = None
 
     # temporary function for creating quests - just description + filename
     def _create_quest(self) -> nx.DiGraph:
@@ -60,7 +61,13 @@ class Quest(object):
     # with a dungeon generation or load quests from files
     def _create_dungeon(self) -> DungeonController:
         map_file = self._current_scene.map_file
-        return DungeonController(self._screen, map_file)
+        dungeon = DungeonController(self._screen, map_file)
+        if self._player is not None:
+            dungeon.set_player(self._player)
+        else:
+            self._player = dungeon.player
+
+        return dungeon
 
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node

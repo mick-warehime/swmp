@@ -229,6 +229,12 @@ class DungeonController(controller.Controller):
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
 
+    def set_player(self, player: Player) -> None:
+        self.player.backpack = player.backpack
+        self.player.increment_health(-self.player.health)
+        self.player.increment_health(player.health)
+        self.player.active_mods = player.active_mods
+
 
 class Conflict(object):
     def __init__(self, conflict_objects: Group) -> None:
