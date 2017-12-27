@@ -2,29 +2,18 @@ import unittest
 from typing import Union
 import os
 from unittest.mock import Mock
-
 from pygame.math import Vector2
 import pygame
-
-import controller
 import humanoids as hmn
 from dungeon_controller import DungeonController
 from mods import PistolObject, ShotgunObject, HealthPackObject
-from src.test.pygame_mock import Pygame, initialize_pygame
-
-from test import pygame_mock
+from src.test.pygame_mock import initialize_pygame
 from view import DungeonView
-
-pg = pygame_mock.Pygame()
-controller.pg.mouse = pg.mouse
-controller.pg.key = pg.key
 
 # This allows for running tests without actually generating a screen display
 # or audio output.
 os.environ['SDL_VIDEODRIVER'] = 'dummy'
 os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
-pg = Pygame()
 
 
 def _make_player() -> hmn.Player:
@@ -63,9 +52,6 @@ def _make_dungeon_controller() -> DungeonController:
 
 
 class DungeonControllerTest(unittest.TestCase):
-    def tearDown(self) -> None:
-        pass
-
     def test_health_pack_in_backpack_does_not_prevent_equip(self) -> None:
         dng_ctrl = _make_dungeon_controller()
         player = dng_ctrl.player
