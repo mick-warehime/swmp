@@ -103,10 +103,13 @@ class HUD(object):
         frac_full = max(0.0, frac_full)
         fill = frac_full * self._bar_height
 
-        back_rect = pg.Rect(x, y, self._bar_length, fill)
+        # need to shift the top left of the rect
+        y_off = y - fill + self._bar_height
+
+        back_rect = pg.Rect(x, y_off, self._bar_length, fill)
         fill_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
         outline_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
-
+        print(back_rect, frac_full)
         pg.draw.rect(self._screen, back_col, fill_rect)
         pg.draw.rect(self._screen, col, back_rect)
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
