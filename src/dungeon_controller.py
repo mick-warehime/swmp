@@ -119,6 +119,7 @@ class DungeonController(controller.Controller):
         chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
         self.bind_down(pg.K_r, chest_ability)
 
+        self.bind_down(pg.K_b, self.toggle_hide_backpack)
         # equip / use
         self.bind_down(pg.K_e, self.equip_mod_in_backpack)
 
@@ -234,6 +235,9 @@ class DungeonController(controller.Controller):
         self.player.increment_health(-self.player.health)
         self.player.increment_health(player.health)
         self.player.active_mods = player.active_mods
+
+    def toggle_hide_backpack(self) -> None:
+        self._view.toggle_hide_backpack()
 
 
 class Conflict(object):
