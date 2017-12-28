@@ -67,15 +67,6 @@ class DungeonControllerTest(unittest.TestCase):
         player.equip(shotgun.mod)
         self.assertIs(player.backpack[1], shotgun_2.mod)
 
-    def test_quest_object(self) -> None:
-        dungeon = make_dungeon_controller()
-        for obj_type in tilemap.ObjectType:
-            is_quest = dungeon.is_quest_object(obj_type)
-            if obj_type == tilemap.ObjectType.QUEST:
-                self.assertTrue(is_quest)
-            else:
-                self.assertFalse(is_quest)
-
     def test_game_over(self) -> None:
         dungeon = make_dungeon_controller()
         player = dungeon.player
@@ -88,8 +79,8 @@ class DungeonControllerTest(unittest.TestCase):
         # dungeon isn't over when we start
         self.assertFalse(dungeon.dungeon_over())
 
-        # clear out the conflicts
-        dungeon._groups.conflicts.empty()
+        for conflict_name in dungeon._conflicts.conflicts:
+            dungeon._conflicts.conflicts[conflict_name].group.empty()
 
         # ensure the dungeon is now over
         self.assertTrue(dungeon.dungeon_over())

@@ -16,7 +16,7 @@ import view
 from humanoids import Player, Mob, collide_hit_rect_with_rect
 from items.item_manager import ItemManager
 from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Waypoint, Group
+    DynamicObject, Waypoint, Group, ConflictGroups
 from mods import ItemObject
 from weapons import Projectile
 
@@ -35,7 +35,6 @@ class DungeonController(controller.Controller):
 
         # init_map
         self._map = tilemap.TiledMap(map_file)
-
         self._init_map_objects()
 
         self._camera = tilemap.Camera(self._map.width, self._map.height)
@@ -45,11 +44,10 @@ class DungeonController(controller.Controller):
 
         self.init_controls()
 
-        self._conflict = Conflict(self._groups.conflicts)
-
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
+        self._conflicts = ConflictGroups()
 
         # initialize the player on the map before anything else
         for obj in self._map.objects:
@@ -59,22 +57,21 @@ class DungeonController(controller.Controller):
         assert self.player is not None, 'no player found in map'
 
         for obj in self._map.objects:
+            conflict_group = self._get_conflict(obj.conflict)
             if obj.type == tilemap.ObjectType.ZOMBIE:
-                Mob(obj.center, self.player, is_quest=obj.is_quest)
+                Mob(obj.center, self.player, conflict_group)
             if obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
             if obj.type in tilemap.ITEMS:
                 ItemManager.item(obj.center, obj.type)
             if obj.type == tilemap.ObjectType.WAYPOINT:
-                Waypoint(obj.center, self.player)
+                Waypoint(obj.center, self.player, conflict_group)
 
-    @staticmethod
-    def is_quest_object(object_type: str) -> bool:
-        if not object_type:
-            return False
-        quest_type = tilemap.ObjectType.QUEST
-        return tilemap.ObjectType(object_type) == quest_type
+    def _get_conflict(self, conflict_name: str) -> Group:
+        if conflict_name == tilemap.NOT_CONFLICT:
+            return None
+        return self._conflicts.get_group(conflict_name)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
@@ -150,8 +147,7 @@ class DungeonController(controller.Controller):
                 self.player.increment_health(-humanoids.MOB_DAMAGE)
             zombie.stop_x()
             zombie.stop_y()
-            if self.player.health <= 0:
-                self._playing = False
+
         if mobs:
             knock_back = pg.math.Vector2(humanoids.MOB_KNOCKBACK, 0)
             self.player.pos += knock_back.rotate(-mobs[0].rot)
@@ -180,7 +176,7 @@ class DungeonController(controller.Controller):
 
     # the owning object needs to know this
     def dungeon_over(self) -> bool:
-        return self._conflict.is_resolved()
+        return self._conflicts.any_resolved_conflict()
 
     def game_over(self) -> bool:
         return self.player.health <= 0
@@ -241,13 +237,3 @@ class DungeonController(controller.Controller):
 
     def toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
-
-
-class Conflict(object):
-    def __init__(self, conflict_objects: Group) -> None:
-        self.initial_size = len(conflict_objects)
-        self.size = len(conflict_objects)
-        self.objects = conflict_objects
-
-    def is_resolved(self) -> bool:
-        return len(self.objects) == 0
