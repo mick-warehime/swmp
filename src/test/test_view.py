@@ -1,8 +1,8 @@
-import os
 import unittest
 import view
 import pygame
 import settings
+import mods
 from test.pygame_mock import initialize_pygame
 
 
@@ -16,13 +16,13 @@ class ViewTest(unittest.TestCase):
         self.view = view.DungeonView(screen)
 
     def test_click_mod(self) -> None:
-
+        locs = [m for m in mods.ModLocation]
         for idx, loc in enumerate(self.view._hud.mod_rects):
             r = self.view._hud.mod_rects[loc]
             x = r.centerx
             y = r.centery
             self.view.try_click_mod((x, y))
-            self.assertEqual(self.view.selected_mod(), idx)
+            self.assertEqual(self.view.selected_mod(), locs[idx])
 
         # ensure previous loop gets hit
         self.assertTrue(idx > 0)

@@ -134,7 +134,7 @@ class Humanoid(mdl.DynamicObject):
             item.kill()
             return
 
-    def _move_mod_at_loc_to_backpack(self, loc: mods.ModLocation) -> None:
+    def unequip(self, loc: mods.ModLocation) -> None:
         assert not self.backpack.is_full
         old_mod = self.active_mods.pop(loc, None)
         if old_mod is not None:
@@ -143,7 +143,7 @@ class Humanoid(mdl.DynamicObject):
     def equip(self, item_mod: mods.Mod) -> None:
         if item_mod in self.backpack:  # type: ignore
             self.backpack.remove_mod(item_mod)
-        self._move_mod_at_loc_to_backpack(item_mod.loc)
+        self.unequip(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
 
 

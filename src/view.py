@@ -116,8 +116,12 @@ class DungeonView(object):
     def selected_item(self) -> int:
         return self._hud.selected_item
 
-    def selected_mod(self) -> int:
-        return self._hud.selected_mod
+    def selected_mod(self) -> mods.ModLocation:
+        if self._hud.selected_mod == NO_SELECTION:
+            return NO_SELECTION
+
+        locs = [l for l in mods.ModLocation]
+        return locs[self._hud.selected_mod]
 
     def set_selected_item(self, idx: int) -> None:
         self._hud.selected_item = idx
