@@ -183,7 +183,10 @@ class Waypoint(DynamicObject):
         if conflict_group is None:
             raise ValueError('missing conflict for waypoint at %s', str(pos))
 
-        waypoint_groups = [self._groups.all_sprites, self._groups.items, conflict_group]
+        waypoint_groups = [self._groups.all_sprites,
+                           self._groups.items,
+                           conflict_group]
+
         pg.sprite.Sprite.__init__(self, waypoint_groups)
 
     def update(self) -> None:

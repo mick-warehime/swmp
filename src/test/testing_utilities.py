@@ -1,4 +1,5 @@
-from typing import Union
+from collections import namedtuple
+from typing import Union, Any
 from pygame.math import Vector2
 import pygame
 import humanoids as hmn
@@ -17,7 +18,7 @@ def make_mob(player: Union[hmn.Player, None] = None) -> hmn.Mob:
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player, is_quest=False)
+    return hmn.Mob(pos, player, conflict_group=None)
 
 
 def make_item(label: str) -> mods.ItemObject:
@@ -29,3 +30,16 @@ def make_dungeon_controller() -> DungeonController:
     level = 'test_level.tmx'
     blank_screen = pygame.Surface((800, 600))
     return DungeonController(blank_screen, level)
+
+
+class TiledmapObject(object):
+    def __init__(self,
+                 object_name: str,
+                 conflict_name: str = None) -> None:
+        self.name = object_name
+        self.x = 0
+        self.y = 0
+        self.width = 10
+        self.height = 10
+        if conflict_name is not None:
+            self.conflict = conflict_name
