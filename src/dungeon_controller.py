@@ -35,8 +35,7 @@ class DungeonController(controller.Controller):
 
         # init_map
         self._map = tilemap.TiledMap(map_file)
-        self._map_img = self._map.map_img
-        self._map.rect = self._map_img.get_rect()
+
         self._init_map_objects()
 
         self._camera = tilemap.Camera(self._map.width, self._map.height)
@@ -81,7 +80,7 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         timer = Timer(self)
         DynamicObject.initialize_dynamic_objects(timer)
-        Mob.init_class(self._map_img)
+        Mob.init_class(self._map.img)
         abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:
@@ -117,7 +116,7 @@ class DungeonController(controller.Controller):
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
-        self._view.draw(self.player, self._map, self._map_img, self._camera)
+        self._view.draw(self.player, self._map, self._map.img, self._camera)
 
         pg.display.flip()
 

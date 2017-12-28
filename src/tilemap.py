@@ -68,7 +68,8 @@ class TiledMap:
 
         self._validate_tmxdata()
         self._format_tileobject_names()
-        self.map_img = self.make_map_img()
+        self.img = self.make_map_img()
+        self.rect = self.img.get_rect()
         self.objects: List[MapObject] = \
             list(map(MapObject, self.tmxdata.objects))
 
