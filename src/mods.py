@@ -12,6 +12,8 @@ HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3
 
+NO_MOD_AT_LOCATION = -1
+
 
 class ModLocation(Enum):
     __order__ = 'ARMS LEGS CHEST HEAD'

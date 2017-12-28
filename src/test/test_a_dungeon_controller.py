@@ -7,6 +7,7 @@ from src.test.pygame_mock import initialize_pygame
 from view import DungeonView
 import tilemap
 from src.test.testing_utilities import make_dungeon_controller, make_player
+import mods
 
 
 def setUpModule() -> None:
@@ -154,6 +155,31 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertEqual(set_player.health, player.max_health - 10)
         self.assertEqual(set_player.backpack._slots_filled, 1)
         self.assertEqual(len(set_player.active_mods.values()), 1)
+
+    def test_unequip(self) -> None:
+        dng_ctrl = make_dungeon_controller()
+        player = dng_ctrl.player
+
+        pos = Vector2(0, 0)
+        pistol = PistolObject(pos)
+        player.attempt_pickup(pistol)
+
+        # ensure nothing in backpack
+        self.assertEqual(player.backpack._slots_filled, 0)
+
+        # ensure one mod equiped
+        arm_mod = player.active_mods[mods.ModLocation.ARMS]
+        self.assertTrue(arm_mod is not None)
+
+        # unequip
+        player.unequip(mods.ModLocation.ARMS)
+
+        # ensure something now in backpack
+        self.assertEqual(player.backpack._slots_filled, 1)
+
+        # ensure nothing on the arms
+        arm_mod = player.mod_at_location(mods.ModLocation.ARMS)
+        self.assertTrue(arm_mod is not None)
 
 
 if __name__ == '__main__':

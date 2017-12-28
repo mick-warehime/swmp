@@ -146,6 +146,12 @@ class Humanoid(mdl.DynamicObject):
         self.unequip(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
 
+    def mod_at_location(self, loc: mods.ModLocation) -> mods.Mod:
+        if loc not in self.active_mods:
+            return mods.NO_MOD_AT_LOCATION
+
+        return self.active_mods[loc]
+
 
 class Backpack(object):
     """Stores the mods available to a Humanoid."""
