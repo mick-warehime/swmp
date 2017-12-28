@@ -2,7 +2,7 @@ import unittest
 import tilemap
 from model import Conflict
 from pygame.sprite import Sprite
-from testing_utilities import TiledmapObject
+from src.test.testing_utilities import TiledmapObject
 
 
 class ConflictTest(unittest.TestCase):
