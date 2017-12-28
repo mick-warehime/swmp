@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import settings
 import pygame as pg
 from humanoids import Player
@@ -31,6 +31,7 @@ class HUD(object):
         # generate rects for mods/backpack
         self.mod_rects = self.generate_mod_rects()
         self.backpack_rects = self.generate_backpack_rects()
+        self.backpack_base = self.generate_backpack_base()
 
         self.selected_mod = NO_SELECTION
         self.selected_item = NO_SELECTION
@@ -62,6 +63,16 @@ class HUD(object):
             rects.append(fill_rect)
         return rects
 
+    def generate_backpack_base(self) -> pg.Rect:
+        # backpack base
+        x_b_i = self.backpack_rects[0][0] - 2
+        x_b_f = self.backpack_rects[0][0] - 2
+        y_b_i = self.backpack_rects[0][1]
+        y_b_f = self.backpack_rects[-1][1] - 45
+
+        b_fill = pg.Rect(x_b_i, y_b_i, x_b_f, y_b_f)
+        return b_fill
+
     def draw(self, player: Player) -> None:
         self.draw_hud_base()
         self.draw_bar(player, 'health')
@@ -72,19 +83,11 @@ class HUD(object):
     def draw_hud_base(self) -> None:
 
         # hud base
-        x, y = self._hud_pos
-        fill_rect = pg.Rect(x, y, self._hud_width, self._hud_height)
-        pg.draw.rect(self._screen, settings.HUDGREY, fill_rect)
+        pg.draw.rect(self._screen, settings.HUDGREY, self.rect)
 
     def draw_backpack_base(self) -> None:
-        # backpack base
-        x_b_i = self.backpack_rects[0][0] - 2
-        x_b_f = self.backpack_rects[0][0] - 2
-        y_b_i = self.backpack_rects[0][1]
-        y_b_f = self.backpack_rects[-1][1] - 45
 
-        b_fill = pg.Rect(x_b_i, y_b_i, x_b_f, y_b_f)
-        pg.draw.rect(self._screen, settings.HUDGREY, b_fill)
+        pg.draw.rect(self._screen, settings.HUDGREY, self.backpack_base)
 
     def draw_bar(self, player: Player, bar_type: str) -> None:
 
@@ -182,3 +185,13 @@ class HUD(object):
 
     def toggle_hide_backpack(self) -> None:
         self._backpack_hidden = not self._backpack_hidden
+
+    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
+        x, y = pos
+        in_hud = self.rect.collidepoint(x, y)
+        if in_hud:
+            return True
+
+        in_backpack = self.backpack_base.collidepoint(x, y)
+        backpack_hidden = self._backpack_hidden
+        return in_backpack and not backpack_hidden
