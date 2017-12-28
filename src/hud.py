@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import settings
 import pygame as pg
 from humanoids import Player
@@ -185,3 +185,13 @@ class HUD(object):
 
     def toggle_hide_backpack(self) -> None:
         self._backpack_hidden = not self._backpack_hidden
+
+    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
+        x, y = pos
+        in_hud = self.rect.collidepoint(x, y)
+        if in_hud:
+            return True
+
+        in_backpack = self.backpack_base.collidepoint(x, y)
+        backpack_hidden = self._backpack_hidden
+        return in_backpack and not backpack_hidden

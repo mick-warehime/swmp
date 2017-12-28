@@ -51,3 +51,13 @@ class ViewTest(unittest.TestCase):
         self.assertEqual(self.view.selected_item(), 0)
         self.view.try_click_item((x, y))
         self.assertEqual(self.view.selected_item(), -1)
+
+    def test_click_backpack_when_hidden(self) -> None:
+        r = self.view._hud.backpack_rects[0]
+        x = r.centerx
+        y = r.centery
+        self.assertFalse(self.view.clicked_hud((x, y)))
+
+        self.view.toggle_hide_backpack()
+
+        self.assertTrue(self.view.clicked_hud((x, y)))

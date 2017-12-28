@@ -110,10 +110,7 @@ class DungeonView(object):
         return NO_SELECTION
 
     def clicked_hud(self, pos: Tuple[int, int]) -> bool:
-        x, y = pos
-        point_in_hud = self._hud.rect.collidepoint(x, y)
-        point_in_backpack = self._hud.backpack_base.collidepoint(x, y)
-        return point_in_backpack or point_in_hud
+        return self._hud.clicked_hud(pos)
 
     def selected_item(self) -> int:
         return self._hud.selected_item
