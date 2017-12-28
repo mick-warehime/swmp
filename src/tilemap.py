@@ -5,6 +5,9 @@ from typing import Any, List
 from settings import WIDTH, HEIGHT
 from os import path
 
+CONFLICT = 'conflict'
+NOT_CONFLICT = 'not_conflict'
+
 
 @unique
 class ObjectType(Enum):
@@ -15,7 +18,7 @@ class ObjectType(Enum):
     HEALTHPACK = 'healthpack'
     ROCK = 'rock'
     SHOTGUN = 'shotgun'
-    QUEST = 'quest'
+    CONFLICT = 'conflict'
     WAYPOINT = 'waypoint'
 
 
@@ -26,6 +29,7 @@ WEAPONS = (ObjectType.SHOTGUN, ObjectType.PISTOL)
 
 class MapObject(object):
     '''simple wrapper class for objects in the tiled map'''
+
     def __init__(self, tile_object: Any) -> None:
         self.x = tile_object.x
         self.y = tile_object.y
@@ -35,15 +39,10 @@ class MapObject(object):
         self.width = tile_object.width
         self.height = tile_object.height
         self.type = self._parse_type(tile_object.name)
-        self.is_quest = self._parse_is_quest_object(tile_object)
+        self.conflict = self._parse_conflict(tile_object)
 
-    def _parse_is_quest_object(self, tile_object: Any) -> bool:
-        # the 'type' field in the properties of Tiled
-        tile_type = tile_object.type
-        if not tile_type:
-            return False
-        quest_type = ObjectType.QUEST
-        return ObjectType(tile_type) == quest_type
+    def _parse_conflict(self, tile_object: Any) -> str:
+        return getattr(tile_object, CONFLICT, NOT_CONFLICT)
 
     def _parse_type(self, type_name: str) -> ObjectType:
         for obj_type in ObjectType:

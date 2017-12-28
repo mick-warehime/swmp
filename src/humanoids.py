@@ -297,15 +297,16 @@ class Mob(Humanoid):
     _splat = None
     _map_img = None
 
-    def __init__(self, pos: Vector2, player: Player, is_quest: bool) -> None:
+    def __init__(self, pos: Vector2, player: Player,
+                 conflict_group: Group) -> None:
         self._check_class_initialized()
         self.rot = 0
-        self.is_quest = is_quest
+        self.is_quest = conflict_group is not None
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
-        if is_quest:
+        if self.is_quest:
             my_groups = [self._groups.all_sprites, self._groups.mobs,
-                         self._groups.conflicts]
+                         conflict_group]
         else:
             my_groups = [self._groups.all_sprites, self._groups.mobs]
 
@@ -314,7 +315,7 @@ class Mob(Humanoid):
         self.speed = choice(MOB_SPEEDS)
         self.target = player
 
-        if is_quest:
+        if self.is_quest:
             self.speed *= 2
             self._vomit_mod = mods.VomitMod()
             self.active_mods[self._vomit_mod.loc] = self._vomit_mod

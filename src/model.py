@@ -1,6 +1,5 @@
 from collections import namedtuple
-from typing import Any, Union
-
+from typing import Any, Union, Dict
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
@@ -10,15 +9,14 @@ from settings import TILESIZE
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
-                          'items', 'mobs',
-                          'conflicts', 'all_sprites'))
+                          'items', 'mobs', 'all_sprites'))
 
 
 class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
     def __new__(cls) -> _GroupsBase:
-        args = [Group() for _ in range(6)]
+        args = [Group() for _ in range(5)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
@@ -29,8 +27,36 @@ class Groups(_GroupsBase):
         self.bullets.empty()
         self.all_sprites.empty()
         self.items.empty()
-        self.conflicts.empty()
         self.enemy_projectiles.empty()
+
+
+class ConflictGroups(object):
+    def __init__(self) -> None:
+        self.conflicts: Dict[str, Conflict] = {}
+
+    def number_of_conflicts(self) -> int:
+        return len(self.conflicts.keys())
+
+    def get_group(self, conflict_name: str) -> Group:
+        if conflict_name not in self.conflicts:
+            self.conflicts[conflict_name] = Conflict()
+        conflict = self.conflicts[conflict_name]
+        return conflict.group
+
+    def any_resolved_conflict(self) -> bool:
+        for conflict_name in self.conflicts:
+            conflict = self.conflicts[conflict_name]
+            if conflict.is_resolved():
+                return True
+        return False
+
+
+class Conflict(object):
+    def __init__(self) -> None:
+        self.group = Group()
+
+    def is_resolved(self) -> bool:
+        return len(self.group) == 0
 
 
 class Timer(object):
@@ -149,11 +175,15 @@ class DynamicObject(GameObject):
 class Waypoint(DynamicObject):
     _image = None
 
-    def __init__(self, pos: Vector2, player: Any) -> None:
+    def __init__(self, pos: Vector2, player: Any,
+                 conflict_group: Group) -> None:
         super().__init__(pos)
         self.player = player
 
-        waypoint_groups = [self._groups.all_sprites, self._groups.conflicts]
+        if conflict_group is None:
+            raise ValueError('missing conflict for waypoint at %s', str(pos))
+
+        waypoint_groups = [self._groups.all_sprites, self._groups.items, conflict_group]
         pg.sprite.Sprite.__init__(self, waypoint_groups)
 
     def update(self) -> None:

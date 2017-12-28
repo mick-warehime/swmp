@@ -168,7 +168,7 @@
   <object id="40" name="zombie" x="784" y="208" width="32" height="32"/>
   <object id="42" name="zombie" x="1072" y="816" width="32" height="32">
    <properties>
-    <property name="quest" value="1"/>
+    <property name="conflict" value="1"/>
    </properties>
   </object>
   <object id="46" name="wall" x="784" y="1232" width="32" height="32"/>
@@ -185,7 +185,11 @@
   <object id="58" name="wall" x="400" y="656" width="32" height="32"/>
   <object id="59" name="wall" x="400" y="528" width="32" height="32"/>
   <object id="60" name="wall" x="400" y="400" width="32" height="32"/>
-  <object id="63" name="zombie" x="1184" y="464" width="32" height="32"/>
+  <object id="63" name="zombie" x="1184" y="464" width="32" height="32">
+   <properties>
+    <property name="conflict" value="1"/>
+   </properties>
+  </object>
   <object id="87" name="zombie" x="1616" y="720" width="32" height="32"/>
   <object id="88" name="zombie" x="1712" y="704" width="32" height="32"/>
   <object id="89" name="zombie" x="1744" y="608" width="32" height="32"/>
@@ -237,10 +241,22 @@
   <object id="181" name="zombie" x="928" y="1472" width="32" height="32"/>
   <object id="182" name="zombie" x="576" y="1424" width="32" height="32"/>
   <object id="183" name="pistol" x="1124" y="737" width="22" height="20"/>
-  <object id="184" name="waypoint" x="906" y="212" width="46" height="23"/>
+  <object id="184" name="waypoint" x="906" y="212" width="46" height="23">
+   <properties>
+    <property name="conflict" value="2"/>
+   </properties>
+  </object>
   <object id="186" name="rock" x="451" y="222" width="22" height="20"/>
-  <object id="187" name="zombie" type="quest" x="1855" y="649" width="32" height="32"/>
-  <object id="188" name="zombie" type="quest" x="1685" y="771" width="32" height="32"/>
+  <object id="187" name="zombie" x="1855" y="649" width="32" height="32">
+   <properties>
+    <property name="conflict" value="3"/>
+   </properties>
+  </object>
+  <object id="188" name="zombie" x="1685" y="771" width="32" height="32">
+   <properties>
+    <property name="conflict" value="3"/>
+   </properties>
+  </object>
   <object id="189" name="rock" x="416" y="195" width="22" height="20"/>
   <object id="190" name="rock" x="441" y="180" width="22" height="20"/>
   <object id="191" name="rock" x="409" y="224" width="22" height="20"/>
