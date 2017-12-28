@@ -1,4 +1,3 @@
-from os import path
 from random import random
 from typing import Dict, List, Tuple
 
@@ -34,7 +33,10 @@ class DungeonController(controller.Controller):
         self._clock = pg.time.Clock()
         self.dt = 0
 
-        self.init_map(map_file)
+        # init_map
+        self._map = tilemap.TiledMap(map_file)
+
+        self._init_map_objects()
 
         self._camera = tilemap.Camera(self._map.width, self._map.height)
 
@@ -45,40 +47,27 @@ class DungeonController(controller.Controller):
 
         self._conflict = Conflict(self._groups.conflicts)
 
-    def init_map(self, map_file: str) -> None:
-
-        game_folder = path.dirname(__file__)
-        map_folder = path.join(game_folder, 'maps')
-
-        # init_map
-        self._map = tilemap.TiledMap(path.join(map_folder, map_file))
-        self._map_img = self._map.make_map()
-        self._map.rect = self._map_img.get_rect()
-
+    def _init_map_objects(self) -> None:
+        # provide the group containers for the map objects
         self._init_gameobjects()
 
-        # ensure the player is instantiated first
-        for tile_object in self._map.tmxdata.objects:
-            obj_center = Vector2(tile_object.x + tile_object.width / 2,
-                                 tile_object.y + tile_object.height / 2)
-            if tile_object.name == tilemap.ObjectType.PLAYER:
-                self.player = Player(obj_center)
+        # initialize the player on the map before anything else
+        for obj in self._map.objects:
+            if obj.type == tilemap.ObjectType.PLAYER:
+                self.player = Player(obj.center)
 
-        for tile_object in self._map.tmxdata.objects:
-            obj_center = Vector2(tile_object.x + tile_object.width / 2,
-                                 tile_object.y + tile_object.height / 2)
+        assert self.player is not None, 'no player found in map'
 
-            is_quest_object = self.is_quest_object(tile_object.type)
-
-            if tile_object.name == tilemap.ObjectType.ZOMBIE:
-                Mob(obj_center, self.player, is_quest=is_quest_object)
-            if tile_object.name == tilemap.ObjectType.WALL:
-                pos = Vector2(tile_object.x, tile_object.y)
-                Obstacle(pos, tile_object.width, tile_object.height)
-            if tile_object.name in tilemap.ITEMS:
-                ItemManager.item(obj_center, tile_object.name)
-            if tile_object.name == tilemap.ObjectType.WAYPOINT:
-                Waypoint(obj_center, self.player)
+        for obj in self._map.objects:
+            if obj.type == tilemap.ObjectType.ZOMBIE:
+                Mob(obj.center, self.player, is_quest=obj.is_quest)
+            if obj.type == tilemap.ObjectType.WALL:
+                pos = Vector2(obj.x, obj.y)
+                Obstacle(pos, obj.width, obj.height)
+            if obj.type in tilemap.ITEMS:
+                ItemManager.item(obj.center, obj.type)
+            if obj.type == tilemap.ObjectType.WAYPOINT:
+                Waypoint(obj.center, self.player)
 
     @staticmethod
     def is_quest_object(object_type: str) -> bool:
@@ -91,7 +80,7 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         timer = Timer(self)
         DynamicObject.initialize_dynamic_objects(timer)
-        Mob.init_class(self._map_img)
+        Mob.init_class(self._map.img)
         abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:
@@ -127,7 +116,7 @@ class DungeonController(controller.Controller):
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
-        self._view.draw(self.player, self._map, self._map_img, self._camera)
+        self._view.draw(self.player, self._map, self._map.img, self._camera)
 
         pg.display.flip()
 
