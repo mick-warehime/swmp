@@ -120,8 +120,9 @@ class DungeonController(controller.Controller):
         self.bind_down(pg.K_r, chest_ability)
 
         self.bind_down(pg.K_b, self.toggle_hide_backpack)
+
         # equip / use
-        self.bind_down(pg.K_e, self.equip_mod_in_backpack)
+        self.bind_down(pg.K_e, self.try_equip)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -205,6 +206,10 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
+    def try_equip(self) -> None:
+        self.equip_mod_in_backpack()
+        self.unequip_mod()
+
     def equip_mod_in_backpack(self) -> None:
         '''equip amod if the user selects it in the backpack and hits the
         'equip' button binding.'''
@@ -216,6 +221,15 @@ class DungeonController(controller.Controller):
         if backpack.slot_occupied(idx):
             self.player.equip(backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
+
+    def unequip_mod(self) -> None:
+        '''unequip amod if the user selects it in the hud and hits the
+                'equip' button binding.'''
+        location = self._view.selected_mod()
+        if location == view.NO_SELECTION:
+            return
+
+        self.player.unequip(location)
 
     def pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self.abs_mouse_pos()
