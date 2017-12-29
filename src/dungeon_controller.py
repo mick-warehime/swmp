@@ -13,7 +13,7 @@ import sounds
 import tilemap
 import view
 
-from creatures.mobs import Mob, MOB_DAMAGE, MOB_KNOCKBACK
+from creatures.mobs import Mob
 from creatures.humanoids import collide_hit_rect_with_rect
 from creatures.players import Player
 from items.item_manager import ItemManager
@@ -146,12 +146,12 @@ class DungeonController(controller.Controller):
         for zombie in hitters:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-MOB_DAMAGE)
+                self.player.increment_health(-Mob.damage)
             zombie.stop_x()
             zombie.stop_y()
 
         if hitters:
-            knock_back = pg.math.Vector2(MOB_KNOCKBACK, 0)
+            knock_back = pg.math.Vector2(Mob.knockback, 0)
             self.player.pos += knock_back.rotate(-hitters[0].rot)
 
         # enemy projectiles hit player
