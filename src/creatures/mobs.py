@@ -52,6 +52,11 @@ class Mob(Humanoid):
     def _mob_group(self) -> Group:
         return self._groups.mobs
 
+    def kill(self) -> None:
+        if self.is_quest:
+            mods.PistolObject(self.pos)
+        super().kill()
+
     def _check_class_initialized(self) -> None:
         super()._check_class_initialized()
         if not self.class_initialized:
