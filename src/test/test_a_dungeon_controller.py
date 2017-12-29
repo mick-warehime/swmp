@@ -19,7 +19,7 @@ def tearDownModule() -> None:
     from model import GameObject, DynamicObject
     GameObject.gameobjects_initialized = False
     DynamicObject.dynamic_initialized = False
-    from creatures.humanoids import Mob
+    from creatures.mobs import Mob
     Mob.class_initialized = False
     from abilities import CoolDownAbility
     CoolDownAbility.class_initialized = False

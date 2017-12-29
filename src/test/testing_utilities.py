@@ -3,23 +3,25 @@ from typing import Union
 import pygame
 from pygame.math import Vector2
 
+import creatures.mobs
+import creatures.players
 import mods
 from creatures import humanoids as hmn
 from dungeon_controller import DungeonController
 from items.item_manager import ItemManager
 
 
-def make_player() -> hmn.Player:
+def make_player() -> creatures.players.Player:
     pos = pygame.math.Vector2(0, 0)
-    player = hmn.Player(pos)
+    player = creatures.players.Player(pos)
     return player
 
 
-def make_mob(player: Union[hmn.Player, None] = None) -> hmn.Mob:
+def make_mob(player: Union[creatures.players.Player, None] = None) -> creatures.mobs.Mob:
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return hmn.Mob(pos, player, conflict_group=None)
+    return creatures.mobs.Mob(pos, player, conflict_group=None)
 
 
 def make_item(label: str) -> mods.ItemObject:

@@ -5,7 +5,7 @@ import pygame as pg
 import images
 import mods
 import settings
-from creatures.humanoids import Player
+from creatures.players import Player
 from hud import HUD
 from model import Groups
 from tilemap import Camera, TiledMap

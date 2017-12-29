@@ -3,6 +3,7 @@ from typing import Callable
 
 import pygame
 
+import creatures.mobs
 import model
 from abilities import CoolDownAbility
 from creatures import humanoids as hmn
@@ -24,7 +25,7 @@ def _initialization_tests() -> None:
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
     _assert_runtime_exception_raised(make_mob)
     blank_screen = pygame.Surface((800, 600))
-    hmn.Mob.init_class(blank_screen)
+    creatures.mobs.Mob.init_class(blank_screen)
     _assert_runtime_exception_raised(CoolDownAbility)
     CoolDownAbility.initialize_class(InitsTest.timer)
 
