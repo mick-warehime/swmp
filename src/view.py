@@ -1,13 +1,14 @@
 from typing import List, Tuple
-import settings
+
 import pygame as pg
-from humanoids import Player
-from model import Groups
-from tilemap import Camera, TiledMap
+
 import images
 import mods
-
+import settings
+from creatures.players import Player
 from hud import HUD
+from model import Groups
+from tilemap import Camera, TiledMap
 
 NO_SELECTION = -1
 

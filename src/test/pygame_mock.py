@@ -1,15 +1,13 @@
-import random
 from typing import List
 
 import pygame
 
 import abilities
-import humanoids as hmn
+import creatures.mobs
 import images
-import mods
 import model
 import sounds
-import weapons
+from creatures import humanoids as hmn
 
 
 class Key(object):
@@ -58,5 +56,5 @@ def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     model.GameObject.initialize_gameobjects(groups)
     model.DynamicObject.initialize_dynamic_objects(timer)
     blank_screen = pygame.Surface((800, 600))
-    hmn.Mob.init_class(blank_screen)
+    creatures.mobs.Mob.init_class(blank_screen)
     abilities.initialize_classes(timer)

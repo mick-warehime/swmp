@@ -1,9 +1,12 @@
 import unittest
 from typing import Callable
+
 import pygame
+
+import creatures.mobs
 import model
-import humanoids as hmn
 from abilities import CoolDownAbility
+from creatures import humanoids as hmn
 from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_mob
 
@@ -22,7 +25,7 @@ def _initialization_tests() -> None:
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
     _assert_runtime_exception_raised(make_mob)
     blank_screen = pygame.Surface((800, 600))
-    hmn.Mob.init_class(blank_screen)
+    creatures.mobs.Mob.init_class(blank_screen)
     _assert_runtime_exception_raised(CoolDownAbility)
     CoolDownAbility.initialize_class(InitsTest.timer)
 
