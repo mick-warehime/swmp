@@ -170,8 +170,7 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertEqual(player.backpack._slots_filled, 1)
 
         # ensure nothing on the arms
-        arm_mod = player.mod_at_location(mods.ModLocation.ARMS)
-        self.assertTrue(arm_mod is not None)
+        self.assertNotIn(mods.ModLocation.ARMS, player.active_mods)
 
 
 if __name__ == '__main__':
