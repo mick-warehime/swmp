@@ -24,6 +24,8 @@ class Mob(Humanoid):
     class_initialized = False
     _splat = None
     _map_img = None
+    damage = MOB_DAMAGE
+    knockback = MOB_KNOCKBACK
 
     def __init__(self, pos: Vector2, player: Player,
                  conflict_group: Group) -> None:
