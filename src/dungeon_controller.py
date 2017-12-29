@@ -12,9 +12,9 @@ import settings
 import sounds
 import tilemap
 import view
-from creatures import humanoids
+
+from creatures.mobs import Mob, MOB_DAMAGE, MOB_KNOCKBACK
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.mobs import Mob
 from creatures.players import Player
 from items.item_manager import ItemManager
 from model import Obstacle, Groups, GameObject, Timer, \
@@ -140,19 +140,19 @@ class DungeonController(controller.Controller):
         for item in items:
             self.player.attempt_pickup(item)
 
-        # mobs hit player
-        mobs: List[Mob] = spritecollide(self.player, self._groups.mobs, False,
-                                        collide_hit_rect_with_rect)
-        for zombie in mobs:
+        # obs hit player
+        hitters: List[Mob] = spritecollide(self.player, self._groups.mobs,
+                                           False, collide_hit_rect_with_rect)
+        for zombie in hitters:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-humanoids.MOB_DAMAGE)
+                self.player.increment_health(-MOB_DAMAGE)
             zombie.stop_x()
             zombie.stop_y()
 
-        if mobs:
-            knock_back = pg.math.Vector2(humanoids.MOB_KNOCKBACK, 0)
-            self.player.pos += knock_back.rotate(-mobs[0].rot)
+        if hitters:
+            knock_back = pg.math.Vector2(MOB_KNOCKBACK, 0)
+            self.player.pos += knock_back.rotate(-hitters[0].rot)
 
         # enemy projectiles hit player
         projectiles: List[Projectile] = spritecollide(
@@ -162,7 +162,7 @@ class DungeonController(controller.Controller):
         for projectile in projectiles:
             self.player.increment_health(-projectile.damage)
 
-        # bullets hit mobs
+        # bullets hit hitting_mobs
         hits: Dict[Mob, List[Projectile]] = groupcollide(self._groups.mobs,
                                                          self._groups.bullets,
                                                          False, True)
