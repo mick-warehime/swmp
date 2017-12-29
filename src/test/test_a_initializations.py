@@ -1,9 +1,11 @@
 import unittest
 from typing import Callable
+
 import pygame
+
 import model
-import humanoids as hmn
 from abilities import CoolDownAbility
+from creatures import humanoids as hmn
 from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_mob
 

@@ -1,11 +1,12 @@
-from collections import namedtuple
-from typing import Union, Any
-from pygame.math import Vector2
+from typing import Union
+
 import pygame
-import humanoids as hmn
+from pygame.math import Vector2
+
 import mods
-from items.item_manager import ItemManager
+from creatures import humanoids as hmn
 from dungeon_controller import DungeonController
+from items.item_manager import ItemManager
 
 
 def make_player() -> hmn.Player:

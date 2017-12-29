@@ -1,13 +1,14 @@
 import unittest
 from typing import Any
 from unittest.mock import Mock
+
 from pygame.math import Vector2
+
+import mods
 from mods import PistolObject, ShotgunObject, HealthPackObject
 from src.test.pygame_mock import initialize_pygame
-from view import DungeonView
-import tilemap
 from src.test.testing_utilities import make_dungeon_controller, make_player
-import mods
+from view import DungeonView
 
 
 def setUpModule() -> None:
@@ -18,7 +19,7 @@ def tearDownModule() -> None:
     from model import GameObject, DynamicObject
     GameObject.gameobjects_initialized = False
     DynamicObject.dynamic_initialized = False
-    from humanoids import Mob
+    from creatures.humanoids import Mob
     Mob.class_initialized = False
     from abilities import CoolDownAbility
     CoolDownAbility.class_initialized = False

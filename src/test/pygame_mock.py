@@ -1,15 +1,12 @@
-import random
 from typing import List
 
 import pygame
 
 import abilities
-import humanoids as hmn
 import images
-import mods
 import model
 import sounds
-import weapons
+from creatures import humanoids as hmn
 
 
 class Key(object):
