@@ -8,14 +8,10 @@ from draw_utils import draw_text
 
 class DecisionController(controller.Controller):
     # takes a list of strings of the form [Prompt, option 1, ..., option n]
-    def __init__(self,
-                 screen: pg.Surface,
-                 prompt: str,
-                 options: List[str]) -> None:
+    def __init__(self, prompt: str, options: List[str]) -> None:
 
         super().__init__()
 
-        self._screen = screen
         self._prompt = prompt
         self.choice = -1
 

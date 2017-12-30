@@ -1,10 +1,16 @@
-from typing import Callable, Dict, List, Union, Tuple
+from typing import Callable, Dict, List, Union, Tuple, Any
 import pygame as pg
 
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
 MOUSE_RIGHT = 2
 NOT_CLICKED = (-1, -1)
+
+
+def initialize_controller(screen: pg.Surface,
+                          quit_func: Any) -> None:
+    Controller._screen = screen
+    Controller._quit_func = quit_func
 
 
 def call_binding(key_id: int,
@@ -17,6 +23,9 @@ def call_binding(key_id: int,
 
 
 class Controller(object):
+    _screen = None
+    _quit_func = None
+
     def __init__(self) -> None:
 
         # keys pressed down in the previous frame
@@ -27,6 +36,10 @@ class Controller(object):
         self.bindings: Dict[int, Callable[..., None]] = {}
         self.bindings_down: Dict[int, Callable[..., None]] = {}
         self.mouse_bindings: Dict[int, Callable[..., None]] = {}
+
+        # default bindings for every controller (currently only escape)
+        self.bind_quit()
+        self.n_default_bindings = 1
 
     # calls this function every frame when the key is held down
     def bind(self, key: int, binding: Callable[..., None]) -> None:
@@ -84,3 +97,6 @@ class Controller(object):
         mouse = pg.mouse.get_pressed()
         self._prev_keys = list(keys)
         self._prev_mouse = list(mouse)
+
+    def bind_quit(self) -> None:
+        self.bind(pg.K_ESCAPE, self._quit_func)

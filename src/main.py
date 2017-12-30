@@ -3,6 +3,7 @@ import sys
 import settings
 import sounds
 import images
+import controller
 from draw_utils import draw_text
 import quest
 
@@ -19,6 +20,9 @@ class Game(object):
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
+        # needs to happen before we make any controller
+        controller.initialize_controller(self.screen, self.quit)
+
         # needs to happen after the video mode has been set
         images.initialize_images()
 
@@ -29,14 +33,13 @@ class Game(object):
 
     def new(self) -> None:
 
-        self.quest = quest.Quest(self.screen, self.quit)
+        self.quest = quest.Quest()
         self.next_dungeon()
         sounds.play(sounds.LEVEL_START)
 
     def next_dungeon(self) -> None:
         self.dungeon = self.quest.next_dungeon()
         if self.dungeon != quest.COMPLETE:
-            self.dungeon.bind(pg.K_ESCAPE, self.quit)
             self.dungeon.bind_down(pg.K_p, self.toggle_paused)
 
     def run(self) -> None:
@@ -58,8 +61,7 @@ class Game(object):
             if self.dungeon.dungeon_over():
                 self.next_dungeon()
 
-    @staticmethod
-    def quit() -> None:
+    def quit(self) -> None:
         pg.quit()
         sys.exit()
 

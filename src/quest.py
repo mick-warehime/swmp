@@ -1,6 +1,5 @@
 from dungeon_controller import DungeonController
 from decision_controller import DecisionController
-import pygame as pg
 from typing import Any
 import networkx as nx
 
@@ -13,13 +12,9 @@ class Quest(object):
     should only ask a quest for the next dungeon and the quest object will
     keep track of the internal state of the quest.'''
 
-    def __init__(self,
-                 screen: pg.Surface,
-                 quit_func: Any) -> None:
-        self._screen = screen
+    def __init__(self) -> None:
         self._quest_graph = self._create_quest()
         self._current = 0
-        self._quit_func = quit_func
         self._current_scene = self._root_scene()
         self._player: Any = None
 
@@ -61,7 +56,7 @@ class Quest(object):
     # with a dungeon generation or load quests from files
     def _create_dungeon(self) -> DungeonController:
         map_file = self._current_scene.map_file
-        dungeon = DungeonController(self._screen, map_file)
+        dungeon = DungeonController(map_file)
         if self._player is not None:
             dungeon.set_player(self._player)
         else:
@@ -84,10 +79,8 @@ class Quest(object):
     # a description but eventually we should use this to describe all the
     # hooks of the scene / dramatic question
     def _show_intro(self, description: str) -> None:
-        screen = self._screen
         options = ['continue']
-        dc = DecisionController(screen, description, options)
-        dc.bind(pg.K_ESCAPE, self._quit_func)
+        dc = DecisionController(description, options)
         dc.wait_for_decision()
 
 
