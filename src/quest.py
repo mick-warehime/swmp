@@ -14,8 +14,11 @@ class Quest(object):
     should only ask a quest for the next dungeon and the quest object will
     keep track of the internal state of the quest.'''
 
-    def __init__(self) -> None:
-        self._quest_graph = self._create_quest()
+    def __init__(self, quest_graph: nx.Graph = None) -> None:
+        if not quest_graph:
+            self._quest_graph = self._create_quest()
+        else:
+            self._quest_graph = quest_graph
         self._current = 0
         self._current_scene = self._root_scene()
         self._previous_scene = None
@@ -45,7 +48,7 @@ class Quest(object):
     # clients should call this method to get the next dungeon
     # either to start a quest or to get the next scene
     # returns a valid dungeon of COMPLETE if the quest is over
-    def next_scene(self) -> Controller:
+    def next_scene(self) -> Any:
 
         # use the result of the previous scene to determine
         # the next scene
@@ -115,7 +118,7 @@ class Dungeon(Scene):
     def resolved_conflict_index(self) -> int:
         if self.controller:
             return self.controller.resolved_conflict_index()
-        raise Exception('call get_controller() before resolve_conflict')
+        raise Exception('call get_controller() first')
 
 
 class Decision(Scene):
