@@ -25,8 +25,6 @@ class DecisionController(controller.Controller):
         for idx, option in enumerate(options, 1):
             self.set_option(idx, option)
 
-        self.decision = 1000
-
     def set_option(self, idx: int, option: str) -> None:
 
         assert idx < 10, 'decision must have less than 10 options'
