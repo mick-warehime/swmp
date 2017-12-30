@@ -5,7 +5,7 @@ import pygame
 
 import creatures.mobs
 import model
-from abilities import CoolDownAbility
+from abilities import Ability
 from creatures import humanoids as hmn
 from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_mob
@@ -26,8 +26,8 @@ def _initialization_tests() -> None:
     _assert_runtime_exception_raised(make_mob)
     blank_screen = pygame.Surface((800, 600))
     creatures.mobs.Mob.init_class(blank_screen)
-    _assert_runtime_exception_raised(CoolDownAbility)
-    CoolDownAbility.initialize_class(InitsTest.timer)
+    _assert_runtime_exception_raised(Ability)
+    Ability.initialize_class(InitsTest.timer)
 
     InitsTest.groups.empty()
     InitsTest.timer.reset()

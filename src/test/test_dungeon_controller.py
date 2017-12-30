@@ -21,8 +21,8 @@ def tearDownModule() -> None:
     DynamicObject.dynamic_initialized = False
     from creatures.mobs import Mob
     Mob.class_initialized = False
-    from abilities import CoolDownAbility
-    CoolDownAbility.class_initialized = False
+    from abilities import Ability
+    Ability.class_initialized = False
 
 
 class DungeonControllerTest(unittest.TestCase):
