@@ -94,7 +94,7 @@ class ModTest(unittest.TestCase):
         self.assertTrue(player.damaged)
 
         # Ability is only usable after sufficient time has elapsed.
-        self.timer.current_time += hp.mod.ability._cool_down + 1
+        self.timer.current_time += hp.mod.ability._cool_down_time + 1
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
 
@@ -107,7 +107,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(hp)
         player.increment_health(-1)
 
-        self.timer.current_time += hp.mod.ability._cool_down + 1
+        self.timer.current_time += hp.mod.ability._cool_down_time + 1
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
 

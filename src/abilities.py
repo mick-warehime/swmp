@@ -12,29 +12,11 @@ from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit
 
 
 def initialize_classes(timer: Timer) -> None:
-    CoolDownAbility.initialize_class(timer)
+    Ability.initialize_class(timer)
 
 
 class Ability(object):
-    """Abstract base class for a generic Humanoid ability."""
-    class_initialized = True
-
-    def use(self, humanoid: Any) -> None:
-        raise NotImplementedError
-
-    @property
-    def can_use(self) -> bool:
-        raise NotImplementedError
-
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
-
-
-class CoolDownAbility(Ability):
-    _cool_down: Union[int, None] = None
+    _cool_down_time: Union[int, None] = None
     _timer: Union[None, Timer] = None
     class_initialized = False
 
@@ -49,8 +31,17 @@ class CoolDownAbility(Ability):
 
     @property
     def can_use(self) -> bool:
-        now = self._timer.current_time
-        return now - self._last_use > self._cool_down
+        return self._time_since_last_use > self._cool_down_time
+
+    @property
+    def _time_since_last_use(self) -> int:
+        return self._timer.current_time - self._last_use
+
+    @property
+    def cooldown_fraction(self) -> float:
+        fraction = float(self._time_since_last_use) / self._cool_down_time
+
+        return min(max(0.0, fraction), 1.0)
 
     def use(self, humanoid: Any) -> None:
         raise NotImplementedError
@@ -58,8 +49,14 @@ class CoolDownAbility(Ability):
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
 
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        if not cls.class_initialized:
+            raise RuntimeError('Class %s must be initialized before '
+                               'instantiating an object.' % (cls,))
 
-class FireProjectile(CoolDownAbility):
+
+class FireProjectile(Ability):
     _kickback: Union[int, None] = None
     _spread: Union[int, None] = None
     _projectile_count: Union[None, int] = None
@@ -89,7 +86,7 @@ class FireProjectile(CoolDownAbility):
 
 class FirePistol(FireProjectile):
     _kickback = 200
-    _cool_down = 250
+    _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
     _make_projectile = BigBullet
@@ -101,7 +98,7 @@ class FirePistol(FireProjectile):
 
 class SpewVomit(FireProjectile):
     _kickback = 0
-    _cool_down = 250
+    _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
     _make_projectile = EnemyVomit
@@ -112,7 +109,7 @@ class SpewVomit(FireProjectile):
 
 class FireShotgun(FireProjectile):
     _kickback = 300
-    _cool_down = 900
+    _cool_down_time = 900
     _spread = 20
     _projectile_count = 12
     _make_projectile = LittleBullet
@@ -122,9 +119,9 @@ class FireShotgun(FireProjectile):
         MuzzleFlash(origin)
 
 
-class Heal(CoolDownAbility):
+class Heal(Ability):
     """A healing ability with a timed cooldown and finite use count."""
-    _cool_down: Union[int, None] = 300
+    _cool_down_time: Union[int, None] = 300
 
     def __init__(self, num_uses: int, heal_amount: int) -> None:
         super().__init__()

@@ -24,7 +24,7 @@ class AbilitiesTest(unittest.TestCase):
         fire_pistol = FirePistol()
 
         self.assertFalse(fire_pistol.can_use)
-        self.timer.current_time += FirePistol._cool_down
+        self.timer.current_time += FirePistol._cool_down_time
         self.assertFalse(fire_pistol.can_use)
         self.timer.current_time += 1
         self.assertTrue(fire_pistol.can_use)
@@ -65,7 +65,7 @@ class AbilitiesTest(unittest.TestCase):
     def test_fireprojectile_cannot_use_after_firing(self) -> None:
         player = make_player()
         fire_pistol = FirePistol()
-        self.timer.current_time += FirePistol._cool_down + 1
+        self.timer.current_time += FirePistol._cool_down_time + 1
 
         self.assertTrue(fire_pistol.can_use)
         fire_pistol.use(player)
