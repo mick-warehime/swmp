@@ -1,6 +1,7 @@
 from dungeon_controller import DungeonController
 from decision_controller import DecisionController
 from controller import Controller
+from model import NO_RESOLUTIONS
 from typing import Any, List
 import networkx as nx
 
@@ -63,13 +64,18 @@ class Quest(object):
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
     def update_scene(self, index: int) -> None:
-        if not self._current_scene:
+        # quest is not over yet
+        if not self._current_scene or index == NO_RESOLUTIONS:
             return
+
         neighbors = self._quest_graph.neighbors(self._current_scene)
         neighbors = list(neighbors)
+
+        # quest is complete
         if len(neighbors) == 0:
             self._current_scene = None
             return
+
         self._current_scene = neighbors[index]
 
 
@@ -109,7 +115,7 @@ class Dungeon(Scene):
     def resolved_conflict_index(self) -> int:
         if self.controller:
             return self.controller.resolved_conflict_index()
-        raise Exception('conflict not created - cant resolve')
+        raise Exception('call get_controller() before resolve_conflict')
 
 
 class Decision(Scene):
