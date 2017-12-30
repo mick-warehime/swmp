@@ -13,6 +13,7 @@ MUZZLE_FLASH1 = 'whitePuff15.png'
 MUZZLE_FLASH2 = 'whitePuff16.png'
 MUZZLE_FLASH3 = 'whitePuff17.png'
 MUZZLE_FLASH4 = 'whitePuff18.png'
+LASER_BOLT = 'laser_blue.png'
 LIGHT_MASK = "light_350_soft.png"
 HEALTH_PACK = 'health_pack.png'
 SHOTGUN = 'obj_shotgun.png'
@@ -24,8 +25,8 @@ WAYPOINT_IMG = 'waypoint.png'
 
 ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
               MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
-              MUZZLE_FLASH4, LIGHT_MASK, HEALTH_PACK, ROCK, SHOTGUN,
-              SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG, VOMIT,
+              MUZZLE_FLASH4, LASER_BOLT, LIGHT_MASK, HEALTH_PACK, ROCK,
+              SHOTGUN, SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG, VOMIT,
               WAYPOINT_IMG]
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
