@@ -34,6 +34,7 @@ class Game(object):
         self._player: Any = None
 
     def new(self) -> None:
+        self._player = None
         self.quest = quest.Quest()
         self.next_dungeon()
         sounds.play(sounds.LEVEL_START)
