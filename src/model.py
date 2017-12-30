@@ -7,6 +7,8 @@ from pygame.sprite import Group, LayeredUpdates
 import images
 from settings import TILESIZE
 
+NO_RESOLUTIONS = -69
+
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
                           'items', 'mobs', 'all_sprites'))
@@ -49,6 +51,14 @@ class ConflictGroups(object):
             if conflict.is_resolved():
                 return True
         return False
+
+    def resolved_conflict(self) -> int:
+        for conflict_name in self.conflicts:
+            conflict = self.conflicts[conflict_name]
+            if conflict.is_resolved():
+                return int(conflict_name)
+        return NO_RESOLUTIONS
+
 
 
 class Conflict(object):

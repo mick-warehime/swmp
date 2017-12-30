@@ -32,7 +32,6 @@ class Game(object):
         self.paused = False
 
     def new(self) -> None:
-
         self.quest = quest.Quest()
         self.next_dungeon()
         sounds.play(sounds.LEVEL_START)

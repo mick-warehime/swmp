@@ -1,6 +1,7 @@
 from dungeon_controller import DungeonController
 from decision_controller import DecisionController
-from typing import Any
+from controller import Controller
+from typing import Any, List
 import networkx as nx
 
 COMPLETE = -1
@@ -16,14 +17,19 @@ class Quest(object):
         self._quest_graph = self._create_quest()
         self._current = 0
         self._current_scene = self._root_scene()
+        self._previous_scene = None
         self._player: Any = None
 
     # temporary function for creating quests - just description + filename
     def _create_quest(self) -> nx.DiGraph:
         g = nx.DiGraph()
-        first_scene = QuestScene('First scene', 'goto.tmx')
-        second_scene = QuestScene('Second scene', 'level1.tmx')
-        g.add_edges_from([(first_scene, second_scene)])
+        first_scene = Dungeon('level 1 scene', 'goto.tmx')
+        scene21 = Dungeon('level 2.1 scene', 'level1.tmx')
+        scene22 = Dungeon('level 2.2 scene', 'level1.tmx')
+        scene23 = Dungeon('level 2.2 scene', 'level1.tmx')
+        g.add_edges_from([(first_scene, scene21)])
+        g.add_edges_from([(first_scene, scene22)])
+        g.add_edges_from([(first_scene, scene23)])
         return g
 
     # find the root of the graph (first scene)
@@ -40,51 +46,75 @@ class Quest(object):
     # either to start a quest or to get the next scene
     # returns a valid dungeon of COMPLETE if the quest is over
     def next_dungeon(self) -> DungeonController:
+        if self._previous_scene:
+            next_index = self._previous_scene.resolved_conflict_index()
+            self._previous_scene = self._current_scene
+            self._current_scene = self._update(next_index)
+        else:
+            self._previous_scene = self._current_scene
+
         if not self._current_scene:
             return COMPLETE
 
-        tiled_map_file = self._current_scene
-        self._show_intro(tiled_map_file.description)
+        dungeon = self._current_scene.get_controller()
 
-        dungeon = self._create_dungeon()
-
-        self._update()
-
-        return dungeon
-
-    # load the dungeon given a file - eventually this will be replaced
-    # with a dungeon generation or load quests from files
-    def _create_dungeon(self) -> DungeonController:
-        map_file = self._current_scene.map_file
-        dungeon = DungeonController(map_file)
         if self._player is not None:
             dungeon.set_player(self._player)
         else:
             self._player = dungeon.player
 
+        self._current_scene.show_intro()
+
         return dungeon
 
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
-    def _update(self) -> None:
+    def _update(self, index: int) -> None:
+
         neighbors = self._quest_graph.neighbors(self._current_scene)
         neighbors = list(neighbors)
         if len(neighbors) == 0:
-            self._current_scene = None
-            return
+            return None
+        return neighbors[index]
 
-        self._current_scene = neighbors[0]
+
+class Scene(object):
+    def __init__(self, description: str) -> None:
+        self.description = description
+        self.controller = None
+
+    def show_intro(self) -> None:
+        raise NotImplementedError()
+
+    def get_controller(self) -> Controller:
+        raise NotImplementedError()
+
+    def resolved_conflict_index(self) -> int:
+        raise NotImplementedError()
+
+
+class Dungeon(Scene):
+    def __init__(self, description: str, map_file: str) -> None:
+        super().__init__(description)
+        self.map_file = map_file
+
+    def get_controller(self) -> Controller:
+        self.controller = DungeonController(self.map_file)
+        return self.controller
 
     # show the scene description - temporary - for now we just hardcode
     # a description but eventually we should use this to describe all the
     # hooks of the scene / dramatic question
-    def _show_intro(self, description: str) -> None:
+    def show_intro(self) -> None:
         options = ['continue']
-        dc = DecisionController(description, options)
+        dc = DecisionController(self.description, options)
         dc.wait_for_decision()
 
+    def resolved_conflict_index(self) -> int:
+        return self.controller.resolved_conflict_index()
 
-class QuestScene(object):
-    def __init__(self, description: str, map_file: str) -> None:
-        self.description = description
-        self.map_file = map_file
+
+class Decision(Scene):
+    def __init__(self, description: str, options: List[str]) -> None:
+        super().__init__(description)
+        self.options = options

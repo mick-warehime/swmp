@@ -1,5 +1,6 @@
 from typing import Callable, Dict, List, Union, Tuple, Any
 import pygame as pg
+from creatures.players import Player
 
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
@@ -100,3 +101,12 @@ class Controller(object):
 
     def bind_quit(self) -> None:
         self.bind(pg.K_ESCAPE, self._quit_func)
+
+    def set_player(self, player: Player) -> None:
+        self.player.backpack = player.backpack
+        self.player.increment_health(-self.player.health)
+        self.player.increment_health(player.health)
+        self.player.active_mods = player.active_mods
+
+    def resolved_conflict_index(self) -> int:
+        raise NotImplementedError()
