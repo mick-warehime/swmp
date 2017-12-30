@@ -12,7 +12,7 @@ class DecisionControllerTest(unittest.TestCase):
     def test_set_option_0(self) -> None:
         prompt = 'Do you go into the swamp?'
         options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
+        dc = decision_controller.DecisionController(prompt, options)
 
         key0 = decision_controller.pg.K_1
         decision_controller.pg.key.pressed[key0] = 1
@@ -24,7 +24,7 @@ class DecisionControllerTest(unittest.TestCase):
     def test_set_option_1(self) -> None:
         prompt = 'Do you go into the swamp?'
         options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
+        dc = decision_controller.DecisionController(prompt, options)
 
         key1 = decision_controller.controller.pg.K_2
         decision_controller.pg.key.pressed[key1] = 1
@@ -36,7 +36,7 @@ class DecisionControllerTest(unittest.TestCase):
     def test_set_option_2(self) -> None:
         prompt = 'Do you go into the swamp?'
         options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
+        dc = decision_controller.DecisionController(prompt, options)
 
         key2 = decision_controller.controller.pg.K_3
         decision_controller.pg.key.pressed[key2] = 1
@@ -48,7 +48,7 @@ class DecisionControllerTest(unittest.TestCase):
     def test_get_text(self) -> None:
         prompt = 'Do you go into the swamp?'
         options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(None, prompt, options)
+        dc = decision_controller.DecisionController(prompt, options)
 
         text = dc.get_text()
 

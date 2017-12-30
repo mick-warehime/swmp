@@ -6,7 +6,7 @@ from pygame.math import Vector2
 import creatures.mobs
 import creatures.players
 import mods
-from creatures import humanoids as hmn
+import controller
 from dungeon_controller import DungeonController
 from items.item_manager import ItemManager
 
@@ -30,9 +30,10 @@ def make_item(label: str) -> mods.ItemObject:
 
 
 def make_dungeon_controller() -> DungeonController:
-    level = 'test_level.tmx'
     blank_screen = pygame.Surface((800, 600))
-    return DungeonController(blank_screen, level)
+    controller.initialize_controller(blank_screen, None)
+    level = 'test_level.tmx'
+    return DungeonController(level)
 
 
 class TiledmapObject(object):

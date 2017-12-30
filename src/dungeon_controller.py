@@ -24,9 +24,7 @@ from weapons import Projectile
 
 
 class DungeonController(controller.Controller):
-    def __init__(self,
-                 screen: pg.Surface,
-                 map_file: str) -> None:
+    def __init__(self, map_file: str) -> None:
         super().__init__()
 
         # initialize all variables and do all the setup for a new game
@@ -41,7 +39,7 @@ class DungeonController(controller.Controller):
 
         self._camera = tilemap.Camera(self._map.width, self._map.height)
 
-        self._view = view.DungeonView(screen)
+        self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._groups)
 
         self.init_controls()
