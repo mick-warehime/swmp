@@ -112,3 +112,9 @@ class Controller(object):
 
     def resolved_conflict_index(self) -> int:
         raise NotImplementedError()
+
+    def game_over(self) -> bool:
+        NotImplementedError
+
+    def should_exit(self) -> bool:
+        NotImplementedError

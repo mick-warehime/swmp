@@ -175,7 +175,7 @@ class DungeonController(controller.Controller):
         return self._clock.get_fps()
 
     # the owning object needs to know this
-    def dungeon_over(self) -> bool:
+    def should_exit(self) -> bool:
         return self._conflicts.any_resolved_conflict()
 
     def game_over(self) -> bool:

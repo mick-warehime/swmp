@@ -71,7 +71,7 @@ class Game(object):
             if self.scene_ctlr.game_over():
                 break
 
-            if self.scene_ctlr.dungeon_over():
+            if self.scene_ctlr.should_exit():
                 self.next_dungeon()
 
     def quit(self) -> None:

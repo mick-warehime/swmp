@@ -26,13 +26,11 @@ class Quest(object):
     # temporary function for creating quests - just description + filename
     def _create_quest(self) -> nx.DiGraph:
         g = nx.DiGraph()
-        first_scene = Dungeon('level 1 scene', 'goto.tmx')
-        scene21 = Dungeon('level 2.1 scene', 'level1.tmx')
-        scene22 = Dungeon('level 2.2 scene', 'level1.tmx')
-        scene23 = Dungeon('level 2.2 scene', 'level1.tmx')
-        g.add_edges_from([(first_scene, scene21)])
-        g.add_edges_from([(first_scene, scene22)])
-        g.add_edges_from([(first_scene, scene23)])
+        root = Decision('Kill one or two zombies?', ['one', 'two'])
+        two_zombo = Dungeon('two zombos', 'goto.tmx')
+        one_zombo = Dungeon('one zombos', 'level1.tmx')
+        g.add_edges_from([(root, one_zombo)])
+        g.add_edges_from([(root, two_zombo)])
         return g
 
     # find the root of the graph (first scene)
@@ -94,7 +92,9 @@ class Scene(object):
         raise NotImplementedError()
 
     def resolved_conflict_index(self) -> int:
-        raise NotImplementedError()
+        if self.controller:
+            return self.controller.resolved_conflict_index()
+        raise Exception('call get_controller() first')
 
 
 class Dungeon(Scene):
@@ -115,13 +115,15 @@ class Dungeon(Scene):
         dc = DecisionController(self.description, options)
         dc.wait_for_decision()
 
-    def resolved_conflict_index(self) -> int:
-        if self.controller:
-            return self.controller.resolved_conflict_index()
-        raise Exception('call get_controller() first')
-
 
 class Decision(Scene):
     def __init__(self, description: str, options: List[str]) -> None:
         super().__init__(description)
         self.options = options
+
+    def get_controller(self) -> Controller:
+        self.controller = DecisionController(self.description, self.options)
+        return self.controller
+
+    def show_intro(self) -> None:
+        self.controller.wait_for_decision()
