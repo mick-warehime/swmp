@@ -18,11 +18,12 @@ class Humanoid(mdl.DynamicObject):
         self._health = max_health
         self._max_health = max_health
         super().__init__(pos)
+        self._base_rect = self.image.get_rect().copy()
         # Used in wall collisions
         self.hit_rect: pg.Rect = hit_rect.copy()
         # For some reason, mypy cannot infer the type of hit_rect in the line
         #  below.
-        self.hit_rect.center = self.rect.center  # type: ignore
+        self.hit_rect.center = self.pos  # type: ignore
 
         self._vel = Vector2(0, 0)
         self._acc = Vector2(0, 0)
@@ -38,6 +39,11 @@ class Humanoid(mdl.DynamicObject):
     @property
     def health(self) -> int:
         return self._health
+
+    @property
+    def rect(self) -> pg.Rect:
+        self._base_rect.center = self.pos
+        return self._base_rect
 
     @property
     def damaged(self) -> bool:
@@ -67,9 +73,6 @@ class Humanoid(mdl.DynamicObject):
         # For some reason, mypy cannot infer the type of hit_rect in the line
         #  below.
         self.rect.center = self.hit_rect.center  # type: ignore
-
-    def _match_rect_to_image(self) -> None:
-        self.rect = self.image.get_rect()
 
     def stop_x(self) -> None:
         self._vel.x = 0

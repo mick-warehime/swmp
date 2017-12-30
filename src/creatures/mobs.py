@@ -81,9 +81,10 @@ class Mob(Humanoid):
         else:
             base_image = images.get_image(images.MOB_IMG)
         image = pg.transform.rotate(base_image, self.rot)
+
         if self.damaged:
             col = self._health_bar_color()
-            width = int(self.rect.width * self.health / MOB_HEALTH)
+            width = int(image.get_width() * self.health / MOB_HEALTH)
             health_bar = pg.Rect(0, 0, width, 7)
             pg.draw.rect(image, col, health_bar)
         return image
@@ -103,7 +104,6 @@ class Mob(Humanoid):
 
             self.rot = target_dist.angle_to(Vector2(1, 0))
 
-            self._match_rect_to_image()
             self._update_acc()
             self._update_trajectory()
             self._collide_with_walls()
