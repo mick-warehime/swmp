@@ -54,7 +54,7 @@ class Mod(object):
         assert hasattr(self.ability, 'uses_left')
         self.ability.uses_left += num_uses
 
-    def draw_cooldown(self, image) -> pg.Surface:
+    def draw_cooldown(self, image: pg.Surface) -> pg.Surface:
         if self.ability.cooldown_fraction > 1:  # No bar necessary
             return image
         image = image.copy()  # Original image should be unchanged.
