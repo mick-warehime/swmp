@@ -36,7 +36,7 @@ class DecisionController(controller.Controller):
 
     def get_choice_function(self, key_idx: int) -> Callable[..., None]:
         def choice_func() -> None:
-            self.choice = key_idx
+            self.choice = key_idx - 1
 
         return choice_func
 
@@ -53,10 +53,10 @@ class DecisionController(controller.Controller):
         title_font = images.get_font(images.ZOMBIE_FONT)
 
         n_texts = len(texts) + 1
-        for idx, text in enumerate(texts, 1):
+        for idx, text in enumerate(texts, 0):
             draw_text(self._screen, text, title_font,
                       40, settings.WHITE, settings.WIDTH / 2,
-                      settings.HEIGHT * idx / n_texts, align="center")
+                      settings.HEIGHT * (idx + 1) / n_texts, align="center")
         pg.display.flip()
 
     def get_text(self) -> List[str]:
@@ -77,4 +77,11 @@ class DecisionController(controller.Controller):
         return self.choice
 
     def resolved_conflict_index(self) -> int:
-        return self.wait_for_decision()
+        return self.choice
+
+    # can't lose from decision screen
+    def game_over(self) -> bool:
+        return False
+
+    def should_exit(self) -> bool:
+        return self.choice != -1

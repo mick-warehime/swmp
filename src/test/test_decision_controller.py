@@ -19,7 +19,7 @@ class DecisionControllerTest(unittest.TestCase):
 
         dc.update()
 
-        self.assertEqual(dc.choice, 1)
+        self.assertEqual(dc.choice, 0)
 
     def test_set_option_1(self) -> None:
         prompt = 'Do you go into the swamp?'
@@ -31,7 +31,7 @@ class DecisionControllerTest(unittest.TestCase):
 
         dc.update()
 
-        self.assertEqual(dc.choice, 2)
+        self.assertEqual(dc.choice, 1)
 
     def test_set_option_2(self) -> None:
         prompt = 'Do you go into the swamp?'
@@ -43,7 +43,7 @@ class DecisionControllerTest(unittest.TestCase):
 
         dc.update()
 
-        self.assertEqual(dc.choice, 3)
+        self.assertEqual(dc.choice, 2)
 
     def test_get_text(self) -> None:
         prompt = 'Do you go into the swamp?'
