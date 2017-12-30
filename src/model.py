@@ -106,9 +106,6 @@ class GameObject(pg.sprite.Sprite):
         self._check_class_initialized()
 
         self.pos = Vector2(pos.x, pos.y)
-        # Used in sprite collisions
-        self.rect: pg.Rect = self.image.get_rect().copy()
-        self.rect.center = Vector2(pos.x, pos.y)
 
     def _check_class_initialized(self) -> None:
         if not self.gameobjects_initialized:
@@ -124,18 +121,27 @@ class GameObject(pg.sprite.Sprite):
     def image(self) -> pg.Surface:
         raise NotImplementedError
 
+    @property
+    def rect(self) -> pg.Rect:
+        """Rect object used in sprite collisions."""
+        raise NotImplementedError
+
 
 class Obstacle(GameObject):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
         self._check_class_initialized()
         pg.sprite.Sprite.__init__(self, self._groups.walls)
 
-        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
+        self._rect = pg.Rect(top_left.x, top_left.y, w, h)
 
     @property
     def image(self) -> pg.Surface:
         raise RuntimeError('Obstacle image is meant to be drawn in the '
                            'background.')
+
+    @property
+    def rect(self) -> pg.Rect:
+        return self._rect
 
     def update(self) -> None:
         raise RuntimeError('Obstacle is not meant to be updated.')
@@ -165,6 +171,10 @@ class DynamicObject(GameObject):
                                ' instantiating a DynamicObject.')
 
     @property
+    def rect(self) -> pg.Rect:
+        raise NotImplementedError
+
+    @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
 
@@ -178,6 +188,8 @@ class Waypoint(DynamicObject):
     def __init__(self, pos: Vector2, player: Any,
                  conflict_group: Group) -> None:
         super().__init__(pos)
+        self._rect = self.image.get_rect().copy()
+        self._rect.center = pos
         self.player = player
 
         if conflict_group is None:
@@ -199,3 +211,7 @@ class Waypoint(DynamicObject):
             img = images.get_image(images.WAYPOINT_IMG)
             Waypoint._image = pg.transform.scale(img, (TILESIZE, TILESIZE))
         return self._image
+
+    @property
+    def rect(self) -> pg.Rect:
+        return self._rect

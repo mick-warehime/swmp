@@ -26,13 +26,14 @@ class Projectile(DynamicObject):
             groups_list = [self._groups.all_sprites, self._groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
+        self._base_rect = self.image.get_rect().copy()
+
         assert direction.is_normalized()
         self._vel = direction * self.speed * uniform(0.9, 1.1)
         self.spawn_time = self._timer.current_time
 
     def update(self) -> None:
         self.pos += self._vel * self._timer.dt
-        self.rect.center = self.pos
         if pg.sprite.spritecollideany(self, self._groups.walls):
             self.kill()
         if self._lifetime_exceeded:
@@ -41,6 +42,11 @@ class Projectile(DynamicObject):
     @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
+
+    @property
+    def rect(self) -> pg.Rect:
+        self._base_rect.center = self.pos
+        return self._base_rect
 
     @property
     def _lifetime_exceeded(self) -> bool:
@@ -93,6 +99,8 @@ class MuzzleFlash(DynamicObject):
         self._check_class_initialized()
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
         super().__init__(pos)
+        self._rect = self.image.get_rect().copy()
+        self._rect.center = self.pos
         self._spawn_time = self._timer.current_time
 
     def update(self) -> None:
@@ -108,3 +116,7 @@ class MuzzleFlash(DynamicObject):
     def _fade_out(self) -> bool:
         time_elapsed = self._timer.current_time - self._spawn_time
         return time_elapsed > settings.FLASH_DURATION
+
+    @property
+    def rect(self) -> pg.Rect:
+        return self._rect

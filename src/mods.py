@@ -10,8 +10,9 @@ from model import DynamicObject
 from settings import RED
 
 HEALTH_PACK_AMOUNT = 20
-BOB_RANGE = 10
+BOB_RANGE = 1
 BOB_SPEED = 0.3
+BOB_PERIOD = 10
 
 NO_MOD_AT_LOCATION = -1
 
@@ -190,11 +191,14 @@ class ItemObject(DynamicObject):
         my_groups = [self._groups.all_sprites, self._groups.items]
         pg.sprite.Sprite.__init__(self, my_groups)
 
+        self._base_rect = self.image.get_rect().copy()
+
         self._mod = mod
         self._tween = tween.easeInOutSine
         self._step = 0.0
         self._bob_direction = 1
-        self._bob_period = BOB_RANGE
+        self._bob_range = BOB_RANGE
+        self._bob_period = BOB_PERIOD
         self._bob_speed = BOB_SPEED
 
     @property
@@ -204,16 +208,21 @@ class ItemObject(DynamicObject):
     def update(self) -> None:
         # bobbing motion
         offset = self._bob_offset()
-        self.rect.centery = self.pos.y + offset * self._bob_direction
+        self.pos.y += offset * self._bob_direction
         self._step += self._bob_speed
         if self._step > self._bob_period:
             self._step = 0.0
             self._bob_direction *= -1
 
     def _bob_offset(self) -> float:
-        offset = self._bob_period * (
+        offset = self._bob_range * (
             self._tween(self._step / self._bob_period) - 0.5)
         return offset
+
+    @property
+    def rect(self) -> pg.Rect:
+        self._base_rect.center = self.pos
+        return self._base_rect
 
     @property
     def image(self) -> pg.Surface:
