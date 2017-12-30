@@ -126,4 +126,6 @@ class Decision(Scene):
         return self.controller
 
     def show_intro(self) -> None:
-        self.controller.wait_for_decision()
+        if self.controller:
+            self.controller.wait_for_decision()
+        raise Exception('call get_controller() first')

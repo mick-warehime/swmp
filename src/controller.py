@@ -114,7 +114,7 @@ class Controller(object):
         raise NotImplementedError()
 
     def game_over(self) -> bool:
-        NotImplementedError
+        raise NotImplementedError()
 
     def should_exit(self) -> bool:
-        NotImplementedError
+        raise NotImplementedError()

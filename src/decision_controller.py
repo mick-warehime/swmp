@@ -58,7 +58,7 @@ class DecisionController(controller.Controller):
         for idx, text in enumerate(texts, 0):
             draw_text(self._screen, text, title_font,
                       40, settings.WHITE, settings.WIDTH / 2,
-                      settings.HEIGHT * (idx + 1)/ n_texts, align="center")
+                      settings.HEIGHT * (idx + 1) / n_texts, align="center")
         pg.display.flip()
 
     def get_text(self) -> List[str]:
