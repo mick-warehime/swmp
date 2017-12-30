@@ -60,7 +60,6 @@ class ConflictGroups(object):
         return NO_RESOLUTIONS
 
 
-
 class Conflict(object):
     def __init__(self) -> None:
         self.group = Group()

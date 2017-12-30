@@ -23,7 +23,9 @@ class QuestTest(unittest.TestCase):
 
     def test_quest_update_node(self) -> None:
         q = self.Quest()
-        node_i = q._current_scene
-        q.next_dungeon()
+
+        node_i = q._previous_scene
         node_f = q._current_scene
+        q.next_scene()
         self.assertNotEqual(node_i, node_f)
+

@@ -42,6 +42,8 @@ class Controller(object):
         self.bind_quit()
         self.n_default_bindings = 1
 
+        self.player: Player = None
+
     # calls this function every frame when the key is held down
     def bind(self, key: int, binding: Callable[..., None]) -> None:
         self.bindings[key] = binding

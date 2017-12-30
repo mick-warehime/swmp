@@ -18,7 +18,6 @@ class Quest(object):
         self._current = 0
         self._current_scene = self._root_scene()
         self._previous_scene = None
-        self._player: Any = None
 
     # temporary function for creating quests - just description + filename
     def _create_quest(self) -> nx.DiGraph:
@@ -45,37 +44,33 @@ class Quest(object):
     # clients should call this method to get the next dungeon
     # either to start a quest or to get the next scene
     # returns a valid dungeon of COMPLETE if the quest is over
-    def next_dungeon(self) -> DungeonController:
+    def next_scene(self) -> Controller:
+
+        # use the result of the previous scene to determine
+        # the next scene
         if self._previous_scene:
             next_index = self._previous_scene.resolved_conflict_index()
             self._previous_scene = self._current_scene
-            self._current_scene = self._update(next_index)
+            self.update_scene(next_index)
         else:
             self._previous_scene = self._current_scene
 
         if not self._current_scene:
             return COMPLETE
 
-        dungeon = self._current_scene.get_controller()
-
-        if self._player is not None:
-            dungeon.set_player(self._player)
-        else:
-            self._player = dungeon.player
-
-        self._current_scene.show_intro()
-
-        return dungeon
+        return self._current_scene
 
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
-    def _update(self, index: int) -> None:
-
+    def update_scene(self, index: int) -> None:
+        if not self._current_scene:
+            return
         neighbors = self._quest_graph.neighbors(self._current_scene)
         neighbors = list(neighbors)
         if len(neighbors) == 0:
-            return None
-        return neighbors[index]
+            self._current_scene = None
+            return
+        self._current_scene = neighbors[index]
 
 
 class Scene(object):
@@ -97,6 +92,7 @@ class Dungeon(Scene):
     def __init__(self, description: str, map_file: str) -> None:
         super().__init__(description)
         self.map_file = map_file
+        self.controller: Controller = None
 
     def get_controller(self) -> Controller:
         self.controller = DungeonController(self.map_file)
@@ -111,7 +107,9 @@ class Dungeon(Scene):
         dc.wait_for_decision()
 
     def resolved_conflict_index(self) -> int:
-        return self.controller.resolved_conflict_index()
+        if self.controller:
+            return self.controller.resolved_conflict_index()
+        raise Exception('conflict not created - cant resolve')
 
 
 class Decision(Scene):
