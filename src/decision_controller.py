@@ -75,3 +75,6 @@ class DecisionController(controller.Controller):
             self.handle_input()
 
         return self.choice
+
+    def resolved_conflict_index(self) -> int:
+        return self.wait_for_decision()

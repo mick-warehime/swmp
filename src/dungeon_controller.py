@@ -229,11 +229,8 @@ class DungeonController(controller.Controller):
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
 
-    def set_player(self, player: Player) -> None:
-        self.player.backpack = player.backpack
-        self.player.increment_health(-self.player.health)
-        self.player.increment_health(player.health)
-        self.player.active_mods = player.active_mods
-
     def toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
+
+    def resolved_conflict_index(self) -> int:
+        return self._conflicts.resolved_conflict()

@@ -187,6 +187,8 @@ class HUD(object):
                                     images.get_font(images.ZOMBIE_FONT))
 
     def toggle_hide_backpack(self) -> None:
+        self.selected_mod = NO_SELECTION
+        self.selected_item = NO_SELECTION
         self._backpack_hidden = not self._backpack_hidden
 
     def clicked_hud(self, pos: Tuple[int, int]) -> bool:
