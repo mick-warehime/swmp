@@ -27,8 +27,8 @@ class Quest(object):
     def _create_quest(self) -> nx.DiGraph:
         g = nx.DiGraph()
         root = Decision('Kill one or two zombies?', ['one', 'two'])
-        two_zombo = Dungeon('two zombos', 'goto.tmx')
-        one_zombo = Dungeon('one zombos', 'level1.tmx')
+        two_zombo = Dungeon('', 'goto.tmx')
+        one_zombo = Dungeon('', 'level1.tmx')
         g.add_edges_from([(root, one_zombo)])
         g.add_edges_from([(root, two_zombo)])
         return g
@@ -111,6 +111,8 @@ class Dungeon(Scene):
     # a description but eventually we should use this to describe all the
     # hooks of the scene / dramatic question
     def show_intro(self) -> None:
+        if self.description in '':
+            return
         options = ['continue']
         dc = DecisionController(self.description, options)
         dc.wait_for_decision()
@@ -128,4 +130,5 @@ class Decision(Scene):
     def show_intro(self) -> None:
         if self.controller:
             self.controller.wait_for_decision()
-        raise Exception('call get_controller() first')
+        else:
+            raise Exception('call get_controller() first')
