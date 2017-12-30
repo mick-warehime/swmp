@@ -16,7 +16,7 @@ def initialize_classes(timer: Timer) -> None:
 
 
 class Ability(object):
-    _cool_down: Union[int, None] = None
+    _cool_down_time: Union[int, None] = None
     _timer: Union[None, Timer] = None
     class_initialized = False
 
@@ -31,8 +31,17 @@ class Ability(object):
 
     @property
     def can_use(self) -> bool:
-        now = self._timer.current_time
-        return now - self._last_use > self._cool_down
+        return self._time_since_last_use > self._cool_down_time
+
+    @property
+    def _time_since_last_use(self) -> int:
+        return self._timer.current_time - self._last_use
+
+    @property
+    def cooldown_fraction(self) -> float:
+        fraction = float(self._time_since_last_use) / self._cool_down_time
+
+        return min(max(0.0, fraction), 1.0)
 
     def use(self, humanoid: Any) -> None:
         raise NotImplementedError
@@ -77,7 +86,7 @@ class FireProjectile(Ability):
 
 class FirePistol(FireProjectile):
     _kickback = 200
-    _cool_down = 250
+    _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
     _make_projectile = BigBullet
@@ -89,7 +98,7 @@ class FirePistol(FireProjectile):
 
 class SpewVomit(FireProjectile):
     _kickback = 0
-    _cool_down = 250
+    _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
     _make_projectile = EnemyVomit
@@ -100,7 +109,7 @@ class SpewVomit(FireProjectile):
 
 class FireShotgun(FireProjectile):
     _kickback = 300
-    _cool_down = 900
+    _cool_down_time = 900
     _spread = 20
     _projectile_count = 12
     _make_projectile = LittleBullet
@@ -112,7 +121,7 @@ class FireShotgun(FireProjectile):
 
 class Heal(Ability):
     """A healing ability with a timed cooldown and finite use count."""
-    _cool_down: Union[int, None] = 300
+    _cool_down_time: Union[int, None] = 300
 
     def __init__(self, num_uses: int, heal_amount: int) -> None:
         super().__init__()

@@ -135,6 +135,7 @@ class HUD(object):
             img = mod.equipped_image
 
             img = pg.transform.scale(img, (50, 50))
+            img = mod.draw_cooldown(img)
 
             img_rect = img.get_rect()
             img_rect.center = self.mod_rects[loc].center

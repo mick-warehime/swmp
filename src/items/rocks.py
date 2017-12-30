@@ -30,7 +30,7 @@ class Rock(Projectile):
 
 class ThrowRock(FireProjectile):
     _kickback = 0
-    _cool_down = 500
+    _cool_down_time = 500
     _spread = 10
     _projectile_count = 1
     _make_projectile = Rock
