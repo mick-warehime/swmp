@@ -1,5 +1,8 @@
 from typing import List, Tuple
 import pygame as pg
+from pygame.math import Vector2
+from pygame.sprite import Sprite
+
 import images
 import mods
 import settings
@@ -50,7 +53,7 @@ class DungeonView(object):
         self._screen.blit(map_img, camera.apply(map))
 
         for sprite in self._groups.all_sprites:
-            self._screen.blit(sprite.image, camera.apply(sprite))
+            self._draw_sprite(sprite, camera)
 
         if self._draw_debug:
             self._draw_debug_rects(camera)
@@ -60,6 +63,15 @@ class DungeonView(object):
 
         # draw hud on top of everything
         self._hud.draw(player)
+
+    def _draw_sprite(self, sprite: Sprite, camera: Camera)->None:
+        image = sprite.image
+        rect = image.get_rect().copy()
+        new_center = Vector2(sprite.pos)
+        new_center.x += camera.rect.topleft[0]
+        new_center.y += camera.rect.topleft[1]
+        rect.center = new_center
+        self._screen.blit(image, rect)
 
     def _draw_debug_rects(self, camera: Camera) -> None:
         for sprite in self._groups.all_sprites:
