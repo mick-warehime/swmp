@@ -56,7 +56,7 @@ class ControllerTest(unittest.TestCase):
         ctrl = controller.Controller()
 
         test_string = 'set a'
-        ctrl.bind_down(self.a_key, lambda: self.set_a(test_string))
+        ctrl.bind_on_press(self.a_key, lambda: self.set_a(test_string))
 
         # function is called when you press the key
         controller.pg.key.pressed[self.a_key] = 1

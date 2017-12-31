@@ -44,7 +44,7 @@ class Game(object):
 
         if scene != quest.COMPLETE:
             self.scene_ctlr = scene.get_controller()
-            self.scene_ctlr.bind_down(pg.K_p, self.toggle_paused)
+            self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
 
             if self._player is not None:
                 self.scene_ctlr.set_player(self._player)

@@ -82,8 +82,8 @@ class DungeonController(controller.Controller):
 
     def init_controls(self) -> None:
 
-        self.bind_down(pg.K_n, self._view.toggle_night)
-        self.bind_down(pg.K_h, self._view.toggle_debug)
+        self.bind_on_press(pg.K_n, self._view.toggle_night)
+        self.bind_on_press(pg.K_h, self._view.toggle_debug)
 
         # players controls
         self.bind(pg.K_LEFT, self.player.translate_left)
@@ -103,12 +103,12 @@ class DungeonController(controller.Controller):
         self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
 
         chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
-        self.bind_down(pg.K_r, chest_ability)
+        self.bind_on_press(pg.K_r, chest_ability)
 
-        self.bind_down(pg.K_b, self.toggle_hide_backpack)
+        self.bind_on_press(pg.K_b, self.toggle_hide_backpack)
 
         # equip / use
-        self.bind_down(pg.K_e, self.try_equip)
+        self.bind_on_press(pg.K_e, self.try_equip)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))

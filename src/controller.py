@@ -35,7 +35,7 @@ class Controller(object):
 
         # maps keys to functions
         self.bindings: Dict[int, Callable[..., None]] = {}
-        self.bindings_down: Dict[int, Callable[..., None]] = {}
+        self.bindings_on_press: Dict[int, Callable[..., None]] = {}
         self.mouse_bindings: Dict[int, Callable[..., None]] = {}
 
         # default bindings for every controller (currently only escape)
@@ -49,8 +49,8 @@ class Controller(object):
         self.bindings[key] = binding
 
     # calls this function on frames when this becomes pressed
-    def bind_down(self, key: int, binding: Callable[..., None]) -> None:
-        self.bindings_down[key] = binding
+    def bind_on_press(self, key: int, binding: Callable[..., None]) -> None:
+        self.bindings_on_press[key] = binding
 
     # calls this function every frame when the mouse button is held down
     def bind_mouse(self, key: int, binding: Callable[..., None]) -> None:
@@ -77,13 +77,13 @@ class Controller(object):
                                  self.mouse_bindings,
                                  only_handle)
 
-            for key_id in self.bindings_down:
+            for key_id in self.bindings_on_press:
                 # only press if key was not down last frame
                 if self._prev_keys[key_id]:
                     continue
                 if keys[key_id]:
                     call_binding(key_id,
-                                 self.bindings_down,
+                                 self.bindings_on_press,
                                  only_handle)
 
     def get_clicked_pos(self) -> Tuple[int, int]:
