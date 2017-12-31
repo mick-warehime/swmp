@@ -6,6 +6,7 @@ import images
 import sounds
 from abilities import FireProjectile, Ability
 from mods import ItemObject, Mod, ModLocation
+from tilemap import ObjectType
 from weapons import Projectile
 
 
@@ -40,7 +41,7 @@ class ThrowRock(FireProjectile):
         self.uses_left = 1
 
     def _fire_effects(self, origin: Vector2) -> None:
-        sounds.play('grunt')
+        sounds.fire_weapon_sound(ObjectType.ROCK)
         self.uses_left -= 1
 
 

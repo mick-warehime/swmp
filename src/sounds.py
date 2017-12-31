@@ -4,7 +4,7 @@ import os
 import random
 
 # TODO - load sounds from JSON file -  issue#106
-from tilemap import ObjectType, WEAPONS
+from tilemap import ObjectType
 
 ZOMBIE_HIT = 'zombie hit'
 PLAYER_HIT = 'player hit'
@@ -23,11 +23,12 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 WEAPON_SOUNDS = {ObjectType.PISTOL: ['pistol.wav'],
-                 ObjectType.SHOTGUN: ['shotgun.wav']}
+                 ObjectType.SHOTGUN: ['shotgun.wav'],
+                 ObjectType.LASER_GUN: ['laser_pew.wav'],
+                 ObjectType.ROCK: ['grunt.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
-                  'gun_pickup': 'gun_pickup.wav',
-                  'grunt': 'grunt.wav'}
+                  'gun_pickup': 'gun_pickup.wav'}
 
 
 class SoundEffects(object):
@@ -46,7 +47,7 @@ class SoundEffects(object):
         for label, file_name in EFFECTS_SOUNDS.items():
             sound_path = os.path.join(snd_folder, file_name)
             self.effects_sounds[label] = pg.mixer.Sound(sound_path)
-        for weapon in WEAPONS:
+        for weapon in WEAPON_SOUNDS.keys():
             self.weapon_sounds[weapon] = []
             for sound_file in WEAPON_SOUNDS[weapon]:
                 s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
