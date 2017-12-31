@@ -7,11 +7,15 @@ from pygame.math import Vector2
 
 import images
 from creatures.humanoids import Humanoid
+from model import EnergySource
 
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280
 PLAYER_ROT_SPEED = 200
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+PLAYER_MAX_ENERGY = 100.0
+PLAYER_ENERGY_RECHARGE = 5.0
+
 DAMAGE_ALPHA = list(range(0, 255, 55))
 
 
@@ -26,6 +30,9 @@ class Player(Humanoid):
         self._damage_alpha = chain(DAMAGE_ALPHA * 4)
         self._rot_speed = 0
         self._mouse_pos = (0, 0)
+
+        self.energy_source = EnergySource(PLAYER_MAX_ENERGY,
+                                          PLAYER_ENERGY_RECHARGE)
 
     def move_towards_mouse(self) -> None:
         self.turn()
@@ -73,11 +80,13 @@ class Player(Humanoid):
 
     def update(self) -> None:
         self.turn()
-        delta_rot = int(self._rot_speed * self._timer.dt)
+        time_elapsed = self._timer.dt
+        delta_rot = int(self._rot_speed * time_elapsed)
         self.rot = (self.rot + delta_rot) % 360
 
         self._update_trajectory()
         self._collide_with_walls()
+        self.energy_source.passive_recharge(time_elapsed)
 
         # reset the movement after each update
         self._rot_speed = 0

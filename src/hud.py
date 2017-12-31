@@ -99,7 +99,7 @@ class HUD(object):
             back_col = settings.HUDGREEN2
             x_offset = 0
         else:
-            frac_full = player.health / player.max_health
+            frac_full = player.energy_source.fraction_remaining
             col = settings.HUDBLUE1
             back_col = settings.HUDBLUE2
             x_offset = self._hud_width
