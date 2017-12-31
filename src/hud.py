@@ -39,48 +39,27 @@ class HUD(object):
         self.selected_item = NO_SELECTION
         self._backpack_hidden = True
 
-    def _generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
-        mod_size = 62
-        x, y = self._hud_pos
-        rects: Dict[mods.ModLocation, pg.Rect] = {}
-        x += self._bar_length
-        i = 0
-        for loc in mods.ModLocation:
-            x_i = x + i * (mod_size + 3)
-            fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
-            rects[loc] = fill_rect
-            i += 1
-
-        return rects
-
-    def _generate_backpack_rects(self) -> List[pg.Rect]:
-        item_size = 50
-        x = settings.WIDTH - item_size - 4
-        y = 100
-        rects: List[pg.Rect] = []
-        for j in range(8):
-            x_i = x
-            y_i = y + j * (item_size + 2)
-            fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
-            rects.append(fill_rect)
-        return rects
-
-    def _generate_backpack_base(self) -> pg.Rect:
-        # backpack base
-        x_b_i = self.backpack_rects[0][0] - 2
-        x_b_f = self.backpack_rects[0][0] - 2
-        y_b_i = self.backpack_rects[0][1]
-        y_b_f = self.backpack_rects[-1][1] - 45
-
-        b_fill = pg.Rect(x_b_i, y_b_i, x_b_f, y_b_f)
-        return b_fill
-
     def draw(self, player: Player) -> None:
         self._draw_hud_base()
         self._draw_bar(player, 'health')
         self._draw_bar(player, 'energy')
         self._draw_mods(player)
         self._draw_backpack(player)
+
+    def toggle_hide_backpack(self) -> None:
+        self.selected_mod = NO_SELECTION
+        self.selected_item = NO_SELECTION
+        self._backpack_hidden = not self._backpack_hidden
+
+    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
+        x, y = pos
+        in_hud = self.rect.collidepoint(x, y)
+        if in_hud:
+            return True
+
+        in_backpack = self.backpack_base.collidepoint(x, y)
+        backpack_hidden = self._backpack_hidden
+        return in_backpack and not backpack_hidden
 
     def _draw_hud_base(self) -> None:
 
@@ -202,17 +181,38 @@ class HUD(object):
                 self._draw_mod_ammo(img_rect, item_mod,
                                     images.get_font(images.ZOMBIE_FONT))
 
-    def toggle_hide_backpack(self) -> None:
-        self.selected_mod = NO_SELECTION
-        self.selected_item = NO_SELECTION
-        self._backpack_hidden = not self._backpack_hidden
+    def _generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
+        mod_size = 62
+        x, y = self._hud_pos
+        rects: Dict[mods.ModLocation, pg.Rect] = {}
+        x += self._bar_length
+        i = 0
+        for loc in mods.ModLocation:
+            x_i = x + i * (mod_size + 3)
+            fill_rect = pg.Rect(x_i + 3, y + 3, mod_size, mod_size)
+            rects[loc] = fill_rect
+            i += 1
 
-    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
-        x, y = pos
-        in_hud = self.rect.collidepoint(x, y)
-        if in_hud:
-            return True
+        return rects
 
-        in_backpack = self.backpack_base.collidepoint(x, y)
-        backpack_hidden = self._backpack_hidden
-        return in_backpack and not backpack_hidden
+    def _generate_backpack_rects(self) -> List[pg.Rect]:
+        item_size = 50
+        x = settings.WIDTH - item_size - 4
+        y = 100
+        rects: List[pg.Rect] = []
+        for j in range(8):
+            x_i = x
+            y_i = y + j * (item_size + 2)
+            fill_rect = pg.Rect(x_i, y_i, item_size, item_size)
+            rects.append(fill_rect)
+        return rects
+
+    def _generate_backpack_base(self) -> pg.Rect:
+        # backpack base
+        x_b_i = self.backpack_rects[0][0] - 2
+        x_b_f = self.backpack_rects[0][0] - 2
+        y_b_i = self.backpack_rects[0][1]
+        y_b_f = self.backpack_rects[-1][1] - 45
+
+        b_fill = pg.Rect(x_b_i, y_b_i, x_b_f, y_b_f)
+        return b_fill
