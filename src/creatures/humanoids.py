@@ -134,7 +134,8 @@ class Humanoid(mdl.DynamicObject):
         # cleanly, probably in an Inventory class.
         if isinstance(item_mod.ability, EnergyAbility):
             assert hasattr(self, 'energy_source'), 'Right now only Players ' \
-                                                   'are given an energy source.'
+                                                   'are given an energy  ' \
+                                                   'source.'
             item_mod.ability.assign_energy_source(self.energy_source)
 
 
