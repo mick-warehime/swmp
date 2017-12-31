@@ -6,6 +6,7 @@ import images
 import controller
 from draw_utils import draw_text
 import quest
+from typing import Any
 
 
 class Game(object):
@@ -30,23 +31,35 @@ class Game(object):
         sounds.initialize_sounds()
 
         self.paused = False
+        self._player: Any = None
 
     def new(self) -> None:
-
+        self._player = None
         self.quest = quest.Quest()
         self.next_dungeon()
         sounds.play(sounds.LEVEL_START)
 
     def next_dungeon(self) -> None:
-        self.dungeon = self.quest.next_dungeon()
-        if self.dungeon != quest.COMPLETE:
-            self.dungeon.bind_down(pg.K_p, self.toggle_paused)
+        scene = self.quest.next_scene()
+
+        if scene != quest.COMPLETE:
+            self.scene_ctlr = scene.get_controller()
+            self.scene_ctlr.bind_down(pg.K_p, self.toggle_paused)
+
+            if self._player is not None:
+                self.scene_ctlr.set_player(self._player)
+            else:
+                self._player = self.scene_ctlr.player
+
+            scene.show_intro()
+        else:
+            self.scene_ctlr = quest.COMPLETE
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            if self.dungeon == quest.COMPLETE:
+            if self.scene_ctlr == quest.COMPLETE:
                 break
 
             self.events()
@@ -55,10 +68,10 @@ class Game(object):
             if self.paused:
                 self.pause_game()
 
-            if self.dungeon.game_over():
+            if self.scene_ctlr.game_over():
                 break
 
-            if self.dungeon.dungeon_over():
+            if self.scene_ctlr.should_exit():
                 self.next_dungeon()
 
     def quit(self) -> None:
@@ -67,8 +80,8 @@ class Game(object):
 
     def update(self) -> None:
         # always update the controller
-        self.dungeon.update()
-        self.dungeon.draw()
+        self.scene_ctlr.update()
+        self.scene_ctlr.draw()
 
     def events(self) -> None:
         # catch all events here
@@ -117,7 +130,7 @@ class Game(object):
 
         while self.paused:
             pg.event.wait()
-            self.dungeon.handle_input(only_handle=[pg.K_p])
+            self.scene_ctlr.handle_input(only_handle=[pg.K_p])
 
 
 g = Game()

@@ -75,16 +75,16 @@ class DungeonControllerTest(unittest.TestCase):
 
         self.assertTrue(dungeon.game_over())
 
-    def test_dungeon_over(self) -> None:
+    def test_should_exit(self) -> None:
         dungeon = make_dungeon_controller()
         # dungeon isn't over when we start
-        self.assertFalse(dungeon.dungeon_over())
+        self.assertFalse(dungeon.should_exit())
 
         for conflict_name in dungeon._conflicts.conflicts:
             dungeon._conflicts.conflicts[conflict_name].group.empty()
 
         # ensure the dungeon is now over
-        self.assertTrue(dungeon.dungeon_over())
+        self.assertTrue(dungeon.should_exit())
 
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()

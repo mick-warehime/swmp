@@ -42,7 +42,7 @@ class Humanoid(mdl.DynamicObject):
 
     @property
     def rect(self) -> pg.Rect:
-        self._base_rect.center = self.pos
+        self._base_rect.center = Vector2(self.pos)
         return self._base_rect
 
     @property

@@ -115,6 +115,8 @@ class DungeonController(controller.Controller):
 
         self._view.draw(self.player, self._map, self._map.img, self._camera)
 
+        self._view.draw_conflicts(self._conflicts)
+
         pg.display.flip()
 
     def update(self) -> None:
@@ -175,7 +177,7 @@ class DungeonController(controller.Controller):
         return self._clock.get_fps()
 
     # the owning object needs to know this
-    def dungeon_over(self) -> bool:
+    def should_exit(self) -> bool:
         return self._conflicts.any_resolved_conflict()
 
     def game_over(self) -> bool:
@@ -224,16 +226,13 @@ class DungeonController(controller.Controller):
     # most other coordinates are relative to the map
     def abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
-        camera_pos = self._camera.camera
+        camera_pos = self._camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
 
-    def set_player(self, player: Player) -> None:
-        self.player.backpack = player.backpack
-        self.player.increment_health(-self.player.health)
-        self.player.increment_health(player.health)
-        self.player.active_mods = player.active_mods
-
     def toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
+
+    def resolved_conflict_index(self) -> int:
+        return self._conflicts.resolved_conflict()

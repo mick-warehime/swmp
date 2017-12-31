@@ -1,14 +1,16 @@
 from typing import List, Tuple
-
 import pygame as pg
+from pygame.math import Vector2
+from pygame.sprite import Sprite
 
 import images
 import mods
 import settings
 from creatures.players import Player
 from hud import HUD
-from model import Groups
+from model import Groups, ConflictGroups
 from tilemap import Camera, TiledMap
+from draw_utils import draw_text
 
 NO_SELECTION = -1
 
@@ -37,6 +39,8 @@ class DungeonView(object):
         # but assigned to the view before the draw method is called.
         self._groups = Groups()
 
+        self.title_font = images.get_font(images.ZOMBIE_FONT)
+
     def set_groups(self, groups: Groups) -> None:
         self._groups = groups
 
@@ -49,7 +53,7 @@ class DungeonView(object):
         self._screen.blit(map_img, camera.apply(map))
 
         for sprite in self._groups.all_sprites:
-            self._screen.blit(sprite.image, camera.apply(sprite))
+            self._draw_sprite(sprite, camera)
 
         if self._draw_debug:
             self._draw_debug_rects(camera)
@@ -59,6 +63,15 @@ class DungeonView(object):
 
         # draw hud on top of everything
         self._hud.draw(player)
+
+    def _draw_sprite(self, sprite: Sprite, camera: Camera)->None:
+        image = sprite.image
+        rect = image.get_rect().copy()
+        new_center = Vector2(sprite.pos)
+        new_center.x += camera.rect.topleft[0]
+        new_center.y += camera.rect.topleft[1]
+        rect.center = new_center
+        self._screen.blit(image, rect)
 
     def _draw_debug_rects(self, camera: Camera) -> None:
         for sprite in self._groups.all_sprites:
@@ -128,3 +141,11 @@ class DungeonView(object):
 
     def toggle_hide_backpack(self) -> None:
         self._hud.toggle_hide_backpack()
+
+    def draw_conflicts(self, conflictgroups: ConflictGroups) -> None:
+        conflicts = conflictgroups.conflicts
+        for idx, conflict_name in enumerate(conflicts.keys()):
+            conflict = conflicts[conflict_name]
+            conflict_str = '%d- %s' % (idx + 1, conflict.text_rep())
+            draw_text(self._screen, conflict_str, self.title_font,
+                      16, settings.RED, 10, 10 + 16 * idx)
