@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, Counter
 from typing import Any, Union, Dict
 import pygame as pg
 from pygame.math import Vector2
@@ -66,6 +66,27 @@ class Conflict(object):
 
     def is_resolved(self) -> bool:
         return len(self.group) == 0
+
+    def text_rep(self) -> str:
+        classes = map(type, list(self.group))
+        c = Counter(classes)
+
+        rep = ''
+        for key in c:
+            obj_name = self.class_name_short(key)
+            count = c[key]
+            rep += obj_name % count
+        return rep
+
+    def class_name_short(self, obj_type: type) -> str:
+        obj_type_str = str(obj_type)
+        if 'mob' in obj_type_str.lower():
+            return 'kill %d mobs'
+        elif 'waypoint' in obj_type_str.lower():
+            return 'find %d waypoints'
+        else:
+            msg = 'unknown conflict class %s' % obj_type_str
+            raise Exception(msg)
 
 
 class Timer(object):
