@@ -108,7 +108,7 @@ class Humanoid(mdl.DynamicObject):
         mod_at_loc = self.active_mods[item.mod.loc]
 
         if isinstance(mod_at_loc, type(item.mod)) and item.mod.stackable:
-            mod_at_loc.increment_uses(item.mod.ability.uses_left)
+            mod_at_loc.ability.uses_left += item.mod.ability.uses_left
             item.kill()
             return
 
@@ -149,7 +149,7 @@ class Backpack(object):
         matching_mods = [md for md in self._slots if isinstance(md, type(mod))]
         if matching_mods and mod.stackable:
             assert len(matching_mods) == 1
-            matching_mods[0].increment_uses(mod.ability.uses_left)
+            matching_mods[0].ability.uses_left += mod.ability.uses_left
             return
 
         self._slots[self._first_empty_slot()] = mod
