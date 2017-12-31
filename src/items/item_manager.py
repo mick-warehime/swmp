@@ -1,4 +1,6 @@
 import pygame as pg
+
+from items.laser_weapons import LaserGun
 from mods import HealthPackObject, PistolObject, ShotgunObject, ItemObject
 from items.rocks import RockObject
 from tilemap import ObjectType
@@ -6,7 +8,8 @@ from tilemap import ObjectType
 item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,
                     ObjectType.SHOTGUN: ShotgunObject,
                     ObjectType.PISTOL: PistolObject,
-                    ObjectType.ROCK: RockObject}
+                    ObjectType.ROCK: RockObject,
+                    ObjectType.LASER_GUN: LaserGun}
 
 
 class ItemManager(object):

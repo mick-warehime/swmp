@@ -20,10 +20,11 @@ class ObjectType(Enum):
     SHOTGUN = 'shotgun'
     CONFLICT = 'conflict'
     WAYPOINT = 'waypoint'
+    LASER_GUN = 'laser'
 
 
 ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
-         ObjectType.ROCK)
+         ObjectType.ROCK, ObjectType.LASER_GUN)
 WEAPONS = (ObjectType.SHOTGUN, ObjectType.PISTOL)
 
 
