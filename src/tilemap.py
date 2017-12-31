@@ -102,15 +102,15 @@ class TiledMap:
 
 class Camera:
     def __init__(self, width: int, height: int) -> None:
-        self.camera = pg.Rect(0, 0, width, height)
+        self.rect = pg.Rect(0, 0, width, height)
         self.width = width
         self.height = height
 
-    def apply(self, entity: pg.sprite.Sprite) -> None:
-        return entity.rect.move(self.camera.topleft)
+    def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
+        return sprite.rect.move(self.rect.topleft)
 
     def apply_rect(self, rect: pg.Rect) -> pg.Rect:
-        return rect.move(self.camera.topleft)
+        return rect.move(self.rect.topleft)
 
     def update(self, target: pg.sprite.Sprite) -> None:
         x = -target.rect.centerx + int(WIDTH / 2)
@@ -121,4 +121,4 @@ class Camera:
         y = min(0, y)  # top
         x = max(-(self.width - WIDTH), x)  # right
         y = max(-(self.height - HEIGHT), y)  # bottom
-        self.camera = pg.Rect(x, y, self.width, self.height)
+        self.rect = pg.Rect(x, y, self.width, self.height)

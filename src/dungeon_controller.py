@@ -224,7 +224,7 @@ class DungeonController(controller.Controller):
     # most other coordinates are relative to the map
     def abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
-        camera_pos = self._camera.camera
+        camera_pos = self._camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
