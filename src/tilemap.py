@@ -25,7 +25,6 @@ class ObjectType(Enum):
 
 ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
          ObjectType.ROCK, ObjectType.LASER_GUN)
-WEAPONS = (ObjectType.SHOTGUN, ObjectType.PISTOL)
 
 
 class MapObject(object):
