@@ -262,7 +262,7 @@ class EnergySource(object):
         return self._current_energy
 
     def expend_energy(self, amount: float) -> None:
-        assert amount < self.energy_available
+        assert amount <= self.energy_available
         self._current_energy -= amount
 
     def passive_recharge(self, dt: float) -> None:
