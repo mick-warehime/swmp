@@ -245,3 +245,29 @@ class Waypoint(DynamicObject):
     @property
     def rect(self) -> pg.Rect:
         return self._rect
+
+
+class EnergySource(object):
+    def __init__(self, max_energy: float, recharge_rate: float) -> None:
+        self._max_energy = max_energy
+        self._recharge_rate = recharge_rate
+        self._current_energy = 0.0
+
+    @property
+    def fraction_remaining(self) -> float:
+        return self._current_energy / self._max_energy
+
+    @property
+    def energy_available(self) -> float:
+        return self._current_energy
+
+    def expend_energy(self, amount: float) -> None:
+        assert amount < self.energy_available
+        self._current_energy -= amount
+
+    def passive_recharge(self, dt: float) -> None:
+        if self._current_energy == self._max_energy:
+            return
+
+        self._current_energy += dt * self._recharge_rate
+        self._current_energy = min(self._current_energy, self._max_energy)
