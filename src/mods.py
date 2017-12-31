@@ -50,11 +50,6 @@ class Mod(object):
     def backpack_image(self) -> pg.Surface:
         raise NotImplementedError
 
-    def increment_uses(self, num_uses: int) -> None:
-        assert self.stackable
-        assert hasattr(self.ability, 'uses_left')
-        self.ability.uses_left += num_uses
-
 
 class ShotgunMod(Mod):
     loc = ModLocation.ARMS
