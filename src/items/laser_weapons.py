@@ -9,6 +9,7 @@ import images
 import sounds
 from abilities import FireProjectile, Ability
 from mods import Mod, ModLocation, ItemObject
+from tilemap import ObjectType
 from weapons import Projectile
 
 
@@ -45,7 +46,7 @@ class ShootLaser(FireProjectile):
         super().__init__()
 
     def _fire_effects(self, origin: Vector2) -> None:
-        sounds.play('grunt')
+        sounds.fire_weapon_sound(ObjectType.LASER_GUN)
 
 
 class LaserMod(Mod):
