@@ -31,15 +31,15 @@ class HUD(object):
                             self._hud_height)
 
         # generate rects for mods/backpack
-        self.mod_rects = self.generate_mod_rects()
-        self.backpack_rects = self.generate_backpack_rects()
-        self.backpack_base = self.generate_backpack_base()
+        self.mod_rects = self._generate_mod_rects()
+        self.backpack_rects = self._generate_backpack_rects()
+        self.backpack_base = self._generate_backpack_base()
 
         self.selected_mod = NO_SELECTION
         self.selected_item = NO_SELECTION
         self._backpack_hidden = True
 
-    def generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
+    def _generate_mod_rects(self) -> Dict[mods.ModLocation, pg.Rect]:
         mod_size = 62
         x, y = self._hud_pos
         rects: Dict[mods.ModLocation, pg.Rect] = {}
@@ -53,7 +53,7 @@ class HUD(object):
 
         return rects
 
-    def generate_backpack_rects(self) -> List[pg.Rect]:
+    def _generate_backpack_rects(self) -> List[pg.Rect]:
         item_size = 50
         x = settings.WIDTH - item_size - 4
         y = 100
@@ -65,7 +65,7 @@ class HUD(object):
             rects.append(fill_rect)
         return rects
 
-    def generate_backpack_base(self) -> pg.Rect:
+    def _generate_backpack_base(self) -> pg.Rect:
         # backpack base
         x_b_i = self.backpack_rects[0][0] - 2
         x_b_f = self.backpack_rects[0][0] - 2
@@ -76,22 +76,22 @@ class HUD(object):
         return b_fill
 
     def draw(self, player: Player) -> None:
-        self.draw_hud_base()
-        self.draw_bar(player, 'health')
-        self.draw_bar(player, 'energy')
-        self.draw_mods(player)
-        self.draw_backpack(player)
+        self._draw_hud_base()
+        self._draw_bar(player, 'health')
+        self._draw_bar(player, 'energy')
+        self._draw_mods(player)
+        self._draw_backpack(player)
 
-    def draw_hud_base(self) -> None:
+    def _draw_hud_base(self) -> None:
 
         # hud base
         pg.draw.rect(self._screen, settings.HUDGREY, self.rect)
 
-    def draw_backpack_base(self) -> None:
+    def _draw_backpack_base(self) -> None:
 
         pg.draw.rect(self._screen, settings.HUDGREY, self.backpack_base)
 
-    def draw_bar(self, player: Player, bar_type: str) -> None:
+    def _draw_bar(self, player: Player, bar_type: str) -> None:
 
         if 'health' in bar_type:
             frac_full = player.health / player.max_health
@@ -121,7 +121,7 @@ class HUD(object):
         pg.draw.rect(self._screen, col, back_rect)
         pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
 
-    def draw_mods(self, player: Player) -> None:
+    def _draw_mods(self, player: Player) -> None:
 
         for idx, loc in enumerate(self.mod_rects):
             r = self.mod_rects[loc]
@@ -135,7 +135,8 @@ class HUD(object):
             img = mod.equipped_image
 
             img = pg.transform.scale(img, (50, 50))
-            img = mod.draw_cooldown(img)
+
+            img = self._draw_cooldown(mod.ability.cooldown_fraction, img)
 
             img_rect = img.get_rect()
             img_rect.center = self.mod_rects[loc].center
@@ -149,6 +150,21 @@ class HUD(object):
             if mod.stackable:
                 self._draw_mod_ammo(img_rect, mod, title_font)
 
+    def _draw_cooldown(self, cooldown_fraction: float,
+                       image: pg.Surface) -> pg.Surface:
+        if cooldown_fraction >= 1:  # No bar necessary
+            return image
+        image = image.copy()  # Original image should be unchanged.
+        col = settings.RED
+        rect = image.get_rect()
+        image_height = rect.height
+        image_width = rect.width
+        width = image_width * (1 - cooldown_fraction)
+        if width > 0:
+            cooldown_bar = pg.Rect(0, image_height - 7, width, 7)
+            pg.draw.rect(image, col, cooldown_bar)
+        return image
+
     def _draw_mod_ammo(self, img_rect: pg.Surface, mod: mods.Mod,
                        title_font: str) -> None:
         assert hasattr(mod.ability, 'uses_left')
@@ -160,11 +176,11 @@ class HUD(object):
                   20, settings.RED, x_coord, y_coord,
                   align="center")
 
-    def draw_backpack(self, player: Player) -> None:
+    def _draw_backpack(self, player: Player) -> None:
         if self._backpack_hidden:
             return
 
-        self.draw_backpack_base()
+        self._draw_backpack_base()
 
         for idx, rect in enumerate(self.backpack_rects):
             color = settings.HUDDARK

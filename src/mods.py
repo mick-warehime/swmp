@@ -55,20 +55,6 @@ class Mod(object):
         assert hasattr(self.ability, 'uses_left')
         self.ability.uses_left += num_uses
 
-    def draw_cooldown(self, image: pg.Surface) -> pg.Surface:
-        if self.ability.cooldown_fraction > 1:  # No bar necessary
-            return image
-        image = image.copy()  # Original image should be unchanged.
-        col = RED
-        rect = image.get_rect()
-        image_height = rect.height
-        image_width = rect.width
-        width = image_width * (1 - self.ability.cooldown_fraction)
-        if width > 0:
-            cooldown_bar = pg.Rect(0, image_height - 7, width, 7)
-            pg.draw.rect(image, col, cooldown_bar)
-        return image
-
 
 class ShotgunMod(Mod):
     loc = ModLocation.ARMS
