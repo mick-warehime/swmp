@@ -7,7 +7,6 @@ from pygame.math import Vector2
 import images
 from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit
 from model import DynamicObject
-from settings import RED
 
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 1
