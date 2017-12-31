@@ -6,7 +6,7 @@ from typing import Union, Callable
 from pygame.math import Vector2
 
 import sounds
-from model import Timer
+from model import Timer, EnergySource
 from tilemap import ObjectType
 from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit
 
@@ -54,6 +54,41 @@ class Ability(object):
         if not cls.class_initialized:
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
+
+
+class EnergyAbility(Ability):
+    """Ability that can only activate by expending an energy source.
+
+    This uses the `decorator' (?) pattern to add an energy requirement to a
+    base ability.
+
+    Note: In order for this class to work correctly, the base ability's `use'
+    method must always implement the ability (unlike the Heal ability,
+    which only implements it if the humanoid is damaged).
+    """
+
+    def __init__(self, base_ability: Ability, energy_required: float) -> None:
+        super().__init__()
+        self._base_ability = base_ability
+        self._energy_source: EnergySource = None
+        self.energy_required = energy_required
+
+    def use(self, humanoid: Any) -> None:
+        assert self.can_use
+        self._base_ability.use(humanoid)
+        self._energy_source.expend_energy(self.energy_required)
+
+    def assign_energy_source(self, source: EnergySource) -> None:
+        self._energy_source = source
+
+    @property
+    def can_use(self) -> bool:
+        if self._energy_source is None:
+            raise RuntimeError('An energy source must be assigned before '
+                               '.can_use is defined.')
+        if self.energy_required > self._energy_source.energy_available:
+            return False
+        return self._base_ability.can_use
 
 
 class FireProjectile(Ability):
