@@ -147,5 +147,8 @@ class DungeonView(object):
         for idx, conflict_name in enumerate(conflicts.keys()):
             conflict = conflicts[conflict_name]
             conflict_str = '%d- %s' % (idx + 1, conflict.text_rep())
+            color = settings.RED
+            if conflict.completed:
+                color = settings.GREEN
             draw_text(self._screen, conflict_str, self.title_font,
-                      16, settings.RED, 10, 10 + 16 * idx)
+                      16, color, 10, 10 + 16 * idx)

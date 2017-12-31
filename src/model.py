@@ -63,27 +63,48 @@ class ConflictGroups(object):
 class Conflict(object):
     def __init__(self) -> None:
         self.group = Group()
+        self.initial_counts: Dict[type, int] = {}
+        self.completed = False
+
+    def set_initial_counts(self) -> None:
+        classes = map(type, list(self.group))
+        c = Counter(classes)
+
+        for key in c:
+            count = c[key]
+            self.initial_counts[key] = count
 
     def is_resolved(self) -> bool:
         return len(self.group) == 0
 
     def text_rep(self) -> str:
-        classes = map(type, list(self.group))
+        if not self.initial_counts:
+            self.set_initial_counts()
+
+        classes = list(map(type, list(self.group)))
         c = Counter(classes)
 
         rep = ''
-        for key in c:
+        completed = True
+        for key in self.initial_counts:
             obj_name = self.class_name_short(key)
-            count = c[key]
-            rep += obj_name % count
+            initial_count = self.initial_counts[key]
+            remaining_count = initial_count - c[key]
+            rep += obj_name % (remaining_count, initial_count)
+            if initial_count != remaining_count:
+                completed = False
+
+        if completed:
+            self.completed = True
+
         return rep
 
     def class_name_short(self, obj_type: type) -> str:
         obj_type_str = str(obj_type)
         if 'mob' in obj_type_str.lower():
-            return 'kill %d mobs'
+            return 'killed %d/%d mobs'
         elif 'waypoint' in obj_type_str.lower():
-            return 'find %d waypoints'
+            return 'find %d/%d waypoints'
         else:
             msg = 'unknown conflict class %s' % obj_type_str
             raise Exception(msg)
