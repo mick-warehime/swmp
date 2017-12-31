@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import pygame as pg
 from pygame.math import Vector2
+from pygame.sprite import Sprite
 
 import images
 import mods
@@ -61,7 +62,7 @@ class DungeonView(object):
         # draw hud on top of everything
         self._hud.draw(player)
 
-    def _draw_sprite(self, sprite, camera):
+    def _draw_sprite(self, sprite: Sprite, camera: Camera)->None:
         image = sprite.image
         rect = image.get_rect().copy()
         new_center = Vector2(sprite.pos)
