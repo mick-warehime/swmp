@@ -7,6 +7,7 @@ from pygame.sprite import Group
 
 import model as mdl
 import mods
+from abilities import EnergyAbility
 
 
 class Humanoid(mdl.DynamicObject):
@@ -128,6 +129,14 @@ class Humanoid(mdl.DynamicObject):
             self.backpack.remove_mod(item_mod)
         self.unequip(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
+
+        # TODO(dvirk): This is rather kludgy and should be implemented more
+        # cleanly, probably in an Inventory class.
+        if isinstance(item_mod.ability, EnergyAbility):
+            assert hasattr(self, 'energy_source'), 'Right now only Players ' \
+                                                   'are given an energy  ' \
+                                                   'source.'
+            item_mod.ability.assign_energy_source(self.energy_source)
 
 
 class Backpack(object):

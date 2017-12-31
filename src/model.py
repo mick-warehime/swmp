@@ -251,7 +251,7 @@ class EnergySource(object):
     def __init__(self, max_energy: float, recharge_rate: float) -> None:
         self._max_energy = max_energy
         self._recharge_rate = recharge_rate
-        self._current_energy = 0.0
+        self._current_energy = max_energy
 
     @property
     def fraction_remaining(self) -> float:
