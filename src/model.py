@@ -64,7 +64,7 @@ class Conflict(object):
     def __init__(self) -> None:
         self.group = Group()
         self.initial_counts: Dict[type, int] = {}
-        self.completed = False
+        self.resolved = False
 
     def set_initial_counts(self) -> None:
         classes = map(type, list(self.group))
@@ -85,17 +85,17 @@ class Conflict(object):
         c = Counter(classes)
 
         rep = ''
-        completed = True
+        resolved = True
         for key in self.initial_counts:
             obj_name = self.class_name_short(key)
             initial_count = self.initial_counts[key]
             remaining_count = initial_count - c[key]
             rep += obj_name % (remaining_count, initial_count)
             if initial_count != remaining_count:
-                completed = False
+                resolved = False
 
-        if completed:
-            self.completed = True
+        if resolved:
+            self.resolved = True
 
         return rep
 
