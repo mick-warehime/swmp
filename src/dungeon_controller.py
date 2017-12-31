@@ -115,6 +115,8 @@ class DungeonController(controller.Controller):
 
         self._view.draw(self.player, self._map, self._map.img, self._camera)
 
+        self._view.draw_conflicts(self._conflicts)
+
         pg.display.flip()
 
     def update(self) -> None:

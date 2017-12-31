@@ -1,5 +1,4 @@
 from typing import List, Tuple
-
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Sprite
@@ -9,8 +8,9 @@ import mods
 import settings
 from creatures.players import Player
 from hud import HUD
-from model import Groups
+from model import Groups, ConflictGroups
 from tilemap import Camera, TiledMap
+from draw_utils import draw_text
 
 NO_SELECTION = -1
 
@@ -38,6 +38,8 @@ class DungeonView(object):
         # TODO(dvirk): This should not have to be instantiated here,
         # but assigned to the view before the draw method is called.
         self._groups = Groups()
+
+        self.title_font = images.get_font(images.ZOMBIE_FONT)
 
     def set_groups(self, groups: Groups) -> None:
         self._groups = groups
@@ -139,3 +141,11 @@ class DungeonView(object):
 
     def toggle_hide_backpack(self) -> None:
         self._hud.toggle_hide_backpack()
+
+    def draw_conflicts(self, conflictgroups: ConflictGroups) -> None:
+        conflicts = conflictgroups.conflicts
+        for idx, conflict_name in enumerate(conflicts.keys()):
+            conflict = conflicts[conflict_name]
+            conflict_str = '%d- %s' % (idx + 1, conflict.text_rep())
+            draw_text(self._screen, conflict_str, self.title_font,
+                      16, settings.RED, 10, 10 + 16 * idx)
