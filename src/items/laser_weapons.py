@@ -7,7 +7,7 @@ from pygame.transform import rotate, scale
 
 import images
 import sounds
-from abilities import FireProjectile, Ability
+from abilities import FireProjectile, Ability, EnergyAbility
 from mods import Mod, ModLocation, ItemObject
 from tilemap import ObjectType
 from weapons import Projectile
@@ -51,9 +51,10 @@ class ShootLaser(FireProjectile):
 
 class LaserMod(Mod):
     loc = ModLocation.ARMS
+    energy_required = 10.0
 
     def __init__(self) -> None:
-        self._ability = ShootLaser()
+        self._ability = EnergyAbility(ShootLaser(), self.energy_required)
 
     @property
     def ability(self) -> Ability:

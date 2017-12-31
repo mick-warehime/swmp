@@ -90,6 +90,10 @@ class EnergyAbility(Ability):
             return False
         return self._base_ability.can_use
 
+    @property
+    def cooldown_fraction(self) -> float:
+        return self._base_ability.cooldown_fraction
+
 
 class FireProjectile(Ability):
     _kickback: Union[int, None] = None
