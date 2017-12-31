@@ -23,7 +23,9 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 WEAPON_SOUNDS = {ObjectType.PISTOL: ['pistol.wav'],
-                 ObjectType.SHOTGUN: ['shotgun.wav']}
+                 ObjectType.SHOTGUN: ['shotgun.wav'],
+                 ObjectType.LASER_GUN: ['laser_pew.wav'],
+                 ObjectType.ROCK: ['grunt.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav',
