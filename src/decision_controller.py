@@ -46,7 +46,7 @@ class DecisionController(controller.Controller):
         self.choice = choice
 
     def update(self) -> None:
-        pass
+        self.handle_input(only_handle=self.keys_to_handle)
 
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)
