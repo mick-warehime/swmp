@@ -5,7 +5,22 @@ from model import NO_RESOLUTIONS
 from typing import Any, List
 import networkx as nx
 
-COMPLETE = -1
+
+class Scene(object):
+    def __init__(self, description: str) -> None:
+        self.description = description
+        self.controller = None
+
+    def show_intro(self) -> None:
+        raise NotImplementedError
+
+    def get_controller(self) -> Controller:
+        raise NotImplementedError
+
+    def resolved_conflict_index(self) -> int:
+        if self.controller:
+            return self.controller.resolved_conflict_index()
+        raise Exception('call get_controller() first')
 
 
 class Quest(object):
@@ -47,14 +62,15 @@ class Quest(object):
     # clients should call this method to get the next dungeon
     # either to start a quest or to get the next scene
     # returns a valid dungeon of COMPLETE if the quest is over
-    def next_scene(self) -> Any:
-
-        if self._previous_scene is None:
-            self._previous_scene = self._current_scene
-            return self._current_scene
+    def next_scene(self) -> Scene:
 
         if self.is_complete:
             raise ValueError('Cannot get next scene of a completed quest.')
+
+        # Initial scene
+        if self._previous_scene is None:
+            self._previous_scene = self._current_scene
+            return self._current_scene
 
         # use the result of the previous scene to determine
         # the next scene
@@ -63,7 +79,7 @@ class Quest(object):
         self._update_current_scene(next_index)
 
         if not self._current_scene:
-            return COMPLETE
+            assert self.is_complete
 
         return self._current_scene
 
@@ -101,23 +117,6 @@ class Quest(object):
         self._current_scene = neighbors[index]
 
 
-class Scene(object):
-    def __init__(self, description: str) -> None:
-        self.description = description
-        self.controller = None
-
-    def show_intro(self) -> None:
-        raise NotImplementedError()
-
-    def get_controller(self) -> Controller:
-        raise NotImplementedError()
-
-    def resolved_conflict_index(self) -> int:
-        if self.controller:
-            return self.controller.resolved_conflict_index()
-        raise Exception('call get_controller() first')
-
-
 class Dungeon(Scene):
     def __init__(self, description: str, map_file: str) -> None:
         super().__init__(description)
@@ -125,7 +124,8 @@ class Dungeon(Scene):
         self.controller: Controller = None
 
     def get_controller(self) -> Controller:
-        self.controller = DungeonController(self.map_file)
+        if self.controller is None:
+            self.controller = DungeonController(self.map_file)
         return self.controller
 
     # show the scene description - temporary - for now we just hardcode

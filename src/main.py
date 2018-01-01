@@ -41,25 +41,24 @@ class Game(object):
 
     def next_dungeon(self) -> None:
         scene = self.quest.next_scene()
+        if self.quest.is_complete:
+            return
 
-        if scene != quest.COMPLETE:
-            self.scene_ctlr = scene.get_controller()
-            self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
+        self.scene_ctlr = scene.get_controller()
+        self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
 
-            if self._player is not None:
-                self.scene_ctlr.set_player(self._player)
-            else:
-                self._player = self.scene_ctlr.player
-
-            scene.show_intro()
+        if self._player is not None:
+            self.scene_ctlr.set_player(self._player)
         else:
-            self.scene_ctlr = quest.COMPLETE
+            self._player = self.scene_ctlr.player
+
+        scene.show_intro()
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            if self.scene_ctlr == quest.COMPLETE:
+            if self.quest.is_complete:
                 break
 
             self.events()
