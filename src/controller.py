@@ -62,17 +62,11 @@ class Controller(object):
             only_handle = []
 
         for key_id in self._pressed_keys():
-            call_binding(key_id,
-                         self.bindings,
-                         only_handle)
+            call_binding(key_id, self.bindings, only_handle)
         for mouse_id in self._just_pressed_mouse():
-            call_binding(mouse_id,
-                         self.mouse_bindings,
-                         only_handle)
+            call_binding(mouse_id, self.mouse_bindings, only_handle)
         for key_id in self._just_pressed_keys():
-            call_binding(key_id,
-                         self.bindings_on_press,
-                         only_handle)
+            call_binding(key_id, self.bindings_on_press, only_handle)
 
     def _just_pressed_keys(self) -> List[int]:
         key_array = pg.key.get_pressed()
