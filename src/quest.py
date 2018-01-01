@@ -43,10 +43,12 @@ class Quest(object):
     def _create_quest(self) -> nx.DiGraph:
         g = nx.DiGraph()
         root = Decision('Kill one or two zombies?', ['one', 'two'])
-        two_zombo = Dungeon('', 'goto.tmx')
         one_zombo = Dungeon('', 'level1.tmx')
+        two_zombo = Dungeon('', 'goto.tmx')
         g.add_edges_from([(root, one_zombo)])
         g.add_edges_from([(root, two_zombo)])
+        next_dungeon = Dungeon('You continue bravely forth...', 'level1.tmx')
+        g.add_edge(two_zombo, next_dungeon)
         return g
 
     # find the root of the graph (first scene)
@@ -74,7 +76,7 @@ class Quest(object):
 
         # use the result of the previous scene to determine
         # the next scene
-        next_index = self._previous_scene.resolved_conflict_index()
+        next_index = self._current_scene.resolved_conflict_index()
         self._previous_scene = self._current_scene
         self._update_current_scene(next_index)
 
