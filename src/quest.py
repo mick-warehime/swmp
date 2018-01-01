@@ -47,9 +47,10 @@ class Quest(object):
         two_zombo_0 = Dungeon('', 'goto.tmx')
         g.add_edges_from([(root, one_zombo)])
         g.add_edges_from([(root, two_zombo_0)])
-        two_zombo_00 = Dungeon('You kill the farther red zombies.',
+        two_zombo_00 = Dungeon('You kill the farther two red zombies.',
                                'level1.tmx')
-        two_zombo_01 = Dungeon('You kill closer two red zombies.', 'level1.tmx')
+        two_zombo_01 = Dungeon('You kill the closer two red zombies.',
+                               'level1.tmx')
         two_zombo_02 = Dungeon('You go through the waypoint.', 'level1.tmx')
         g.add_edges_from([(two_zombo_0, two_zombo_00),
                           (two_zombo_0, two_zombo_01),
