@@ -19,9 +19,10 @@ class Quest(object):
             self._quest_graph = self._create_quest()
         else:
             self._quest_graph = quest_graph
-        self._current = 0
+
         self._current_scene = self._root_scene()
         self._previous_scene = None
+        self._is_complete = False
 
     # temporary function for creating quests - just description + filename
     def _create_quest(self) -> nx.DiGraph:
@@ -48,6 +49,8 @@ class Quest(object):
     # returns a valid dungeon of COMPLETE if the quest is over
     def next_scene(self) -> Any:
 
+        if self.is_complete:
+            raise ValueError('Cannot get next scene of a completed quest.')
         # use the result of the previous scene to determine
         # the next scene
         if self._previous_scene:
@@ -62,6 +65,10 @@ class Quest(object):
 
         return self._current_scene
 
+    @property
+    def is_complete(self) -> bool:
+        return self._is_complete
+
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
     def update_scene(self, index: int) -> None:
@@ -69,8 +76,7 @@ class Quest(object):
         if not self._current_scene or index == NO_RESOLUTIONS:
             return
 
-        neighbors = self._quest_graph.neighbors(self._current_scene)
-        neighbors = list(neighbors)
+        neighbors = list(self._quest_graph.neighbors(self._current_scene))
 
         # quest is complete
         if len(neighbors) == 0:
