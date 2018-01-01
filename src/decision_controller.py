@@ -74,7 +74,7 @@ class DecisionController(controller.Controller):
         self.draw()
         while self.choice == -1:
             pg.event.wait()
-            self.handle_input(only_handle=self.keys_to_handle)
+            self.update()
 
         return self.choice
 
