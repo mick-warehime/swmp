@@ -36,10 +36,10 @@ class Game(object):
     def new(self) -> None:
         self._player = None
         self.quest = quest.Quest()
-        self.next_dungeon()
+        self.next_scene()
         sounds.play(sounds.LEVEL_START)
 
-    def next_dungeon(self) -> None:
+    def next_scene(self) -> None:
         scene = self.quest.next_scene()
         if self.quest.is_complete:
             return
@@ -71,7 +71,7 @@ class Game(object):
                 break
 
             if self.scene_ctlr.should_exit():
-                self.next_dungeon()
+                self.next_scene()
 
     def quit(self) -> None:
         pg.quit()
