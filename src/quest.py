@@ -44,11 +44,17 @@ class Quest(object):
         g = nx.DiGraph()
         root = Decision('Kill one or two zombies?', ['one', 'two'])
         one_zombo = Dungeon('', 'level1.tmx')
-        two_zombo = Dungeon('', 'goto.tmx')
+        two_zombo_0 = Dungeon('', 'goto.tmx')
         g.add_edges_from([(root, one_zombo)])
-        g.add_edges_from([(root, two_zombo)])
-        next_dungeon = Dungeon('You continue bravely forth...', 'level1.tmx')
-        g.add_edge(two_zombo, next_dungeon)
+        g.add_edges_from([(root, two_zombo_0)])
+        two_zombo_00 = Dungeon('You kill the farther red zombies, then continue'
+                               ' on your quest.', 'level1.tmx')
+        two_zombo_01 = Dungeon('You kill the two red zombies, then continue '
+                               'on your quest.', 'level1.tmx')
+        two_zombo_02 = Dungeon('You go through the waypoint.', 'level1.tmx')
+        g.add_edges_from([(two_zombo_0, two_zombo_00),
+                          (two_zombo_0, two_zombo_01),
+                          (two_zombo_0, two_zombo_02)])
         return g
 
     # find the root of the graph (first scene)
