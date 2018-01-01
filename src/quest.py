@@ -111,7 +111,7 @@ class Dungeon(Scene):
     # a description but eventually we should use this to describe all the
     # hooks of the scene / dramatic question
     def show_intro(self) -> None:
-        if self.description in '':
+        if not self.description:
             return
         options = ['continue']
         dc = DecisionController(self.description, options)
@@ -124,7 +124,9 @@ class Decision(Scene):
         self.options = options
 
     def get_controller(self) -> Controller:
-        self.controller = DecisionController(self.description, self.options)
+        if self.controller is None:
+            self.controller = DecisionController(self.description,
+                                                 self.options)
         return self.controller
 
     def show_intro(self) -> None:
