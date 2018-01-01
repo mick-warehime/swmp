@@ -112,7 +112,7 @@ class DungeonController(controller.Controller):
         # equip / use
         self.bind_down(pg.K_e, self.try_equip)
 
-        self.bind_down(pg.K_t, self.teleport)
+        # self.bind_down(pg.K_t, self.teleport)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
