@@ -4,9 +4,9 @@ import settings
 import sounds
 import images
 import controller
+from creatures.players import Player
 from draw_utils import draw_text
 import quest
-from typing import Any
 
 
 class Game(object):
@@ -31,7 +31,7 @@ class Game(object):
         sounds.initialize_sounds()
 
         self.paused = False
-        self._player: Any = None
+        self._player: Player = None
 
     def new(self) -> None:
         self._player = None
