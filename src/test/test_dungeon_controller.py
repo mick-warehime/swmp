@@ -83,8 +83,15 @@ class DungeonControllerTest(unittest.TestCase):
         for conflict_name in dungeon._conflicts.conflicts:
             dungeon._conflicts.conflicts[conflict_name].group.empty()
 
+        # can't exit until teleport
+        self.assertFalse(dungeon.should_exit())
+
+        # assume the player asks to teleport
+        dungeon.teleported = True
+
         # ensure the dungeon is now over
         self.assertTrue(dungeon.should_exit())
+
 
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()

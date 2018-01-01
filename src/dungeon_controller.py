@@ -44,6 +44,8 @@ class DungeonController(controller.Controller):
 
         self.init_controls()
 
+        self.teleported = False
+
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
@@ -109,6 +111,8 @@ class DungeonController(controller.Controller):
 
         # equip / use
         self.bind_on_press(pg.K_e, self.try_equip)
+
+        self.bind_on_press(pg.K_t, self.teleport)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -178,7 +182,8 @@ class DungeonController(controller.Controller):
 
     # the owning object needs to know this
     def should_exit(self) -> bool:
-        return self._conflicts.any_resolved_conflict()
+        conflict_resolved = self._conflicts.any_resolved_conflict()
+        return conflict_resolved and self.teleported
 
     def game_over(self) -> bool:
         return self.player.health <= 0
@@ -236,3 +241,6 @@ class DungeonController(controller.Controller):
 
     def resolved_conflict_index(self) -> int:
         return self._conflicts.resolved_conflict()
+
+    def teleport(self) -> None:
+        self.teleported = True
