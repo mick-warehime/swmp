@@ -61,37 +61,37 @@ class Controller(object):
         if only_handle is None:
             only_handle = []
 
-        keys = pg.key.get_pressed()
-        mouse = pg.mouse.get_pressed()
-        if any(keys) or any(mouse):
-            for key_id in self._pressed_keys(keys):
-                call_binding(key_id,
-                             self.bindings,
-                             only_handle)
-            for mouse_id in self._just_pressed_mouse(mouse):
-                call_binding(mouse_id,
-                             self.mouse_bindings,
-                             only_handle)
-            for key_id in self._just_pressed_keys(keys):
-                call_binding(key_id,
-                             self.bindings_on_press,
-                             only_handle)
+        for key_id in self._pressed_keys():
+            call_binding(key_id,
+                         self.bindings,
+                         only_handle)
+        for mouse_id in self._just_pressed_mouse():
+            call_binding(mouse_id,
+                         self.mouse_bindings,
+                         only_handle)
+        for key_id in self._just_pressed_keys():
+            call_binding(key_id,
+                         self.bindings_on_press,
+                         only_handle)
 
-    def _just_pressed_keys(self, key_array: List[bool]) -> List[int]:
+    def _just_pressed_keys(self) -> List[int]:
+        key_array = pg.key.get_pressed()
         just_pressed_keys = []
         for key_id in self.bindings_on_press:
             if not self._prev_keys[key_id] and key_array[key_id]:
                 just_pressed_keys.append(key_id)
         return just_pressed_keys
 
-    def _just_pressed_mouse(self, mouse_array: List[bool]) -> List[int]:
+    def _just_pressed_mouse(self) -> List[int]:
+        mouse_array = pg.mouse.get_pressed()
         just_pressed_mouse = []
         for button_id in self.mouse_bindings:
             if mouse_array[button_id] and not self._prev_mouse[button_id]:
                 just_pressed_mouse.append(button_id)
         return just_pressed_mouse
 
-    def _pressed_keys(self, key_array: List[bool]) -> List[int]:
+    def _pressed_keys(self) -> List[int]:
+        key_array = pg.key.get_pressed()
         pressed_keys = [keyid for keyid in self.bindings if key_array[keyid]]
         return pressed_keys
 
