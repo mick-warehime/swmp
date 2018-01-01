@@ -22,6 +22,8 @@ class DecisionController(controller.Controller):
 
         self.options: Dict[int, str] = {}
 
+        self.keys_to_handle = self.options_keys + [pg.K_ESCAPE]
+
         for idx, option in enumerate(options, 1):
             self.set_option(idx, option)
 
@@ -44,7 +46,7 @@ class DecisionController(controller.Controller):
         self.choice = choice
 
     def update(self) -> None:
-        self.handle_input()
+        pass
 
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)
@@ -72,7 +74,7 @@ class DecisionController(controller.Controller):
         self.draw()
         while self.choice == -1:
             pg.event.wait()
-            self.handle_input()
+            self.handle_input(only_handle=self.keys_to_handle)
 
         return self.choice
 
