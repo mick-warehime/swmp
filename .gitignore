@@ -1,5 +1,6 @@
 *.DS_Store
 .coverage
+*coverage_html*
 .idea/
 .mypy_cache
 *__pycache__*
