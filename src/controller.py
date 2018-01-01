@@ -113,11 +113,11 @@ class Controller(object):
     def bind_quit(self) -> None:
         self.bind(pg.K_ESCAPE, self._quit_func)
 
-    def set_player(self, player: Player) -> None:
-        self.player.backpack = player.backpack
+    def set_player(self, new_player: Player) -> None:
+        self.player.backpack = new_player.backpack
         self.player.increment_health(-self.player.health)
-        self.player.increment_health(player.health)
-        self.player.active_mods = player.active_mods
+        self.player.increment_health(new_player.health)
+        self.player.active_mods = new_player.active_mods
 
     def resolved_conflict_index(self) -> int:
         raise NotImplementedError()
