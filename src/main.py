@@ -94,7 +94,6 @@ class Game(object):
 
     def show_go_screen(self) -> None:
         self.game_over()
-        pg.display.flip()
         self.wait_for_key()
 
     def wait_for_key(self) -> None:
@@ -105,7 +104,7 @@ class Game(object):
                 if event.type == pg.QUIT:
                     waiting = False
                     self.quit()
-                if event.type == pg.KEYUP:
+                if event.type == pg.KEYDOWN:
                     waiting = False
 
     def game_over(self) -> None:
@@ -127,10 +126,8 @@ class Game(object):
                   settings.HEIGHT / 2, align="center")
 
         pg.display.flip()
-
-        while self.paused:
-            pg.event.wait()
-            self.scene_ctlr.handle_input(only_handle=[pg.K_p])
+        self.wait_for_key()
+        self.paused = False
 
 
 g = Game()
