@@ -72,14 +72,27 @@ class Quest(object):
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
     def _update_current_scene(self, index: int) -> None:
+        """Update the current scene given a resolution index.
+
+        If NO_RESOLUTIONS is passed, the scene is unchanged.
+
+        If the current scene does not point to other scenes,
+        then self._is_complete is set to True and self._current_scene is
+        cleared.
+
+        Args:
+            index: Index specifying which scene to update to.
+        """
+        assert self._current_scene is not None
         # quest is not over yet
-        if not self._current_scene or index == NO_RESOLUTIONS:
+        if index == NO_RESOLUTIONS:
             return
 
         neighbors = list(self._quest_graph.neighbors(self._current_scene))
 
         # quest is complete
         if len(neighbors) == 0:
+            self._is_complete = True
             self._current_scene = None
             return
 
