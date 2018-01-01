@@ -92,7 +92,7 @@ class Controller(object):
         return just_pressed_mouse
 
     def _pressed_keys(self, key_array: List[bool]) -> List[int]:
-        pressed_keys = [key_id for key_id in self.bindings if key_array[key_id]]
+        pressed_keys = [keyid for keyid in self.bindings if key_array[keyid]]
         return pressed_keys
 
     def get_clicked_pos(self) -> Tuple[int, int]:
