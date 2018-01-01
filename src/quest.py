@@ -21,7 +21,7 @@ class Quest(object):
             self._quest_graph = quest_graph
 
         self._current_scene = self._root_scene()
-        self._previous_scene = self._current_scene
+        self._previous_scene = None
         self._is_complete = False
 
     # temporary function for creating quests - just description + filename
@@ -49,8 +49,13 @@ class Quest(object):
     # returns a valid dungeon of COMPLETE if the quest is over
     def next_scene(self) -> Any:
 
+        if self._previous_scene is None:
+            self._previous_scene = self._current_scene
+            return self._current_scene
+
         if self.is_complete:
             raise ValueError('Cannot get next scene of a completed quest.')
+
         # use the result of the previous scene to determine
         # the next scene
         next_index = self._previous_scene.resolved_conflict_index()
