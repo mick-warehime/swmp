@@ -4,9 +4,9 @@ import settings
 import sounds
 import images
 import controller
+from creatures.players import Player
 from draw_utils import draw_text
 import quest
-from typing import Any
 
 
 class Game(object):
@@ -31,35 +31,34 @@ class Game(object):
         sounds.initialize_sounds()
 
         self.paused = False
-        self._player: Any = None
+        self._player: Player = None
 
     def new(self) -> None:
         self._player = None
         self.quest = quest.Quest()
-        self.next_dungeon()
+        self.next_scene()
         sounds.play(sounds.LEVEL_START)
 
-    def next_dungeon(self) -> None:
+    def next_scene(self) -> None:
         scene = self.quest.next_scene()
+        if self.quest.is_complete:
+            return
 
-        if scene != quest.COMPLETE:
-            self.scene_ctlr = scene.get_controller()
-            self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
+        self.scene_ctlr = scene.get_controller()
+        self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
 
-            if self._player is not None:
-                self.scene_ctlr.set_player(self._player)
-            else:
-                self._player = self.scene_ctlr.player
-
-            scene.show_intro()
+        if self._player is not None:
+            self.scene_ctlr.set_player(self._player)
         else:
-            self.scene_ctlr = quest.COMPLETE
+            self._player = self.scene_ctlr.player
+
+        scene.show_intro()
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            if self.scene_ctlr == quest.COMPLETE:
+            if self.quest.is_complete:
                 break
 
             self.events()
@@ -72,7 +71,7 @@ class Game(object):
                 break
 
             if self.scene_ctlr.should_exit():
-                self.next_dungeon()
+                self.next_scene()
 
     def quit(self) -> None:
         pg.quit()

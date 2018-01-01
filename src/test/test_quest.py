@@ -2,6 +2,12 @@ import unittest
 from quest import Quest, Dungeon, Decision
 import networkx as nx
 
+from test.pygame_mock import initialize_pygame
+
+
+def setUpModule() -> None:
+    initialize_pygame()
+
 
 def test_graph_dungeons() -> nx.Graph:
     g = nx.DiGraph()
@@ -59,7 +65,7 @@ def test_graph_mixed() -> nx.Graph:
 
 
 def resolve_conflict_with_index(q: Quest, index: int) -> Quest:
-    q._previous_scene.resolved_conflict_index = lambda: index
+    q._current_scene.resolved_conflict_index = lambda: index
 
 
 class QuestTest(unittest.TestCase):
