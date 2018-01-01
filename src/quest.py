@@ -56,7 +56,7 @@ class Quest(object):
         if self._previous_scene:
             next_index = self._previous_scene.resolved_conflict_index()
             self._previous_scene = self._current_scene
-            self.update_scene(next_index)
+            self._update_current_scene(next_index)
         else:
             self._previous_scene = self._current_scene
 
@@ -71,7 +71,7 @@ class Quest(object):
 
     # determine the next scene to run and set that scene as current
     # temporary - for now just grab the first neighbor of the current node
-    def update_scene(self, index: int) -> None:
+    def _update_current_scene(self, index: int) -> None:
         # quest is not over yet
         if not self._current_scene or index == NO_RESOLUTIONS:
             return
