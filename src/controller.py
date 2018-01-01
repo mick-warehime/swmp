@@ -30,8 +30,8 @@ class Controller(object):
     def __init__(self) -> None:
 
         # keys pressed down in the previous frame
-        self._prev_keys: List[int] = [0] * len(pg.key.get_pressed())
-        self._prev_mouse: List[int] = [0] * len(pg.mouse.get_pressed())
+        self._prev_keys: List[bool] = [False] * len(pg.key.get_pressed())
+        self._prev_mouse: List[bool] = [False] * len(pg.mouse.get_pressed())
 
         # maps keys to functions
         self.bindings: Dict[int, Callable[..., None]] = {}
