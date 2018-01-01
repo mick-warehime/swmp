@@ -99,10 +99,8 @@ class Controller(object):
         return NOT_CLICKED
 
     def set_previous_input(self) -> None:
-        keys = pg.key.get_pressed()
-        mouse = pg.mouse.get_pressed()
-        self._prev_keys = list(keys)
-        self._prev_mouse = list(mouse)
+        self._prev_keys = list(pg.key.get_pressed())
+        self._prev_mouse = list(pg.mouse.get_pressed())
 
     def bind_quit(self) -> None:
         self.bind(pg.K_ESCAPE, self._quit_func)
