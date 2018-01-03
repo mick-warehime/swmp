@@ -1,3 +1,5 @@
+from typing import List
+
 from pygame import transform
 
 from pygame.math import Vector2
@@ -8,7 +10,7 @@ from pygame.transform import rotate, scale
 import images
 import sounds
 from abilities import FireProjectile, Ability, EnergyAbility
-from mods import Mod, ModLocation, ItemObject
+from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
 from weapons import Projectile
 
@@ -53,7 +55,9 @@ class LaserMod(Mod):
     loc = ModLocation.ARMS
     energy_required = 10.0
 
-    def __init__(self) -> None:
+    def __init__(self, buffs: List[Buffs] = None,
+                 profs: List[Proficiencies] = None) -> None:
+        super().__init__(buffs, profs)
         self._ability = EnergyAbility(ShootLaser(), self.energy_required)
 
     @property
@@ -63,6 +67,10 @@ class LaserMod(Mod):
     @property
     def expended(self) -> bool:
         return False
+
+    @property
+    def description(self) -> str:
+        return 'Laser gun'
 
     @property
     def stackable(self) -> bool:

@@ -1,11 +1,13 @@
 """Module implementing Rock projectile weapon."""
+from typing import List
+
 import pygame as pg
 from pygame.math import Vector2
 
 import images
 import sounds
 from abilities import FireProjectile, Ability
-from mods import ItemObject, Mod, ModLocation
+from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from tilemap import ObjectType
 from weapons import Projectile
 
@@ -48,7 +50,9 @@ class ThrowRock(FireProjectile):
 class RockMod(Mod):
     loc = ModLocation.ARMS
 
-    def __init__(self) -> None:
+    def __init__(self, buffs: List[Buffs] = None,
+                 profs: List[Proficiencies] = None) -> None:
+        super().__init__(buffs, profs)
         self._ability = ThrowRock()
 
     @property
@@ -62,6 +66,14 @@ class RockMod(Mod):
     @property
     def stackable(self) -> bool:
         return True
+
+    @property
+    def description(self) -> str:
+        uses_left = self._ability.uses_left
+        if uses_left == 1:
+            return 'Rock'
+        else:
+            return '%d rocks' % (uses_left,)
 
     @property
     def equipped_image(self) -> pg.Surface:
