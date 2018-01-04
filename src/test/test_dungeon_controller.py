@@ -5,7 +5,8 @@ from unittest.mock import Mock
 from pygame.math import Vector2
 
 import mods
-from mods import PistolObject, ShotgunObject, HealthPackObject
+from mods import HealthPackObject
+from items.bullet_weapons import PistolObject, ShotgunObject
 from src.test.pygame_mock import initialize_pygame
 from src.test.testing_utilities import make_dungeon_controller, make_player
 from view import DungeonView

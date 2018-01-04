@@ -1,7 +1,8 @@
 import unittest
 from pygame.math import Vector2
 import model
-from mods import Mod, PistolObject, PistolMod, Proficiencies, Buffs
+from mods import Mod, Proficiencies, Buffs
+from items.bullet_weapons import PistolMod, PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 

@@ -5,6 +5,7 @@ from pygame.math import Vector2
 from pygame.sprite import Group
 
 import images
+import items.bullet_weapons
 import mods
 import settings
 import sounds
@@ -56,7 +57,7 @@ class Mob(Humanoid):
 
     def kill(self) -> None:
         if self.is_quest:
-            mods.PistolObject(self.pos)
+            items.bullet_weapons.PistolObject(self.pos)
         super().kill()
 
     def _check_class_initialized(self) -> None:

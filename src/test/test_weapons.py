@@ -1,7 +1,7 @@
 import unittest
 from pygame.math import Vector2
 import model
-from abilities import FireShotgun
+from items.bullet_weapons import FireShotgun
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player

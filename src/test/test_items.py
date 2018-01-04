@@ -1,5 +1,7 @@
 import unittest
 from pygame.math import Vector2
+
+import items.bullet_weapons
 import model
 import mods
 from items.rocks import RockObject
@@ -166,7 +168,7 @@ class ModTest(unittest.TestCase):
         player = make_player()
         pos = Vector2(0, 0)
 
-        player.attempt_pickup(mods.PistolObject(pos))
+        player.attempt_pickup(items.bullet_weapons.PistolObject(pos))
 
         self.assertFalse(player.backpack.slot_occupied(0))
 
