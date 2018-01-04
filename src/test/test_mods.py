@@ -54,7 +54,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(original_center_y, min_center_y)
         self.assertEqual(-original_center_y, max_center_y)
 
-    def test_mod_str_output(self):
+    def test_mod_str_output(self) -> None:
         pistol_mod = PistolMod()
 
         self.assertEqual(pistol_mod.description, 'Pistol')

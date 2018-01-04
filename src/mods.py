@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Union
+from typing import List
 
 import pygame as pg
 import pytweening as tween

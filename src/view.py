@@ -35,7 +35,7 @@ class DungeonView(object):
         self._light_mask = images.get_image(images.LIGHT_MASK)
         self._light_rect = self._light_mask.get_rect()
 
-        self._groups = None
+        self._groups: Groups = None
 
         self.title_font = images.get_font(images.ZOMBIE_FONT)
 
