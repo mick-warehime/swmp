@@ -35,9 +35,7 @@ class DungeonView(object):
         self._light_mask = images.get_image(images.LIGHT_MASK)
         self._light_rect = self._light_mask.get_rect()
 
-        # TODO(dvirk): This should not have to be instantiated here,
-        # but assigned to the view before the draw method is called.
-        self._groups = Groups()
+        self._groups: Groups = None
 
         self.title_font = images.get_font(images.ZOMBIE_FONT)
 
