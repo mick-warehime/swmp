@@ -1,3 +1,4 @@
+from collections import namedtuple
 from random import uniform
 
 import pygame as pg
@@ -10,8 +11,6 @@ from model import DynamicObject
 class Projectile(DynamicObject):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
-    speed: int = 0
-    damage: int = 0
 
     def __init__(self, pos: Vector2, direction: Vector2,
                  hits_player: bool = False) -> None:
@@ -38,10 +37,6 @@ class Projectile(DynamicObject):
             self.kill()
 
     @property
-    def image(self) -> pg.Surface:
-        raise NotImplementedError
-
-    @property
     def rect(self) -> pg.Rect:
         self._base_rect.center = self.pos
         return self._base_rect
@@ -50,6 +45,54 @@ class Projectile(DynamicObject):
     def _lifetime_exceeded(self) -> bool:
         lifetime = self._timer.current_time - self.spawn_time
         return lifetime > self.max_lifetime
+
+    @property
+    def image(self) -> pg.Surface:
+        raise NotImplementedError
+
+    @property
+    def max_lifetime(self) -> int:
+        raise NotImplementedError
+
+    @property
+    def speed(self) -> int:
+        raise NotImplementedError
+
+
+ProjectileData = namedtuple('ProjectileData', ('hits_player', 'damage',
+                                               'speed', 'max_lifetime',
+                                               'image_file'))
+
+
+class SimpleProjectile(Projectile):
+    def __init__(self, pos: Vector2, direction: Vector2,
+                 data: ProjectileData) -> None:
+        super().__init__(pos, direction, data.hits_player)
+        self._data = data
+
+    @property
+    def damage(self) -> int:
+        return self._data.damage
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(self._data.image_file)
+
+    @property
+    def max_lifetime(self) -> int:
+        return self._data.max_lifetime
+
+    @property
+    def speed(self) -> int:
+        return self._data.speed
+
+
+class ProjectileFactory(object):
+    def __init__(self, data: ProjectileData):
+        self._data = data
+
+    def build_projectile(self, pos: Vector2, direction: Vector2):
+        return SimpleProjectile(pos, direction, self._data)
 
 
 class EnemyVomit(Projectile):
