@@ -12,7 +12,7 @@ import sounds
 from abilities import FireProjectile, Ability, EnergyAbility
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
-from weapons import Projectile
+from projectiles import Projectile
 
 
 class LaserBolt(Projectile):

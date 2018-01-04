@@ -11,7 +11,7 @@ from abilities import Ability, FireProjectile
 from model import DynamicObject
 from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject
 from tilemap import ObjectType
-from weapons import Projectile
+from projectiles import Projectile
 
 
 class BigBullet(Projectile):

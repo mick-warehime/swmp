@@ -9,7 +9,7 @@ import sounds
 from abilities import FireProjectile, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from tilemap import ObjectType
-from weapons import Projectile
+from projectiles import Projectile
 
 
 class Rock(Projectile):

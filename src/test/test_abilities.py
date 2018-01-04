@@ -3,7 +3,7 @@ import model
 from abilities import Heal
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from weapons import Projectile
+from projectiles import Projectile
 from items.bullet_weapons import MuzzleFlash, FirePistol, FireShotgun
 from src.test.testing_utilities import make_player
 

@@ -7,7 +7,7 @@ from pygame.math import Vector2
 
 import sounds
 from model import Timer, EnergySource
-from weapons import EnemyVomit
+from projectiles import EnemyVomit
 
 
 def initialize_classes(timer: Timer) -> None:
