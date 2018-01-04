@@ -1,4 +1,5 @@
 from random import choice, random
+from typing import List
 
 import pygame as pg
 from pygame.math import Vector2
@@ -6,11 +7,13 @@ from pygame.sprite import Group
 
 import images
 import items.bullet_weapons
-import mods
 import settings
 import sounds
+from abilities import FireProjectile, Ability
 from creatures.humanoids import Humanoid
 from creatures.players import Player
+from mods import Mod, ModLocation, Buffs, Proficiencies
+from projectiles import Projectile
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -48,7 +51,7 @@ class Mob(Humanoid):
 
         if self.is_quest:
             self.speed *= 2
-            self._vomit_mod = mods.VomitMod()
+            self._vomit_mod = VomitMod()
             self.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     @property
@@ -135,3 +138,62 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         return col
+
+
+class EnemyVomit(Projectile):
+    max_lifetime = 600
+    speed = 300
+    damage = 20
+
+    def __init__(self, pos: Vector2, direction: Vector2) -> None:
+        super().__init__(pos, direction, hits_player=True)
+
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(images.VOMIT)
+
+
+class SpewVomit(FireProjectile):
+    _kickback = 0
+    _cool_down_time = 250
+    _spread = 5
+    _projectile_count = 1
+    _make_projectile = EnemyVomit
+
+    def _fire_effects(self, origin: Vector2) -> None:
+        sounds.spew_vomit_sound()
+
+
+class VomitMod(Mod):
+    loc = ModLocation.HEAD
+
+    def __init__(self, buffs: List[Buffs] = None,
+                 perks: List[Proficiencies] = None) -> None:
+        super().__init__(buffs, perks)
+        self._ability = SpewVomit()
+
+    @property
+    def ability(self) -> Ability:
+        return self._ability
+
+    @property
+    def expended(self) -> bool:
+        return False
+
+    @property
+    def stackable(self) -> bool:
+        return False
+
+    @property
+    def equipped_image(self) -> pg.Surface:
+        raise RuntimeError('This is a zombie ability and should not be '
+                           'visible.')
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        raise RuntimeError('This is a zombie ability and should not be '
+                           'visible.')
+
+    @property
+    def description(self) -> str:
+        return 'Vomit'

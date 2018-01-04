@@ -6,7 +6,7 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, Heal, SpewVomit
+from abilities import Ability, Heal
 from model import DynamicObject
 
 HEALTH_PACK_AMOUNT = 20
@@ -84,41 +84,6 @@ class Mod(object):
                 output += '%s, ' % (prof.value,)
             output += ')'
         return output
-
-
-class VomitMod(Mod):
-    loc = ModLocation.HEAD
-
-    def __init__(self, buffs: List[Buffs] = None,
-                 perks: List[Proficiencies] = None) -> None:
-        super().__init__(buffs, perks)
-        self._ability = SpewVomit()
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return False
-
-    @property
-    def stackable(self) -> bool:
-        return False
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
-
-    @property
-    def description(self) -> str:
-        return 'Vomit'
 
 
 class HealthPackMod(Mod):

@@ -94,16 +94,3 @@ class ProjectileFactory(object):
     def build_projectile(self, pos: Vector2,
                          direction: Vector2) -> SimpleProjectile:
         return SimpleProjectile(pos, direction, self._data)
-
-
-class EnemyVomit(Projectile):
-    max_lifetime = 600
-    speed = 300
-    damage = 20
-
-    def __init__(self, pos: Vector2, direction: Vector2) -> None:
-        super().__init__(pos, direction, hits_player=True)
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.VOMIT)

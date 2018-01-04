@@ -7,7 +7,6 @@ from pygame.math import Vector2
 
 import sounds
 from model import Timer, EnergySource
-from projectiles import EnemyVomit
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -120,17 +119,6 @@ class FireProjectile(Ability):
         """Other effects that happen when used, such as making a sound or a
         muzzle flash."""
         raise NotImplementedError
-
-
-class SpewVomit(FireProjectile):
-    _kickback = 0
-    _cool_down_time = 250
-    _spread = 5
-    _projectile_count = 1
-    _make_projectile = EnemyVomit
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.spew_vomit_sound()
 
 
 class Heal(Ability):
