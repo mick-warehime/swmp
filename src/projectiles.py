@@ -88,10 +88,11 @@ class SimpleProjectile(Projectile):
 
 
 class ProjectileFactory(object):
-    def __init__(self, data: ProjectileData):
+    def __init__(self, data: ProjectileData) -> None:
         self._data = data
 
-    def build_projectile(self, pos: Vector2, direction: Vector2):
+    def build_projectile(self, pos: Vector2,
+                         direction: Vector2) -> SimpleProjectile:
         return SimpleProjectile(pos, direction, self._data)
 
 
