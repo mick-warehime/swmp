@@ -12,7 +12,7 @@ import sounds
 from abilities import FireProjectile, Ability, EnergyAbility
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
-from projectiles import Projectile
+from projectiles import Projectile, ProjectileData, ProjectileFactory
 
 
 class LaserBolt(Projectile):
@@ -42,7 +42,12 @@ class ShootLaser(FireProjectile):
     _cool_down_time = 500
     _spread = 2
     _projectile_count = 1
-    _make_projectile = LaserBolt
+
+    _data = ProjectileData(hits_player=False, damage=100, speed=1000,
+                           max_lifetime=1000, image_file=images.LITTLE_ROCK)
+    _factory = ProjectileFactory(_data)
+    _make_projectile = _factory.build_projectile
+
 
     def __init__(self) -> None:
         super().__init__()

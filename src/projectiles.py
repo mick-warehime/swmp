@@ -67,8 +67,9 @@ ProjectileData = namedtuple('ProjectileData', ('hits_player', 'damage',
 class SimpleProjectile(Projectile):
     def __init__(self, pos: Vector2, direction: Vector2,
                  data: ProjectileData) -> None:
-        super().__init__(pos, direction, data.hits_player)
         self._data = data
+        super().__init__(pos, direction, data.hits_player)
+
 
     @property
     def damage(self) -> int:

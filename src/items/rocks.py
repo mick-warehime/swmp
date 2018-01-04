@@ -9,7 +9,7 @@ import sounds
 from abilities import FireProjectile, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from tilemap import ObjectType
-from projectiles import Projectile
+from projectiles import Projectile, ProjectileData, ProjectileFactory
 
 
 class Rock(Projectile):
@@ -36,7 +36,13 @@ class ThrowRock(FireProjectile):
     _cool_down_time = 500
     _spread = 10
     _projectile_count = 1
-    _make_projectile = Rock
+
+    # TODO(dvirk): Add rotate_image decorator, and drop_on_hit decorator,
+    # and angled_image decorator.
+    _data = ProjectileData(hits_player=False, damage=25, speed=250,
+                           max_lifetime=800, image_file=images.LITTLE_ROCK)
+    _factory = ProjectileFactory(_data)
+    _make_projectile = _factory.build_projectile
 
     def __init__(self) -> None:
         super().__init__()

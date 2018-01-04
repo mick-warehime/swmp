@@ -11,34 +11,7 @@ from abilities import Ability, FireProjectile
 from model import DynamicObject
 from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject
 from tilemap import ObjectType
-from projectiles import Projectile
-
-
-class BigBullet(Projectile):
-    """A large bullet coming out of a pistol."""
-    max_lifetime = 1000
-    speed = 400
-    damage = 75
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.BULLET_IMG)
-
-
-class LittleBullet(Projectile):
-    """A small bullet coming out of a shotgun."""
-    max_lifetime = 500
-    speed = 500
-    damage = 25
-    _image = None
-
-    @property
-    def image(self) -> pg.Surface:
-        if LittleBullet._image is None:
-            bullet_img = images.get_image(images.BULLET_IMG)
-            small_img = pg.transform.scale(bullet_img, (10, 10))
-            LittleBullet._image = small_img
-        return self._image
+from projectiles import Projectile, ProjectileData, ProjectileFactory
 
 
 class MuzzleFlash(DynamicObject):
@@ -74,7 +47,11 @@ class FirePistol(FireProjectile):
     _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
-    _make_projectile = BigBullet
+
+    _data = ProjectileData(hits_player=False, damage=75, speed=1000,
+                           max_lifetime=400, image_file=images.BULLET_IMG)
+    _factory = ProjectileFactory(_data)
+    _make_projectile = _factory.build_projectile
 
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.PISTOL)
@@ -86,7 +63,11 @@ class FireShotgun(FireProjectile):
     _cool_down_time = 900
     _spread = 20
     _projectile_count = 12
-    _make_projectile = LittleBullet
+
+    _data = ProjectileData(hits_player=False, damage=25, speed=500,
+                           max_lifetime=500, image_file=images.LITTLE_BULLET)
+    _factory = ProjectileFactory(_data)
+    _make_projectile = _factory.build_projectile
 
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.fire_weapon_sound(ObjectType.SHOTGUN)

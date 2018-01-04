@@ -13,7 +13,7 @@ from abilities import FireProjectile, Ability
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from mods import Mod, ModLocation, Buffs, Proficiencies
-from projectiles import Projectile
+from projectiles import Projectile, ProjectileFactory, ProjectileData
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -140,25 +140,15 @@ class Mob(Humanoid):
         return col
 
 
-class EnemyVomit(Projectile):
-    max_lifetime = 600
-    speed = 300
-    damage = 20
-
-    def __init__(self, pos: Vector2, direction: Vector2) -> None:
-        super().__init__(pos, direction, hits_player=True)
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.VOMIT)
-
-
 class SpewVomit(FireProjectile):
     _kickback = 0
     _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
-    _make_projectile = EnemyVomit
+    _data = ProjectileData(hits_player=True, damage=20, speed=300,
+                           max_lifetime=600, image_file=images.VOMIT)
+    _factory = ProjectileFactory(_data)
+    _make_projectile = _factory.build_projectile
 
     def _fire_effects(self, origin: Vector2) -> None:
         sounds.spew_vomit_sound()
