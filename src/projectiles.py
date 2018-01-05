@@ -101,7 +101,14 @@ class SimpleProjectile(Projectile):
 
 
 class AngledProjectile(Projectile):
-    """A projectile whose image is angled in a specific direction. """
+    """A projectile whose image is angled in a specific direction.
+
+    This is a decorator pattern incorporating a base projectile. The
+    direction is determined by the base projectile's velocity.
+
+    In order to correctly angle the image the base projectile's image must be
+    oriented facing 0 degrees.
+    """
 
     def __init__(self, base_projectile: Projectile):
         self._base_projectile = base_projectile
