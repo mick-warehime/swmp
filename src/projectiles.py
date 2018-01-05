@@ -100,18 +100,6 @@ class SimpleProjectile(Projectile):
         return self._data.speed
 
 
-class ProjectileFactory(object):
-    def __init__(self, data: ProjectileData) -> None:
-        self._data = data
-
-    def build_projectile(self, pos: Vector2,
-                         direction: Vector2) -> SimpleProjectile:
-        projectile = SimpleProjectile(pos, direction, self._data)
-        if self._data.angled_image:
-            projectile = AngledProjectile(projectile)
-        return projectile
-
-
 class AngledProjectile(Projectile):
     """A projectile whose image is angled in a specific direction. """
 
@@ -156,3 +144,15 @@ class AngledProjectile(Projectile):
     @property
     def damage(self) -> int:
         return self._base_projectile.damage
+
+
+class ProjectileFactory(object):
+    def __init__(self, data: ProjectileData) -> None:
+        self._data = data
+
+    def build_projectile(self, pos: Vector2,
+                         direction: Vector2) -> SimpleProjectile:
+        projectile = SimpleProjectile(pos, direction, self._data)
+        if self._data.angled_image:
+            projectile = AngledProjectile(projectile)
+        return projectile
