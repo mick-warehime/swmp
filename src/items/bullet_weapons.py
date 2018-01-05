@@ -11,7 +11,7 @@ from abilities import Ability, FireProjectile
 from model import DynamicObject
 from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject
 from tilemap import ObjectType
-from projectiles import Projectile, ProjectileData, ProjectileFactory
+from projectiles import ProjectileData, ProjectileFactory
 
 
 class MuzzleFlash(DynamicObject):
@@ -47,7 +47,6 @@ class FirePistol(FireProjectile):
     _cool_down_time = 250
     _spread = 5
     _projectile_count = 1
-
     _data = ProjectileData(hits_player=False, damage=75, speed=1000,
                            max_lifetime=400, image_file=images.BULLET_IMG)
     _factory = ProjectileFactory(_data)

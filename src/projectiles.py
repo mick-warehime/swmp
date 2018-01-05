@@ -4,6 +4,10 @@ from random import uniform
 import pygame as pg
 from pygame.math import Vector2
 
+import attr
+from pygame.sprite import Sprite
+from pygame.transform import rotate
+
 import images
 from model import DynamicObject
 
@@ -26,11 +30,11 @@ class Projectile(DynamicObject):
         self._base_rect = self.image.get_rect().copy()
 
         assert direction.is_normalized()
-        self._vel = direction * self.speed * uniform(0.9, 1.1)
+        self.velocity = direction * self.speed * uniform(0.9, 1.1)
         self.spawn_time = self._timer.current_time
 
     def update(self) -> None:
-        self.pos += self._vel * self._timer.dt
+        self.pos += self.velocity * self._timer.dt
         if pg.sprite.spritecollideany(self, self._groups.walls):
             self.kill()
         if self._lifetime_exceeded:
@@ -58,10 +62,19 @@ class Projectile(DynamicObject):
     def speed(self) -> int:
         raise NotImplementedError
 
+    @property
+    def damage(self) -> int:
+        raise NotImplementedError
 
-ProjectileData = namedtuple('ProjectileData', ('hits_player', 'damage',
-                                               'speed', 'max_lifetime',
-                                               'image_file'))
+
+@attr.s
+class ProjectileData(object):
+    hits_player = attr.ib(type=bool)
+    damage = attr.ib(type=int)
+    speed = attr.ib(type=int)
+    max_lifetime = attr.ib(type=int)
+    image_file = attr.ib(type=str)
+    angled_image = attr.ib(default=False, type=bool)
 
 
 class SimpleProjectile(Projectile):
@@ -69,7 +82,6 @@ class SimpleProjectile(Projectile):
                  data: ProjectileData) -> None:
         self._data = data
         super().__init__(pos, direction, data.hits_player)
-
 
     @property
     def damage(self) -> int:
@@ -94,4 +106,53 @@ class ProjectileFactory(object):
 
     def build_projectile(self, pos: Vector2,
                          direction: Vector2) -> SimpleProjectile:
-        return SimpleProjectile(pos, direction, self._data)
+        projectile = SimpleProjectile(pos, direction, self._data)
+        if self._data.angled_image:
+            projectile = AngledProjectile(projectile)
+        return projectile
+
+
+class AngledProjectile(Projectile):
+    """A projectile whose image is angled in a specific direction. """
+
+    def __init__(self, base_projectile: Projectile):
+        self._base_projectile = base_projectile
+
+        direction = base_projectile.velocity.normalize()
+        base_image = base_projectile.image
+        angle = direction.angle_to(Vector2(0, 0))
+        self._image = rotate(base_image, angle)
+
+        super().__init__(base_projectile.pos, direction)
+        self._replace_in_groups(base_projectile)
+
+    def _replace_in_groups(self, base_projectile):
+        # After the init call, the object is already put into specific
+        # groups. We instead take it out of those groups, and put it in the
+        # groups of the base_projectile, while removing the base_projectile.
+        container_groups = self._groups.which_in(base_projectile)
+        Sprite.kill(base_projectile)  # Remove base_projectile from Groups
+        Sprite.kill(self)
+        Sprite.__init__(self, container_groups)
+
+    @property
+    def image(self) -> pg.Surface:
+        return self._image
+
+    @property
+    def speed(self) -> int:
+        return self._base_projectile.speed
+
+    @property
+    def max_lifetime(self) -> int:
+        return self._base_projectile.max_lifetime
+
+        # def __getattr__(self, item):
+        #     if item != 'image':
+        #         return getattr(self._base_projectile, item)
+        #     else:
+        #         return self.image
+
+    @property
+    def damage(self) -> int:
+        return self._base_projectile.damage
