@@ -1,8 +1,8 @@
 from collections import namedtuple, Counter
-from typing import Any, Union, Dict
+from typing import Any, Union, Dict, Tuple
 import pygame as pg
 from pygame.math import Vector2
-from pygame.sprite import Group, LayeredUpdates
+from pygame.sprite import Group, LayeredUpdates, Sprite
 
 import images
 from settings import TILESIZE
@@ -30,6 +30,10 @@ class Groups(_GroupsBase):
         self.all_sprites.empty()
         self.items.empty()
         self.enemy_projectiles.empty()
+
+    def which_in(self, sprite: Sprite) -> Tuple[Group]:
+        my_groups = (getattr(self, name) for name in self._fields)
+        return tuple(grp for grp in my_groups if sprite in grp)
 
 
 class ConflictGroups(object):
