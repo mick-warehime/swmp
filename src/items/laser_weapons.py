@@ -12,29 +12,7 @@ import sounds
 from abilities import FireProjectile, Ability, EnergyAbility
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
-from projectiles import Projectile, ProjectileData, ProjectileFactory
-
-
-# class LaserBolt(Projectile):
-#     max_lifetime: int = 1000
-#     speed: int = 1000
-#     damage: int = 100
-#
-#     def __init__(self, pos: Vector2, direction: Vector2) -> None:
-#         image = images.get_image(images.LITTLE_LASER).copy()
-#         image = scale(image, (30, 3))
-#         angle = direction.angle_to(Vector2(0, 0))
-#         self._base_image = rotate(image, angle)
-#
-#         super().__init__(pos, direction, False)
-#
-#         # Since the bold is long and wide, I am approximating its rect by a
-#         # square.
-#         self._base_rect = Rect(0, 0, 10, 10)
-#
-#     @property
-#     def image(self) -> Surface:
-#         return self._base_image
+from projectiles import ProjectileData, ProjectileFactory
 
 
 class ShootLaser(FireProjectile):

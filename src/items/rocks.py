@@ -9,26 +9,22 @@ import sounds
 from abilities import FireProjectile, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from tilemap import ObjectType
-from projectiles import Projectile, ProjectileData, ProjectileFactory
+from projectiles import ProjectileData, ProjectileFactory
 
 
-class Rock(Projectile):
-    max_lifetime = 800
-    speed = 250
-    damage = 25
-    rock_size = (10, 10)
+class RockObject(ItemObject):
+    rock_size = (15, 15)
+
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        mod = RockMod()
+
+        super().__init__(mod, pos)
 
     @property
     def image(self) -> pg.Surface:
-        angle = self._timer.current_time // 2 % 360
         image = images.get_image(images.ROCK)
-        image = pg.transform.rotate(image, angle)
-
         return pg.transform.scale(image, self.rock_size)
-
-    def kill(self) -> None:
-        RockObject(self.pos)
-        super().kill()
 
 
 class ThrowRock(FireProjectile):
@@ -40,7 +36,8 @@ class ThrowRock(FireProjectile):
     # TODO(dvirk): Add rotate_image decorator, and drop_on_hit decorator,
     # and angled_image decorator.
     _data = ProjectileData(hits_player=False, damage=25, speed=250,
-                           max_lifetime=800, image_file=images.LITTLE_ROCK)
+                           max_lifetime=800, image_file=images.LITTLE_ROCK,
+                           rotating_image=True, drops_on_kill=RockObject)
     _factory = ProjectileFactory(_data)
     _make_projectile = _factory.build_projectile
 
@@ -88,18 +85,3 @@ class RockMod(Mod):
     @property
     def backpack_image(self) -> pg.Surface:
         return images.get_image(images.ROCK)
-
-
-class RockObject(ItemObject):
-    rock_size = (15, 15)
-
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = RockMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        image = images.get_image(images.ROCK)
-        return pg.transform.scale(image, self.rock_size)
