@@ -103,138 +103,43 @@ class SimpleProjectile(Projectile):
         return self._data.speed
 
 
-class RotatingProjectile(Projectile):
-    """A projectile whose image is angled in a specific direction.
+class FancyProjectile(SimpleProjectile):
+    """A projectile with interesting effects."""
 
-    This is a decorator pattern incorporating a base projectile. The
-    direction is determined by the base projectile's velocity.
+    def __init__(self, pos: Vector2, direction: Vector2,
+                 data: ProjectileData) -> None:
+        self._init_image(data, direction)
+        self._init_kill_method(data.drops_on_kill)
 
-    In order to correctly angle the image the base projectile's image must be
-    oriented facing 0 degrees.
-    """
+        super().__init__(pos, direction, data)
 
-    def __init__(self, base_projectile: Projectile):
-        self._base_projectile = base_projectile
-        direction = base_projectile.velocity.normalize()
-        self._image = base_projectile.image
+    def _init_kill_method(self, constructor):
+        if constructor is not None:
+            self._kill_method = constructor
+        else:
+            self._kill_method = lambda x: None
 
-        super().__init__(base_projectile.pos, direction)
-        self._replace_in_groups(base_projectile)
+    def _init_image(self, data, direction):
+        self._base_image = images.get_image(data.image_file)
+        if data.angled_image:
+            angle = direction.angle_to(Vector2(0, 0))
+            self._base_image = rotate(self._base_image, angle)
+        if data.rotating_image:
+            self._process_image = self._rotate_image
+        else:
+            self._process_image = lambda x: x
 
-    def _replace_in_groups(self, base_projectile):
-        # After the init call, the object is already put into specific
-        # groups. We instead take it out of those groups, and put it in the
-        # groups of the base_projectile, while removing the base_projectile.
-        container_groups = self._groups.which_in(base_projectile)
-        Sprite.kill(base_projectile)  # Remove base_projectile from Groups
-        Sprite.kill(self)
-        Sprite.__init__(self, container_groups)
-
-    @property
-    def image(self) -> pg.Surface:
+    def _rotate_image(self, image: pg.Surface) -> pg.Surface:
         angle = self._timer.current_time // 2 % 360
-        return pg.transform.rotate(self._image, angle)
+        return pg.transform.rotate(image, angle)
 
     @property
-    def speed(self) -> int:
-        return self._base_projectile.speed
-
-    @property
-    def max_lifetime(self) -> int:
-        return self._base_projectile.max_lifetime
-
-    @property
-    def damage(self) -> int:
-        return self._base_projectile.damage
-
-
-class AngledProjectile(Projectile):
-    """A projectile whose image rotates over time.
-
-    This is a decorator pattern incorporating a base projectile.
-    """
-
-    def __init__(self, base_projectile: Projectile):
-        self._base_projectile = base_projectile
-
-        direction = base_projectile.velocity.normalize()
-        base_image = base_projectile.image
-        angle = direction.angle_to(Vector2(0, 0))
-        self._image = rotate(base_image, angle)
-
-        super().__init__(base_projectile.pos, direction)
-        self._replace_in_groups(base_projectile)
-
-    def _replace_in_groups(self, base_projectile):
-        # After the init call, the object is already put into specific
-        # groups. We instead take it out of those groups, and put it in the
-        # groups of the base_projectile, while removing the base_projectile.
-        container_groups = self._groups.which_in(base_projectile)
-        Sprite.kill(base_projectile)  # Remove base_projectile from Groups
-        Sprite.kill(self)
-        Sprite.__init__(self, container_groups)
-
-    @property
-    def image(self) -> pg.Surface:
-        return self._image
-
-    @property
-    def speed(self) -> int:
-        return self._base_projectile.speed
-
-    @property
-    def max_lifetime(self) -> int:
-        return self._base_projectile.max_lifetime
-
-    @property
-    def damage(self) -> int:
-        return self._base_projectile.damage
-
-
-class DropsOnKill(Projectile):
-    """A projectile that drops an ItemObject when its kill() method is called.
-
-    This is a decorator pattern incorporating a base projectile.
-    """
-
-    def __init__(self, base_proj: Projectile, item_constructor: Callable):
-        self._base_projectile = base_proj
-        self._item_constructor = item_constructor
-
-        direction = base_proj.velocity.normalize()
-        super().__init__(base_proj.pos, direction)
-        self._replace_in_groups(base_proj)
-
-    def _replace_in_groups(self, base_projectile):
-        # After the init call, the object is already put into specific
-        # groups. We instead take it out of those groups, and put it in the
-        # groups of the base_projectile, while removing the base_projectile.
-        container_groups = self._groups.which_in(base_projectile)
-        Sprite.kill(base_projectile)  # Remove base_projectile from Groups
-        Sprite.kill(self)
-        Sprite.__init__(self, container_groups)
-
-    @property
-    def image(self) -> pg.Surface:
-        return self._base_projectile.image
-
-    @property
-    def speed(self) -> int:
-        return self._base_projectile.speed
-
-    @property
-    def max_lifetime(self) -> int:
-        return self._base_projectile.max_lifetime
-
-    @property
-    def damage(self) -> int:
-        return self._base_projectile.damage
+    def image(self):
+        return self._process_image(self._base_image)
 
     def kill(self):
-        self._base_projectile.pos = self.pos
-        self._base_projectile.kill()
-        self._item_constructor(self.pos)
         super().kill()
+        self._kill_method(self.pos)
 
 
 class ProjectileFactory(object):
@@ -243,14 +148,6 @@ class ProjectileFactory(object):
 
     def build_projectile(self, pos: Vector2,
                          direction: Vector2) -> SimpleProjectile:
-        projectile = SimpleProjectile(pos, direction, self._data)
-        if self._data.angled_image:
-            projectile = AngledProjectile(projectile)
+        projectile = FancyProjectile(pos, direction, self._data)
 
-        if self._data.rotating_image:
-            projectile = RotatingProjectile(projectile)
-
-        constructor = self._data.drops_on_kill
-        if constructor is not None:
-            projectile = DropsOnKill(projectile, constructor)
         return projectile
