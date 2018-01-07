@@ -3,10 +3,12 @@ from random import uniform
 from typing import Any
 from typing import Union, Callable
 
+import attr
 from pygame.math import Vector2
 
 import sounds
 from model import Timer, EnergySource
+from projectiles import ProjectileData
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -52,6 +54,22 @@ class Ability(object):
         if not cls.class_initialized:
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
+
+
+@attr.s
+class AbilityData(object):
+    cool_down_time: int = attr.ib()
+    energy_required: int = attr.ib(default=0)
+    heal_amount: int = attr.ib(default=0)
+    projectile_ability_data: ProjectileAbilityData = attr.ib(default=None)
+
+
+@attr.s
+class ProjectileAbilityData(object):
+    projectile_data: ProjectileData = attr.ib()
+    projectile_count: int = attr.ib(default=1)
+    kickback: int = attr.ib(default=0)
+    spread: int = attr.ib(default=0)
 
 
 class EnergyAbility(Ability):
