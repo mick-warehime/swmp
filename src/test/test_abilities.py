@@ -107,10 +107,10 @@ class AbilitiesTest(unittest.TestCase):
         ability_data = copy(self.projectile_ability_data)
         projectile_count = 15
         ability_data.projectile_count = projectile_count
-        fire_shotty = FireProjectile(ability_data)
+        fire_many = FireProjectile(ability_data)
 
         self.assertEqual(len(self.groups.bullets), 0)
-        fire_shotty.use(player)
+        fire_many.use(player)
         self.assertEqual(len(self.groups.bullets),
                          projectile_count)
 
