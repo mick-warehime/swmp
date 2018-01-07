@@ -2,8 +2,8 @@ import unittest
 from copy import copy
 
 import model
-from abilities import ProjectileAbilityData, FireProjectile
-from items.utility_items import Heal
+from abilities import ProjectileAbilityData, FireProjectile, \
+    RegenerationAbilityData, RegenerationAbility
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -23,10 +23,21 @@ def setUpModule() -> None:
     ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
                                          projectile_count=1,
                                          kickback=200, spread=5,
-                                         fire_effect= pistol_fire_effect)
+                                         fire_effect=pistol_fire_effect)
 
     AbilitiesTest.projectile_data = projectile_data
     AbilitiesTest.projectile_ability_data = ability_data
+
+    data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                   uses_left=1,
+                                   heal_amount=10)
+    AbilitiesTest.heal_ability_data = data
+
+    data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                   uses_left=1,
+                                   recharge_amount=10)
+
+    AbilitiesTest.recharge_ability_data = data
 
 
 class AbilitiesTest(unittest.TestCase):
@@ -34,7 +45,8 @@ class AbilitiesTest(unittest.TestCase):
     timer = MockTimer()
     projectile_data = None
     projectile_ability_data = None
-
+    heal_ability_data = None
+    recharge_ability_data = None
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -117,18 +129,23 @@ class AbilitiesTest(unittest.TestCase):
     def test_heal_player_not_damaged(self) -> None:
         player = make_player()
         heal_amount = 10
-        heal = Heal(3, heal_amount)
+        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                       uses_left=3, heal_amount=heal_amount)
+        heal = RegenerationAbility(data)
 
         max_health = player.max_health
         self.assertEqual(player.health, max_health)
         heal.use(player)
         self.assertEqual(player.health, max_health)
-        self.assertEqual(heal.uses_left, 3)
+        # Current implementation uses the health pack anyway.
+        self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_to_full(self) -> None:
         player = make_player()
         heal_amount = 10
-        heal = Heal(3, heal_amount)
+        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                       uses_left=3, heal_amount=heal_amount)
+        heal = RegenerationAbility(data)
 
         max_health = player.max_health
         player.increment_health(-heal_amount + 2)
@@ -139,7 +156,9 @@ class AbilitiesTest(unittest.TestCase):
     def test_heal_player_damaged_correct_amount(self) -> None:
         player = make_player()
         heal_amount = 10
-        heal = Heal(3, heal_amount)
+        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                       uses_left=3, heal_amount=heal_amount)
+        heal = RegenerationAbility(data)
 
         max_health = player.max_health
         player.increment_health(-heal_amount - 2)

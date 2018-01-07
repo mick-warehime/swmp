@@ -1,36 +1,46 @@
 """Module for defining Humanoid abilities."""
 from random import uniform
-from typing import Any
+from typing import Any, List
 from typing import Union, Callable
 
 import attr
 from pygame.math import Vector2
 
+import sounds
 from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
 EffectFun = Callable[[Vector2], None]
+UseFun = Callable[[Any], None]
 
 
 def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
 
 
+def combine_use_funs(fun_0: UseFun, fun_1: UseFun) -> UseFun:
+    assert (fun_0 is not None) or (fun_1 is not None)
+
+    if fun_0 is None:
+        return fun_1
+    elif fun_1 is None:
+        return fun_0
+
+    def combined_fun(humanoid: Any) -> None:
+        fun_0(humanoid)
+        fun_1(humanoid)
+
+    return combined_fun
+
+
 def null_effect(origin: Vector2) -> None:
-    pass
-
-
-def null_use(humanoid: Any) -> None:
-    raise UserWarning(
-        'Null use function should not be called by Ability. Did you replace '
-        'self._use_fun?')
     pass
 
 
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
-    _use_fun: Callable[[Any], None] = null_use
+    _use_fun: Callable[[Any], None] = None
     class_initialized = False
 
     def __init__(self) -> None:
@@ -55,6 +65,22 @@ class Ability(object):
     def use(self, humanoid: Any) -> None:
         self._use_fun(humanoid)
         self._update_last_use()
+
+    def decrement_uses(self, *dummy_args: List[Any]) -> None:
+        self.uses_left -= 1
+
+    def _add_use_fun(self, fun: UseFun):
+        if self._use_fun is None:
+            self._use_fun = fun
+            return
+
+        current_use_fun = self._use_fun
+
+        def combined_fun(humanoid: Any) -> None:
+            current_use_fun(humanoid)
+            fun(humanoid)
+
+        self._use_fun = combined_fun
 
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
@@ -109,6 +135,74 @@ class EnergyAbility(Ability):
         return self._base_ability.cooldown_fraction
 
 
+@attr.s
+class AbilityData(object):
+    cool_down_time: int = attr.ib()
+    finite_uses: bool = attr.ib(default=False)
+    uses_left: int = attr.ib(default=0)
+
+
+@attr.s
+class RegenerationAbilityData(AbilityData):
+    heal_amount: int = attr.ib(default=0)
+    recharge_amount: int = attr.ib(default=0)
+
+
+class RegenerationAbility(Ability):
+    def __init__(self, data: RegenerationAbilityData):
+        super().__init__()
+        self._cool_down_time = data.cool_down_time
+
+        assert data.heal_amount > 0 or data.recharge_amount > 0
+
+        self._heal_amount = data.heal_amount
+        self._recharge_amount = data.recharge_amount
+
+        if data.heal_amount > 0:
+            self._add_use_fun(self._heal)
+
+        if data.recharge_amount > 0:
+            self._add_use_fun(self._recharge)
+
+        if data.finite_uses:
+            self.uses_left = data.uses_left
+            self._add_use_fun(self.decrement_uses)
+
+    def _heal(self, humanoid: Any) -> None:
+        if humanoid.damaged:
+            sounds.play(sounds.HEALTH_UP)
+            humanoid.increment_health(self._heal_amount)
+
+    def _recharge(self, humanoid: Any) -> None:
+        assert hasattr(humanoid, 'energy_source'), 'No energy source for %s' \
+                                                   % (humanoid,)
+        energy_source = humanoid.energy_source
+
+        if energy_source.energy_available < energy_source.max_energy:
+            energy_source.increment_energy(self._recharge_amount)
+            sounds.play(sounds.HEALTH_UP)
+
+
+@attr.s
+class ProjectileAbilityData(AbilityData):
+    projectile_data: ProjectileData = attr.ib(default=None)
+    kickback: int = attr.ib(default=0)
+    spread: int = attr.ib(default=0)
+    projectile_count: int = attr.ib(default=1)
+    fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
+
+
+def combine_effect_funs(first_fun: EffectFun,
+                        second_fun: EffectFun) -> EffectFun:
+    """Return an EffectFun that calls two EffectFuns."""
+
+    def combined_fun(origin: Vector2) -> None:
+        first_fun(origin)
+        second_fun(origin)
+
+    return combined_fun
+
+
 class FireProjectileBase(Ability):
     _kickback: int = None
     _spread: int = None
@@ -118,6 +212,7 @@ class FireProjectileBase(Ability):
 
     def __init__(self):
         super().__init__()
+        assert self._use_fun is None
         self._use_fun = self._fire_projectile
 
     def _fire_projectile(self, humanoid: Any) -> None:
@@ -139,54 +234,6 @@ class FireProjectileBase(Ability):
         self._fire_effect_fun(origin)
 
 
-@attr.s
-class AbilityData(object):
-    cool_down_time: int = attr.ib()
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
-
-
-@attr.s
-class RegenerationAbilityData(object):
-    heal_amount: int = attr.ib(default=0)
-
-
-@attr.s
-class ProjectileAbilityData(AbilityData):
-    projectile_data: ProjectileData = attr.ib(default=None)
-    kickback: int = attr.ib(default=0)
-    spread: int = attr.ib(default=0)
-    projectile_count: int = attr.ib(default=1)
-    fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
-
-
-# @attr.s
-# class AbilityData(object):
-#     cool_down_time: int = attr.ib()
-#     # heal_amount: int = attr.ib(default=0)
-#     projectile_ability_data: ProjectileAbilityData = attr.ib(default=None)
-#     # energy_required: int = attr.ib(default=0)
-
-
-# class DataAbility(Ability):
-#     def __init__(self, data: AbilityData):
-#         super().__init__()
-#         self._cool_down_time = data.cool_down_time
-#
-#     def use(self, humanoid: Any) -> None:
-#         pass
-
-def combine_effect_funs(first_fun: EffectFun,
-                        second_fun: EffectFun) -> EffectFun:
-    """Return an EffectFun that calls two EffectFuns."""
-
-    def combined_fun(origin: Vector2) -> None:
-        first_fun(origin)
-        second_fun(origin)
-
-    return combined_fun
-
-
 class FireProjectile(FireProjectileBase):
     def __init__(self, data: ProjectileAbilityData) -> None:
         self._cool_down_time = data.cool_down_time
@@ -201,8 +248,4 @@ class FireProjectile(FireProjectileBase):
 
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self._fire_effect_fun = combine_effect_funs(data.fire_effect,
-                                                        self.decrement_uses)
-
-    def decrement_uses(self, origin: Vector2) -> None:
-        self.uses_left -= 1
+            self._add_use_fun(self.decrement_uses)

@@ -4,34 +4,9 @@ import pygame as pg
 from pygame.math import Vector2
 
 import images
-import sounds
-from abilities import Ability
+from abilities import Ability, RegenerationAbilityData, RegenerationAbility
 from mods import Mod, ModLocation, Buffs, Proficiencies, HEALTH_PACK_AMOUNT, \
     ItemObject
-
-
-class Heal(Ability):
-    """A healing ability with a timed cooldown and finite use count."""
-    _cool_down_time: Union[int, None] = 300
-
-    def __init__(self, num_uses: int, heal_amount: int) -> None:
-        super().__init__()
-        self.uses_left = num_uses
-        self._heal_amount = heal_amount
-        self._use_fun = self._heal
-
-
-    @property
-    def can_use(self) -> bool:
-        can_use = super().can_use
-        can_use = can_use and self.uses_left > 0
-        return can_use
-
-    def _heal(self, humanoid: Any) -> None:
-        if humanoid.damaged:
-            self.uses_left -= 1
-            sounds.play(sounds.HEALTH_UP)
-            humanoid.increment_health(self._heal_amount)
 
 
 class HealthPackMod(Mod):
@@ -41,7 +16,11 @@ class HealthPackMod(Mod):
                  perks: List[Proficiencies] = None) -> None:
         super().__init__(buffs, perks)
         self._expended = False
-        self._ability = Heal(1, HEALTH_PACK_AMOUNT)
+
+        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                       uses_left=1,
+                                       heal_amount=HEALTH_PACK_AMOUNT)
+        self._ability = RegenerationAbility(data)
 
     @property
     def ability(self) -> Ability:
