@@ -1,11 +1,12 @@
 from enum import Enum
+from typing import List
 
 import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, FireShotgun, FirePistol, Heal, SpewVomit
+from abilities import Ability, Heal
 from model import DynamicObject
 
 HEALTH_PACK_AMOUNT = 20
@@ -24,7 +25,27 @@ class ModLocation(Enum):
     HEAD = 3
 
 
+class Buffs(Enum):
+    ARMOR = 'armor'
+    DAMAGE = 'damage'
+    RANGE = 'range'
+
+
+class Proficiencies(Enum):
+    TALKING = 'talking'
+    STEALTH = 'stealth'
+    ATHLETICISM = 'athleticism'
+
+
 class Mod(object):
+    def __init__(self, buffs: List[Buffs] = None,
+                 profs: List[Proficiencies] = None) -> None:
+        buffs = [] if buffs is None else buffs
+        profs = [] if profs is None else profs
+
+        self._buffs = list(buffs)
+        self._profs = list(profs)
+
     @property
     def loc(self) -> ModLocation:
         raise NotImplementedError
@@ -49,94 +70,28 @@ class Mod(object):
     def backpack_image(self) -> pg.Surface:
         raise NotImplementedError
 
-
-class ShotgunMod(Mod):
-    loc = ModLocation.ARMS
-
-    def __init__(self) -> None:
-        self._ability = FireShotgun()
-
     @property
-    def ability(self) -> Ability:
-        return self._ability
+    def description(self) -> str:
+        raise NotImplementedError
 
-    @property
-    def expended(self) -> bool:
-        return False
-
-    @property
-    def stackable(self) -> bool:
-        return False
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.SHOTGUN_MOD)
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.SHOTGUN)
-
-
-class PistolMod(Mod):
-    loc = ModLocation.ARMS
-
-    def __init__(self) -> None:
-        self._ability = FirePistol()
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return False
-
-    @property
-    def stackable(self) -> bool:
-        return False
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.PISTOL_MOD)
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.PISTOL)
-
-
-class VomitMod(Mod):
-    loc = ModLocation.HEAD
-
-    def __init__(self) -> None:
-        self._ability = SpewVomit()
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return False
-
-    @property
-    def stackable(self) -> bool:
-        return False
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
+    def __str__(self) -> str:
+        output = '%s' % (self.description)
+        if self._buffs or self._profs:
+            output += '('
+            for buff in self._buffs:
+                output += '%s, ' % (buff.value,)
+            for prof in self._profs:
+                output += '%s, ' % (prof.value,)
+            output += ')'
+        return output
 
 
 class HealthPackMod(Mod):
     loc = ModLocation.CHEST
 
-    def __init__(self) -> None:
+    def __init__(self, buffs: List[Buffs] = None,
+                 perks: List[Proficiencies] = None) -> None:
+        super().__init__(buffs, perks)
         self._expended = False
         self._ability = Heal(1, HEALTH_PACK_AMOUNT)
 
@@ -159,6 +114,10 @@ class HealthPackMod(Mod):
     @property
     def equipped_image(self) -> pg.Surface:
         return images.get_image(images.HEALTH_PACK)
+
+    @property
+    def description(self) -> str:
+        return 'Healthpack'
 
 
 class ItemObject(DynamicObject):
@@ -207,30 +166,6 @@ class ItemObject(DynamicObject):
     @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
-
-
-class PistolObject(ItemObject):
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = PistolMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.PISTOL)
-
-
-class ShotgunObject(ItemObject):
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = ShotgunMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.SHOTGUN)
 
 
 class HealthPackObject(ItemObject):

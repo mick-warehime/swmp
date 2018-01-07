@@ -7,8 +7,6 @@ from pygame.math import Vector2
 
 import sounds
 from model import Timer, EnergySource
-from tilemap import ObjectType
-from weapons import BigBullet, LittleBullet, MuzzleFlash, EnemyVomit
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -121,41 +119,6 @@ class FireProjectile(Ability):
         """Other effects that happen when used, such as making a sound or a
         muzzle flash."""
         raise NotImplementedError
-
-
-class FirePistol(FireProjectile):
-    _kickback = 200
-    _cool_down_time = 250
-    _spread = 5
-    _projectile_count = 1
-    _make_projectile = BigBullet
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.PISTOL)
-        MuzzleFlash(origin)
-
-
-class SpewVomit(FireProjectile):
-    _kickback = 0
-    _cool_down_time = 250
-    _spread = 5
-    _projectile_count = 1
-    _make_projectile = EnemyVomit
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.spew_vomit_sound()
-
-
-class FireShotgun(FireProjectile):
-    _kickback = 300
-    _cool_down_time = 900
-    _spread = 20
-    _projectile_count = 12
-    _make_projectile = LittleBullet
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.SHOTGUN)
-        MuzzleFlash(origin)
 
 
 class Heal(Ability):

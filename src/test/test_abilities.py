@@ -1,9 +1,10 @@
 import unittest
 import model
-from abilities import FirePistol, FireShotgun, Heal
+from abilities import Heal
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from weapons import Projectile, MuzzleFlash
+from projectiles import Projectile
+from items.bullet_weapons import MuzzleFlash, FirePistol, FireShotgun
 from src.test.testing_utilities import make_player
 
 

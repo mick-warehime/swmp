@@ -1,12 +1,14 @@
 import unittest
 from pygame.math import Vector2
 import model
-from mods import Mod, PistolObject
+from mods import Mod, Proficiencies, Buffs
+from items.bullet_weapons import PistolMod, PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 
 # needs to be here to prevent screen from loading
 import src.test.dummy_audio_video
+
 
 def setUpModule() -> None:
     initialize_pygame()
@@ -52,6 +54,16 @@ class ModTest(unittest.TestCase):
 
         self.assertEqual(original_center_y, min_center_y)
         self.assertEqual(-original_center_y, max_center_y)
+
+    def test_mod_str_output(self) -> None:
+        pistol_mod = PistolMod()
+
+        self.assertEqual(pistol_mod.description, 'Pistol')
+        self.assertEqual(str(pistol_mod), 'Pistol')
+
+        nice_mod = PistolMod([Buffs.DAMAGE], [Proficiencies.STEALTH])
+        self.assertIn('damage', str(nice_mod))
+        self.assertIn('stealth', str(nice_mod))
 
 
 if __name__ == '__main__':

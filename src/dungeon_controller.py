@@ -20,7 +20,7 @@ from items.item_manager import ItemManager
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Waypoint, Group, ConflictGroups
 from mods import ItemObject
-from weapons import Projectile
+from projectiles import Projectile
 
 
 class DungeonController(controller.Controller):
