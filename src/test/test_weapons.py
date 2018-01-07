@@ -1,9 +1,9 @@
 import unittest
 from pygame.math import Vector2
 
-import images
 import model
 from abilities import ProjectileAbilityData, FireProjectile
+from images import LITTLE_BULLET
 from projectiles import ProjectileData
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -21,7 +21,7 @@ class WeaponsTest(unittest.TestCase):
     bullet_data = ProjectileData(hits_player=False, damage=25,
                                  speed=500,
                                  max_lifetime=500,
-                                 image_file=images.LITTLE_BULLET)
+                                 image_file=LITTLE_BULLET)
 
     def tearDown(self) -> None:
         self.groups.empty()
