@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 import images
 import sounds
-from abilities import FireProjectile, Ability
+from abilities import FireProjectileBase, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from tilemap import ObjectType
 from projectiles import ProjectileData, ProjectileFactory
@@ -27,7 +27,7 @@ class RockObject(ItemObject):
         return pg.transform.scale(image, self.rock_size)
 
 
-class ThrowRock(FireProjectile):
+class ThrowRock(FireProjectileBase):
     _kickback = 0
     _cool_down_time = 500
     _spread = 10

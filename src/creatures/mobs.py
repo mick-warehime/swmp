@@ -9,7 +9,7 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import FireProjectile, Ability
+from abilities import FireProjectileBase, Ability
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from mods import Mod, ModLocation, Buffs, Proficiencies
@@ -140,7 +140,7 @@ class Mob(Humanoid):
         return col
 
 
-class SpewVomit(FireProjectile):
+class SpewVomit(FireProjectileBase):
     _kickback = 0
     _cool_down_time = 250
     _spread = 5

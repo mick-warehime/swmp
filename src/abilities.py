@@ -8,7 +8,7 @@ from pygame.math import Vector2
 
 import sounds
 from model import Timer, EnergySource
-from projectiles import ProjectileData
+from projectiles import ProjectileData, ProjectileFactory
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -16,7 +16,7 @@ def initialize_classes(timer: Timer) -> None:
 
 
 class Ability(object):
-    _cool_down_time: Union[int, None] = None
+    _cool_down_time: int = None
     _timer: Union[None, Timer] = None
     class_initialized = False
 
@@ -54,22 +54,6 @@ class Ability(object):
         if not cls.class_initialized:
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
-
-
-@attr.s
-class AbilityData(object):
-    cool_down_time: int = attr.ib()
-    energy_required: int = attr.ib(default=0)
-    heal_amount: int = attr.ib(default=0)
-    projectile_ability_data: ProjectileAbilityData = attr.ib(default=None)
-
-
-@attr.s
-class ProjectileAbilityData(object):
-    projectile_data: ProjectileData = attr.ib()
-    projectile_count: int = attr.ib(default=1)
-    kickback: int = attr.ib(default=0)
-    spread: int = attr.ib(default=0)
 
 
 class EnergyAbility(Ability):
@@ -111,7 +95,7 @@ class EnergyAbility(Ability):
         return self._base_ability.cooldown_fraction
 
 
-class FireProjectile(Ability):
+class FireProjectileBase(Ability):
     _kickback: Union[int, None] = None
     _spread: Union[int, None] = None
     _projectile_count: Union[None, int] = None
@@ -137,6 +121,49 @@ class FireProjectile(Ability):
         """Other effects that happen when used, such as making a sound or a
         muzzle flash."""
         raise NotImplementedError
+
+
+@attr.s
+class ProjectileAbilityData(object):
+    projectile_data: ProjectileData = attr.ib()
+    cool_down_time: int = attr.ib()
+    projectile_count: int = attr.ib(default=1)
+    kickback: int = attr.ib(default=0)
+    spread: int = attr.ib(default=0)
+    fire_effect: Callable[[Vector2], None] = attr.ib(default=None)
+
+
+# @attr.s
+# class AbilityData(object):
+#     cool_down_time: int = attr.ib()
+#     # heal_amount: int = attr.ib(default=0)
+#     projectile_ability_data: ProjectileAbilityData = attr.ib(default=None)
+#     # energy_required: int = attr.ib(default=0)
+
+
+# class DataAbility(Ability):
+#     def __init__(self, data: AbilityData):
+#         super().__init__()
+#         self._cool_down_time = data.cool_down_time
+#
+#     def use(self, humanoid: Any) -> None:
+#         pass
+
+
+class FireProjectile(FireProjectileBase):
+    def __init__(self, data: ProjectileAbilityData) -> None:
+        self._cool_down_time = data.cool_down_time
+        super().__init__()
+        self._kickback = data.kickback
+        self._spread = data.spread
+        self._projectile_count = data.projectile_count
+
+        factory = ProjectileFactory(data.projectile_data)
+        self._make_projectile = factory.build_projectile
+        self._fire_effect_fun = data.fire_effect
+
+    def _fire_effects(self, origin: Vector2) -> None:
+        self._fire_effect_fun(origin)
 
 
 class Heal(Ability):

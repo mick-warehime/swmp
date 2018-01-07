@@ -7,13 +7,13 @@ from pygame.surface import Surface
 
 import images
 import sounds
-from abilities import FireProjectile, Ability, EnergyAbility
+from abilities import FireProjectileBase, Ability, EnergyAbility
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
 from projectiles import ProjectileData, ProjectileFactory
 
 
-class ShootLaser(FireProjectile):
+class ShootLaser(FireProjectileBase):
     _kickback = 0
     _cool_down_time = 500
     _spread = 2
