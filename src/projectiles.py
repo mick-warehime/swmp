@@ -70,14 +70,14 @@ class Projectile(DynamicObject):
 # https://glyph.twistedmatrix.com/2016/08/attrs.html
 @attr.s
 class ProjectileData(object):
-    hits_player = attr.ib(type=bool)
-    damage = attr.ib(type=int)
-    speed = attr.ib(type=int)
-    max_lifetime = attr.ib(type=int)
-    image_file = attr.ib(type=str)
-    angled_image = attr.ib(default=False, type=bool)
-    rotating_image = attr.ib(default=False, type=bool)
-    drops_on_kill = attr.ib(default=None, type=Callable)
+    hits_player: bool = attr.ib()
+    damage: int = attr.ib()
+    speed: int = attr.ib()
+    max_lifetime: int = attr.ib()
+    image_file: str = attr.ib()
+    angled_image: bool = attr.ib(default=False)
+    rotating_image: bool = attr.ib(default=False)
+    drops_on_kill: Callable = attr.ib(default=None)
 
 
 class SimpleProjectile(Projectile):
