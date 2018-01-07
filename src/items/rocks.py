@@ -4,13 +4,12 @@ from typing import List
 import pygame as pg
 from pygame.math import Vector2
 
-from abilities import FireProjectileBase, Ability, ProjectileAbilityData, \
-    FireProjectile
+from abilities import Ability, ProjectileAbilityData, FireProjectile
 import images
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
 from sounds import fire_weapon_sound
 from tilemap import ObjectType
-from projectiles import ProjectileData, ProjectileFactory
+from projectiles import ProjectileData
 
 
 class RockObject(ItemObject):
@@ -28,10 +27,8 @@ class RockObject(ItemObject):
         return pg.transform.scale(image, self.rock_size)
 
 
-# TODO(dvirk) : uses left no longer incremented!
 def throw_rock_effect(origin: Vector2) -> None:
     fire_weapon_sound(ObjectType.ROCK)
-    # self.uses_left -= 1
 
 
 class RockMod(Mod):
@@ -48,10 +45,9 @@ class RockMod(Mod):
                                          rotating_image=True,
                                          drops_on_kill=RockObject)
         ability_data = ProjectileAbilityData(projectile_data,
-                                             cool_down_time=500,
-                                             projectile_count=1,
-                                             kickback=0, spread=2,
-                                             fire_effect=throw_rock_effect)
+                                             cool_down_time=500, spread=2,
+                                             fire_effect=throw_rock_effect,
+                                             finite_uses=True, uses_left=1)
 
         self._ability = FireProjectile(ability_data)
 
@@ -59,16 +55,13 @@ class RockMod(Mod):
     def ability(self) -> Ability:
         return self._ability
 
-    # TODO (dvirk): change back when uses_left is implemented
     @property
     def expended(self) -> bool:
-        return False
-        # return self._ability.uses_left <= 0
+        return self._ability.uses_left <= 0
 
-    # TODO (dvirk): change back to True
     @property
     def stackable(self) -> bool:
-        return False
+        return True
 
     @property
     def description(self) -> str:

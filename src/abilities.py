@@ -10,6 +10,8 @@ import sounds
 from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
+EffectFun = Callable[[Vector2], None]
+
 
 def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
@@ -122,15 +124,20 @@ class FireProjectileBase(Ability):
         self._fire_effect_fun(origin)
 
 
+def null_effect(origin: Vector2) -> None:
+    pass
+
+
 @attr.s
 class ProjectileAbilityData(object):
     projectile_data: ProjectileData = attr.ib()
     cool_down_time: int = attr.ib()
-    projectile_count: int = attr.ib(default=1)
     kickback: int = attr.ib(default=0)
     spread: int = attr.ib(default=0)
-    fire_effect: Callable[[Vector2], None] = attr.ib(default=None)
+    projectile_count: int = attr.ib(default=1)
+    fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
     finite_uses: bool = attr.ib(default=False)
+    uses_left: int = attr.ib(default=0)
 
 
 # @attr.s
@@ -149,6 +156,16 @@ class ProjectileAbilityData(object):
 #     def use(self, humanoid: Any) -> None:
 #         pass
 
+def combine_effect_funs(first_fun: EffectFun,
+                        second_fun: EffectFun) -> EffectFun:
+    """Return an EffectFun that calls two EffectFuns."""
+
+    def combined_fun(origin: Vector2) -> None:
+        first_fun(origin)
+        second_fun(origin)
+
+    return combined_fun
+
 
 class FireProjectile(FireProjectileBase):
     def __init__(self, data: ProjectileAbilityData) -> None:
@@ -161,6 +178,14 @@ class FireProjectile(FireProjectileBase):
         factory = ProjectileFactory(data.projectile_data)
         self._make_projectile = factory.build_projectile
         self._fire_effect_fun = data.fire_effect
+
+        if data.finite_uses:
+            self.uses_left = data.uses_left
+            self._fire_effect_fun = combine_effect_funs(data.fire_effect,
+                                                        self.decrement_uses)
+
+    def decrement_uses(self, origin: Vector2) -> None:
+        self.uses_left -= 1
 
 
 class Heal(Ability):
