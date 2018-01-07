@@ -33,8 +33,6 @@ class ThrowRock(FireProjectile):
     _spread = 10
     _projectile_count = 1
 
-    # TODO(dvirk): Add rotate_image decorator, and drop_on_hit decorator,
-    # and angled_image decorator.
     _data = ProjectileData(hits_player=False, damage=25, speed=250,
                            max_lifetime=800, image_file=images.LITTLE_ROCK,
                            rotating_image=True, drops_on_kill=RockObject)
