@@ -282,13 +282,18 @@ class EnergySource(object):
     def energy_available(self) -> float:
         return self._current_energy
 
+    @property
+    def max_energy(self):
+        return self._max_energy
+
+    def increment_energy(self, amount: float) -> None:
+        self._current_energy += amount
+        self._current_energy = max(self._current_energy, 0)
+        self._current_energy = min(self._current_energy, self.max_energy)
+
     def expend_energy(self, amount: float) -> None:
         assert amount <= self.energy_available
         self._current_energy -= amount
 
     def passive_recharge(self, dt: float) -> None:
-        if self._current_energy == self._max_energy:
-            return
-
-        self._current_energy += dt * self._recharge_rate
-        self._current_energy = min(self._current_energy, self._max_energy)
+        self.increment_energy(dt * self._recharge_rate)
