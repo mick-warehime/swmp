@@ -29,7 +29,6 @@ class Heal(Ability):
 
     def _heal(self, humanoid: Any) -> None:
         if humanoid.damaged:
-            self._update_last_use()
             self.uses_left -= 1
             sounds.play(sounds.HEALTH_UP)
             humanoid.increment_health(self._heal_amount)

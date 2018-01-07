@@ -54,6 +54,7 @@ class Ability(object):
 
     def use(self, humanoid: Any) -> None:
         self._use_fun(humanoid)
+        self._update_last_use()
 
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
@@ -120,7 +121,6 @@ class FireProjectileBase(Ability):
         self._use_fun = self._fire_projectile
 
     def _fire_projectile(self, humanoid: Any) -> None:
-        self._update_last_use()
         pos = humanoid.pos
         rot = humanoid.rot
 
