@@ -8,7 +8,6 @@ from pygame.math import Vector2
 from abilities import Ability
 from model import DynamicObject
 
-HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 1
 BOB_SPEED = 0.3
 BOB_PERIOD = 10

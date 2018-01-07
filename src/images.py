@@ -8,27 +8,29 @@ BULLET_IMG = 'bullet.png'
 MOB_IMG = 'zombie1_hold.png'
 QMOB_IMG = 'zombie_red.png'
 ROCK = 'rock.png'
-SPLAT = 'splat green.png'
-MUZZLE_FLASH1 = 'whitePuff15.png'
-MUZZLE_FLASH2 = 'whitePuff16.png'
-MUZZLE_FLASH3 = 'whitePuff17.png'
-MUZZLE_FLASH4 = 'whitePuff18.png'
+ENERGY_PACK = 'energy_pack.png'
+HEALTH_PACK = 'health_pack.png'
 LASER_BOLT = 'laser_blue.png'
 LASER_GUN = 'laser_gun.png'
 LIGHT_MASK = "light_350_soft.png"
 LITTLE_BULLET = 'little_bullet.png'
 LITTLE_ROCK = 'little_rock.png'
 LITTLE_LASER = 'little_laser.png'
-HEALTH_PACK = 'health_pack.png'
+LIGHTNING = 'lightning.png'
+MUZZLE_FLASH1 = 'whitePuff15.png'
+MUZZLE_FLASH2 = 'whitePuff16.png'
+MUZZLE_FLASH3 = 'whitePuff17.png'
+MUZZLE_FLASH4 = 'whitePuff18.png'
 SHOTGUN = 'obj_shotgun.png'
 PISTOL = 'obj_pistol.png'
 SHOTGUN_MOD = 'mod_shotgun.png'
+SPLAT = 'splat green.png'
 PISTOL_MOD = 'mod_pistol.png'
 VOMIT = 'vomit.png'
 WAYPOINT_IMG = 'waypoint.png'
 
-ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT,
-              MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3,
+ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT, LIGHTNING,
+              MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3, ENERGY_PACK,
               MUZZLE_FLASH4, LASER_BOLT, LASER_GUN, LIGHT_MASK, LITTLE_BULLET,
               LITTLE_LASER, LITTLE_ROCK, HEALTH_PACK, ROCK, SHOTGUN,
               SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG, VOMIT, WAYPOINT_IMG]
