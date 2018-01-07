@@ -3,9 +3,7 @@ from typing import List
 from pygame import transform
 
 from pygame.math import Vector2
-from pygame.rect import Rect
 from pygame.surface import Surface
-from pygame.transform import rotate, scale
 
 import images
 import sounds

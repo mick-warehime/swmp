@@ -1,16 +1,14 @@
-from collections import namedtuple, Callable
+from collections import Callable
 from random import uniform
 
 import pygame as pg
 from pygame.math import Vector2
 
 import attr
-from pygame.sprite import Sprite
 from pygame.transform import rotate
 
 import images
 from model import DynamicObject
-from mods import ItemObject
 
 
 class Projectile(DynamicObject):
@@ -68,6 +66,8 @@ class Projectile(DynamicObject):
         raise NotImplementedError
 
 
+# For justification of this library see
+# https://glyph.twistedmatrix.com/2016/08/attrs.html
 @attr.s
 class ProjectileData(object):
     hits_player = attr.ib(type=bool)
@@ -113,13 +113,13 @@ class FancyProjectile(SimpleProjectile):
 
         super().__init__(pos, direction, data)
 
-    def _init_kill_method(self, constructor):
+    def _init_kill_method(self, constructor: Callable) -> None:
         if constructor is not None:
             self._kill_method = constructor
         else:
             self._kill_method = lambda x: None
 
-    def _init_image(self, data, direction):
+    def _init_image(self, data: ProjectileData, direction: Vector2) -> None:
         self._base_image = images.get_image(data.image_file)
         if data.angled_image:
             angle = direction.angle_to(Vector2(0, 0))
@@ -134,10 +134,10 @@ class FancyProjectile(SimpleProjectile):
         return pg.transform.rotate(image, angle)
 
     @property
-    def image(self):
+    def image(self) -> pg.Surface:
         return self._process_image(self._base_image)
 
-    def kill(self):
+    def kill(self) -> None:
         super().kill()
         self._kill_method(self.pos)
 

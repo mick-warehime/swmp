@@ -31,7 +31,7 @@ class Groups(_GroupsBase):
         self.items.empty()
         self.enemy_projectiles.empty()
 
-    def which_in(self, sprite: Sprite) -> Tuple[Group]:
+    def which_in(self, sprite: Sprite) -> Tuple[Group, ...]:
         my_groups = (getattr(self, name) for name in self._fields)
         return tuple(grp for grp in my_groups if sprite in grp)
 

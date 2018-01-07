@@ -13,7 +13,7 @@ from abilities import FireProjectile, Ability
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from mods import Mod, ModLocation, Buffs, Proficiencies
-from projectiles import Projectile, ProjectileFactory, ProjectileData
+from projectiles import ProjectileFactory, ProjectileData
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)

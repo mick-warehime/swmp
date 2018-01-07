@@ -16,10 +16,10 @@ class ModelTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
 
-    def tearDown(self):
+    def tearDown(self)->None:
         self.groups.empty()
 
-    def test_groups_which_in(self):
+    def test_groups_which_in(self) -> None:
         groups = self.groups
         groups_added = [self.groups.bullets, self.groups.mobs]
 
