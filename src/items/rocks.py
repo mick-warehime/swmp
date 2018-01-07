@@ -4,10 +4,11 @@ from typing import List
 import pygame as pg
 from pygame.math import Vector2
 
+from abilities import FireProjectileBase, Ability, ProjectileAbilityData, \
+    FireProjectile
 import images
-import sounds
-from abilities import FireProjectileBase, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
+from sounds import fire_weapon_sound
 from tilemap import ObjectType
 from projectiles import ProjectileData, ProjectileFactory
 
@@ -27,25 +28,10 @@ class RockObject(ItemObject):
         return pg.transform.scale(image, self.rock_size)
 
 
-class ThrowRock(FireProjectileBase):
-    _kickback = 0
-    _cool_down_time = 500
-    _spread = 10
-    _projectile_count = 1
-
-    _data = ProjectileData(hits_player=False, damage=25, speed=250,
-                           max_lifetime=800, image_file=images.LITTLE_ROCK,
-                           rotating_image=True, drops_on_kill=RockObject)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.uses_left = 1
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.ROCK)
-        self.uses_left -= 1
+# TODO(dvirk) : uses left no longer incremented!
+def throw_rock_effect(origin: Vector2) -> None:
+    fire_weapon_sound(ObjectType.ROCK)
+    # self.uses_left -= 1
 
 
 class RockMod(Mod):
@@ -54,19 +40,35 @@ class RockMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  profs: List[Proficiencies] = None) -> None:
         super().__init__(buffs, profs)
-        self._ability = ThrowRock()
+
+        projectile_data = ProjectileData(hits_player=False, damage=25,
+                                         speed=250,
+                                         max_lifetime=800,
+                                         image_file=images.LITTLE_ROCK,
+                                         rotating_image=True,
+                                         drops_on_kill=RockObject)
+        ability_data = ProjectileAbilityData(projectile_data,
+                                             cool_down_time=500,
+                                             projectile_count=1,
+                                             kickback=0, spread=2,
+                                             fire_effect=throw_rock_effect)
+
+        self._ability = FireProjectile(ability_data)
 
     @property
     def ability(self) -> Ability:
         return self._ability
 
+    # TODO (dvirk): change back when uses_left is implemented
     @property
     def expended(self) -> bool:
-        return self._ability.uses_left <= 0
+        return False
+        # return self._ability.uses_left <= 0
 
+    # TODO (dvirk): change back to True
     @property
     def stackable(self) -> bool:
-        return True
+        return False
 
     @property
     def description(self) -> str:
