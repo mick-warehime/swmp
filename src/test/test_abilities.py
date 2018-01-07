@@ -165,7 +165,6 @@ class AbilitiesTest(unittest.TestCase):
         starting_energy = source.max_energy
         energy_expended = 20
 
-
         source.expend_energy(energy_expended)
         self.assertEqual(source.energy_available,
                          starting_energy - energy_expended)
