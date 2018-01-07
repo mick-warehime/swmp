@@ -28,25 +28,12 @@ def setUpModule() -> None:
     AbilitiesTest.projectile_data = projectile_data
     AbilitiesTest.projectile_ability_data = ability_data
 
-    data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                   uses_left=1,
-                                   heal_amount=10)
-    AbilitiesTest.heal_ability_data = data
-
-    data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                   uses_left=1,
-                                   recharge_amount=10)
-
-    AbilitiesTest.recharge_ability_data = data
-
 
 class AbilitiesTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
     projectile_data = None
     projectile_ability_data = None
-    heal_ability_data = None
-    recharge_ability_data = None
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -165,3 +152,29 @@ class AbilitiesTest(unittest.TestCase):
         heal.use(player)
         self.assertEqual(player.health, max_health - 2)
         self.assertEqual(heal.uses_left, 2)
+
+    def test_regenerate_player_energy_correct_amount(self):
+        player = make_player()
+        recharge_amount = 15
+        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
+                                       uses_left=2,
+                                       recharge_amount=recharge_amount)
+        recharge = RegenerationAbility(data)
+
+        source = player.energy_source
+        starting_energy = source.max_energy
+        energy_expended = 20
+
+
+        source.expend_energy(energy_expended)
+        self.assertEqual(source.energy_available,
+                         starting_energy - energy_expended)
+
+        recharge.use(player)
+        self.assertEqual(source.energy_available,
+                         starting_energy - energy_expended + recharge_amount)
+        self.assertEqual(recharge.uses_left, 1)
+
+        recharge.use(player)
+        self.assertEqual(source.energy_available, starting_energy)
+        self.assertEqual(recharge.uses_left, 0)
