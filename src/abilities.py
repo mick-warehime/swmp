@@ -16,9 +16,21 @@ def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
 
 
+def null_effect(origin: Vector2) -> None:
+    pass
+
+
+def null_use(humanoid: Any) -> None:
+    raise UserWarning(
+        'Null use function should not be called by Ability. Did you replace '
+        'self._use_fun?')
+    pass
+
+
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
+    _use_fun: Callable[[Any], None] = null_use
     class_initialized = False
 
     def __init__(self) -> None:
@@ -35,20 +47,20 @@ class Ability(object):
         return self._time_since_last_use > self._cool_down_time
 
     @property
-    def _time_since_last_use(self) -> int:
-        return self._timer.current_time - self._last_use
-
-    @property
     def cooldown_fraction(self) -> float:
         fraction = float(self._time_since_last_use) / self._cool_down_time
 
         return min(max(0.0, fraction), 1.0)
 
     def use(self, humanoid: Any) -> None:
-        raise NotImplementedError
+        self._use_fun(humanoid)
 
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
+
+    @property
+    def _time_since_last_use(self) -> int:
+        return self._timer.current_time - self._last_use
 
     @classmethod
     def _check_class_initialized(cls) -> None:
@@ -103,7 +115,11 @@ class FireProjectileBase(Ability):
     _fire_effect_fun: Callable[[Vector2], None] = None
     _make_projectile: Callable[[Vector2, Vector2], None] = None
 
-    def use(self, humanoid: Any) -> None:
+    def __init__(self):
+        super().__init__()
+        self._use_fun = self._fire_projectile
+
+    def _fire_projectile(self, humanoid: Any) -> None:
         self._update_last_use()
         pos = humanoid.pos
         rot = humanoid.rot
@@ -123,15 +139,16 @@ class FireProjectileBase(Ability):
         self._fire_effect_fun(origin)
 
 
-def null_effect(origin: Vector2) -> None:
-    pass
-
-
 @attr.s
 class AbilityData(object):
     cool_down_time: int = attr.ib()
     finite_uses: bool = attr.ib(default=False)
     uses_left: int = attr.ib(default=0)
+
+
+@attr.s
+class RegenerationAbilityData(object):
+    heal_amount: int = attr.ib(default=0)
 
 
 @attr.s
@@ -141,7 +158,6 @@ class ProjectileAbilityData(AbilityData):
     spread: int = attr.ib(default=0)
     projectile_count: int = attr.ib(default=1)
     fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
-
 
 
 # @attr.s
@@ -190,5 +206,3 @@ class FireProjectile(FireProjectileBase):
 
     def decrement_uses(self, origin: Vector2) -> None:
         self.uses_left -= 1
-
-

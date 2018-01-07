@@ -18,6 +18,8 @@ class Heal(Ability):
         super().__init__()
         self.uses_left = num_uses
         self._heal_amount = heal_amount
+        self._use_fun = self._heal
+
 
     @property
     def can_use(self) -> bool:
@@ -25,7 +27,7 @@ class Heal(Ability):
         can_use = can_use and self.uses_left > 0
         return can_use
 
-    def use(self, humanoid: Any) -> None:
+    def _heal(self, humanoid: Any) -> None:
         if humanoid.damaged:
             self._update_last_use()
             self.uses_left -= 1
