@@ -31,8 +31,8 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        ability_data = ProjectileAbilityData(self.bullet_data,
-                                             cool_down_time=900,
+        ability_data = ProjectileAbilityData(900,
+                                             projectile_data=self.bullet_data,
                                              projectile_count=1,
                                              kickback=300, spread=20,
                                              fire_effect=lambda x: None)

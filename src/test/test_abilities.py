@@ -20,8 +20,7 @@ def setUpModule() -> None:
                                      speed=1000,
                                      max_lifetime=400,
                                      image_file=BULLET_IMG)
-    ability_data = ProjectileAbilityData(projectile_data,
-                                         cool_down_time=250,
+    ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
                                          projectile_count=1,
                                          kickback=200, spread=5,
                                          fire_effect= pistol_fire_effect)

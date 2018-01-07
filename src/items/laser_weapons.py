@@ -31,8 +31,7 @@ class LaserMod(Mod):
                                          max_lifetime=1000,
                                          image_file=images.LITTLE_LASER,
                                          angled_image=True)
-        ability_data = ProjectileAbilityData(projectile_data,
-                                             cool_down_time=500,
+        ability_data = ProjectileAbilityData(500,projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=0, spread=2,
                                              fire_effect=laser_pew_sound)

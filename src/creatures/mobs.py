@@ -154,8 +154,7 @@ class VomitMod(Mod):
         projectile_data = ProjectileData(hits_player=True, damage=20, speed=300,
                                          max_lifetime=600,
                                          image_file=images.VOMIT)
-        ability_data = ProjectileAbilityData(projectile_data,
-                                             cool_down_time=250,
+        ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=0, spread=5,
                                              fire_effect=spew_vomit_effect)

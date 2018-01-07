@@ -44,8 +44,7 @@ class RockMod(Mod):
                                          image_file=images.LITTLE_ROCK,
                                          rotating_image=True,
                                          drops_on_kill=RockObject)
-        ability_data = ProjectileAbilityData(projectile_data,
-                                             cool_down_time=500, spread=2,
+        ability_data = ProjectileAbilityData(500,projectile_data=projectile_data, spread=2,
                                              fire_effect=throw_rock_effect,
                                              finite_uses=True, uses_left=1)
 

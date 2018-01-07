@@ -128,15 +128,20 @@ def null_effect(origin: Vector2) -> None:
 
 
 @attr.s
-class ProjectileAbilityData(object):
-    projectile_data: ProjectileData = attr.ib()
+class AbilityData(object):
     cool_down_time: int = attr.ib()
+    finite_uses: bool = attr.ib(default=False)
+    uses_left: int = attr.ib(default=0)
+
+
+@attr.s
+class ProjectileAbilityData(AbilityData):
+    projectile_data: ProjectileData = attr.ib(default=None)
     kickback: int = attr.ib(default=0)
     spread: int = attr.ib(default=0)
     projectile_count: int = attr.ib(default=1)
     fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
+
 
 
 # @attr.s
