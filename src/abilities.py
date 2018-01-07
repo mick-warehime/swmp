@@ -18,21 +18,6 @@ def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
 
 
-def combine_use_funs(fun_0: UseFun, fun_1: UseFun) -> UseFun:
-    assert (fun_0 is not None) or (fun_1 is not None)
-
-    if fun_0 is None:
-        return fun_1
-    elif fun_1 is None:
-        return fun_0
-
-    def combined_fun(humanoid: Any) -> None:
-        fun_0(humanoid)
-        fun_1(humanoid)
-
-    return combined_fun
-
-
 def null_effect(origin: Vector2) -> None:
     pass
 
@@ -66,7 +51,7 @@ class Ability(object):
         self._use_fun(humanoid)
         self._update_last_use()
 
-    def decrement_uses(self, *dummy_args: List[Any]) -> None:
+    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
         self.uses_left -= 1
 
     def _add_use_fun(self, fun: UseFun):
@@ -101,10 +86,6 @@ class EnergyAbility(Ability):
 
     This uses the `decorator' (?) pattern to add an energy requirement to a
     base ability.
-
-    Note: In order for this class to work correctly, the base ability's `use'
-    method must always implement the ability (unlike the Heal ability,
-    which only implements it if the humanoid is damaged).
     """
 
     def __init__(self, base_ability: Ability, energy_required: float) -> None:
@@ -136,16 +117,12 @@ class EnergyAbility(Ability):
 
 
 @attr.s
-class AbilityData(object):
+class RegenerationAbilityData(object):
     cool_down_time: int = attr.ib()
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
-
-
-@attr.s
-class RegenerationAbilityData(AbilityData):
     heal_amount: int = attr.ib(default=0)
     recharge_amount: int = attr.ib(default=0)
+    finite_uses: bool = attr.ib(default=False)
+    uses_left: int = attr.ib(default=0)
 
 
 class RegenerationAbility(Ability):
@@ -166,7 +143,7 @@ class RegenerationAbility(Ability):
 
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self._add_use_fun(self.decrement_uses)
+            self._add_use_fun(self._decrement_uses)
 
     def _heal(self, humanoid: Any) -> None:
         if humanoid.damaged:
@@ -184,12 +161,15 @@ class RegenerationAbility(Ability):
 
 
 @attr.s
-class ProjectileAbilityData(AbilityData):
-    projectile_data: ProjectileData = attr.ib(default=None)
+class ProjectileAbilityData(object):
+    cool_down_time: int = attr.ib()
+    projectile_data: ProjectileData = attr.ib()
     kickback: int = attr.ib(default=0)
     spread: int = attr.ib(default=0)
     projectile_count: int = attr.ib(default=1)
     fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
+    finite_uses: bool = attr.ib(default=False)
+    uses_left: int = attr.ib(default=0)
 
 
 def combine_effect_funs(first_fun: EffectFun,
@@ -248,4 +228,4 @@ class FireProjectile(FireProjectileBase):
 
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self._add_use_fun(self.decrement_uses)
+            self._add_use_fun(self._decrement_uses)
