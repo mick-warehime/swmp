@@ -5,8 +5,7 @@ import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
-import images
-from abilities import Ability, Heal
+from abilities import Ability
 from model import DynamicObject
 
 HEALTH_PACK_AMOUNT = 20
@@ -86,40 +85,6 @@ class Mod(object):
         return output
 
 
-class HealthPackMod(Mod):
-    loc = ModLocation.CHEST
-
-    def __init__(self, buffs: List[Buffs] = None,
-                 perks: List[Proficiencies] = None) -> None:
-        super().__init__(buffs, perks)
-        self._expended = False
-        self._ability = Heal(1, HEALTH_PACK_AMOUNT)
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return self._ability.uses_left <= 0
-
-    @property
-    def stackable(self) -> bool:
-        return True
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.HEALTH_PACK)
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.HEALTH_PACK)
-
-    @property
-    def description(self) -> str:
-        return 'Healthpack'
-
-
 class ItemObject(DynamicObject):
     """A bobbing in-game object that can be picked up."""
 
@@ -168,13 +133,3 @@ class ItemObject(DynamicObject):
         raise NotImplementedError
 
 
-class HealthPackObject(ItemObject):
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        mod = HealthPackMod()
-
-        super().__init__(mod, pos)
-
-    @property
-    def image(self) -> pg.Surface:
-        return images.get_image(images.HEALTH_PACK)

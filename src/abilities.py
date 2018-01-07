@@ -6,7 +6,6 @@ from typing import Union, Callable
 import attr
 from pygame.math import Vector2
 
-import sounds
 from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
@@ -188,24 +187,3 @@ class FireProjectile(FireProjectileBase):
         self.uses_left -= 1
 
 
-class Heal(Ability):
-    """A healing ability with a timed cooldown and finite use count."""
-    _cool_down_time: Union[int, None] = 300
-
-    def __init__(self, num_uses: int, heal_amount: int) -> None:
-        super().__init__()
-        self.uses_left = num_uses
-        self._heal_amount = heal_amount
-
-    @property
-    def can_use(self) -> bool:
-        can_use = super().can_use
-        can_use = can_use and self.uses_left > 0
-        return can_use
-
-    def use(self, humanoid: Any) -> None:
-        if humanoid.damaged:
-            self._update_last_use()
-            self.uses_left -= 1
-            sounds.play(sounds.HEALTH_UP)
-            humanoid.increment_health(self._heal_amount)

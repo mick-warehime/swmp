@@ -1,7 +1,8 @@
 import pygame as pg
 
 from items.laser_weapons import LaserGun
-from mods import HealthPackObject, ItemObject
+from mods import ItemObject
+from items.utility_items import HealthPackObject
 from items.bullet_weapons import PistolObject, ShotgunObject
 from items.rocks import RockObject
 from tilemap import ObjectType

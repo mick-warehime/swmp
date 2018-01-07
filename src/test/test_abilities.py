@@ -2,7 +2,8 @@ import unittest
 from copy import copy
 
 import model
-from abilities import Heal, ProjectileAbilityData, FireProjectile
+from abilities import ProjectileAbilityData, FireProjectile
+from items.utility_items import Heal
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
