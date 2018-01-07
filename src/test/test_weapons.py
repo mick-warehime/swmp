@@ -1,7 +1,10 @@
 import unittest
 from pygame.math import Vector2
+
+import images
 import model
-from items.bullet_weapons import FireShotgun
+from abilities import ProjectileAbilityData, FireProjectile
+from projectiles import ProjectileData
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player
@@ -24,8 +27,17 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        FireShotgun._projectile_count = 1
-        fire_little_bullet = FireShotgun()
+        projectile_data = ProjectileData(hits_player=False, damage=25,
+                                         speed=500,
+                                         max_lifetime=500,
+                                         image_file=images.LITTLE_BULLET)
+        ability_data = ProjectileAbilityData(projectile_data,
+                                             cool_down_time=900,
+                                             projectile_count=1,
+                                             kickback=300, spread=20,
+                                             fire_effect=lambda x: None)
+
+        fire_little_bullet = FireProjectile(ability_data)
 
         fire_little_bullet.use(player)
 
@@ -39,7 +51,13 @@ class WeaponsTest(unittest.TestCase):
         one_disp = (bullet.pos - first_pos).length()
 
         many = 10
-        FireShotgun._projectile_count = many
+        ability_data = ProjectileAbilityData(projectile_data,
+                                             cool_down_time=900,
+                                             projectile_count=many,
+                                             kickback=300, spread=20,
+                                             fire_effect=lambda x: None)
+        fire_little_bullet = FireProjectile(ability_data)
+
         self.groups.bullets.empty()
         fire_little_bullet.use(player)
         self.assertEqual(len(self.groups.bullets), many)
