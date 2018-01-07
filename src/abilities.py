@@ -96,10 +96,11 @@ class EnergyAbility(Ability):
 
 
 class FireProjectileBase(Ability):
-    _kickback: Union[int, None] = None
-    _spread: Union[int, None] = None
-    _projectile_count: Union[None, int] = None
-    _make_projectile: Union[None, Callable] = None
+    _kickback: int = None
+    _spread: int = None
+    _projectile_count: int = None
+    _fire_effect_fun: Callable[[Vector2], None] = None
+    _make_projectile: Callable[[Vector2, Vector2], None] = None
 
     def use(self, humanoid: Any) -> None:
         self._update_last_use()
@@ -118,9 +119,7 @@ class FireProjectileBase(Ability):
         self._fire_effects(origin)
 
     def _fire_effects(self, origin: Vector2) -> None:
-        """Other effects that happen when used, such as making a sound or a
-        muzzle flash."""
-        raise NotImplementedError
+        self._fire_effect_fun(origin)
 
 
 @attr.s
@@ -131,6 +130,7 @@ class ProjectileAbilityData(object):
     kickback: int = attr.ib(default=0)
     spread: int = attr.ib(default=0)
     fire_effect: Callable[[Vector2], None] = attr.ib(default=None)
+    finite_uses: bool = attr.ib(default=False)
 
 
 # @attr.s
@@ -161,9 +161,6 @@ class FireProjectile(FireProjectileBase):
         factory = ProjectileFactory(data.projectile_data)
         self._make_projectile = factory.build_projectile
         self._fire_effect_fun = data.fire_effect
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        self._fire_effect_fun(origin)
 
 
 class Heal(Ability):
