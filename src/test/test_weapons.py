@@ -18,6 +18,10 @@ def setUpModule() -> None:
 class WeaponsTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
+    bullet_data = ProjectileData(hits_player=False, damage=25,
+                                 speed=500,
+                                 max_lifetime=500,
+                                 image_file=images.LITTLE_BULLET)
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -27,11 +31,7 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        projectile_data = ProjectileData(hits_player=False, damage=25,
-                                         speed=500,
-                                         max_lifetime=500,
-                                         image_file=images.LITTLE_BULLET)
-        ability_data = ProjectileAbilityData(projectile_data,
+        ability_data = ProjectileAbilityData(self.bullet_data,
                                              cool_down_time=900,
                                              projectile_count=1,
                                              kickback=300, spread=20,
@@ -51,11 +51,7 @@ class WeaponsTest(unittest.TestCase):
         one_disp = (bullet.pos - first_pos).length()
 
         many = 10
-        ability_data = ProjectileAbilityData(projectile_data,
-                                             cool_down_time=900,
-                                             projectile_count=many,
-                                             kickback=300, spread=20,
-                                             fire_effect=lambda x: None)
+        ability_data.projectile_count = many
         fire_little_bullet = FireProjectile(ability_data)
 
         self.groups.bullets.empty()
