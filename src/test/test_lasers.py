@@ -24,8 +24,7 @@ def setUpModule() -> None:
                                      angled_image=True)
     ability_data = ProjectileAbilityData(500, projectile_data=projectile_data,
                                          projectile_count=1,
-                                         kickback=0, spread=2,
-                                         fire_effect=lambda x: None)
+                                         kickback=0, spread=2)
     LaserTest.laser_ability = FireProjectile(ability_data)
 
 

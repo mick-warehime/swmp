@@ -10,8 +10,8 @@ import sounds
 from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
-EffectFun = Callable[[Vector2], None]
 UseFun = Callable[[Any], None]
+EffectFun = Callable[[Vector2], None]
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -20,6 +20,9 @@ def initialize_classes(timer: Timer) -> None:
 
 def null_effect(origin: Vector2) -> None:
     pass
+
+
+INFINITE_USES = -1000
 
 
 class Ability(object):
@@ -31,6 +34,7 @@ class Ability(object):
         self._check_class_initialized()
         self._update_last_use()
         self._use_funs: List[Callable[[Any], None]] = []
+        self._uses_left = INFINITE_USES
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
@@ -52,10 +56,7 @@ class Ability(object):
             use_fun(humanoid)
         self._update_last_use()
 
-    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
-        self.uses_left -= 1
-
-    def _add_use_fun(self, fun: UseFun):
+    def _add_use_fun(self, fun: UseFun) -> None:
         self._use_funs.append(fun)
 
     def _update_last_use(self) -> None:
@@ -70,6 +71,14 @@ class Ability(object):
         if not cls.class_initialized:
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
+
+    @property
+    def uses_left(self) -> int:
+        return self._uses_left
+
+    @uses_left.setter
+    def uses_left(self, amnt: int) -> None:
+        self._uses_left = amnt
 
 
 class EnergyAbility(Ability):
@@ -108,10 +117,14 @@ class EnergyAbility(Ability):
         return self._base_ability.cooldown_fraction
 
     @property
-    def uses_left(self):
-        assert hasattr(self._base_ability, 'uses_left'), \
-            'Ability %s is not finite use.' % (self._base_ability,)
+    def uses_left(self) -> int:
+        assert self.uses_left != INFINITE_USES, 'Ability %s is not finite ' \
+                                                'use.' % (self._base_ability,)
         return self._base_ability.uses_left
+
+    @uses_left.setter
+    def uses_left(self, amount: int) -> None:
+        self._base_ability.uses_left = amount
 
 
 @attr.s
@@ -124,7 +137,7 @@ class RegenerationAbilityData(object):
 
 
 class RegenerationAbility(Ability):
-    def __init__(self, data: RegenerationAbilityData):
+    def __init__(self, data: RegenerationAbilityData) -> None:
         super().__init__()
         self._cool_down_time = data.cool_down_time
 
@@ -147,7 +160,7 @@ class RegenerationAbility(Ability):
     def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
 
         if self._just_used:
-            self._decrement_uses(*dummy_args)
+            self.uses_left -= 1
             self._just_used = False
 
     def _heal(self, humanoid: Any) -> None:
@@ -173,7 +186,7 @@ class ProjectileAbilityData(object):
     kickback: int = attr.ib(default=0)
     spread: int = attr.ib(default=0)
     projectile_count: int = attr.ib(default=1)
-    fire_effect: Callable[[Vector2], None] = attr.ib(default=null_effect)
+    fire_effects: List[EffectFun] = attr.ib(default=[])
     finite_uses: bool = attr.ib(default=False)
     uses_left: int = attr.ib(default=0)
 
@@ -182,12 +195,18 @@ class FireProjectileBase(Ability):
     _kickback: int = None
     _spread: int = None
     _projectile_count: int = None
-    _fire_effect_fun: Callable[[Vector2], None] = None
-    _make_projectile: Callable[[Vector2, Vector2], None] = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._add_use_fun(self._fire_projectile)
+        self._make_projectile = self._undefined_build
+        self._effect_funs: List[EffectFun] = []
+
+    def add_fire_effects(self, funs: List[EffectFun]) -> None:
+        self._effect_funs += funs
+
+    def _undefined_build(self, pos: Vector2, dir: Vector2) -> None:
+        raise NotImplementedError('self._make_projectile not defined.')
 
     def _fire_projectile(self, humanoid: Any) -> None:
         pos = humanoid.pos
@@ -205,7 +224,8 @@ class FireProjectileBase(Ability):
         self._fire_effects(origin)
 
     def _fire_effects(self, origin: Vector2) -> None:
-        self._fire_effect_fun(origin)
+        for fun in self._effect_funs:
+            fun(origin)
 
 
 class FireProjectile(FireProjectileBase):
@@ -217,9 +237,13 @@ class FireProjectile(FireProjectileBase):
         self._projectile_count = data.projectile_count
 
         factory = ProjectileFactory(data.projectile_data)
-        self._make_projectile = factory.build_projectile
-        self._fire_effect_fun = data.fire_effect
+        self._make_projectile: Callable[[Vector2, Vector2], None] = \
+            factory.build_projectile
+        self.add_fire_effects(data.fire_effects)
 
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses)
+
+    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
+        self.uses_left -= 1

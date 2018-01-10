@@ -23,7 +23,7 @@ def setUpModule() -> None:
     ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
                                          projectile_count=1,
                                          kickback=200, spread=5,
-                                         fire_effect=pistol_fire_effect)
+                                         fire_effects=[pistol_fire_effect])
 
     AbilitiesTest.projectile_data = projectile_data
     AbilitiesTest.projectile_ability_data = ability_data
@@ -103,7 +103,7 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_fire_many_bullets(self) -> None:
         player = make_player()
-        ability_data = copy(self.projectile_ability_data)
+        ability_data = copy(self.projectile_ability_data)  # type: ignore
         projectile_count = 15
         ability_data.projectile_count = projectile_count
         fire_many = FireProjectile(ability_data)
@@ -152,7 +152,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(player.health, max_health - 2)
         self.assertEqual(heal.uses_left, 2)
 
-    def test_regenerate_player_energy_correct_amount(self):
+    def test_regenerate_player_energy_correct_amount(self) -> None:
         player = make_player()
         recharge_amount = 15
         data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,

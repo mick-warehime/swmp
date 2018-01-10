@@ -283,7 +283,7 @@ class EnergySource(object):
         return self._current_energy
 
     @property
-    def max_energy(self):
+    def max_energy(self) -> float:
         return self._max_energy
 
     def increment_energy(self, amount: float) -> None:

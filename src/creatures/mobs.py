@@ -151,13 +151,15 @@ class VomitMod(Mod):
                  perks: List[Proficiencies] = None) -> None:
         super().__init__(buffs, perks)
 
-        projectile_data = ProjectileData(hits_player=True, damage=20, speed=300,
+        projectile_data = ProjectileData(hits_player=True, damage=20,
+                                         speed=300,
                                          max_lifetime=600,
                                          image_file=images.VOMIT)
-        ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
+        ability_data = ProjectileAbilityData(250,
+                                             projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=0, spread=5,
-                                             fire_effect=spew_vomit_effect)
+                                             fire_effects=[spew_vomit_effect])
 
         self._ability = FireProjectile(ability_data)
 

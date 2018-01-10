@@ -34,8 +34,7 @@ class WeaponsTest(unittest.TestCase):
         ability_data = ProjectileAbilityData(900,
                                              projectile_data=self.bullet_data,
                                              projectile_count=1,
-                                             kickback=300, spread=20,
-                                             fire_effect=lambda x: None)
+                                             kickback=300, spread=20)
 
         fire_little_bullet = FireProjectile(ability_data)
 

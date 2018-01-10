@@ -58,10 +58,11 @@ class ShotgunMod(Mod):
                                          speed=500,
                                          max_lifetime=500,
                                          image_file=images.LITTLE_BULLET)
-        ability_data = ProjectileAbilityData(900, projectile_data=projectile_data,
+        ability_data = ProjectileAbilityData(900,
+                                             projectile_data=projectile_data,
                                              projectile_count=12,
                                              kickback=300, spread=20,
-                                             fire_effect=pistol_fire_effect)
+                                             fire_effects=[pistol_fire_effect])
 
         self._ability = FireProjectile(ability_data)
 
@@ -101,10 +102,11 @@ class PistolMod(Mod):
                                          speed=1000,
                                          max_lifetime=400,
                                          image_file=images.BULLET_IMG)
-        ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
+        ability_data = ProjectileAbilityData(250,
+                                             projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=200, spread=5,
-                                             fire_effect=pistol_fire_effect)
+                                             fire_effects=[pistol_fire_effect])
 
         self._ability = FireProjectile(ability_data)
 

@@ -130,5 +130,3 @@ class ItemObject(DynamicObject):
     @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
-
-
