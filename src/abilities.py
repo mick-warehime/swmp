@@ -82,7 +82,7 @@ class Ability(object):
 
 
 class EnergyAbility(Ability):
-    """Ability that can only activate by expending an energy source.
+    """Ability that can only activate by modifying an energy source's reserves.
 
     This uses the `decorator' (?) pattern to add an energy requirement to a
     base ability.
@@ -104,16 +104,23 @@ class EnergyAbility(Ability):
 
     @property
     def can_use(self) -> bool:
-        if self._energy_source is None:
+        source = self._energy_source
+        if source is None:
             raise RuntimeError('An energy source must be assigned before '
                                '.can_use is defined.')
-        if self.energy_required > self._energy_source.energy_available:
+        if self.energy_required > source.energy_available:
             return False
         return self._base_ability.can_use
 
     @property
     def cooldown_fraction(self) -> float:
         return self._base_ability.cooldown_fraction
+
+    @property
+    def uses_left(self):
+        assert hasattr(self._base_ability, 'uses_left'), \
+            'Ability %s is not finite use.' % (self._base_ability,)
+        return self._base_ability.uses_left
 
 
 @attr.s
@@ -134,6 +141,7 @@ class RegenerationAbility(Ability):
 
         self._heal_amount = data.heal_amount
         self._recharge_amount = data.recharge_amount
+        self._just_used = False
 
         if data.heal_amount > 0:
             self._add_use_fun(self._heal)
@@ -143,21 +151,28 @@ class RegenerationAbility(Ability):
 
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self._add_use_fun(self._decrement_uses)
+            self._add_use_fun(self._decrement_uses_just_used)
+
+    def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
+
+        if self._just_used:
+            self._decrement_uses(*dummy_args)
+            self._just_used = False
 
     def _heal(self, humanoid: Any) -> None:
         if humanoid.damaged:
             sounds.play(sounds.HEALTH_UP)
             humanoid.increment_health(self._heal_amount)
+            self._just_used = True
 
     def _recharge(self, humanoid: Any) -> None:
         assert hasattr(humanoid, 'energy_source'), 'No energy source for %s' \
                                                    % (humanoid,)
         energy_source = humanoid.energy_source
-
         if energy_source.energy_available < energy_source.max_energy:
             energy_source.increment_energy(self._recharge_amount)
             sounds.play(sounds.HEALTH_UP)
+            self._just_used = True
 
 
 @attr.s
