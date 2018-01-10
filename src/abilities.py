@@ -25,12 +25,12 @@ def null_effect(origin: Vector2) -> None:
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
-    _use_fun: Callable[[Any], None] = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
         self._update_last_use()
+        self._use_funs: List[Callable[[Any], None]] = []
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
@@ -48,24 +48,15 @@ class Ability(object):
         return min(max(0.0, fraction), 1.0)
 
     def use(self, humanoid: Any) -> None:
-        self._use_fun(humanoid)
+        for use_fun in self._use_funs:
+            use_fun(humanoid)
         self._update_last_use()
 
     def _decrement_uses(self, *dummy_args: List[Any]) -> None:
         self.uses_left -= 1
 
     def _add_use_fun(self, fun: UseFun):
-        if self._use_fun is None:
-            self._use_fun = fun
-            return
-
-        current_use_fun = self._use_fun
-
-        def combined_fun(humanoid: Any) -> None:
-            current_use_fun(humanoid)
-            fun(humanoid)
-
-        self._use_fun = combined_fun
+        self._use_funs.append(fun)
 
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
@@ -187,17 +178,6 @@ class ProjectileAbilityData(object):
     uses_left: int = attr.ib(default=0)
 
 
-def combine_effect_funs(first_fun: EffectFun,
-                        second_fun: EffectFun) -> EffectFun:
-    """Return an EffectFun that calls two EffectFuns."""
-
-    def combined_fun(origin: Vector2) -> None:
-        first_fun(origin)
-        second_fun(origin)
-
-    return combined_fun
-
-
 class FireProjectileBase(Ability):
     _kickback: int = None
     _spread: int = None
@@ -207,8 +187,7 @@ class FireProjectileBase(Ability):
 
     def __init__(self):
         super().__init__()
-        assert self._use_fun is None
-        self._use_fun = self._fire_projectile
+        self._add_use_fun(self._fire_projectile)
 
     def _fire_projectile(self, humanoid: Any) -> None:
         pos = humanoid.pos
