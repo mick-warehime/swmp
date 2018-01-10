@@ -1,4 +1,4 @@
-from typing import List, Union, Any
+from typing import List
 
 import pygame as pg
 from pygame.math import Vector2

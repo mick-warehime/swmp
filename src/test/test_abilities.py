@@ -124,7 +124,6 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(player.health, max_health)
         heal.use(player)
         self.assertEqual(player.health, max_health)
-        # Current implementation uses the health pack anyway.
         self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_to_full(self) -> None:
