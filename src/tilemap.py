@@ -21,10 +21,11 @@ class ObjectType(Enum):
     CONFLICT = 'conflict'
     WAYPOINT = 'waypoint'
     LASER_GUN = 'laser'
+    BATTERY = 'battery'
 
 
 ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
-         ObjectType.ROCK, ObjectType.LASER_GUN)
+         ObjectType.ROCK, ObjectType.LASER_GUN, ObjectType.BATTERY)
 
 
 class MapObject(object):

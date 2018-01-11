@@ -3,9 +3,10 @@ from typing import Tuple
 
 import model
 import mods
-from abilities import EnergyAbility
+from abilities import EnergyAbility, ProjectileAbilityData, FireProjectile
 from creatures.players import Player
-from items.laser_weapons import ShootLaser
+from images import LITTLE_LASER
+from projectiles import ProjectileData
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
@@ -16,17 +17,28 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(LaserTest.groups, LaserTest.timer)
 
+    projectile_data = ProjectileData(hits_player=False, damage=100,
+                                     speed=1000,
+                                     max_lifetime=1000,
+                                     image_file=LITTLE_LASER,
+                                     angled_image=True)
+    ability_data = ProjectileAbilityData(500, projectile_data=projectile_data,
+                                         projectile_count=1,
+                                         kickback=0, spread=2)
+    LaserTest.laser_ability = FireProjectile(ability_data)
+
 
 class LaserTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
+    laser_ability = None
 
     def tearDown(self) -> None:
         self.groups.empty()
         self.timer.reset()
 
     def test_using_energy_ability_without_source_throws_error(self) -> None:
-        ability = EnergyAbility(ShootLaser, 10.0)
+        ability = EnergyAbility(self.laser_ability, 10.0)
 
         expected_regex = 'An energy source must be '
         with self.assertRaisesRegex(RuntimeError, expected_regex):

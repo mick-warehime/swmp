@@ -4,12 +4,12 @@ from typing import List
 import pygame as pg
 from pygame.math import Vector2
 
+from abilities import Ability, ProjectileAbilityData, FireProjectile
 import images
-import sounds
-from abilities import FireProjectile, Ability
 from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies
+from sounds import fire_weapon_sound
 from tilemap import ObjectType
-from projectiles import ProjectileData, ProjectileFactory
+from projectiles import ProjectileData
 
 
 class RockObject(ItemObject):
@@ -27,25 +27,8 @@ class RockObject(ItemObject):
         return pg.transform.scale(image, self.rock_size)
 
 
-class ThrowRock(FireProjectile):
-    _kickback = 0
-    _cool_down_time = 500
-    _spread = 10
-    _projectile_count = 1
-
-    _data = ProjectileData(hits_player=False, damage=25, speed=250,
-                           max_lifetime=800, image_file=images.LITTLE_ROCK,
-                           rotating_image=True, drops_on_kill=RockObject)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.uses_left = 1
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.ROCK)
-        self.uses_left -= 1
+def throw_rock_effect(origin: Vector2) -> None:
+    fire_weapon_sound(ObjectType.ROCK)
 
 
 class RockMod(Mod):
@@ -54,7 +37,20 @@ class RockMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  profs: List[Proficiencies] = None) -> None:
         super().__init__(buffs, profs)
-        self._ability = ThrowRock()
+
+        projectile_data = ProjectileData(hits_player=False, damage=25,
+                                         speed=250,
+                                         max_lifetime=800,
+                                         image_file=images.LITTLE_ROCK,
+                                         rotating_image=True,
+                                         drops_on_kill=RockObject)
+        ability_data = ProjectileAbilityData(500,
+                                             projectile_data=projectile_data,
+                                             spread=2,
+                                             fire_effects=[throw_rock_effect],
+                                             finite_uses=True, uses_left=1)
+
+        self._ability = FireProjectile(ability_data)
 
     @property
     def ability(self) -> Ability:

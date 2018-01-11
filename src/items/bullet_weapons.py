@@ -7,11 +7,11 @@ from pygame.math import Vector2
 import images
 import settings
 import sounds
-from abilities import Ability, FireProjectile
+from abilities import Ability, ProjectileAbilityData, FireProjectile
 from model import DynamicObject
 from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject
 from tilemap import ObjectType
-from projectiles import ProjectileData, ProjectileFactory
+from projectiles import ProjectileData
 
 
 class MuzzleFlash(DynamicObject):
@@ -42,35 +42,9 @@ class MuzzleFlash(DynamicObject):
         return self._rect
 
 
-class FirePistol(FireProjectile):
-    _kickback = 200
-    _cool_down_time = 250
-    _spread = 5
-    _projectile_count = 1
-    _data = ProjectileData(hits_player=False, damage=75, speed=1000,
-                           max_lifetime=400, image_file=images.BULLET_IMG)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.PISTOL)
-        MuzzleFlash(origin)
-
-
-class FireShotgun(FireProjectile):
-    _kickback = 300
-    _cool_down_time = 900
-    _spread = 20
-    _projectile_count = 12
-
-    _data = ProjectileData(hits_player=False, damage=25, speed=500,
-                           max_lifetime=500, image_file=images.LITTLE_BULLET)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.SHOTGUN)
-        MuzzleFlash(origin)
+def pistol_fire_effect(origin: Vector2) -> None:
+    sounds.fire_weapon_sound(ObjectType.PISTOL)
+    MuzzleFlash(origin)
 
 
 class ShotgunMod(Mod):
@@ -79,7 +53,18 @@ class ShotgunMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  perks: List[Proficiencies] = None) -> None:
         super().__init__(buffs, perks)
-        self._ability = FireShotgun()
+
+        projectile_data = ProjectileData(hits_player=False, damage=25,
+                                         speed=500,
+                                         max_lifetime=500,
+                                         image_file=images.LITTLE_BULLET)
+        ability_data = ProjectileAbilityData(900,
+                                             projectile_data=projectile_data,
+                                             projectile_count=12,
+                                             kickback=300, spread=20,
+                                             fire_effects=[pistol_fire_effect])
+
+        self._ability = FireProjectile(ability_data)
 
     @property
     def ability(self) -> Ability:
@@ -112,7 +97,18 @@ class PistolMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  perks: List[Proficiencies] = None) -> None:
         super().__init__(buffs, perks)
-        self._ability = FirePistol()
+
+        projectile_data = ProjectileData(hits_player=False, damage=75,
+                                         speed=1000,
+                                         max_lifetime=400,
+                                         image_file=images.BULLET_IMG)
+        ability_data = ProjectileAbilityData(250,
+                                             projectile_data=projectile_data,
+                                             projectile_count=1,
+                                             kickback=200, spread=5,
+                                             fire_effects=[pistol_fire_effect])
+
+        self._ability = FireProjectile(ability_data)
 
     @property
     def ability(self) -> Ability:

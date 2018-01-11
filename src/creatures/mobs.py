@@ -9,11 +9,11 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import FireProjectile, Ability
+from abilities import Ability, ProjectileAbilityData, FireProjectile
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from mods import Mod, ModLocation, Buffs, Proficiencies
-from projectiles import ProjectileFactory, ProjectileData
+from projectiles import ProjectileData
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -140,18 +140,8 @@ class Mob(Humanoid):
         return col
 
 
-class SpewVomit(FireProjectile):
-    _kickback = 0
-    _cool_down_time = 250
-    _spread = 5
-    _projectile_count = 1
-    _data = ProjectileData(hits_player=True, damage=20, speed=300,
-                           max_lifetime=600, image_file=images.VOMIT)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.spew_vomit_sound()
+def spew_vomit_effect(origin: Vector2) -> None:
+    sounds.spew_vomit_sound()
 
 
 class VomitMod(Mod):
@@ -160,7 +150,18 @@ class VomitMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  perks: List[Proficiencies] = None) -> None:
         super().__init__(buffs, perks)
-        self._ability = SpewVomit()
+
+        projectile_data = ProjectileData(hits_player=True, damage=20,
+                                         speed=300,
+                                         max_lifetime=600,
+                                         image_file=images.VOMIT)
+        ability_data = ProjectileAbilityData(250,
+                                             projectile_data=projectile_data,
+                                             projectile_count=1,
+                                             kickback=0, spread=5,
+                                             fire_effects=[spew_vomit_effect])
+
+        self._ability = FireProjectile(ability_data)
 
     @property
     def ability(self) -> Ability:

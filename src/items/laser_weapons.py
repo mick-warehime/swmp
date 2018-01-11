@@ -7,29 +7,15 @@ from pygame.surface import Surface
 
 import images
 import sounds
-from abilities import FireProjectile, Ability, EnergyAbility
+from abilities import Ability, EnergyAbility, ProjectileAbilityData, \
+    FireProjectile
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
-from projectiles import ProjectileData, ProjectileFactory
+from projectiles import ProjectileData
 
 
-class ShootLaser(FireProjectile):
-    _kickback = 0
-    _cool_down_time = 500
-    _spread = 2
-    _projectile_count = 1
-
-    _data = ProjectileData(hits_player=False, damage=100, speed=1000,
-                           max_lifetime=1000, image_file=images.LITTLE_LASER,
-                           angled_image=True)
-    _factory = ProjectileFactory(_data)
-    _make_projectile = _factory.build_projectile
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        sounds.fire_weapon_sound(ObjectType.LASER_GUN)
+def laser_pew_sound(origin: Vector2) -> None:
+    sounds.fire_weapon_sound(ObjectType.LASER_GUN)
 
 
 class LaserMod(Mod):
@@ -39,7 +25,21 @@ class LaserMod(Mod):
     def __init__(self, buffs: List[Buffs] = None,
                  profs: List[Proficiencies] = None) -> None:
         super().__init__(buffs, profs)
-        self._ability = EnergyAbility(ShootLaser(), self.energy_required)
+
+        projectile_data = ProjectileData(hits_player=False, damage=100,
+                                         speed=1000,
+                                         max_lifetime=1000,
+                                         image_file=images.LITTLE_LASER,
+                                         angled_image=True)
+        ability_data = ProjectileAbilityData(500,
+                                             projectile_data=projectile_data,
+                                             projectile_count=1,
+                                             kickback=0, spread=2,
+                                             fire_effects=[laser_pew_sound])
+
+        base_ability = FireProjectile(ability_data)
+
+        self._ability = EnergyAbility(base_ability, self.energy_required)
 
     @property
     def ability(self) -> Ability:

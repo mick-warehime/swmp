@@ -2,6 +2,7 @@ import unittest
 from pygame.math import Vector2
 
 import items.bullet_weapons
+import items.utility_items
 import model
 import mods
 from items.rocks import RockObject
@@ -92,7 +93,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(hp.mod, active_mods.values())
 
         # health pack fills health back up and is gone from active_mods
-        player.increment_health(-mods.HEALTH_PACK_AMOUNT)
+        player.increment_health(-items.utility_items.HEALTH_PACK_AMOUNT)
         self.assertTrue(player.damaged)
 
         # Ability is only usable after sufficient time has elapsed.
@@ -147,7 +148,7 @@ class ModTest(unittest.TestCase):
     def test_mod_stacking_in_active_mods(self) -> None:
         player = make_player()
         pos = Vector2(0, 0)
-        hp = mods.HealthPackObject(pos)
+        hp = items.utility_items.HealthPackObject(pos)
 
         self.assertNotIn(hp.mod.loc, player.active_mods)
 
@@ -156,11 +157,11 @@ class ModTest(unittest.TestCase):
         self.assertIs(player_mod, hp.mod)
         self.assertEqual(player_mod.ability.uses_left, 1)
 
-        player.attempt_pickup(mods.HealthPackObject(pos))
+        player.attempt_pickup(items.utility_items.HealthPackObject(pos))
         player_mod = player.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 2)
 
-        player.attempt_pickup(mods.HealthPackObject(pos))
+        player.attempt_pickup(items.utility_items.HealthPackObject(pos))
         player_mod = player.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 3)
 
