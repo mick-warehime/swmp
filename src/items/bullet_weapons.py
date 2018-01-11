@@ -42,9 +42,8 @@ class MuzzleFlash(DynamicObject):
         return self._rect
 
 
-def pistol_fire_effect(origin: Vector2) -> None:
+def pistol_fire_sound(origin: Vector2) -> None:
     sounds.fire_weapon_sound(ObjectType.PISTOL)
-    MuzzleFlash(origin)
 
 
 class ShotgunMod(Mod):
@@ -62,7 +61,8 @@ class ShotgunMod(Mod):
                                              projectile_data=projectile_data,
                                              projectile_count=12,
                                              kickback=300, spread=20,
-                                             fire_effects=[pistol_fire_effect])
+                                             fire_effects=[pistol_fire_sound,
+                                                           MuzzleFlash])
 
         self._ability = FireProjectile(ability_data)
 
@@ -106,7 +106,8 @@ class PistolMod(Mod):
                                              projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=200, spread=5,
-                                             fire_effects=[pistol_fire_effect])
+                                             fire_effects=[pistol_fire_sound,
+                                                           MuzzleFlash])
 
         self._ability = FireProjectile(ability_data)
 

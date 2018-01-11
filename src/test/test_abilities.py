@@ -8,7 +8,7 @@ from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from projectiles import Projectile, ProjectileData
-from items.bullet_weapons import MuzzleFlash, pistol_fire_effect
+from items.bullet_weapons import MuzzleFlash, pistol_fire_sound
 from src.test.testing_utilities import make_player
 
 
@@ -23,7 +23,8 @@ def setUpModule() -> None:
     ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
                                          projectile_count=1,
                                          kickback=200, spread=5,
-                                         fire_effects=[pistol_fire_effect])
+                                         fire_effects=[pistol_fire_sound,
+                                                       MuzzleFlash])
 
     AbilitiesTest.projectile_data = projectile_data
     AbilitiesTest.projectile_ability_data = ability_data
