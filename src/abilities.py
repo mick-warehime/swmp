@@ -1,9 +1,9 @@
 """Module for defining Humanoid abilities."""
+
 from random import uniform
 from typing import Any, List
 from typing import Union, Callable
 
-import attr
 from pygame.math import Vector2
 
 import sounds
@@ -127,13 +127,21 @@ class EnergyAbility(Ability):
         self._base_ability.uses_left = amount
 
 
-@attr.s
-class RegenerationAbilityData(object):
-    cool_down_time: int = attr.ib()
-    heal_amount: int = attr.ib(default=0)
-    recharge_amount: int = attr.ib(default=0)
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
+class AbilityData(object):
+    def __init__(self, cool_down_time: int, finite_uses: bool = False,
+                 uses_left: int = 0):
+        self.cool_down_time = cool_down_time
+        self.finite_uses = finite_uses
+        self.uses_left = uses_left
+
+
+class RegenerationAbilityData(AbilityData):
+    def __init__(self, cool_down_time: int, heal_amount: int = 0,
+                 recharge_amount: int = 0, finite_uses: bool = False,
+                 uses_left: int = 0):
+        super().__init__(cool_down_time, finite_uses, uses_left)
+        self.heal_amount = heal_amount
+        self.recharge_amount = recharge_amount
 
 
 class RegenerationAbility(Ability):
@@ -179,16 +187,18 @@ class RegenerationAbility(Ability):
             self._just_used = True
 
 
-@attr.s
-class ProjectileAbilityData(object):
-    cool_down_time: int = attr.ib()
-    projectile_data: ProjectileData = attr.ib()
-    kickback: int = attr.ib(default=0)
-    spread: int = attr.ib(default=0)
-    projectile_count: int = attr.ib(default=1)
-    fire_effects: List[EffectFun] = attr.ib(default=[])
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
+class ProjectileAbilityData(AbilityData):
+    def __init__(self, cool_down_time: int, projectile_data: ProjectileData,
+                 finite_uses: bool = False, uses_left: int = 0,
+                 kickback: int = 0, spread: int = 0,
+                 projectile_count: int = 1,
+                 fire_effects: List[EffectFun] = ()):
+        super().__init__(cool_down_time, finite_uses, uses_left)
+        self.projectile_data = projectile_data
+        self.kickback = kickback
+        self.spread = spread
+        self.projectile_count = projectile_count
+        self.fire_effects = fire_effects
 
 
 class FireProjectileBase(Ability):
