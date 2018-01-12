@@ -78,7 +78,7 @@ class ProjectileData(BaseProjectileData):
     def __new__(cls, hits_player: bool, damage: int, speed: int,
                 max_lifetime: int, image_file: str,
                 angled_image: bool = False, rotating_image: bool = False,
-                drops_on_kill: Callable = None):
+                drops_on_kill: Callable = None) -> BaseProjectileData:
         return super().__new__(cls, hits_player, damage, speed,
                                max_lifetime, image_file, angled_image,
                                rotating_image, drops_on_kill)
