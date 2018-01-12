@@ -66,3 +66,12 @@ class WeaponsTest(unittest.TestCase):
         many_disp = (bullet.pos - first_pos).length()
 
         self.assertLess(0.5 * many_disp, one_disp)
+
+    def test_projectile_data_eq(self):
+        bullet_data = self.bullet_data
+        other_data = ProjectileData(hits_player=False, damage=25,
+                                    speed=500,
+                                    max_lifetime=500,
+                                    image_file=LITTLE_BULLET)
+        self.assertEqual(bullet_data, other_data)
+        self.assertIsNot(bullet_data, other_data)
