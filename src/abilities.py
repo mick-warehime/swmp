@@ -161,6 +161,7 @@ class RegenerationAbility(Ability):
         if data.recharge_amount > 0:
             self._add_use_fun(self._recharge)
 
+        self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses_just_used)
@@ -209,16 +210,15 @@ class FireProjectileBase(Ability):
     def __init__(self) -> None:
         super().__init__()
         self._add_use_fun(self._fire_projectile)
-        self._make_projectile = self._undefined_build
+        self._make_projectile = None
         self._effect_funs: List[EffectFun] = []
 
     def add_fire_effects(self, funs: List[EffectFun]) -> None:
         self._effect_funs += funs
 
-    def _undefined_build(self, pos: Vector2, dir: Vector2) -> None:
-        raise NotImplementedError('self._make_projectile not defined.')
-
     def _fire_projectile(self, humanoid: Any) -> None:
+        assert self._make_projectile is not None, 'self._make_projectile ' \
+                                                  'not defined.'
         pos = humanoid.pos
         rot = humanoid.rot
 
@@ -251,9 +251,24 @@ class FireProjectile(FireProjectileBase):
             factory.build_projectile
         self.add_fire_effects(data.fire_effects)
 
+        self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses)
 
     def _decrement_uses(self, *dummy_args: List[Any]) -> None:
         self.uses_left -= 1
+
+
+class AbilityFactory(object):
+    """Uses data to construct abilities."""
+
+    def __init__(self, data: AbilityData) -> None:
+        self._data = data
+
+    def build(self) -> Ability:
+
+        if isinstance(self._data, RegenerationAbilityData):
+            return RegenerationAbility(self._data)
+        elif isinstance(self._data, ProjectileAbilityData):
+            return FireProjectile(self._data)
