@@ -134,6 +134,15 @@ class AbilityData(object):
         self.finite_uses = finite_uses
         self.uses_left = uses_left
 
+    def __eq__(self, other):
+        if not isinstance(self, type(other)):
+            return False
+        if self.cool_down_time != other.cool_down_time:
+            return False
+        if self.finite_uses != other.finite_uses:
+            return False
+        return True
+
 
 class RegenerationAbilityData(AbilityData):
     def __init__(self, cool_down_time: int, heal_amount: int = 0,
@@ -142,6 +151,17 @@ class RegenerationAbilityData(AbilityData):
         super().__init__(cool_down_time, finite_uses, uses_left)
         self.heal_amount = heal_amount
         self.recharge_amount = recharge_amount
+
+    def __eq__(self, other):
+        if not super().__eq__(other):
+            return False
+
+        if self.heal_amount != other.heal_amount:
+            return False
+        if self.recharge_amount != other.recharge_amount:
+            return False
+
+        return True
 
 
 class RegenerationAbility(Ability):
@@ -200,6 +220,23 @@ class ProjectileAbilityData(AbilityData):
         self.spread = spread
         self.projectile_count = projectile_count
         self.fire_effects = fire_effects
+
+    def __eq__(self, other):
+        if not super().__eq__(other):
+            return False
+
+        if self.projectile_data != other.projectile_data:
+            return False
+        if self.kickback != other.kickback:
+            return False
+        if self.spread != other.spread:
+            return False
+        if self.projectile_count != other.projectile_count:
+            return False
+        if set(self.fire_effects) != set(other.fire_effects):
+            return False
+
+        return True
 
 
 class FireProjectileBase(Ability):

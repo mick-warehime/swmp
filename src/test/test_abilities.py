@@ -3,7 +3,7 @@ from copy import copy
 
 import model
 from abilities import ProjectileAbilityData, FireProjectile, \
-    RegenerationAbilityData, RegenerationAbility
+    RegenerationAbilityData, RegenerationAbility, AbilityData
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -177,3 +177,173 @@ class AbilitiesTest(unittest.TestCase):
         recharge.use(player)
         self.assertEqual(source.energy_available, starting_energy)
         self.assertEqual(recharge.uses_left, 0)
+
+    def test_ability_data_equality(self):
+
+        base_data = AbilityData(cool_down_time=300, finite_uses=True,
+                                uses_left=3)
+        base_data_2 = AbilityData(cool_down_time=300, finite_uses=True,
+                                  uses_left=3)
+        self.assertEqual(base_data, base_data_2)
+
+        base_data = AbilityData(cool_down_time=300, finite_uses=True,
+                                uses_left=3)
+        base_data_2 = AbilityData(cool_down_time=300, finite_uses=True,
+                                  uses_left=2)
+        self.assertEqual(base_data, base_data_2)
+
+        base_data = AbilityData(cool_down_time=301, finite_uses=True,
+                                uses_left=3)
+        base_data_2 = AbilityData(cool_down_time=300, finite_uses=True,
+                                  uses_left=3)
+        self.assertNotEqual(base_data, base_data_2)
+
+        self.assertNotEqual(base_data, 1)
+        self.assertNotEqual(1, base_data)
+
+        reg_data = RegenerationAbilityData(300, heal_amount=10,
+                                           finite_uses=True, uses_left=1)
+        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
+                                             finite_uses=True, uses_left=1)
+        self.assertEqual(reg_data, reg_data_2)
+
+        reg_data = RegenerationAbilityData(301, heal_amount=10,
+                                           finite_uses=True, uses_left=1)
+        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
+                                             finite_uses=True, uses_left=1)
+        self.assertNotEqual(reg_data, reg_data_2)
+
+        reg_data = RegenerationAbilityData(300, heal_amount=10,
+                                           finite_uses=True, uses_left=1)
+        reg_data_2 = RegenerationAbilityData(300, heal_amount=11,
+                                             finite_uses=True, uses_left=1)
+        self.assertNotEqual(reg_data, reg_data_2)
+
+        reg_data = RegenerationAbilityData(300, heal_amount=10,
+                                           finite_uses=True, uses_left=1)
+        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
+                                             finite_uses=True, uses_left=2)
+        self.assertEqual(reg_data, reg_data_2)
+
+        reg_data = RegenerationAbilityData(300, heal_amount=10,
+                                           recharge_amount=1,
+                                           finite_uses=True, uses_left=1)
+        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
+                                             finite_uses=True, uses_left=1)
+        self.assertNotEqual(reg_data, reg_data_2)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            251, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=2,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=201, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=6,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
+
+        proj_data_0 = ProjectileData(hits_player=False, damage=75,
+                                   speed=1000,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_data_1 = ProjectileData(hits_player=False, damage=75,
+                                   speed=1001,
+                                   max_lifetime=400,
+                                   image_file=BULLET_IMG)
+        proj_ability_data_0 = ProjectileAbilityData(
+            250, projectile_data=proj_data_0, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        proj_ability_data_1 = ProjectileAbilityData(
+            250, projectile_data=proj_data_1, projectile_count=1,
+            kickback=200, spread=5,
+            fire_effects=[pistol_fire_sound, MuzzleFlash])
+
+        self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
