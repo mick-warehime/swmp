@@ -1,3 +1,4 @@
+from collections import namedtuple
 from enum import Enum
 from typing import List
 
@@ -5,7 +6,8 @@ import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
-from abilities import Ability
+import images
+from abilities import Ability, AbilityData, AbilityFactory
 from model import DynamicObject
 
 BOB_RANGE = 1
@@ -82,6 +84,65 @@ class Mod(object):
                 output += '%s, ' % (prof.value,)
             output += ')'
         return output
+
+
+BaseModData = namedtuple('BaseModData',
+                         ('location', 'ability_data', 'equipped_image',
+                          'backpack_image', 'description', 'stackable',
+                          'buffs', 'proficiencies'))
+
+
+class ModData(BaseModData):
+    def __new__(cls, location: ModLocation, ability_data: AbilityData,
+                equipped_image_file: str, backpack_image_file: str,
+                description: str, stackable: bool = False,
+                buffs: List[Buffs] = None,
+                proficiencies: List[Proficiencies] = None) -> BaseModData:
+        return super().__new__(cls, location, ability_data,
+                               equipped_image_file, backpack_image_file,
+                               description, stackable, buffs,
+                               proficiencies)
+
+
+class ModFromData(Mod):
+    def __init__(self, data: ModData):
+        self._data = data
+
+        factory = AbilityFactory(self._data.ability_data)
+        self._ability = factory.build()
+
+    @property
+    def loc(self) -> ModLocation:
+        return self._data.location
+
+    @property
+    def expended(self) -> bool:
+        if self._ability.finite_uses:
+            return self._ability.uses_left <= 0
+        return False
+
+    @property
+    def ability(self) -> Ability:
+        return self._ability
+
+    @property
+    def equipped_image(self) -> pg.Surface:
+        return images.get_image(self._data.equipped_image)
+
+    @property
+    def backpack_image(self) -> pg.Surface:
+        return images.get_image(self._data.backpack_image)
+
+    @property
+    def description(self) -> str:
+        description = self._data.description
+        if self._ability.finite_uses:
+            description += '({} uses left)'.format(self._ability.uses_left)
+        return description
+
+    @property
+    def stackable(self) -> bool:
+        return self._data.stackable
 
 
 class ItemObject(DynamicObject):
