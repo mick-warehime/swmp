@@ -1,13 +1,11 @@
 """Module implementing Rock projectile weapon."""
-from typing import List
 
 import pygame as pg
 from pygame.math import Vector2
 
-from abilities import Ability, ProjectileAbilityData, FireProjectile
+from abilities import ProjectileAbilityData
 import images
-from mods import ItemObject, Mod, ModLocation, Buffs, Proficiencies, ModData, \
-    ModFromData
+from mods import ItemObject, ModLocation, ModData, ModFromData
 from sounds import fire_weapon_sound
 from tilemap import ObjectType
 from projectiles import ProjectileData
