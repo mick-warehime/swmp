@@ -8,7 +8,7 @@ from pygame.surface import Surface
 import images
 import sounds
 from abilities import Ability, EnergyAbility, ProjectileAbilityData, \
-    FireProjectile
+    AbilityFactory
 from mods import Mod, ModLocation, ItemObject, Buffs, Proficiencies
 from tilemap import ObjectType
 from projectiles import ProjectileData
@@ -37,7 +37,7 @@ class LaserMod(Mod):
                                              kickback=0, spread=2,
                                              fire_effects=[laser_pew_sound])
 
-        base_ability = FireProjectile(ability_data)
+        base_ability = AbilityFactory(ability_data).build()
 
         self._ability = EnergyAbility(base_ability, self.energy_required)
 
@@ -74,6 +74,19 @@ class LaserGun(ItemObject):
         mod = LaserMod()
         image = images.get_image(images.LASER_GUN)
         self._image = transform.scale(image, self.gun_size)
+
+        # projectile_data = ProjectileData(hits_player=False, damage=100,
+        #                                  speed=1000,
+        #                                  max_lifetime=1000,
+        #                                  image_file=images.LITTLE_LASER,
+        #                                  angled_image=True)
+        # ability_data = ProjectileAbilityData(500,
+        #                                      projectile_data=projectile_data,
+        #                                      projectile_count=1,
+        #                                      kickback=0, spread=2,
+        #                                      fire_effects=[laser_pew_sound])
+        #
+        # base_ability = FireProjectile(ability_data)
 
         super().__init__(mod, pos)
 

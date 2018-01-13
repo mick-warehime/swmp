@@ -9,7 +9,7 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import Ability, ProjectileAbilityData, FireProjectile
+from abilities import Ability, ProjectileAbilityData, AbilityFactory
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from mods import Mod, ModLocation, Buffs, Proficiencies
@@ -161,7 +161,7 @@ class VomitMod(Mod):
                                              kickback=0, spread=5,
                                              fire_effects=[spew_vomit_effect])
 
-        self._ability = FireProjectile(ability_data)
+        self._ability = AbilityFactory(ability_data).build()
 
     @property
     def ability(self) -> Ability:

@@ -108,7 +108,7 @@ class Humanoid(mdl.DynamicObject):
             return
         mod_at_loc = self.active_mods[item.mod.loc]
 
-        if mod_at_loc==item.mod and item.mod.stackable:
+        if mod_at_loc == item.mod and item.mod.stackable:
             mod_at_loc.ability.uses_left += item.mod.ability.uses_left
             item.kill()
             return

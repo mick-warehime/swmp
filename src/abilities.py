@@ -306,6 +306,9 @@ class AbilityFactory(object):
     def build(self) -> Ability:
 
         if isinstance(self._data, RegenerationAbilityData):
-            return RegenerationAbility(self._data)
+            ability = RegenerationAbility(self._data)
+
         elif isinstance(self._data, ProjectileAbilityData):
-            return FireProjectile(self._data)
+            ability = FireProjectile(self._data)
+
+        return ability

@@ -1,12 +1,9 @@
-from typing import List
-
 import pygame as pg
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, RegenerationAbilityData, RegenerationAbility
-from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject, ModData, \
-    ModFromData
+from abilities import RegenerationAbilityData
+from mods import ModLocation, ItemObject, ModData, ModFromData
 
 BATTERY_AMOUNT = 50
 HEALTH_PACK_AMOUNT = 20

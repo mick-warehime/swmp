@@ -1,5 +1,4 @@
 from random import randint
-from typing import List
 
 import pygame as pg
 from pygame.math import Vector2
@@ -7,10 +6,9 @@ from pygame.math import Vector2
 import images
 import settings
 import sounds
-from abilities import Ability, ProjectileAbilityData, FireProjectile
+from abilities import ProjectileAbilityData
 from model import DynamicObject
-from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject, ModData, \
-    ModFromData
+from mods import ModLocation, ItemObject, ModData, ModFromData
 from tilemap import ObjectType
 from projectiles import ProjectileData
 
