@@ -1,4 +1,3 @@
-from pygame import transform
 
 from pygame.math import Vector2
 from pygame.surface import Surface
@@ -21,9 +20,6 @@ class LaserGun(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        image = images.get_image(images.LASER_GUN)
-        self._image = transform.scale(image, self.gun_size)
-
         projectile_data = ProjectileData(hits_player=False, damage=100,
                                          speed=1000,
                                          max_lifetime=1000,
@@ -44,4 +40,4 @@ class LaserGun(ItemObject):
 
     @property
     def image(self) -> Surface:
-        return self._image
+        return images.get_image(images.LASER_GUN)
