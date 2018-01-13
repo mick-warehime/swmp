@@ -1,4 +1,3 @@
-
 from pygame.math import Vector2
 from pygame.surface import Surface
 
