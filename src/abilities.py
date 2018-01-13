@@ -1,9 +1,9 @@
 """Module for defining Humanoid abilities."""
+
 from random import uniform
-from typing import Any, List
+from typing import Any, List, Sequence
 from typing import Union, Callable
 
-import attr
 from pygame.math import Vector2
 
 import sounds
@@ -127,13 +127,45 @@ class EnergyAbility(Ability):
         self._base_ability.uses_left = amount
 
 
-@attr.s
-class RegenerationAbilityData(object):
-    cool_down_time: int = attr.ib()
-    heal_amount: int = attr.ib(default=0)
-    recharge_amount: int = attr.ib(default=0)
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
+class AbilityData(object):
+    def __init__(self, cool_down_time: int, finite_uses: bool = False,
+                 uses_left: int = 0, energy_required: int = 0) -> None:
+        self.cool_down_time = cool_down_time
+        self.finite_uses = finite_uses
+        self.uses_left = uses_left
+        self.energy_required = energy_required
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(self, type(other)):
+            return False
+        if self.cool_down_time != other.cool_down_time:
+            return False
+        if self.finite_uses != other.finite_uses:
+            return False
+        if self.energy_required != other.energy_required:
+            return False
+        return True
+
+
+class RegenerationAbilityData(AbilityData):
+    def __init__(self, cool_down_time: int, heal_amount: int = 0,
+                 recharge_amount: int = 0, finite_uses: bool = False,
+                 uses_left: int = 0, energy_required: int = 0) -> None:
+        super().__init__(cool_down_time, finite_uses, uses_left,
+                         energy_required)
+        self.heal_amount = heal_amount
+        self.recharge_amount = recharge_amount
+
+    def __eq__(self, other: Any) -> bool:
+        if not super().__eq__(other):
+            return False
+
+        if self.heal_amount != other.heal_amount:
+            return False
+        if self.recharge_amount != other.recharge_amount:
+            return False
+
+        return True
 
 
 class RegenerationAbility(Ability):
@@ -153,6 +185,7 @@ class RegenerationAbility(Ability):
         if data.recharge_amount > 0:
             self._add_use_fun(self._recharge)
 
+        self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses_just_used)
@@ -179,16 +212,37 @@ class RegenerationAbility(Ability):
             self._just_used = True
 
 
-@attr.s
-class ProjectileAbilityData(object):
-    cool_down_time: int = attr.ib()
-    projectile_data: ProjectileData = attr.ib()
-    kickback: int = attr.ib(default=0)
-    spread: int = attr.ib(default=0)
-    projectile_count: int = attr.ib(default=1)
-    fire_effects: List[EffectFun] = attr.ib(default=[])
-    finite_uses: bool = attr.ib(default=False)
-    uses_left: int = attr.ib(default=0)
+class ProjectileAbilityData(AbilityData):
+    def __init__(self, cool_down_time: int, projectile_data: ProjectileData,
+                 finite_uses: bool = False, uses_left: int = 0,
+                 energy_required: int = 0,
+                 kickback: int = 0, spread: int = 0,
+                 projectile_count: int = 1,
+                 fire_effects: Sequence[EffectFun] = ()) -> None:
+        super().__init__(cool_down_time, finite_uses, uses_left,
+                         energy_required)
+        self.projectile_data = projectile_data
+        self.kickback = kickback
+        self.spread = spread
+        self.projectile_count = projectile_count
+        self.fire_effects = fire_effects
+
+    def __eq__(self, other: Any) -> bool:
+        if not super().__eq__(other):
+            return False
+
+        if self.projectile_data != other.projectile_data:
+            return False
+        if self.kickback != other.kickback:
+            return False
+        if self.spread != other.spread:
+            return False
+        if self.projectile_count != other.projectile_count:
+            return False
+        if set(self.fire_effects) != set(other.fire_effects):
+            return False
+
+        return True
 
 
 class FireProjectileBase(Ability):
@@ -199,16 +253,15 @@ class FireProjectileBase(Ability):
     def __init__(self) -> None:
         super().__init__()
         self._add_use_fun(self._fire_projectile)
-        self._make_projectile = self._undefined_build
+        self._make_projectile: Callable[[Vector2, Vector2], None] = None
         self._effect_funs: List[EffectFun] = []
 
-    def add_fire_effects(self, funs: List[EffectFun]) -> None:
+    def add_fire_effects(self, funs: Sequence[EffectFun]) -> None:
         self._effect_funs += funs
 
-    def _undefined_build(self, pos: Vector2, dir: Vector2) -> None:
-        raise NotImplementedError('self._make_projectile not defined.')
-
     def _fire_projectile(self, humanoid: Any) -> None:
+        assert self._make_projectile is not None, 'self._make_projectile ' \
+                                                  'not defined.'
         pos = humanoid.pos
         rot = humanoid.rot
 
@@ -241,9 +294,32 @@ class FireProjectile(FireProjectileBase):
             factory.build_projectile
         self.add_fire_effects(data.fire_effects)
 
+        self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses)
 
     def _decrement_uses(self, *dummy_args: List[Any]) -> None:
         self.uses_left -= 1
+
+
+class AbilityFactory(object):
+    """Uses data to construct abilities."""
+
+    def __init__(self, data: AbilityData) -> None:
+        self._data = data
+
+    def build(self) -> Ability:
+
+        # TODO(dvirk): make an Enum for ability types?
+        if isinstance(self._data, RegenerationAbilityData):
+            ability = RegenerationAbility(self._data)  # type: ignore
+
+        elif isinstance(self._data, ProjectileAbilityData):
+            ability = FireProjectile(self._data)  # type: ignore
+
+        if self._data.energy_required > 0:
+            ability = EnergyAbility(ability,  # type: ignore
+                                    self._data.energy_required)
+
+        return ability

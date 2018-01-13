@@ -1,58 +1,26 @@
-from typing import List
-
 import pygame as pg
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, RegenerationAbilityData, RegenerationAbility
-from mods import Mod, ModLocation, Buffs, Proficiencies, ItemObject
+from abilities import RegenerationAbilityData
+from mods import ModLocation, ItemObject, ModData, ModFromData
 
 BATTERY_AMOUNT = 50
 HEALTH_PACK_AMOUNT = 20
 
 
-class HealthPackMod(Mod):
-    loc = ModLocation.CHEST
-
-    def __init__(self, buffs: List[Buffs] = None,
-                 perks: List[Proficiencies] = None) -> None:
-        super().__init__(buffs, perks)
-        self._expended = False
-
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=1,
-                                       heal_amount=HEALTH_PACK_AMOUNT)
-        self._ability = RegenerationAbility(data)
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return self._ability.uses_left <= 0
-
-    @property
-    def stackable(self) -> bool:
-        return True
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.HEALTH_PACK)
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.HEALTH_PACK)
-
-    @property
-    def description(self) -> str:
-        return 'Healthpack'
-
-
 class HealthPackObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
-        mod = HealthPackMod()
+
+        ability_data = RegenerationAbilityData(cool_down_time=300,
+                                               finite_uses=True,
+                                               uses_left=1,
+                                               heal_amount=HEALTH_PACK_AMOUNT)
+        mod_data = ModData(ModLocation.CHEST, ability_data, images.HEALTH_PACK,
+                           images.HEALTH_PACK, 'healthpack', True)
+
+        mod = ModFromData(mod_data)
 
         super().__init__(mod, pos)
 
@@ -61,48 +29,17 @@ class HealthPackObject(ItemObject):
         return images.get_image(images.HEALTH_PACK)
 
 
-class EnergyRegenMod(Mod):
-    loc = ModLocation.CHEST
-
-    def __init__(self, buffs: List[Buffs] = None,
-                 perks: List[Proficiencies] = None) -> None:
-        super().__init__(buffs, perks)
-        self._expended = False
-
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=1,
-                                       recharge_amount=BATTERY_AMOUNT)
-        self._ability = RegenerationAbility(data)
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return self._ability.uses_left <= 0
-
-    @property
-    def stackable(self) -> bool:
-        return True
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        return images.get_image(images.ENERGY_PACK)
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        return images.get_image(images.LIGHTNING)
-
-    @property
-    def description(self) -> str:
-        return 'Energypack'
-
-
 class Battery(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
-        mod = EnergyRegenMod()
+        ability_data = RegenerationAbilityData(cool_down_time=300,
+                                               finite_uses=True,
+                                               uses_left=1,
+                                               recharge_amount=BATTERY_AMOUNT)
+        mod_data = ModData(ModLocation.CHEST, ability_data, images.LIGHTNING,
+                           images.ENERGY_PACK, 'battery', True)
+
+        mod = ModFromData(mod_data)
 
         super().__init__(mod, pos)
 

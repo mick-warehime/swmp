@@ -1,10 +1,9 @@
-from collections import Callable
+from collections import Callable, namedtuple
 from random import uniform
 
 import pygame as pg
 from pygame.math import Vector2
 
-import attr
 from pygame.transform import rotate
 
 import images
@@ -66,18 +65,23 @@ class Projectile(DynamicObject):
         raise NotImplementedError
 
 
-# For justification of this library see
-# https://glyph.twistedmatrix.com/2016/08/attrs.html
-@attr.s
-class ProjectileData(object):
-    hits_player: bool = attr.ib()
-    damage: int = attr.ib()
-    speed: int = attr.ib()
-    max_lifetime: int = attr.ib()
-    image_file: str = attr.ib()
-    angled_image: bool = attr.ib(default=False)
-    rotating_image: bool = attr.ib(default=False)
-    drops_on_kill: Callable = attr.ib(default=None)
+BaseProjectileData = namedtuple('BaseProjectileData', ('hits_player',
+                                                       'damage', 'speed',
+                                                       'max_lifetime',
+                                                       'image_file',
+                                                       'angled_image',
+                                                       'rotating_image',
+                                                       'drops_on_kill'))
+
+
+class ProjectileData(BaseProjectileData):
+    def __new__(cls, hits_player: bool, damage: int, speed: int,
+                max_lifetime: int, image_file: str,
+                angled_image: bool = False, rotating_image: bool = False,
+                drops_on_kill: Callable = None) -> BaseProjectileData:
+        return super().__new__(cls, hits_player, damage, speed,
+                               max_lifetime, image_file, angled_image,
+                               rotating_image, drops_on_kill)
 
 
 class SimpleProjectile(Projectile):
@@ -119,7 +123,8 @@ class FancyProjectile(SimpleProjectile):
         else:
             self._kill_method = lambda x: None
 
-    def _init_image(self, data: ProjectileData, direction: Vector2) -> None:
+    def _init_image(self, data: ProjectileData,
+                    direction: Vector2) -> None:
         self._base_image = images.get_image(data.image_file)
         if data.angled_image:
             angle = direction.angle_to(Vector2(0, 0))

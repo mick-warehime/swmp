@@ -3,7 +3,8 @@ from typing import Tuple
 
 import model
 import mods
-from abilities import EnergyAbility, ProjectileAbilityData, FireProjectile
+from abilities import EnergyAbility, ProjectileAbilityData, FireProjectile, \
+    AbilityFactory
 from creatures.players import Player
 from images import LITTLE_LASER
 from projectiles import ProjectileData
@@ -25,7 +26,7 @@ def setUpModule() -> None:
     ability_data = ProjectileAbilityData(500, projectile_data=projectile_data,
                                          projectile_count=1,
                                          kickback=0, spread=2)
-    LaserTest.laser_ability = FireProjectile(ability_data)
+    LaserTest.laser_ability = AbilityFactory(ability_data).build()
 
 
 class LaserTest(unittest.TestCase):
@@ -91,7 +92,7 @@ class LaserTest(unittest.TestCase):
         fire_laser()
         final_energy = player.energy_source.energy_available
 
-        expected = laser_gun.mod.energy_required
+        expected = laser_gun.mod.ability.energy_required
         actual = starting_energy - final_energy
         self.assertEqual(actual, expected)
 
