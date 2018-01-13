@@ -1,6 +1,6 @@
 from collections import namedtuple
 from enum import Enum
-from typing import List, Set
+from typing import List, Set, Any
 
 import pygame as pg
 import pytweening as tween
@@ -37,55 +37,6 @@ class Proficiencies(Enum):
     ATHLETICISM = 'athleticism'
 
 
-class Mod(object):
-    def __init__(self, buffs: List[Buffs] = None,
-                 profs: List[Proficiencies] = None) -> None:
-        buffs = [] if buffs is None else buffs
-        profs = [] if profs is None else profs
-
-        self._buffs = list(buffs)
-        self._profs = list(profs)
-
-    @property
-    def loc(self) -> ModLocation:
-        raise NotImplementedError
-
-    @property
-    def expended(self) -> bool:
-        raise NotImplementedError
-
-    @property
-    def ability(self) -> Ability:
-        raise NotImplementedError
-
-    @property
-    def stackable(self) -> bool:
-        raise NotImplementedError
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        raise NotImplementedError
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        raise NotImplementedError
-
-    @property
-    def description(self) -> str:
-        raise NotImplementedError
-
-    def __str__(self) -> str:
-        output = '%s' % (self.description)
-        if self._buffs or self._profs:
-            output += '('
-            for buff in self._buffs:
-                output += '%s, ' % (buff.value,)
-            for prof in self._profs:
-                output += '%s, ' % (prof.value,)
-            output += ')'
-        return output
-
-
 BaseModData = namedtuple('BaseModData',
                          ('location', 'ability_data', 'equipped_image',
                           'backpack_image', 'description', 'stackable',
@@ -104,7 +55,7 @@ class ModData(BaseModData):
                                proficiencies)
 
 
-class ModFromData(Mod):
+class Mod(object):
     def __init__(self, data: ModData) -> None:
         self._data = data
         self._buffs = data.buffs
@@ -146,10 +97,21 @@ class ModFromData(Mod):
     def stackable(self) -> bool:
         return self._data.stackable
 
-    def __eq__(self, other: Mod) -> bool:  # type: ignore
+    def __eq__(self, other: Any) -> bool:  # type: ignore
         if not isinstance(other, type(self)):
             return False
         return self._data == other._data
+
+    def __str__(self) -> str:
+        output = '%s' % (self.description)
+        if self._buffs or self._profs:
+            output += '('
+            for buff in self._buffs:
+                output += '%s, ' % (buff.value,)
+            for prof in self._profs:
+                output += '%s, ' % (prof.value,)
+            output += ')'
+        return output
 
 
 class ItemObject(DynamicObject):

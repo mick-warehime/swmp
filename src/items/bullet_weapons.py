@@ -8,7 +8,7 @@ import settings
 import sounds
 from abilities import ProjectileAbilityData
 from model import DynamicObject
-from mods import ModLocation, ItemObject, ModData, ModFromData
+from mods import ModLocation, ItemObject, ModData, Mod
 from tilemap import ObjectType
 from projectiles import ProjectileData
 
@@ -63,7 +63,7 @@ class PistolObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.PISTOL_MOD,
                            images.PISTOL, 'pistol')
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 
@@ -93,7 +93,7 @@ class ShotgunObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.SHOTGUN_MOD,
                            images.SHOTGUN, 'shotgun')
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 

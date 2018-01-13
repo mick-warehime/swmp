@@ -4,7 +4,7 @@ from pygame.surface import Surface
 import images
 import sounds
 from abilities import ProjectileAbilityData
-from mods import ModLocation, ItemObject, ModData, ModFromData
+from mods import ModLocation, ItemObject, ModData, Mod
 from tilemap import ObjectType
 from projectiles import ProjectileData
 
@@ -33,7 +33,7 @@ class LaserGun(ItemObject):
 
         mod_data = ModData(ModLocation.ARMS, ability_data,
                            images.LASER_BOLT, images.LASER_GUN, 'laser gun')
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 

@@ -12,7 +12,7 @@ import sounds
 from abilities import Ability, ProjectileAbilityData, AbilityFactory
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from mods import Mod, ModLocation, Buffs, Proficiencies, ModData, ModFromData
+from mods import Mod, ModLocation, Buffs, Proficiencies, ModData, Mod
 from projectiles import ProjectileData
 
 MOB_SPEEDS = [150, 100, 75, 125]
@@ -157,4 +157,4 @@ def vomit_mod() -> Mod:
 
     mod_data = ModData(ModLocation.HEAD, ability_data,
                        'none', 'none', 'vomit')
-    return ModFromData(mod_data)
+    return Mod(mod_data)

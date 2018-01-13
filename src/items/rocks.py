@@ -5,7 +5,7 @@ from pygame.math import Vector2
 
 from abilities import ProjectileAbilityData
 import images
-from mods import ItemObject, ModLocation, ModData, ModFromData
+from mods import ItemObject, ModLocation, ModData, Mod
 from sounds import fire_weapon_sound
 from tilemap import ObjectType
 from projectiles import ProjectileData
@@ -31,7 +31,7 @@ class RockObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.ROCK,
                            images.ROCK, 'Rock', True)
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 
