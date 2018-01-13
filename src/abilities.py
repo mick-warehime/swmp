@@ -129,10 +129,11 @@ class EnergyAbility(Ability):
 
 class AbilityData(object):
     def __init__(self, cool_down_time: int, finite_uses: bool = False,
-                 uses_left: int = 0):
+                 uses_left: int = 0, energy_required: int = 0):
         self.cool_down_time = cool_down_time
         self.finite_uses = finite_uses
         self.uses_left = uses_left
+        self.energy_required = energy_required
 
     def __eq__(self, other):
         if not isinstance(self, type(other)):
@@ -141,14 +142,17 @@ class AbilityData(object):
             return False
         if self.finite_uses != other.finite_uses:
             return False
+        if self.energy_required != other.energy_required:
+            return False
         return True
 
 
 class RegenerationAbilityData(AbilityData):
     def __init__(self, cool_down_time: int, heal_amount: int = 0,
                  recharge_amount: int = 0, finite_uses: bool = False,
-                 uses_left: int = 0):
-        super().__init__(cool_down_time, finite_uses, uses_left)
+                 uses_left: int = 0, energy_required: int = 0):
+        super().__init__(cool_down_time, finite_uses, uses_left,
+                         energy_required)
         self.heal_amount = heal_amount
         self.recharge_amount = recharge_amount
 
@@ -211,10 +215,12 @@ class RegenerationAbility(Ability):
 class ProjectileAbilityData(AbilityData):
     def __init__(self, cool_down_time: int, projectile_data: ProjectileData,
                  finite_uses: bool = False, uses_left: int = 0,
+                 energy_required: int = 0,
                  kickback: int = 0, spread: int = 0,
                  projectile_count: int = 1,
                  fire_effects: List[EffectFun] = ()):
-        super().__init__(cool_down_time, finite_uses, uses_left)
+        super().__init__(cool_down_time, finite_uses, uses_left,
+                         energy_required)
         self.projectile_data = projectile_data
         self.kickback = kickback
         self.spread = spread
@@ -310,5 +316,8 @@ class AbilityFactory(object):
 
         elif isinstance(self._data, ProjectileAbilityData):
             ability = FireProjectile(self._data)
+
+        if self._data.energy_required>0:
+            ability = EnergyAbility(ability,self._data.energy_required)
 
         return ability

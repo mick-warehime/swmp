@@ -119,7 +119,7 @@ class ModFromData(Mod):
 
     @property
     def expended(self) -> bool:
-        if self._ability.finite_uses:
+        if self._data.ability_data.finite_uses:
             return self._ability.uses_left <= 0
         return False
 
