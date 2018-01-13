@@ -1,6 +1,6 @@
 from collections import namedtuple
 from enum import Enum
-from typing import List
+from typing import List, Set
 
 import pygame as pg
 import pytweening as tween
@@ -96,8 +96,8 @@ class ModData(BaseModData):
     def __new__(cls, location: ModLocation, ability_data: AbilityData,
                 equipped_image_file: str, backpack_image_file: str,
                 description: str, stackable: bool = False,
-                buffs: List[Buffs] = None,
-                proficiencies: List[Proficiencies] = None) -> BaseModData:
+                buffs: Set[Buffs] = None,
+                proficiencies: Set[Proficiencies] = None) -> BaseModData:
         return super().__new__(cls, location, ability_data,
                                equipped_image_file, backpack_image_file,
                                description, stackable, buffs,
@@ -107,6 +107,8 @@ class ModData(BaseModData):
 class ModFromData(Mod):
     def __init__(self, data: ModData):
         self._data = data
+        self._buffs = data.buffs
+        self._profs = data.proficiencies
 
         factory = AbilityFactory(self._data.ability_data)
         self._ability = factory.build()
@@ -143,6 +145,11 @@ class ModFromData(Mod):
     @property
     def stackable(self) -> bool:
         return self._data.stackable
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return self._data == other._data
 
 
 class ItemObject(DynamicObject):

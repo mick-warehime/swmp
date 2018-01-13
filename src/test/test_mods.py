@@ -1,8 +1,9 @@
 import unittest
 from pygame.math import Vector2
 import model
-from mods import Mod, Proficiencies, Buffs
-from items.bullet_weapons import PistolMod, PistolObject
+from abilities import AbilityData, RegenerationAbilityData, RegenerationAbility
+from mods import Mod, Proficiencies, Buffs, ModData, ModLocation, ModFromData
+from items.bullet_weapons import PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 
@@ -14,10 +15,13 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(ModTest.groups, ModTest.timer)
 
+    ModTest.ability_data = RegenerationAbilityData(10, 1)
+
 
 class ModTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
+    ability_data = None
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -56,12 +60,20 @@ class ModTest(unittest.TestCase):
         self.assertEqual(-original_center_y, max_center_y)
 
     def test_mod_str_output(self) -> None:
-        pistol_mod = PistolMod()
+        description = 'banana hammock'
+        mod_data = ModData(ModLocation.LEGS, self.ability_data,
+                           'no_image', 'no_image', description)
+        hammock_mod = ModFromData(mod_data)
 
-        self.assertEqual(pistol_mod.description, 'Pistol')
-        self.assertEqual(str(pistol_mod), 'Pistol')
+        self.assertEqual(hammock_mod.description, description)
+        self.assertEqual(str(hammock_mod), description)
 
-        nice_mod = PistolMod([Buffs.DAMAGE], [Proficiencies.STEALTH])
+        mod_data = ModData(ModLocation.LEGS, self.ability_data,
+                           'no_image', 'no_image', description,
+                           buffs=[Buffs.DAMAGE],
+                           proficiencies=[Proficiencies.STEALTH])
+        nice_mod = ModFromData(mod_data)
+
         self.assertIn('damage', str(nice_mod))
         self.assertIn('stealth', str(nice_mod))
 
