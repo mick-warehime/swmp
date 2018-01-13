@@ -67,7 +67,7 @@ class WeaponsTest(unittest.TestCase):
 
         self.assertLess(0.5 * many_disp, one_disp)
 
-    def test_projectile_data_eq(self):
+    def test_projectile_data_eq(self) -> None:
         bullet_data = self.bullet_data
         other_data = ProjectileData(hits_player=False, damage=25,
                                     speed=500,

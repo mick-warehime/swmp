@@ -1,5 +1,3 @@
-from typing import List
-
 from pygame import transform
 
 from pygame.math import Vector2

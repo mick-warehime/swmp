@@ -178,7 +178,7 @@ class AbilitiesTest(unittest.TestCase):
         self.assertEqual(source.energy_available, starting_energy)
         self.assertEqual(recharge.uses_left, 0)
 
-    def test_ability_data_equality(self):
+    def test_ability_data_equality(self) -> None:
 
         base_data = AbilityData(cool_down_time=300, finite_uses=True,
                                 uses_left=3)
@@ -329,13 +329,13 @@ class AbilitiesTest(unittest.TestCase):
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
         proj_data_0 = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
+                                     speed=1000,
+                                     max_lifetime=400,
+                                     image_file=BULLET_IMG)
         proj_data_1 = ProjectileData(hits_player=False, damage=75,
-                                   speed=1001,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
+                                     speed=1001,
+                                     max_lifetime=400,
+                                     image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data_0, projectile_count=1,
             kickback=200, spread=5,

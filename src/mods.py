@@ -105,7 +105,7 @@ class ModData(BaseModData):
 
 
 class ModFromData(Mod):
-    def __init__(self, data: ModData):
+    def __init__(self, data: ModData) -> None:
         self._data = data
         self._buffs = data.buffs
         self._profs = data.proficiencies
@@ -146,7 +146,7 @@ class ModFromData(Mod):
     def stackable(self) -> bool:
         return self._data.stackable
 
-    def __eq__(self, other):
+    def __eq__(self, other: Mod) -> bool:  # type: ignore
         if not isinstance(other, type(self)):
             return False
         return self._data == other._data

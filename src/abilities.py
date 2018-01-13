@@ -1,7 +1,7 @@
 """Module for defining Humanoid abilities."""
 
 from random import uniform
-from typing import Any, List
+from typing import Any, List, Sequence
 from typing import Union, Callable
 
 from pygame.math import Vector2
@@ -129,13 +129,13 @@ class EnergyAbility(Ability):
 
 class AbilityData(object):
     def __init__(self, cool_down_time: int, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0):
+                 uses_left: int = 0, energy_required: int = 0) -> None:
         self.cool_down_time = cool_down_time
         self.finite_uses = finite_uses
         self.uses_left = uses_left
         self.energy_required = energy_required
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(self, type(other)):
             return False
         if self.cool_down_time != other.cool_down_time:
@@ -150,13 +150,13 @@ class AbilityData(object):
 class RegenerationAbilityData(AbilityData):
     def __init__(self, cool_down_time: int, heal_amount: int = 0,
                  recharge_amount: int = 0, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0):
+                 uses_left: int = 0, energy_required: int = 0) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
                          energy_required)
         self.heal_amount = heal_amount
         self.recharge_amount = recharge_amount
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not super().__eq__(other):
             return False
 
@@ -218,7 +218,7 @@ class ProjectileAbilityData(AbilityData):
                  energy_required: int = 0,
                  kickback: int = 0, spread: int = 0,
                  projectile_count: int = 1,
-                 fire_effects: List[EffectFun] = ()):
+                 fire_effects: Sequence[EffectFun] = ()) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
                          energy_required)
         self.projectile_data = projectile_data
@@ -227,7 +227,7 @@ class ProjectileAbilityData(AbilityData):
         self.projectile_count = projectile_count
         self.fire_effects = fire_effects
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not super().__eq__(other):
             return False
 
@@ -253,10 +253,10 @@ class FireProjectileBase(Ability):
     def __init__(self) -> None:
         super().__init__()
         self._add_use_fun(self._fire_projectile)
-        self._make_projectile = None
+        self._make_projectile: Callable[[Vector2, Vector2], None] = None
         self._effect_funs: List[EffectFun] = []
 
-    def add_fire_effects(self, funs: List[EffectFun]) -> None:
+    def add_fire_effects(self, funs: Sequence[EffectFun]) -> None:
         self._effect_funs += funs
 
     def _fire_projectile(self, humanoid: Any) -> None:
@@ -311,13 +311,15 @@ class AbilityFactory(object):
 
     def build(self) -> Ability:
 
+        # TODO(dvirk): make an Enum for ability types?
         if isinstance(self._data, RegenerationAbilityData):
-            ability = RegenerationAbility(self._data)
+            ability = RegenerationAbility(self._data)  # type: ignore
 
         elif isinstance(self._data, ProjectileAbilityData):
-            ability = FireProjectile(self._data)
+            ability = FireProjectile(self._data)  # type: ignore
 
-        if self._data.energy_required>0:
-            ability = EnergyAbility(ability,self._data.energy_required)
+        if self._data.energy_required > 0:
+            ability = EnergyAbility(ability,  # type: ignore
+                                    self._data.energy_required)
 
         return ability

@@ -57,8 +57,8 @@ class PistolObject(ItemObject):
                                              projectile_data=projectile_data,
                                              projectile_count=1,
                                              kickback=200, spread=5,
-                                             fire_effects=[pistol_fire_sound,
-                                                           MuzzleFlash])
+                                             fire_effects=[make_flash,
+                                                           pistol_fire_sound])
 
         mod_data = ModData(ModLocation.ARMS, ability_data, images.PISTOL_MOD,
                            images.PISTOL, 'pistol')
@@ -70,6 +70,10 @@ class PistolObject(ItemObject):
     @property
     def image(self) -> pg.Surface:
         return images.get_image(images.PISTOL)
+
+
+def make_flash(origin: Vector2) -> None:
+    MuzzleFlash(origin)
 
 
 class ShotgunObject(ItemObject):
@@ -85,7 +89,7 @@ class ShotgunObject(ItemObject):
                                              projectile_count=12,
                                              kickback=300, spread=20,
                                              fire_effects=[pistol_fire_sound,
-                                                           MuzzleFlash])
+                                                           make_flash])
         mod_data = ModData(ModLocation.ARMS, ability_data, images.SHOTGUN_MOD,
                            images.SHOTGUN, 'shotgun')
 
