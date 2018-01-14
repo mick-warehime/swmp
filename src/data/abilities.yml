@@ -31,6 +31,13 @@ fire_projectile:
     projectile_label: 'laser'
     spread: 2
     energy_required: 10
+  rock:
+    <<: *projectile_defaults
+    cool_down_time: 500
+    spread: 2
+    projectile_label: 'rock'
+    finite_uses: true
+    uses_left: 1
 
 
 
