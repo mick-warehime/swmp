@@ -1,0 +1,15 @@
+approach:
+  type: decision
+  description: As you run to the helipad you see a group of college students in the road.
+  option:
+    skill: sneak
+    pass: confront
+    fail: caught  
+confront:
+  type: dungeon
+  map: confront.tmx
+  description: As you approach the students you discover its a group of zombos!
+caught:
+  type: dungeon
+  map: caught.tmx
+  description: You make a loud noise and attrack the pack of students. As they approach you you can see they are really a pack of zombos!

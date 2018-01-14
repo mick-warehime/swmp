@@ -6,8 +6,7 @@ import images
 import controller
 from creatures.players import Player
 from draw_utils import draw_text
-import quest
-
+from quests import quest
 
 class Game(object):
     def __init__(self) -> None:
