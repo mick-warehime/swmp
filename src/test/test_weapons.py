@@ -2,9 +2,9 @@ import unittest
 from pygame.math import Vector2
 
 import model
-from abilities import ProjectileAbilityData, FireProjectile
-from images import LITTLE_BULLET
-from projectiles import ProjectileData
+from abilities import FireProjectile
+from data.abilities_io import load_ability_data
+from data.projectiles_io import load_projectile_data
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player
@@ -18,10 +18,6 @@ def setUpModule() -> None:
 class WeaponsTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
-    bullet_data = ProjectileData(hits_player=False, damage=25,
-                                 speed=500,
-                                 max_lifetime=500,
-                                 image_file=LITTLE_BULLET)
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -31,10 +27,8 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        ability_data = ProjectileAbilityData(900,
-                                             projectile_data=self.bullet_data,
-                                             projectile_count=1,
-                                             kickback=300, spread=20)
+        ability_data = load_ability_data('shotgun')
+        ability_data.projectile_count = 1
 
         fire_little_bullet = FireProjectile(ability_data)
 
@@ -68,10 +62,8 @@ class WeaponsTest(unittest.TestCase):
         self.assertLess(0.5 * many_disp, one_disp)
 
     def test_projectile_data_eq(self) -> None:
-        bullet_data = self.bullet_data
-        other_data = ProjectileData(hits_player=False, damage=25,
-                                    speed=500,
-                                    max_lifetime=500,
-                                    image_file=LITTLE_BULLET)
+        bullet_data = load_projectile_data('bullet')
+        other_data = load_projectile_data('bullet')
+
         self.assertEqual(bullet_data, other_data)
         self.assertIsNot(bullet_data, other_data)
