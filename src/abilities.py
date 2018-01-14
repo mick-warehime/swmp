@@ -23,6 +23,68 @@ def initialize_classes(timer: Timer) -> None:
 INFINITE_USES = -1000
 
 
+class Condition(object):
+    """Evaluates a boolean function on a Humanoid."""
+
+    def check(self, humanoid: Any) -> bool:
+        raise NotImplementedError
+
+
+class CooldownCondition(Condition):
+    def __init__(self, timer: Timer, cool_down_time: int):
+        self._timer = timer
+        assert cool_down_time is not None
+        self._cool_down_time = cool_down_time
+        self._last_use = self._timer.current_time
+
+    @property
+    def _time_since_last_use(self) -> int:
+        return self._timer.current_time - self._last_use
+
+    def check(self, humanoid: Any) -> bool:
+        return self._time_since_last_use > self._cool_down_time
+
+    def update_last_use(self, humanoid: Any) -> None:
+        self._last_use = self._timer.current_time
+
+    def cooldown_fraction(self) -> float:
+        fraction = float(self._time_since_last_use) / self._cool_down_time
+        return min(max(0.0, fraction), 1.0)
+
+
+class EnergyAvailable(Condition):
+    def __init__(self, energy_required: int):
+        self._energy_required = energy_required
+
+    def check(self, humanoid: Any) -> bool:
+        return self._energy_required < humanoid.energy_source.energy_available
+
+
+class Effect(object):
+    """Implements an effect on a Humanoid."""
+
+    def activate(self, humanoid: Any) -> None:
+        raise NotImplementedError
+
+
+class ExpendEnergy(Effect):
+    def __init__(self, energy_required: int):
+        self._energy_required = energy_required
+
+    def activate(self, humanoid: Any) -> None:
+        assert hasattr(humanoid, 'energy_source')
+        humanoid.energy_source.expend_energy(self._energy_required)
+
+
+class PlaySound(Effect):
+
+    def __init__(self, sound_file: str):
+        self._sound_file = sound_file
+
+    def activate(self, humanoid: Any) -> None:
+        sounds.play(self._sound_file)
+
+
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
@@ -30,11 +92,16 @@ class Ability(object):
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        self._update_last_use()
+
         self._use_funs: List[UseFun] = []
-        self._can_use_funs: List[CanUseFun] = [self._cool_down_time_elapsed]
+        self._can_use_funs: List[CanUseFun] = []
+
+        cool_down = CooldownCondition(self._timer, self._cool_down_time)
+        self.add_can_use_fun(cool_down.check)
+        self.add_use_fun(cool_down.update_last_use)
+        self._cool_down_fraction_fun = cool_down.cooldown_fraction
+
         self.uses_left = INFINITE_USES
-        self._sound_on_use: str = None
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
@@ -50,88 +117,22 @@ class Ability(object):
     def add_can_use_fun(self, can_use_fun: CanUseFun) -> None:
         self._can_use_funs.append(can_use_fun)
 
-    def _energy_available(self, humanoid: Any) -> bool:
-        return self._energy_required < humanoid.energy_source.energy_available
-
-    def _cool_down_time_elapsed(self, humanoid: Any) -> bool:
-        return self._time_since_last_use > self._cool_down_time
-
     @property
     def cooldown_fraction(self) -> float:
-        fraction = float(self._time_since_last_use) / self._cool_down_time
-        return min(max(0.0, fraction), 1.0)
+        return self._cool_down_fraction_fun()
 
     def use(self, humanoid: Any) -> None:
         for use_fun in self._use_funs:
             use_fun(humanoid)
-        self._update_last_use()
 
     def add_use_fun(self, fun: UseFun) -> None:
         self._use_funs.append(fun)
-
-    def _update_last_use(self) -> None:
-        self._last_use = self._timer.current_time
-
-    def _expend_energy(self, humanoid: Any) -> None:
-        humanoid.energy_source.expend_energy(self._energy_required)
-
-    @property
-    def _time_since_last_use(self) -> int:
-        return self._timer.current_time - self._last_use
 
     @classmethod
     def _check_class_initialized(cls) -> None:
         if not cls.class_initialized:
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
-
-    def _play_sound_on_use(self, humanoid: Any) -> None:
-        assert self._sound_on_use is not None, 'sound_on_use not initialized.'
-        sounds.play(self._sound_on_use)
-
-#
-# class EnergyAbility(Ability):
-#     """Ability that can only activate by modifying an energy source's reserves.
-#
-#     This uses the `decorator' (?) pattern to add an energy requirement to a
-#     base ability.
-#     """
-#
-#     def __init__(self, base_ability: Ability, energy_required: float) -> None:
-#         self._base_ability = base_ability
-#         self._energy_source: EnergySource = None
-#         self.energy_required = energy_required
-#
-#     def use(self, humanoid: Any) -> None:
-#         assert self.can_use(humanoid)
-#         self._base_ability.use(humanoid)
-#         self._energy_source.expend_energy(self.energy_required)
-#
-#     def assign_energy_source(self, source: EnergySource) -> None:
-#         self._energy_source = source
-#
-#     def can_use(self, humanoid: Any) -> bool:
-#         source = self._energy_source
-#         if source is None:
-#             raise RuntimeError('An energy source must be assigned before '
-#                                '.can_use is defined.')
-#         if self.energy_required > source.energy_available:
-#             return False
-#         return self._base_ability.can_use(humanoid)
-#
-#     @property
-#     def cooldown_fraction(self) -> float:
-#         return self._base_ability.cooldown_fraction
-#
-#     @property
-#     def uses_left(self) -> int:
-#         assert self.uses_left != INFINITE_USES, 'Ability %s is not finite ' \
-#                                                 'use.' % (self._base_ability,)
-#         return self._base_ability.uses_left
-#
-#     @uses_left.setter
-#     def uses_left(self, amount: int) -> None:
-#         self._base_ability.uses_left = amount
 
 
 class AbilityData(object):
@@ -182,8 +183,8 @@ class RegenerationAbilityData(AbilityData):
 
 class RegenerationAbility(Ability):
     def __init__(self, data: RegenerationAbilityData) -> None:
-        super().__init__()
         self._cool_down_time = data.cool_down_time
+        super().__init__()
 
         assert data.heal_amount > 0 or data.recharge_amount > 0
 
@@ -203,8 +204,8 @@ class RegenerationAbility(Ability):
             self.add_use_fun(self._decrement_uses_just_used)
 
         if data.sound_on_use is not None:
-            self._sound_on_use = data.sound_on_use
-            self.add_use_fun(self._play_sound_on_use)
+            effect = PlaySound(data.sound_on_use)
+            self.add_use_fun(effect.activate)
 
     def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
 
@@ -283,13 +284,14 @@ class FireProjectile(Ability):
             self.add_use_fun(self._decrement_uses)
 
         if data.sound_on_use is not None:
-            self._sound_on_use = data.sound_on_use
-            self.add_use_fun(self._play_sound_on_use)
+            effect = PlaySound(data.sound_on_use)
+            self.add_use_fun(effect.activate)
 
-        if data.energy_required>0:
-            self._energy_required = data.energy_required
-            self.add_use_fun(self._expend_energy)
-            self.add_can_use_fun(self._energy_available)
+        if data.energy_required > 0:
+            condition = EnergyAvailable(data.energy_required)
+            effect = ExpendEnergy(data.energy_required)
+            self.add_use_fun(effect.activate)
+            self.add_can_use_fun(condition.check)
 
     def _fire_projectile(self, humanoid: Any) -> None:
         assert self._make_projectile is not None, 'self._make_projectile ' \
@@ -328,58 +330,3 @@ class AbilityFactory(object):
             ability = FireProjectile(self._data)  # type: ignore
 
         return ability
-
-# class AbilityFromData(object):
-#     _timer: Union[None, Timer] = None
-#     class_initialized = False
-#
-#     def __init__(self, data: AbilityData) -> None:
-#         self._check_class_initialized()
-#         self._update_last_use()
-#
-#         if data.finite_uses:
-#             self.uses_left = data.uses_left
-#         else:
-#             self.uses_left = INFINITE_USES
-#         self._sound_on_use: str = data.sound_on_use
-#
-#         self._use_funs: List[Callable[[Any], None]] = []
-#
-#     @classmethod
-#     def initialize_class(cls, timer: Timer) -> None:
-#         cls._timer = timer
-#         cls.class_initialized = True
-#
-#     @property
-#     def can_use(self) -> bool:
-#         return self._time_since_last_use > self._cool_down_time
-#
-#     @property
-#     def cooldown_fraction(self) -> float:
-#         fraction = float(self._time_since_last_use) / self._cool_down_time
-#         return min(max(0.0, fraction), 1.0)
-#
-#     def use(self, humanoid: Any) -> None:
-#         for use_fun in self._use_funs:
-#             use_fun(humanoid)
-#         self._update_last_use()
-#
-#     def add_use_fun(self, fun: UseFun) -> None:
-#         self._use_funs.append(fun)
-#
-#     def _update_last_use(self) -> None:
-#         self._last_use = self._timer.current_time
-#
-#     @property
-#     def _time_since_last_use(self) -> int:
-#         return self._timer.current_time - self._last_use
-#
-#     @classmethod
-#     def _check_class_initialized(cls) -> None:
-#         if not cls.class_initialized:
-#             raise RuntimeError('Class %s must be initialized before '
-#                                'instantiating an object.' % (cls,))
-#
-#     def _play_sound_on_use(self, humanoid: Any) -> None:
-#         assert self._sound_on_use is not None, 'sound_on_use not initialized.'
-#         sounds.play(self._sound_on_use)
