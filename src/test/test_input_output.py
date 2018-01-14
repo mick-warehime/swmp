@@ -1,7 +1,8 @@
 import unittest
 
 from abilities import RegenerationAbilityData
-from data.input_output import load_projectile_data, load_ability_data
+from data.abilities_io import load_ability_data
+from data.projectiles_io import load_projectile_data
 from projectiles import ProjectileData
 
 
@@ -31,3 +32,7 @@ class InputOutputTest(unittest.TestCase):
 
         with self.assertRaisesRegex(KeyError, 'not recognized'):
             load_ability_data(bad_name)
+
+    def test_load_projectile_ability(self):
+        data = load_ability_data('pistol')
+

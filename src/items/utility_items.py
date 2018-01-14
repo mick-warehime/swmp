@@ -2,8 +2,8 @@ import pygame as pg
 from pygame.math import Vector2
 
 import images
-from abilities import RegenerationAbilityData
-from data.input_output import load_ability_data
+
+from data.abilities_io import load_ability_data
 from mods import ModLocation, ItemObject, ModData, Mod
 
 BATTERY_AMOUNT = 50

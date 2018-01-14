@@ -5,7 +5,7 @@ from pygame.math import Vector2
 
 from abilities import ProjectileAbilityData
 import images
-from data.input_output import load_projectile_data
+from data.projectiles_io import load_projectile_data
 from mods import ItemObject, ModLocation, ModData, Mod
 from sounds import fire_weapon_sound
 from tilemap import ObjectType

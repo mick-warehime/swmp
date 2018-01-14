@@ -7,6 +7,7 @@ from typing import Union, Callable
 from pygame.math import Vector2
 
 import sounds
+from data.projectiles_io import load_projectile_data
 from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
@@ -213,14 +214,18 @@ class RegenerationAbility(Ability):
 
 
 class ProjectileAbilityData(AbilityData):
-    def __init__(self, cool_down_time: int, projectile_data: ProjectileData,
+    def __init__(self, cool_down_time: int,
+                 projectile_data: ProjectileData = None,
                  finite_uses: bool = False, uses_left: int = 0,
                  energy_required: int = 0,
                  kickback: int = 0, spread: int = 0,
                  projectile_count: int = 1,
-                 fire_effects: Sequence[EffectFun] = ()) -> None:
+                 fire_effects: Sequence[EffectFun] = (),
+                 projectile_label: str = None) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
                          energy_required)
+        if projectile_data is None:
+            projectile_data = load_projectile_data(projectile_label)
         self.projectile_data = projectile_data
         self.kickback = kickback
         self.spread = spread

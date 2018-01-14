@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 import images
 import model
-from data.input_output import load_projectile_data
+from data.projectiles_io import load_projectile_data
 from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \

@@ -1,17 +1,34 @@
-projectile:
-  pass: true
+fire_projectile:
+  defaults: &projectile_defaults
+    finite_uses: false
+    uses_left: 0
+    energy_required: 0
+    projectile_count: 1
+  pistol:
+    <<: *projectile_defaults
+    cool_down_time: 250
+    projectile_data: 'bullet'
+    kickback: 200
+
+
+#  cool_down_time: int, projectile_data: ProjectileData,
+#                 finite_uses: bool = False, uses_left: int = 0,
+#                 energy_required: int = 0,
+#                 kickback: int = 0, spread: int = 0,
+#                 projectile_count: int = 1,
+#                 fire_effects: Sequence[EffectFun] = ()
 
 regeneration:
-  defaults: &defaults
+  defaults: &regeneration_defaults
     finite_uses: true
     uses_left: 1
     energy_required: 0
   basic_heal:
-    <<: *defaults
+    <<: *regeneration_defaults
     cool_down_time: 300
     heal_amount: 20
   basic_recharge:
-    <<: *defaults
+    <<: *regeneration_defaults
     cool_down_time: 300
     recharge_amount: 50
 

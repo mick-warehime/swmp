@@ -11,7 +11,7 @@ import sounds
 from abilities import ProjectileAbilityData
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.input_output import load_projectile_data
+from data.projectiles_io import load_projectile_data
 from mods import ModLocation, ModData, Mod
 
 MOB_SPEEDS = [150, 100, 75, 125]
