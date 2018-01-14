@@ -1,6 +1,6 @@
 import unittest
 
-from abilities import RegenerationAbilityData
+from abilities import RegenerationAbilityData, ProjectileAbilityData
 from data.abilities_io import load_ability_data
 from data.projectiles_io import load_projectile_data
 from projectiles import ProjectileData
@@ -33,6 +33,10 @@ class InputOutputTest(unittest.TestCase):
         with self.assertRaisesRegex(KeyError, 'not recognized'):
             load_ability_data(bad_name)
 
-    def test_load_projectile_ability(self):
+    def test_load_projectile_ability(self) -> None:
         data = load_ability_data('pistol')
 
+        proj_data = load_projectile_data('bullet')
+        expected_data = ProjectileAbilityData(250, proj_data, kickback=200,
+                                              spread=5)
+        self.assertEqual(data, expected_data)
