@@ -193,7 +193,7 @@ class HumanoidsTest(unittest.TestCase):
         mob.update()
         self.assertNotIn(mob, groups.mobs)
 
-    def test_pickup_rock_adds_to_active_mods(self):
+    def test_pickup_rock_adds_to_active_mods(self) -> None:
         player = make_player()
 
         player.attempt_pickup(RockObject(player.pos))
@@ -202,7 +202,6 @@ class HumanoidsTest(unittest.TestCase):
 
         player.attempt_pickup(RockObject(player.pos))
         self.assertFalse(player.backpack.slot_occupied(0))
-
 
 
 if __name__ == '__main__':

@@ -115,7 +115,7 @@ class ProjectilesTest(unittest.TestCase):
             self.assertEqual(len(self.groups.enemy_projectiles), k + 1)
             self.assertEqual(len(self.groups.bullets), 0)
 
-    def test_projectile_data_eq(self):
+    def test_projectile_data_eq(self) -> None:
         rock_data_0 = load_projectile_data('rock')
         rock_data_1 = load_projectile_data('rock')
         self.assertEqual(rock_data_0, rock_data_1)

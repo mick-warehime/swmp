@@ -4,14 +4,14 @@ import yaml
 
 from projectiles import ProjectileData
 
-from src import __path__ as _src_path
+from src import __path__ as _src_path  # type: ignore
 
 _src_path = _src_path[0]
 
 PROJECTILE_FILE = _src_path + "/data/projectiles.yml"
 
 
-def print_rock_err_msg(*args: Any):
+def print_rock_err_msg(*args: Any) -> None:
     print('Missing RockObject')
 
 
