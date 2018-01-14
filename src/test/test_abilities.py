@@ -4,6 +4,7 @@ from copy import copy
 import model
 from abilities import ProjectileAbilityData, FireProjectile, \
     RegenerationAbilityData, RegenerationAbility, AbilityData
+from data.abilities_io import load_ability_data
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -16,24 +17,15 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
 
-    projectile_data = ProjectileData(hits_player=False, damage=75,
-                                     speed=1000,
-                                     max_lifetime=400,
-                                     image_file=BULLET_IMG)
-    ability_data = ProjectileAbilityData(250, projectile_data=projectile_data,
-                                         projectile_count=1,
-                                         kickback=200, spread=5,
-                                         fire_effects=[pistol_fire_sound,
-                                                       MuzzleFlash])
+    ability_data = load_ability_data('pistol')
+    ability_data.fire_effects = [MuzzleFlash]
 
-    AbilitiesTest.projectile_data = projectile_data
     AbilitiesTest.projectile_ability_data = ability_data
 
 
 class AbilitiesTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
-    projectile_data = None
     projectile_ability_data = None
 
     def tearDown(self) -> None:
