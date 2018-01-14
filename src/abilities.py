@@ -1,14 +1,14 @@
 """Module for defining Humanoid abilities."""
 
 from random import uniform
-from typing import Any, List, Sequence
+from typing import Any, List
 from typing import Union, Callable
 
 from pygame.math import Vector2
 
 import sounds
 from data.projectiles_io import load_projectile_data
-from model import Timer, EnergySource
+from model import Timer
 from projectiles import ProjectileData, ProjectileFactory
 
 UseFun = Callable[[Any], None]
@@ -199,13 +199,9 @@ class FireProjectile(Ability):
             effect = Kickback(data.kickback)
             self.add_use_fun(effect.activate)
 
-        self._spread = data.spread
-        self._projectile_count = data.projectile_count
-
-        factory = ProjectileFactory(data.projectile_data)
-        self._make_projectile: Callable[[Vector2, Vector2], None] = \
-            factory.build_projectile
-        self.add_use_fun(self._fire_projectile)
+        effect = MakeProjectile(data.projectile_data, data.spread,
+                                data.projectile_count)
+        self.add_use_fun(effect.activate)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
@@ -371,3 +367,23 @@ class Kickback(Effect):
 
     def activate(self, humanoid: Any) -> None:
         humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
+
+
+class MakeProjectile(Effect):
+    def __init__(self, projectile_data: ProjectileData, spread: int,
+                 projectile_count: int):
+        self._factory = ProjectileFactory(projectile_data)
+        self._spread = spread
+        self._count = projectile_count
+
+    def activate(self, humanoid: Any) -> None:
+        pos = humanoid.pos
+        rot = humanoid.rot
+
+        direction = Vector2(1, 0).rotate(-rot)
+        barrel_offset = Vector2(30, 10)
+        origin = pos + barrel_offset.rotate(-rot)
+
+        for _ in range(self._count):
+            spread = uniform(-self._spread, self._spread)
+            self._factory.build(origin, direction.rotate(spread))
