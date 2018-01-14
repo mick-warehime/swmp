@@ -25,6 +25,12 @@ fire_projectile:
     projectile_label: 'vomit'
     spread: 20
     projectile_count: 15
+  laser:
+    <<: *projectile_defaults
+    cool_down_time: 500
+    projectile_label: 'laser'
+    spread: 2
+    energy_required: 10
 
 
 
