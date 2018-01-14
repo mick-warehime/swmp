@@ -62,7 +62,8 @@ class AbilitiesTest(unittest.TestCase):
                 num_others += 1
 
         self.assertEqual(num_bullets, 1)
-        self.assertEqual(num_flashes, 1)
+        #TODO(dvirk): Change this test back after flashes are readded.
+        self.assertEqual(num_flashes, 0)
         self.assertEqual(num_others, 1)
 
     def test_fireprojectile_use_ignores_can_use(self) -> None:
@@ -230,13 +231,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         self.assertEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -246,13 +245,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             251, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -262,13 +259,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=2,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -278,13 +273,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=201, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=201, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -294,13 +287,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=6,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=6)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -310,13 +301,11 @@ class AbilitiesTest(unittest.TestCase):
                                    image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5, sound_on_use='a')
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound])
+            kickback=200, spread=5, sound_on_use='b')
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
@@ -330,12 +319,10 @@ class AbilitiesTest(unittest.TestCase):
                                      image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
             250, projectile_data=proj_data_0, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
             250, projectile_data=proj_data_1, projectile_count=1,
-            kickback=200, spread=5,
-            fire_effects=[pistol_fire_sound, MuzzleFlash])
+            kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
