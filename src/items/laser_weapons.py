@@ -3,9 +3,9 @@ from pygame.surface import Surface
 
 import images
 import sounds
-from abilities import ProjectileAbilityData
+
 from data.abilities_io import load_ability_data
-from data.projectiles_io import load_projectile_data
+
 from mods import ModLocation, ItemObject, ModData, Mod
 from tilemap import ObjectType
 
