@@ -60,11 +60,47 @@ class EnergyAvailable(Condition):
         return self._energy_required < humanoid.energy_source.energy_available
 
 
+class IsDamaged(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return humanoid.damaged
+
+
+class EnergyNotFull(Condition):
+    def check(self, humanoid: Any) -> bool:
+        source = humanoid.energy_source
+        return source.energy_available < source.max_energy
+
+
+class IsDamagedOrEnergyNotFull(Condition):
+    def __init__(self):
+        self._is_damaged = IsDamaged()
+        self._energy_not_full = EnergyNotFull()
+
+    def check(self, humanoid: Any) -> bool:
+        return self._energy_not_full(humanoid) or self._is_damaged(humanoid)
+
+
 class Effect(object):
     """Implements an effect on a Humanoid."""
 
     def activate(self, humanoid: Any) -> None:
         raise NotImplementedError
+
+
+class Heal(Effect):
+    def __init__(self, heal_amount: int) -> None:
+        self._heal_amount = heal_amount
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid.increment_health(self._heal_amount)
+
+
+class Recharge(Effect):
+    def __init__(self, recharge_amount: int) -> None:
+        self._recharge_amount = recharge_amount
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid.energy_source.increment_energy(self._recharge_amount)
 
 
 class ExpendEnergy(Effect):
@@ -77,7 +113,6 @@ class ExpendEnergy(Effect):
 
 
 class PlaySound(Effect):
-
     def __init__(self, sound_file: str):
         self._sound_file = sound_file
 
@@ -134,6 +169,9 @@ class Ability(object):
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
 
+    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
+        self.uses_left -= 1
+
 
 class AbilityData(object):
     def __init__(self, cool_down_time: int, finite_uses: bool = False,
@@ -188,43 +226,33 @@ class RegenerationAbility(Ability):
 
         assert data.heal_amount > 0 or data.recharge_amount > 0
 
-        self._heal_amount = data.heal_amount
-        self._recharge_amount = data.recharge_amount
-        self._just_used = False
-
-        if data.heal_amount > 0:
-            self.add_use_fun(self._heal)
-
-        if data.recharge_amount > 0:
-            self.add_use_fun(self._recharge)
+        if data.heal_amount > 0 and data.recharge_amount > 0:
+            condition = IsDamagedOrEnergyNotFull()
+            heal = Heal(data.heal_amount)
+            recharge = Recharge(data.recharge_amount)
+            self.add_can_use_fun(condition.check)
+            self.add_use_fun(heal.activate)
+            self.add_use_fun(recharge.activate)
+        elif data.heal_amount > 0:
+            condition = IsDamaged()
+            heal = Heal(data.heal_amount)
+            self.add_can_use_fun(condition.check)
+            self.add_use_fun(heal.activate)
+        else:
+            assert data.recharge_amount > 0
+            condition = EnergyNotFull()
+            recharge = Recharge(data.recharge_amount)
+            self.add_can_use_fun(condition.check)
+            self.add_use_fun(recharge.activate)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self.add_use_fun(self._decrement_uses_just_used)
+            self.add_use_fun(self._decrement_uses)
 
         if data.sound_on_use is not None:
             effect = PlaySound(data.sound_on_use)
             self.add_use_fun(effect.activate)
-
-    def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
-
-        if self._just_used:
-            self.uses_left -= 1
-            self._just_used = False
-
-    def _heal(self, humanoid: Any) -> None:
-        if humanoid.damaged:
-            humanoid.increment_health(self._heal_amount)
-            self._just_used = True
-
-    def _recharge(self, humanoid: Any) -> None:
-        assert hasattr(humanoid, 'energy_source'), 'No energy source for %s' \
-                                                   % (humanoid,)
-        energy_source = humanoid.energy_source
-        if energy_source.energy_available < energy_source.max_energy:
-            energy_source.increment_energy(self._recharge_amount)
-            self._just_used = True
 
 
 class ProjectileAbilityData(AbilityData):
@@ -309,9 +337,6 @@ class FireProjectile(Ability):
 
     def _apply_kickback(self, humanoid: Any) -> None:
         humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
-
-    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
-        self.uses_left -= 1
 
 
 class AbilityFactory(object):

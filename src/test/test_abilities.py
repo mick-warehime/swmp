@@ -116,9 +116,12 @@ class AbilitiesTest(unittest.TestCase):
 
         max_health = player.max_health
         self.assertEqual(player.health, max_health)
+        self.assertFalse(heal.can_use(player))
+
+        # use implements a heal anyway
         heal.use(player)
         self.assertEqual(player.health, max_health)
-        self.assertEqual(heal.uses_left, 3)
+        self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_to_full(self) -> None:
         player = make_player()
