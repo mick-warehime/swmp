@@ -3,16 +3,19 @@ from typing import Tuple
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 import model
+from items.rocks import RockObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from itertools import product
 import math
 from src.test.testing_utilities import make_player, make_mob
+from test import dummy_audio_video
 
 
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
+    dummy_audio_video
 
 
 def _dist(pos_0: Vector2, pos_1: Vector2) -> float:
@@ -189,6 +192,17 @@ class HumanoidsTest(unittest.TestCase):
 
         mob.update()
         self.assertNotIn(mob, groups.mobs)
+
+    def test_pickup_rock_adds_to_active_mods(self):
+        player = make_player()
+
+        player.attempt_pickup(RockObject(player.pos))
+
+        self.assertFalse(player.backpack.slot_occupied(0))
+
+        player.attempt_pickup(RockObject(player.pos))
+        self.assertFalse(player.backpack.slot_occupied(0))
+
 
 
 if __name__ == '__main__':

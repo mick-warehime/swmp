@@ -4,6 +4,7 @@ from pygame.math import Vector2
 
 import images
 import model
+from data.input_output import load_projectile_data
 from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -113,3 +114,8 @@ class ProjectilesTest(unittest.TestCase):
             self.assertEqual(len(self.groups.all_sprites), k + 1)
             self.assertEqual(len(self.groups.enemy_projectiles), k + 1)
             self.assertEqual(len(self.groups.bullets), 0)
+
+    def test_projectile_data_eq(self):
+        rock_data_0 = load_projectile_data('rock')
+        rock_data_1 = load_projectile_data('rock')
+        self.assertEqual(rock_data_0, rock_data_1)

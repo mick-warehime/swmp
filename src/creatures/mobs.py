@@ -1,5 +1,4 @@
 from random import choice, random
-from typing import List
 
 import pygame as pg
 from pygame.math import Vector2
@@ -9,11 +8,11 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import Ability, ProjectileAbilityData, AbilityFactory
+from abilities import ProjectileAbilityData
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from mods import Mod, ModLocation, Buffs, Proficiencies, ModData, Mod
-from projectiles import ProjectileData
+from data.input_output import load_projectile_data
+from mods import ModLocation, ModData, Mod
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -145,10 +144,7 @@ def spew_vomit_effect(origin: Vector2) -> None:
 
 
 def vomit_mod() -> Mod:
-    projectile_data = ProjectileData(hits_player=True, damage=20,
-                                     speed=300,
-                                     max_lifetime=600,
-                                     image_file=images.VOMIT)
+    projectile_data = load_projectile_data('vomit')
     ability_data = ProjectileAbilityData(250,
                                          projectile_data=projectile_data,
                                          projectile_count=1,

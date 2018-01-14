@@ -1,6 +1,6 @@
 from collections import namedtuple
 from enum import Enum
-from typing import List, Set, Any
+from typing import Set, Any
 
 import pygame as pg
 import pytweening as tween

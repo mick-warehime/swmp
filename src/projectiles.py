@@ -1,5 +1,6 @@
 from collections import Callable, namedtuple
 from random import uniform
+from typing import Any
 
 import pygame as pg
 from pygame.math import Vector2
