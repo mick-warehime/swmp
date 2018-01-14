@@ -3,11 +3,9 @@ from typing import Tuple
 
 import model
 import mods
-from abilities import EnergyAbility, ProjectileAbilityData, FireProjectile, \
-    AbilityFactory
+from abilities import EnergyAbility, AbilityFactory
 from creatures.players import Player
-from images import LITTLE_LASER
-from projectiles import ProjectileData
+from data.abilities_io import load_ability_data
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
@@ -18,14 +16,7 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(LaserTest.groups, LaserTest.timer)
 
-    projectile_data = ProjectileData(hits_player=False, damage=100,
-                                     speed=1000,
-                                     max_lifetime=1000,
-                                     image_file=LITTLE_LASER,
-                                     angled_image=True)
-    ability_data = ProjectileAbilityData(500, projectile_data=projectile_data,
-                                         projectile_count=1,
-                                         kickback=0, spread=2)
+    ability_data = load_ability_data('laser')
     LaserTest.laser_ability = AbilityFactory(ability_data).build()
 
 
