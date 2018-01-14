@@ -10,6 +10,7 @@ _src_path = _src_path[0]
 
 _PROJECTILE_FILE = _src_path + '/data/projectiles.yml'
 
+
 def print_rock_err_msg(*args: Any) -> None:
     print('Missing RockObject')
 
