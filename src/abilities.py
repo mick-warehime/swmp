@@ -12,7 +12,7 @@ from model import Timer, EnergySource
 from projectiles import ProjectileData, ProjectileFactory
 
 UseFun = Callable[[Any], None]
-EffectFun = Callable[[Vector2], None]
+CanUseFun = Callable[[Any], bool]
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -23,7 +23,6 @@ def initialize_classes(timer: Timer) -> None:
 INFINITE_USES = -1000
 
 
-# TODO: refactor Ability, etc.
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
@@ -32,7 +31,8 @@ class Ability(object):
     def __init__(self) -> None:
         self._check_class_initialized()
         self._update_last_use()
-        self._use_funs: List[Callable[[Any], None]] = []
+        self._use_funs: List[UseFun] = []
+        self._can_use_funs: List[CanUseFun] = [self._cool_down_time_elapsed]
         self.uses_left = INFINITE_USES
         self._sound_on_use: str = None
 
@@ -42,6 +42,18 @@ class Ability(object):
         cls.class_initialized = True
 
     def can_use(self, humanoid: Any) -> bool:
+        for condition in self._can_use_funs:
+            if not condition(humanoid):
+                return False
+        return True
+
+    def add_can_use_fun(self, can_use_fun: CanUseFun) -> None:
+        self._can_use_funs.append(can_use_fun)
+
+    def _energy_available(self, humanoid: Any) -> bool:
+        return self._energy_required < humanoid.energy_source.energy_available
+
+    def _cool_down_time_elapsed(self, humanoid: Any) -> bool:
         return self._time_since_last_use > self._cool_down_time
 
     @property
@@ -60,6 +72,9 @@ class Ability(object):
     def _update_last_use(self) -> None:
         self._last_use = self._timer.current_time
 
+    def _expend_energy(self, humanoid: Any) -> None:
+        humanoid.energy_source.expend_energy(self._energy_required)
+
     @property
     def _time_since_last_use(self) -> int:
         return self._timer.current_time - self._last_use
@@ -74,49 +89,49 @@ class Ability(object):
         assert self._sound_on_use is not None, 'sound_on_use not initialized.'
         sounds.play(self._sound_on_use)
 
-
-class EnergyAbility(Ability):
-    """Ability that can only activate by modifying an energy source's reserves.
-
-    This uses the `decorator' (?) pattern to add an energy requirement to a
-    base ability.
-    """
-
-    def __init__(self, base_ability: Ability, energy_required: float) -> None:
-        self._base_ability = base_ability
-        self._energy_source: EnergySource = None
-        self.energy_required = energy_required
-
-    def use(self, humanoid: Any) -> None:
-        assert self.can_use(humanoid)
-        self._base_ability.use(humanoid)
-        self._energy_source.expend_energy(self.energy_required)
-
-    def assign_energy_source(self, source: EnergySource) -> None:
-        self._energy_source = source
-
-    def can_use(self, humanoid: Any) -> bool:
-        source = self._energy_source
-        if source is None:
-            raise RuntimeError('An energy source must be assigned before '
-                               '.can_use is defined.')
-        if self.energy_required > source.energy_available:
-            return False
-        return self._base_ability.can_use(humanoid)
-
-    @property
-    def cooldown_fraction(self) -> float:
-        return self._base_ability.cooldown_fraction
-
-    @property
-    def uses_left(self) -> int:
-        assert self.uses_left != INFINITE_USES, 'Ability %s is not finite ' \
-                                                'use.' % (self._base_ability,)
-        return self._base_ability.uses_left
-
-    @uses_left.setter
-    def uses_left(self, amount: int) -> None:
-        self._base_ability.uses_left = amount
+#
+# class EnergyAbility(Ability):
+#     """Ability that can only activate by modifying an energy source's reserves.
+#
+#     This uses the `decorator' (?) pattern to add an energy requirement to a
+#     base ability.
+#     """
+#
+#     def __init__(self, base_ability: Ability, energy_required: float) -> None:
+#         self._base_ability = base_ability
+#         self._energy_source: EnergySource = None
+#         self.energy_required = energy_required
+#
+#     def use(self, humanoid: Any) -> None:
+#         assert self.can_use(humanoid)
+#         self._base_ability.use(humanoid)
+#         self._energy_source.expend_energy(self.energy_required)
+#
+#     def assign_energy_source(self, source: EnergySource) -> None:
+#         self._energy_source = source
+#
+#     def can_use(self, humanoid: Any) -> bool:
+#         source = self._energy_source
+#         if source is None:
+#             raise RuntimeError('An energy source must be assigned before '
+#                                '.can_use is defined.')
+#         if self.energy_required > source.energy_available:
+#             return False
+#         return self._base_ability.can_use(humanoid)
+#
+#     @property
+#     def cooldown_fraction(self) -> float:
+#         return self._base_ability.cooldown_fraction
+#
+#     @property
+#     def uses_left(self) -> int:
+#         assert self.uses_left != INFINITE_USES, 'Ability %s is not finite ' \
+#                                                 'use.' % (self._base_ability,)
+#         return self._base_ability.uses_left
+#
+#     @uses_left.setter
+#     def uses_left(self, amount: int) -> None:
+#         self._base_ability.uses_left = amount
 
 
 class AbilityData(object):
@@ -271,6 +286,11 @@ class FireProjectile(Ability):
             self._sound_on_use = data.sound_on_use
             self.add_use_fun(self._play_sound_on_use)
 
+        if data.energy_required>0:
+            self._energy_required = data.energy_required
+            self.add_use_fun(self._expend_energy)
+            self.add_can_use_fun(self._energy_available)
+
     def _fire_projectile(self, humanoid: Any) -> None:
         assert self._make_projectile is not None, 'self._make_projectile ' \
                                                   'not defined.'
@@ -306,10 +326,6 @@ class AbilityFactory(object):
 
         elif isinstance(self._data, ProjectileAbilityData):
             ability = FireProjectile(self._data)  # type: ignore
-
-        if self._data.energy_required > 0:
-            ability = EnergyAbility(ability,  # type: ignore
-                                    self._data.energy_required)
 
         return ability
 
