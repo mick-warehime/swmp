@@ -12,9 +12,9 @@ little_bullet:
   image_file: "little_bullet.png"
 vomit:
   hits_player: true
-  damage: 20
-  speed: 300
-  max_lifetime: 600
+  damage: 1
+  speed: 150
+  max_lifetime: 500
   image_file: "vomit.png"
 laser:
   hits_player: false

@@ -23,8 +23,8 @@ fire_projectile:
     <<: *projectile_defaults
     cool_down_time: 250
     projectile_label: 'vomit'
-    spread: 5
-    projectile_count: 1
+    spread: 20
+    projectile_count: 15
 
 
 
