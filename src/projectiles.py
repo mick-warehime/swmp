@@ -151,8 +151,8 @@ class ProjectileFactory(object):
     def __init__(self, data: ProjectileData) -> None:
         self._data = data
 
-    def build_projectile(self, pos: Vector2,
-                         direction: Vector2) -> SimpleProjectile:
+    def build(self, pos: Vector2,
+              direction: Vector2) -> SimpleProjectile:
         projectile = FancyProjectile(pos, direction, self._data)
 
         return projectile

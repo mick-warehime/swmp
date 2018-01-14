@@ -110,7 +110,7 @@ class ProjectilesTest(unittest.TestCase):
         self.assertEqual(len(self.groups.all_sprites), 0)
 
         for k in range(5):
-            factory.build_projectile(Vector2(0, 0), Vector2(1, 0))
+            factory.build(Vector2(0, 0), Vector2(1, 0))
             self.assertEqual(len(self.groups.all_sprites), k + 1)
             self.assertEqual(len(self.groups.enemy_projectiles), k + 1)
             self.assertEqual(len(self.groups.bullets), 0)
