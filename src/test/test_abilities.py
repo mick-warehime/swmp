@@ -92,7 +92,8 @@ class AbilitiesTest(unittest.TestCase):
         fire_pistol.use(player)
         new_vel = (player._vel.x, player._vel.y)
 
-        expected_vel = (-fire_pistol._kickback + old_vel[0], old_vel[1])
+        kickback = self.projectile_ability_data.kickback
+        expected_vel = (-kickback + old_vel[0], old_vel[1])
         self.assertEqual(new_vel, expected_vel)
 
     def test_fire_many_bullets(self) -> None:

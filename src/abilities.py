@@ -127,7 +127,7 @@ class RegenerationAbility(Ability):
         assert data.heal_amount > 0 or data.recharge_amount > 0
 
         if data.heal_amount > 0 and data.recharge_amount > 0:
-            condition = IsDamagedOrEnergyNotFull()
+            condition = IsDamaged() or EnergyNotFull()
             heal = Heal(data.heal_amount)
             recharge = Recharge(data.recharge_amount)
             self.add_can_use_fun(condition.check)
@@ -196,8 +196,8 @@ class FireProjectile(Ability):
         super().__init__()
 
         if data.kickback:
-            self._kickback = data.kickback
-            self.add_use_fun(self._apply_kickback)
+            effect = Kickback(data.kickback)
+            self.add_use_fun(effect.activate)
 
         self._spread = data.spread
         self._projectile_count = data.projectile_count
@@ -237,9 +237,6 @@ class FireProjectile(Ability):
             spread = uniform(-self._spread, self._spread)
             self._make_projectile(origin, direction.rotate(spread))
 
-    def _apply_kickback(self, humanoid: Any) -> None:
-        humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
-
 
 class AbilityFactory(object):
     """Uses data to construct abilities."""
@@ -264,6 +261,19 @@ class Condition(object):
 
     def check(self, humanoid: Any) -> bool:
         raise NotImplementedError
+
+    def __or__(self, other) -> object:
+        assert isinstance(other, Condition)
+        return _Or(self, other)
+
+
+class _Or(Condition):
+    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
+        self._cond_0 = cond_0
+        self._cond_1 = cond_1
+
+    def check(self, humanoid: Any) -> bool:
+        return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
 
 
 class CooldownCondition(Condition):
@@ -305,15 +315,6 @@ class EnergyNotFull(Condition):
     def check(self, humanoid: Any) -> bool:
         source = humanoid.energy_source
         return source.energy_available < source.max_energy
-
-
-class IsDamagedOrEnergyNotFull(Condition):
-    def __init__(self):
-        self._is_damaged = IsDamaged()
-        self._energy_not_full = EnergyNotFull()
-
-    def check(self, humanoid: Any) -> bool:
-        return self._energy_not_full(humanoid) or self._is_damaged(humanoid)
 
 
 class Effect(object):
@@ -362,3 +363,11 @@ class PlaySound(Effect):
 
     def activate(self, humanoid: Any) -> None:
         sounds.play(self._sound_file)
+
+
+class Kickback(Effect):
+    def __init__(self, kickback: int) -> None:
+        self._kickback = kickback
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
