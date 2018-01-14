@@ -35,11 +35,11 @@ class AbilitiesTest(unittest.TestCase):
     def test_fire_projectile_cannot_shoot_at_first(self) -> None:
         fire_pistol = FireProjectile(self.projectile_ability_data)
 
-        self.assertFalse(fire_pistol.can_use)
+        self.assertFalse(fire_pistol.can_use('dummy_arg'))
         self.timer.current_time += fire_pistol._cool_down_time
-        self.assertFalse(fire_pistol.can_use)
+        self.assertFalse(fire_pistol.can_use('dummy_arg'))
         self.timer.current_time += 1
-        self.assertTrue(fire_pistol.can_use)
+        self.assertTrue(fire_pistol.can_use('dummy_arg'))
 
     def test_fireprojectile_use_instantiates_bullet_and_flash(self) -> None:
         groups = self.groups
@@ -71,7 +71,7 @@ class AbilitiesTest(unittest.TestCase):
         fire_pistol = FireProjectile(self.projectile_ability_data)
 
         self.assertEqual(len(self.groups.bullets), 0)
-        self.assertFalse(fire_pistol.can_use)
+        self.assertFalse(fire_pistol.can_use('dummy_arg'))
         fire_pistol.use(player)
         self.assertEqual(len(self.groups.bullets), 1)
 
@@ -80,9 +80,9 @@ class AbilitiesTest(unittest.TestCase):
         fire_pistol = FireProjectile(self.projectile_ability_data)
         self.timer.current_time += fire_pistol._cool_down_time + 1
 
-        self.assertTrue(fire_pistol.can_use)
+        self.assertTrue(fire_pistol.can_use('dummy_arg'))
         fire_pistol.use(player)
-        self.assertFalse(fire_pistol.can_use)
+        self.assertFalse(fire_pistol.can_use('dummy_arg'))
 
     def test_player_shoot_kickback(self) -> None:
         player = make_player()

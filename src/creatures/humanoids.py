@@ -89,7 +89,7 @@ class Humanoid(mdl.DynamicObject):
         assert loc == item_mod.loc
         assert not item_mod.expended
 
-        if item_mod.ability.can_use:
+        if item_mod.ability.can_use(self):
             item_mod.ability.use(self)
 
         if item_mod.expended:

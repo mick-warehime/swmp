@@ -34,7 +34,7 @@ class LaserTest(unittest.TestCase):
 
         expected_regex = 'An energy source must be '
         with self.assertRaisesRegex(RuntimeError, expected_regex):
-            ability.can_use
+            ability.can_use('dummy_arg')
 
         with self.assertRaisesRegex(RuntimeError, expected_regex):
             ability.use(make_player())
@@ -55,15 +55,15 @@ class LaserTest(unittest.TestCase):
         player.attempt_pickup(laser_gun)
         fire_ability = laser_gun.mod.ability
 
-        self.assertFalse(fire_ability.can_use)
+        self.assertFalse(fire_ability.can_use('dummy_arg'))
         # Initially player can't fire the gun because the cooldown time has
         # not been waited.
         while fire_ability.cooldown_fraction < 1:
             self.timer.current_time += 1
-        self.assertFalse(fire_ability.can_use)
+        self.assertFalse(fire_ability.can_use('dummy_arg'))
 
         self.timer.current_time += 1
-        self.assertTrue(fire_ability.can_use)
+        self.assertTrue(fire_ability.can_use('dummy_arg'))
 
     def test_player_fires_laser_makes_projectile(self) -> None:
         laser_gun, player = self._player_with_ready_laser()
@@ -90,12 +90,12 @@ class LaserTest(unittest.TestCase):
     def test_player_cannot_fire_laser_with_too_low_energy(self) -> None:
         laser_gun, player = self._player_with_ready_laser()
 
-        self.assertTrue(laser_gun.mod.ability.can_use)
+        self.assertTrue(laser_gun.mod.ability.can_use('dummy_arg'))
 
         all_energy = player.energy_source.energy_available
         player.energy_source.expend_energy(all_energy)
 
-        self.assertFalse(laser_gun.mod.ability.can_use)
+        self.assertFalse(laser_gun.mod.ability.can_use('dummy_arg'))
 
     def _player_with_ready_laser(self) -> Tuple[mods.ItemObject, Player]:
         player = make_player()

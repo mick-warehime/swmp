@@ -41,8 +41,7 @@ class Ability(object):
         cls._timer = timer
         cls.class_initialized = True
 
-    @property
-    def can_use(self) -> bool:
+    def can_use(self, humanoid: Any) -> bool:
         return self._time_since_last_use > self._cool_down_time
 
     @property
@@ -89,22 +88,21 @@ class EnergyAbility(Ability):
         self.energy_required = energy_required
 
     def use(self, humanoid: Any) -> None:
-        assert self.can_use
+        assert self.can_use(humanoid)
         self._base_ability.use(humanoid)
         self._energy_source.expend_energy(self.energy_required)
 
     def assign_energy_source(self, source: EnergySource) -> None:
         self._energy_source = source
 
-    @property
-    def can_use(self) -> bool:
+    def can_use(self, humanoid: Any) -> bool:
         source = self._energy_source
         if source is None:
             raise RuntimeError('An energy source must be assigned before '
                                '.can_use is defined.')
         if self.energy_required > source.energy_available:
             return False
-        return self._base_ability.can_use
+        return self._base_ability.can_use(humanoid)
 
     @property
     def cooldown_fraction(self) -> float:
@@ -314,7 +312,6 @@ class AbilityFactory(object):
                                     self._data.energy_required)
 
         return ability
-
 
 # class AbilityFromData(object):
 #     _timer: Union[None, Timer] = None
