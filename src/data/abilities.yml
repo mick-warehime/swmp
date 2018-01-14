@@ -42,13 +42,6 @@ fire_projectile:
 
 
 
-#  cool_down_time: int, projectile_data: ProjectileData,
-#                 finite_uses: bool = False, uses_left: int = 0,
-#                 energy_required: int = 0,
-#                 kickback: int = 0, spread: int = 0,
-#                 projectile_count: int = 1,
-#                 fire_effects: Sequence[EffectFun] = ()
-
 regeneration:
   defaults: &regeneration_defaults
     finite_uses: true
