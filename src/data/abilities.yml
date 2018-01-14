@@ -13,6 +13,6 @@ regeneration:
   basic_recharge:
     <<: *defaults
     cool_down_time: 300
-    basic_recharge: 50
+    recharge_amount: 50
 
 

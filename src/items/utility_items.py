@@ -3,6 +3,7 @@ from pygame.math import Vector2
 
 import images
 from abilities import RegenerationAbilityData
+from data.input_output import load_ability_data
 from mods import ModLocation, ItemObject, ModData, Mod
 
 BATTERY_AMOUNT = 50
@@ -13,10 +14,7 @@ class HealthPackObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        ability_data = RegenerationAbilityData(cool_down_time=300,
-                                               finite_uses=True,
-                                               uses_left=1,
-                                               heal_amount=HEALTH_PACK_AMOUNT)
+        ability_data = load_ability_data('basic_heal')
         mod_data = ModData(ModLocation.CHEST, ability_data, images.HEALTH_PACK,
                            images.HEALTH_PACK, 'healthpack', True)
 
@@ -32,10 +30,7 @@ class HealthPackObject(ItemObject):
 class Battery(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
-        ability_data = RegenerationAbilityData(cool_down_time=300,
-                                               finite_uses=True,
-                                               uses_left=1,
-                                               recharge_amount=BATTERY_AMOUNT)
+        ability_data = load_ability_data('basic_recharge')
         mod_data = ModData(ModLocation.CHEST, ability_data, images.LIGHTNING,
                            images.ENERGY_PACK, 'battery', True)
 
