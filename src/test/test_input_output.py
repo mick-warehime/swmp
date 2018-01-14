@@ -24,7 +24,9 @@ class InputOutputTest(unittest.TestCase):
         data = load_ability_data('basic_heal')
         expected_data = RegenerationAbilityData(cool_down_time=300,
                                                 heal_amount=20,
-                                                finite_uses=True, uses_left=1)
+                                                finite_uses=True,
+                                                uses_left=1,
+                                                sound_on_use='health_pack.wav')
         self.assertEqual(data, expected_data)
 
     def test_load_ability_data_bad_name(self) -> None:
@@ -38,5 +40,6 @@ class InputOutputTest(unittest.TestCase):
 
         proj_data = load_projectile_data('bullet')
         expected_data = ProjectileAbilityData(250, proj_data, kickback=200,
-                                              spread=5)
+                                              spread=5,
+                                              sound_on_use='pistol.wav')
         self.assertEqual(data, expected_data)
