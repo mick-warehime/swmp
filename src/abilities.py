@@ -26,6 +26,8 @@ def null_effect(origin: Vector2) -> None:
 INFINITE_USES = -1000
 
 
+# TODO: refactor Ability, etc.
+
 class Ability(object):
     _cool_down_time: int = None
     _timer: Union[None, Timer] = None
@@ -36,6 +38,7 @@ class Ability(object):
         self._update_last_use()
         self._use_funs: List[Callable[[Any], None]] = []
         self._uses_left = INFINITE_USES
+        self._sound_on_use: str = None
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
@@ -80,6 +83,10 @@ class Ability(object):
     @uses_left.setter
     def uses_left(self, amnt: int) -> None:
         self._uses_left = amnt
+
+    def _play_sound_on_use(self, humanoid: Any) -> None:
+        assert self._sound_on_use is not None, 'sound_on_use not initialized.'
+        sounds.play(self._sound_on_use)
 
 
 class EnergyAbility(Ability):
@@ -130,11 +137,13 @@ class EnergyAbility(Ability):
 
 class AbilityData(object):
     def __init__(self, cool_down_time: int, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0) -> None:
+                 uses_left: int = 0, energy_required: int = 0,
+                 sound_on_use: str = None) -> None:
         self.cool_down_time = cool_down_time
         self.finite_uses = finite_uses
         self.uses_left = uses_left
         self.energy_required = energy_required
+        self.sound_on_use = sound_on_use
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(self, type(other)):
@@ -145,15 +154,18 @@ class AbilityData(object):
             return False
         if self.energy_required != other.energy_required:
             return False
+        if self.sound_on_use != other.sound_on_use:
+            return False
         return True
 
 
 class RegenerationAbilityData(AbilityData):
     def __init__(self, cool_down_time: int, heal_amount: int = 0,
                  recharge_amount: int = 0, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0) -> None:
+                 uses_left: int = 0, energy_required: int = 0,
+                 sound_on_use: str = None) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required)
+                         energy_required, sound_on_use)
         self.heal_amount = heal_amount
         self.recharge_amount = recharge_amount
 
@@ -191,6 +203,10 @@ class RegenerationAbility(Ability):
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses_just_used)
 
+        if data.sound_on_use is not None:
+            self._sound_on_use = data.sound_on_use
+            self._add_use_fun(self._play_sound_on_use)
+
     def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
 
         if self._just_used:
@@ -199,7 +215,6 @@ class RegenerationAbility(Ability):
 
     def _heal(self, humanoid: Any) -> None:
         if humanoid.damaged:
-            sounds.play(sounds.HEALTH_UP)
             humanoid.increment_health(self._heal_amount)
             self._just_used = True
 
@@ -209,7 +224,6 @@ class RegenerationAbility(Ability):
         energy_source = humanoid.energy_source
         if energy_source.energy_available < energy_source.max_energy:
             energy_source.increment_energy(self._recharge_amount)
-            sounds.play(sounds.HEALTH_UP)
             self._just_used = True
 
 
@@ -221,9 +235,10 @@ class ProjectileAbilityData(AbilityData):
                  kickback: int = 0, spread: int = 0,
                  projectile_count: int = 1,
                  fire_effects: Sequence[EffectFun] = (),
-                 projectile_label: str = None) -> None:
+                 projectile_label: str = None,
+                 sound_on_use: str = None) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required)
+                         energy_required, sound_on_use)
         if projectile_data is None:
             projectile_data = load_projectile_data(projectile_label)
         self.projectile_data = projectile_data
@@ -303,6 +318,10 @@ class FireProjectile(FireProjectileBase):
         if data.finite_uses:
             self.uses_left = data.uses_left
             self._add_use_fun(self._decrement_uses)
+
+        if data.sound_on_use is not None:
+            self._sound_on_use = data.sound_on_use
+            self._add_use_fun(self._play_sound_on_use)
 
     def _decrement_uses(self, *dummy_args: List[Any]) -> None:
         self.uses_left -= 1

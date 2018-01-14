@@ -30,6 +30,8 @@ EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
 
+OTHER_SOUNDS = ['phaser_up.wav', 'health_pack.wav']
+
 
 class SoundEffects(object):
     def __init__(self) -> None:
@@ -38,7 +40,7 @@ class SoundEffects(object):
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
         self.weapon_sounds: Dict[ObjectType, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
-        self.all_sounds: Dict[str, : pg.mixer.Sound] = {}
+        self.all_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
         game_folder = os.path.dirname(__file__)
@@ -71,6 +73,11 @@ class SoundEffects(object):
             snd_path = os.path.join(snd_folder, sound_file)
             sound = pg.mixer.Sound(snd_path)
             self.zombie_hit_sounds.append(sound)
+            self.all_sounds[sound_file] = sound
+
+        for sound_file in OTHER_SOUNDS:
+            snd_path = os.path.join(snd_folder, sound_file)
+            sound = pg.mixer.Sound(snd_path)
             self.all_sounds[sound_file] = sound
 
 
