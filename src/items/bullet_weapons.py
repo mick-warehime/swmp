@@ -7,6 +7,7 @@ import images
 import settings
 import sounds
 from abilities import ProjectileAbilityData
+from data.abilities_io import load_ability_data
 from data.projectiles_io import load_projectile_data
 from model import DynamicObject
 from mods import ModLocation, ItemObject, ModData, Mod
@@ -49,14 +50,7 @@ class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = load_projectile_data('bullet')
-
-        ability_data = ProjectileAbilityData(250,
-                                             projectile_data=projectile_data,
-                                             projectile_count=1,
-                                             kickback=200, spread=5,
-                                             fire_effects=[make_flash,
-                                                           pistol_fire_sound])
+        ability_data = load_ability_data('pistol')
 
         mod_data = ModData(ModLocation.ARMS, ability_data, images.PISTOL_MOD,
                            images.PISTOL, 'pistol')
@@ -78,13 +72,7 @@ class ShotgunObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = load_projectile_data('little_bullet')
-        ability_data = ProjectileAbilityData(900,
-                                             projectile_data=projectile_data,
-                                             projectile_count=12,
-                                             kickback=300, spread=20,
-                                             fire_effects=[pistol_fire_sound,
-                                                           make_flash])
+        ability_data = load_ability_data('shotgun')
         mod_data = ModData(ModLocation.ARMS, ability_data, images.SHOTGUN_MOD,
                            images.SHOTGUN, 'shotgun')
 

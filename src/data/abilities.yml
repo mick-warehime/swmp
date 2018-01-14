@@ -7,8 +7,17 @@ fire_projectile:
   pistol:
     <<: *projectile_defaults
     cool_down_time: 250
-    projectile_data: 'bullet'
+    projectile_label: 'bullet'
     kickback: 200
+    spread: 5
+  shotgun:
+    <<: *projectile_defaults
+    cool_down_time: 900
+    projectile_label: 'little_bullet'
+    kickback: 300
+    spread: 20
+    projectile_count: 12
+
 
 
 #  cool_down_time: int, projectile_data: ProjectileData,

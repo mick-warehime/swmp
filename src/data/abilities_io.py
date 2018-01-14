@@ -12,6 +12,8 @@ _src_path = _src_path[0]
 
 _ABILITIES_FILE = _src_path + '/data/abilities.yml'
 
+
+# TODO(dvirk): The MuzzleFlash and fire sounds must be added back in later.
 _ability_constructors = {'fire_projectile': ProjectileAbilityData,
                          'regeneration': RegenerationAbilityData}
 
