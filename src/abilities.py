@@ -121,7 +121,6 @@ class RegenerationAbilityData(AbilityData):
 
 class ProjectileAbilityData(AbilityData):
     def __init__(self, cool_down_time: int,
-                 projectile_data: ProjectileData = None,
                  finite_uses: bool = False, uses_left: int = 0,
                  energy_required: int = 0,
                  kickback: int = 0, spread: int = 0,
@@ -130,9 +129,7 @@ class ProjectileAbilityData(AbilityData):
                  sound_on_use: str = None) -> None:
         super().__init__(cool_down_time, finite_uses, uses_left,
                          energy_required, sound_on_use)
-        if projectile_data is None:
-            projectile_data = load_projectile_data(projectile_label)
-        self.projectile_data = projectile_data
+        self.projectile_data = load_projectile_data(projectile_label)
         self.kickback = kickback
         self.spread = spread
         self.projectile_count = projectile_count

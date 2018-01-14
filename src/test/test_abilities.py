@@ -62,7 +62,7 @@ class AbilitiesTest(unittest.TestCase):
                 num_others += 1
 
         self.assertEqual(num_bullets, 1)
-        #TODO(dvirk): Change this test back after flashes are readded.
+        # TODO(dvirk): Change this test back after flashes are readded.
         self.assertEqual(num_flashes, 0)
         self.assertEqual(num_others, 1)
 
@@ -229,104 +229,72 @@ class AbilitiesTest(unittest.TestCase):
                                              finite_uses=True, uses_left=1)
         self.assertNotEqual(reg_data, reg_data_2)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            251, projectile_data=proj_data, projectile_count=1,
+            251, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=2,
+            250, projectile_label='bullet', projectile_count=2,
             kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=201, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=6)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data = ProjectileData(hits_player=False, damage=75,
-                                   speed=1000,
-                                   max_lifetime=400,
-                                   image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5, sound_on_use='a')
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5, sound_on_use='b')
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_data_0 = ProjectileData(hits_player=False, damage=75,
-                                     speed=1000,
-                                     max_lifetime=400,
-                                     image_file=BULLET_IMG)
-        proj_data_1 = ProjectileData(hits_player=False, damage=75,
-                                     speed=1001,
-                                     max_lifetime=400,
-                                     image_file=BULLET_IMG)
         proj_ability_data_0 = ProjectileAbilityData(
-            250, projectile_data=proj_data_0, projectile_count=1,
+            250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         proj_ability_data_1 = ProjectileAbilityData(
-            250, projectile_data=proj_data_1, projectile_count=1,
+            250, projectile_label='little_bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)

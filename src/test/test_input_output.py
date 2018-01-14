@@ -38,8 +38,8 @@ class InputOutputTest(unittest.TestCase):
     def test_load_projectile_ability(self) -> None:
         data = load_ability_data('pistol')
 
-        proj_data = load_projectile_data('bullet')
-        expected_data = ProjectileAbilityData(250, proj_data, kickback=200,
+        expected_data = ProjectileAbilityData(250, projectile_label='bullet',
+                                              kickback=200,
                                               spread=5,
                                               sound_on_use='pistol.wav')
         self.assertEqual(data, expected_data)
