@@ -2,7 +2,7 @@ import unittest
 from pygame.math import Vector2
 
 import model
-from abilities import FireProjectile
+from abilities import GenericAbility
 from data.abilities_io import load_ability_data
 from data.projectiles_io import load_projectile_data
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
@@ -30,7 +30,7 @@ class WeaponsTest(unittest.TestCase):
         ability_data = load_ability_data('shotgun')
         ability_data.projectile_count = 1
 
-        fire_little_bullet = FireProjectile(ability_data)
+        fire_little_bullet = GenericAbility(ability_data)
 
         fire_little_bullet.use(player)
 
@@ -45,7 +45,7 @@ class WeaponsTest(unittest.TestCase):
 
         many = 10
         ability_data.projectile_count = many
-        fire_little_bullet = FireProjectile(ability_data)
+        fire_little_bullet = GenericAbility(ability_data)
 
         self.groups.bullets.empty()
         fire_little_bullet.use(player)

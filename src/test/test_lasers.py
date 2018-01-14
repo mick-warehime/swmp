@@ -3,7 +3,7 @@ from typing import Tuple
 
 import model
 import mods
-from abilities import AbilityFactory
+from abilities import GenericAbility
 from creatures.players import Player
 from data.abilities_io import load_ability_data
 from test import dummy_audio_video
@@ -18,7 +18,7 @@ def setUpModule() -> None:
     initialize_gameobjects(LaserTest.groups, LaserTest.timer)
 
     ability_data = load_ability_data('laser')
-    LaserTest.laser_ability = AbilityFactory(ability_data).build()
+    LaserTest.laser_ability = GenericAbility(ability_data)
     dummy_audio_video
 
 

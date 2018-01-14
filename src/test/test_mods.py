@@ -1,7 +1,7 @@
 import unittest
 from pygame.math import Vector2
 import model
-from abilities import AbilityData, RegenerationAbilityData, RegenerationAbility
+from abilities import AbilityData, RegenerationAbilityData, GenericAbility
 from mods import Mod, Proficiencies, Buffs, ModData, ModLocation
 from items.bullet_weapons import PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \

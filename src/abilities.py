@@ -119,43 +119,6 @@ class RegenerationAbilityData(AbilityData):
         return True
 
 
-class RegenerationAbility(Ability):
-    def __init__(self, data: RegenerationAbilityData) -> None:
-        self._cool_down_time = data.cool_down_time
-        super().__init__()
-
-        assert data.heal_amount > 0 or data.recharge_amount > 0
-
-        if data.heal_amount > 0 and data.recharge_amount > 0:
-            condition = IsDamaged() or EnergyNotFull()
-            heal = Heal(data.heal_amount)
-            recharge = Recharge(data.recharge_amount)
-            self.add_can_use_fun(condition.check)
-            self.add_use_fun(heal.activate)
-            self.add_use_fun(recharge.activate)
-        elif data.heal_amount > 0:
-            condition = IsDamaged()
-            heal = Heal(data.heal_amount)
-            self.add_can_use_fun(condition.check)
-            self.add_use_fun(heal.activate)
-        else:
-            assert data.recharge_amount > 0
-            condition = EnergyNotFull()
-            recharge = Recharge(data.recharge_amount)
-            self.add_can_use_fun(condition.check)
-            self.add_use_fun(recharge.activate)
-
-        self.finite_uses = data.finite_uses
-        if data.finite_uses:
-            self.uses_left = data.uses_left
-            effect = DecrementUses(self)
-            self.add_use_fun(effect.activate)
-
-        if data.sound_on_use is not None:
-            effect = PlaySound(data.sound_on_use)
-            self.add_use_fun(effect.activate)
-
-
 class ProjectileAbilityData(AbilityData):
     def __init__(self, cool_down_time: int,
                  projectile_data: ProjectileData = None,
@@ -190,18 +153,16 @@ class ProjectileAbilityData(AbilityData):
         return True
 
 
-class FireProjectile(Ability):
-    def __init__(self, data: ProjectileAbilityData) -> None:
+class GenericAbility(Ability):
+    def __init__(self, data: AbilityData):
         self._cool_down_time = data.cool_down_time
         super().__init__()
 
-        if data.kickback:
-            effect = Kickback(data.kickback)
+        if data.energy_required > 0:
+            condition = EnergyAvailable(data.energy_required)
+            effect = ExpendEnergy(data.energy_required)
             self.add_use_fun(effect.activate)
-
-        effect = MakeProjectile(data.projectile_data, data.spread,
-                                data.projectile_count)
-        self.add_use_fun(effect.activate)
+            self.add_can_use_fun(condition.check)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
@@ -213,43 +174,40 @@ class FireProjectile(Ability):
             effect = PlaySound(data.sound_on_use)
             self.add_use_fun(effect.activate)
 
-        if data.energy_required > 0:
-            condition = EnergyAvailable(data.energy_required)
-            effect = ExpendEnergy(data.energy_required)
-            self.add_use_fun(effect.activate)
+        if hasattr(data, 'heal_amount'):
+            self._load_regeneration_options(data)
+
+        if hasattr(data, 'projectile_data'):
+            self._load_projectile_options(data)
+
+    def _load_regeneration_options(self, data: AbilityData) -> None:
+        if data.heal_amount > 0 and data.recharge_amount > 0:
+            condition = IsDamaged() or EnergyNotFull()
+            heal = Heal(data.heal_amount)
+            recharge = Recharge(data.recharge_amount)
             self.add_can_use_fun(condition.check)
+            self.add_use_fun(heal.activate)
+            self.add_use_fun(recharge.activate)
+        elif data.heal_amount > 0:
+            condition = IsDamaged()
+            heal = Heal(data.heal_amount)
+            self.add_can_use_fun(condition.check)
+            self.add_use_fun(heal.activate)
+        elif data.recharge_amount > 0:
+            condition = EnergyNotFull()
+            recharge = Recharge(data.recharge_amount)
+            self.add_can_use_fun(condition.check)
+            self.add_use_fun(recharge.activate)
 
-    def _fire_projectile(self, humanoid: Any) -> None:
-        assert self._make_projectile is not None, 'self._make_projectile ' \
-                                                  'not defined.'
-        pos = humanoid.pos
-        rot = humanoid.rot
+    def _load_projectile_options(self, data: AbilityData):
+        if data.kickback:
+            effect = Kickback(data.kickback)
+            self.add_use_fun(effect.activate)
 
-        direction = Vector2(1, 0).rotate(-rot)
-        barrel_offset = Vector2(30, 10)
-        origin = pos + barrel_offset.rotate(-rot)
-
-        for _ in range(self._projectile_count):
-            spread = uniform(-self._spread, self._spread)
-            self._make_projectile(origin, direction.rotate(spread))
-
-
-class AbilityFactory(object):
-    """Uses data to construct abilities."""
-
-    def __init__(self, data: AbilityData) -> None:
-        self._data = data
-
-    def build(self) -> Ability:
-
-        # TODO(dvirk): make an Enum for ability types?
-        if isinstance(self._data, RegenerationAbilityData):
-            ability = RegenerationAbility(self._data)  # type: ignore
-
-        elif isinstance(self._data, ProjectileAbilityData):
-            ability = FireProjectile(self._data)  # type: ignore
-
-        return ability
+        if data.projectile_data is not None:
+            effect = MakeProjectile(data.projectile_data, data.spread,
+                                    data.projectile_count)
+            self.add_use_fun(effect.activate)
 
 
 class Condition(object):

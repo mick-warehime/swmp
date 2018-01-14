@@ -2,8 +2,8 @@ import unittest
 from copy import copy
 
 import model
-from abilities import ProjectileAbilityData, FireProjectile, \
-    RegenerationAbilityData, RegenerationAbility, AbilityData
+from abilities import ProjectileAbilityData, GenericAbility, \
+    RegenerationAbilityData, GenericAbility, AbilityData
 from data.abilities_io import load_ability_data
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
@@ -33,7 +33,7 @@ class AbilitiesTest(unittest.TestCase):
         self.timer.reset()
 
     def test_fire_projectile_cannot_shoot_at_first(self) -> None:
-        fire_pistol = FireProjectile(self.projectile_ability_data)
+        fire_pistol = GenericAbility(self.projectile_ability_data)
 
         self.assertFalse(fire_pistol.can_use('dummy_arg'))
         self.timer.current_time += fire_pistol._cool_down_time
@@ -44,7 +44,7 @@ class AbilitiesTest(unittest.TestCase):
     def test_fireprojectile_use_instantiates_bullet_and_flash(self) -> None:
         groups = self.groups
         player = make_player()
-        fire_pistol = FireProjectile(self.projectile_ability_data)
+        fire_pistol = GenericAbility(self.projectile_ability_data)
 
         self.assertEqual(len(groups.all_sprites), 1)
         fire_pistol.use(player)
@@ -68,7 +68,7 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_fireprojectile_use_ignores_can_use(self) -> None:
         player = make_player()
-        fire_pistol = FireProjectile(self.projectile_ability_data)
+        fire_pistol = GenericAbility(self.projectile_ability_data)
 
         self.assertEqual(len(self.groups.bullets), 0)
         self.assertFalse(fire_pistol.can_use('dummy_arg'))
@@ -77,7 +77,7 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_fireprojectile_cannot_use_after_firing(self) -> None:
         player = make_player()
-        fire_pistol = FireProjectile(self.projectile_ability_data)
+        fire_pistol = GenericAbility(self.projectile_ability_data)
         self.timer.current_time += fire_pistol._cool_down_time + 1
 
         self.assertTrue(fire_pistol.can_use('dummy_arg'))
@@ -86,7 +86,7 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_player_shoot_kickback(self) -> None:
         player = make_player()
-        fire_pistol = FireProjectile(self.projectile_ability_data)
+        fire_pistol = GenericAbility(self.projectile_ability_data)
 
         old_vel = (player._vel.x, player._vel.y)
         fire_pistol.use(player)
@@ -101,7 +101,7 @@ class AbilitiesTest(unittest.TestCase):
         ability_data = copy(self.projectile_ability_data)  # type: ignore
         projectile_count = 15
         ability_data.projectile_count = projectile_count
-        fire_many = FireProjectile(ability_data)
+        fire_many = GenericAbility(ability_data)
 
         self.assertEqual(len(self.groups.bullets), 0)
         fire_many.use(player)
@@ -113,7 +113,7 @@ class AbilitiesTest(unittest.TestCase):
         heal_amount = 10
         data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
                                        uses_left=3, heal_amount=heal_amount)
-        heal = RegenerationAbility(data)
+        heal = GenericAbility(data)
 
         max_health = player.max_health
         self.assertEqual(player.health, max_health)
@@ -129,7 +129,7 @@ class AbilitiesTest(unittest.TestCase):
         heal_amount = 10
         data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
                                        uses_left=3, heal_amount=heal_amount)
-        heal = RegenerationAbility(data)
+        heal = GenericAbility(data)
 
         max_health = player.max_health
         player.increment_health(-heal_amount + 2)
@@ -142,7 +142,7 @@ class AbilitiesTest(unittest.TestCase):
         heal_amount = 10
         data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
                                        uses_left=3, heal_amount=heal_amount)
-        heal = RegenerationAbility(data)
+        heal = GenericAbility(data)
 
         max_health = player.max_health
         player.increment_health(-heal_amount - 2)
@@ -156,7 +156,7 @@ class AbilitiesTest(unittest.TestCase):
         data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
                                        uses_left=2,
                                        recharge_amount=recharge_amount)
-        recharge = RegenerationAbility(data)
+        recharge = GenericAbility(data)
 
         source = player.energy_source
         starting_energy = source.max_energy
