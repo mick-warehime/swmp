@@ -2,6 +2,8 @@ fire_projectile:
   defaults: &projectile_defaults
     finite_uses: false
     uses_left: 0
+    kickback: 0
+    spread: 0
     energy_required: 0
     projectile_count: 1
   pistol:
@@ -17,6 +19,13 @@ fire_projectile:
     kickback: 300
     spread: 20
     projectile_count: 12
+  vomit:
+    <<: *projectile_defaults
+    cool_down_time: 250
+    projectile_label: 'vomit'
+    spread: 5
+    projectile_count: 1
+
 
 
 
