@@ -2,7 +2,7 @@ import unittest
 from pygame.math import Vector2
 import model
 from abilities import AbilityData, RegenerationAbilityData, RegenerationAbility
-from mods import Mod, Proficiencies, Buffs, ModData, ModLocation, ModFromData
+from mods import Mod, Proficiencies, Buffs, ModData, ModLocation
 from items.bullet_weapons import PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -27,20 +27,6 @@ class ModTest(unittest.TestCase):
         self.groups.empty()
         self.timer.reset()
 
-    def test_mod_base_class_abstract_properties(self) -> None:
-        mod_base = Mod()
-        with self.assertRaises(NotImplementedError):
-            mod_base.loc
-
-        with self.assertRaises(NotImplementedError):
-            mod_base.expended
-
-        with self.assertRaises(NotImplementedError):
-            mod_base.equipped_image
-
-        with self.assertRaises(NotImplementedError):
-            mod_base.backpack_image
-
     def test_item_object_bob_motion(self) -> None:
         pistol_item = PistolObject(Vector2(0, 0))
         time_for_sweep = int(pistol_item._bob_period * 10)
@@ -63,7 +49,7 @@ class ModTest(unittest.TestCase):
         description = 'banana hammock'
         mod_data = ModData(ModLocation.LEGS, self.ability_data,
                            'no_image', 'no_image', description)
-        hammock_mod = ModFromData(mod_data)
+        hammock_mod = Mod(mod_data)
 
         self.assertEqual(hammock_mod.description, description)
         self.assertEqual(str(hammock_mod), description)
@@ -72,7 +58,7 @@ class ModTest(unittest.TestCase):
                            'no_image', 'no_image', description,
                            buffs=[Buffs.DAMAGE],
                            proficiencies=[Proficiencies.STEALTH])
-        nice_mod = ModFromData(mod_data)
+        nice_mod = Mod(mod_data)
 
         self.assertIn('damage', str(nice_mod))
         self.assertIn('stealth', str(nice_mod))

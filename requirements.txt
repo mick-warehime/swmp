@@ -5,4 +5,4 @@ networkx==2.0
 pygame==1.9.3
 pytweening>=1.0.3
 pytmx>=3.21.3
-attrs>=17.4.0
+PyYAML>=1.3

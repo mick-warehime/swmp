@@ -7,10 +7,10 @@ import images
 import settings
 import sounds
 from abilities import ProjectileAbilityData
+from data.input_output import load_projectile_data
 from model import DynamicObject
-from mods import ModLocation, ItemObject, ModData, ModFromData
+from mods import ModLocation, ItemObject, ModData, Mod
 from tilemap import ObjectType
-from projectiles import ProjectileData
 
 
 class MuzzleFlash(DynamicObject):
@@ -49,10 +49,8 @@ class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = ProjectileData(hits_player=False, damage=75,
-                                         speed=1000,
-                                         max_lifetime=400,
-                                         image_file=images.BULLET_IMG)
+        projectile_data = load_projectile_data('bullet')
+
         ability_data = ProjectileAbilityData(250,
                                              projectile_data=projectile_data,
                                              projectile_count=1,
@@ -63,7 +61,7 @@ class PistolObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.PISTOL_MOD,
                            images.PISTOL, 'pistol')
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 
@@ -80,10 +78,7 @@ class ShotgunObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = ProjectileData(hits_player=False, damage=25,
-                                         speed=500,
-                                         max_lifetime=500,
-                                         image_file=images.LITTLE_BULLET)
+        projectile_data = load_projectile_data('little_bullet')
         ability_data = ProjectileAbilityData(900,
                                              projectile_data=projectile_data,
                                              projectile_count=12,
@@ -93,7 +88,7 @@ class ShotgunObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.SHOTGUN_MOD,
                            images.SHOTGUN, 'shotgun')
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 

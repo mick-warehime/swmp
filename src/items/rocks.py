@@ -5,10 +5,10 @@ from pygame.math import Vector2
 
 from abilities import ProjectileAbilityData
 import images
-from mods import ItemObject, ModLocation, ModData, ModFromData
+from data.input_output import load_projectile_data
+from mods import ItemObject, ModLocation, ModData, Mod
 from sounds import fire_weapon_sound
 from tilemap import ObjectType
-from projectiles import ProjectileData
 
 
 class RockObject(ItemObject):
@@ -17,12 +17,7 @@ class RockObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = ProjectileData(hits_player=False, damage=25,
-                                         speed=250,
-                                         max_lifetime=800,
-                                         image_file=images.LITTLE_ROCK,
-                                         rotating_image=True,
-                                         drops_on_kill=RockObject)
+        projectile_data = load_projectile_data('rock')
         ability_data = ProjectileAbilityData(500,
                                              projectile_data=projectile_data,
                                              spread=2,
@@ -31,7 +26,7 @@ class RockObject(ItemObject):
         mod_data = ModData(ModLocation.ARMS, ability_data, images.ROCK,
                            images.ROCK, 'Rock', True)
 
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 

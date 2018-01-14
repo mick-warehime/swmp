@@ -1,13 +1,12 @@
-
 from pygame.math import Vector2
 from pygame.surface import Surface
 
 import images
 import sounds
 from abilities import ProjectileAbilityData
-from mods import ModLocation, ItemObject, ModData, ModFromData
+from data.input_output import load_projectile_data
+from mods import ModLocation, ItemObject, ModData, Mod
 from tilemap import ObjectType
-from projectiles import ProjectileData
 
 
 def laser_pew_sound(origin: Vector2) -> None:
@@ -20,11 +19,7 @@ class LaserGun(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        projectile_data = ProjectileData(hits_player=False, damage=100,
-                                         speed=1000,
-                                         max_lifetime=1000,
-                                         image_file=images.LITTLE_LASER,
-                                         angled_image=True)
+        projectile_data = load_projectile_data('laser')
         ability_data = ProjectileAbilityData(500,
                                              projectile_data=projectile_data,
                                              projectile_count=1,
@@ -34,7 +29,7 @@ class LaserGun(ItemObject):
 
         mod_data = ModData(ModLocation.ARMS, ability_data,
                            images.LASER_BOLT, images.LASER_GUN, 'laser gun')
-        mod = ModFromData(mod_data)
+        mod = Mod(mod_data)
 
         super().__init__(mod, pos)
 

@@ -1,5 +1,4 @@
 from random import choice, random
-from typing import List
 
 import pygame as pg
 from pygame.math import Vector2
@@ -9,11 +8,11 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import Ability, ProjectileAbilityData, AbilityFactory
+from abilities import ProjectileAbilityData
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from mods import Mod, ModLocation, Buffs, Proficiencies
-from projectiles import ProjectileData
+from data.input_output import load_projectile_data
+from mods import ModLocation, ModData, Mod
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -51,7 +50,7 @@ class Mob(Humanoid):
 
         if self.is_quest:
             self.speed *= 2
-            self._vomit_mod = VomitMod()
+            self._vomit_mod = vomit_mod()
             self.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     @property
@@ -144,47 +143,14 @@ def spew_vomit_effect(origin: Vector2) -> None:
     sounds.spew_vomit_sound()
 
 
-class VomitMod(Mod):
-    loc = ModLocation.HEAD
+def vomit_mod() -> Mod:
+    projectile_data = load_projectile_data('vomit')
+    ability_data = ProjectileAbilityData(250,
+                                         projectile_data=projectile_data,
+                                         projectile_count=1,
+                                         kickback=0, spread=5,
+                                         fire_effects=[spew_vomit_effect])
 
-    def __init__(self, buffs: List[Buffs] = None,
-                 perks: List[Proficiencies] = None) -> None:
-        super().__init__(buffs, perks)
-
-        projectile_data = ProjectileData(hits_player=True, damage=20,
-                                         speed=300,
-                                         max_lifetime=600,
-                                         image_file=images.VOMIT)
-        ability_data = ProjectileAbilityData(250,
-                                             projectile_data=projectile_data,
-                                             projectile_count=1,
-                                             kickback=0, spread=5,
-                                             fire_effects=[spew_vomit_effect])
-
-        self._ability = AbilityFactory(ability_data).build()
-
-    @property
-    def ability(self) -> Ability:
-        return self._ability
-
-    @property
-    def expended(self) -> bool:
-        return False
-
-    @property
-    def stackable(self) -> bool:
-        return False
-
-    @property
-    def equipped_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
-
-    @property
-    def backpack_image(self) -> pg.Surface:
-        raise RuntimeError('This is a zombie ability and should not be '
-                           'visible.')
-
-    @property
-    def description(self) -> str:
-        return 'Vomit'
+    mod_data = ModData(ModLocation.HEAD, ability_data,
+                       'none', 'none', 'vomit')
+    return Mod(mod_data)

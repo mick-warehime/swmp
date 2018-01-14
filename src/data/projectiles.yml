@@ -1,0 +1,33 @@
+bullet:
+  hits_player: false
+  damage: 75
+  speed: 1000
+  max_lifetime: 400
+  image_file: "bullet.png"
+little_bullet:
+  hits_player: false
+  damage: 25
+  speed: 500
+  max_lifetime: 500
+  image_file: "little_bullet.png"
+vomit:
+  hits_player: true
+  damage: 20
+  speed: 300
+  max_lifetime: 600
+  image_file: "vomit.png"
+laser:
+  hits_player: false
+  damage: 100
+  speed: 1000
+  max_lifetime: 1000
+  image_file: "little_laser.png"
+  angled_image: true
+rock:
+  hits_player: false
+  damage: 25
+  speed: 250
+  max_lifetime: 800
+  image_file: "little_rock.png"
+  rotating_image: true
+  drops_on_kill: RockObject
