@@ -6,9 +6,6 @@ import images
 from data.abilities_io import load_ability_data
 from mods import ModLocation, ItemObject, ModData, Mod
 
-BATTERY_AMOUNT = 50
-HEALTH_PACK_AMOUNT = 20
-
 
 class HealthPackObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:

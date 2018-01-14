@@ -93,7 +93,7 @@ class ModTest(unittest.TestCase):
         self.assertIn(hp.mod, active_mods.values())
 
         # health pack fills health back up and is gone from active_mods
-        player.increment_health(-items.utility_items.HEALTH_PACK_AMOUNT)
+        player.increment_health(-hp.mod.ability._heal_amount)
         self.assertTrue(player.damaged)
 
         # Ability is only usable after sufficient time has elapsed.
