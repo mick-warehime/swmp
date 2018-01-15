@@ -3,19 +3,15 @@ from pygame.math import Vector2
 
 import images
 
-from data.abilities_io import load_ability_data
-from mods import ModLocation, ItemObject, ModData, Mod
+from data.mods_io import load_mod_data
+from mods import ItemObject, Mod
 
 
 class HealthPackObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        ability_data = load_ability_data('basic_heal')
-        mod_data = ModData(ModLocation.CHEST, ability_data, images.HEALTH_PACK,
-                           images.HEALTH_PACK, 'healthpack', True)
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('healthpack'))
 
         super().__init__(mod, pos)
 
@@ -27,11 +23,7 @@ class HealthPackObject(ItemObject):
 class Battery(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
-        ability_data = load_ability_data('basic_recharge')
-        mod_data = ModData(ModLocation.CHEST, ability_data, images.LIGHTNING,
-                           images.ENERGY_PACK, 'battery', True)
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('battery'))
 
         super().__init__(mod, pos)
 

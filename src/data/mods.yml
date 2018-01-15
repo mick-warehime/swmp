@@ -43,6 +43,24 @@ rock:
   backpack_image_file: 'rock.png'
   description: 'Rock'
   stackable: true
+healthpack:
+  location: null
+  ability_data: null
+  location_str: 'chest'
+  ability_label: 'basic_heal'
+  equipped_image_file: 'health_pack.png'
+  backpack_image_file: 'health_pack.png'
+  description: 'Health Pack'
+  stackable: true
+battery:
+  location: null
+  ability_data: null
+  location_str: 'chest'
+  ability_label: 'basic_recharge'
+  equipped_image_file: 'energy_pack.png'
+  backpack_image_file: 'energy_pack.png'
+  description: 'Battery'
+  stackable: true
 
 
 
