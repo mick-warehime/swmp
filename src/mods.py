@@ -61,7 +61,6 @@ class Mod(object):
         self._buffs = data.buffs
         self._profs = data.proficiencies
 
-        # factory = AbilityFactory(self._data.ability_data)
         self._ability = GenericAbility(data.ability_data)
 
     @property
