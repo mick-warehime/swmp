@@ -1,8 +1,7 @@
 """Module for defining Humanoid abilities."""
 from collections import namedtuple
 from random import uniform
-from typing import Any, List
-from typing import Union, Callable
+from typing import Any, List, Union
 
 from pygame.math import Vector2
 
