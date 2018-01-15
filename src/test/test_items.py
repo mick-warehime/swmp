@@ -1,15 +1,19 @@
 import unittest
 from pygame.math import Vector2
 
-import items.bullet_weapons
-import items.utility_items
 import model
 import mods
+from items.bullet_weapons import PistolObject
+from items.laser_weapons import LaserGun
 from items.rocks import RockObject
+from items.utility_items import HealthPackObject, Battery
+
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
 from src.test.testing_utilities import make_player, make_item
+
+import src.test.dummy_audio_video
 
 
 def setUpModule() -> None:
@@ -148,7 +152,7 @@ class ModTest(unittest.TestCase):
     def test_mod_stacking_in_active_mods(self) -> None:
         player = make_player()
         pos = Vector2(0, 0)
-        hp = items.utility_items.HealthPackObject(pos)
+        hp = HealthPackObject(pos)
 
         self.assertNotIn(hp.mod.loc, player.active_mods)
 
@@ -157,11 +161,11 @@ class ModTest(unittest.TestCase):
         self.assertIs(player_mod, hp.mod)
         self.assertEqual(player_mod.ability.uses_left, 1)
 
-        player.attempt_pickup(items.utility_items.HealthPackObject(pos))
+        player.attempt_pickup(HealthPackObject(pos))
         player_mod = player.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 2)
 
-        player.attempt_pickup(items.utility_items.HealthPackObject(pos))
+        player.attempt_pickup(HealthPackObject(pos))
         player_mod = player.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 3)
 
@@ -169,7 +173,7 @@ class ModTest(unittest.TestCase):
         player = make_player()
         pos = Vector2(0, 0)
 
-        player.attempt_pickup(items.bullet_weapons.PistolObject(pos))
+        player.attempt_pickup(PistolObject(pos))
 
         self.assertFalse(player.backpack.slot_occupied(0))
 
@@ -185,6 +189,29 @@ class ModTest(unittest.TestCase):
 
         player.attempt_pickup(RockObject(pos))
         self.assertEqual(player.backpack[0].ability.uses_left, 4)
+
+    def test_pickup_several_items(self):
+        player = make_player()
+        pos = Vector2(0, 0)
+
+        laser_gun = LaserGun(pos)
+        battery = Battery(pos)
+        pistol = PistolObject(pos)
+        medpack = HealthPackObject(pos)
+
+
+        player.attempt_pickup(laser_gun)
+        self.assertIs(laser_gun.mod, player.active_mods[mods.ModLocation.ARMS])
+        player.attempt_pickup(battery)
+        self.assertIs(battery.mod, player.active_mods[mods.ModLocation.CHEST])
+        player.attempt_pickup(pistol)
+        self.assertIn(pistol.mod, player.backpack)
+        self.assertTrue(player.backpack.slot_occupied(0))
+        player.attempt_pickup(medpack)
+        self.assertIn(medpack.mod, player.backpack)
+        self.assertTrue(player.backpack.slot_occupied(1))
+
+
 
 
 if __name__ == '__main__':

@@ -146,7 +146,7 @@ class Backpack(object):
         return self._slots_filled == self.size
 
     def add_mod(self, mod: mods.Mod) -> None:
-        matching_mods = [md for md in self._slots if isinstance(md, type(mod))]
+        matching_mods = [md for md in self._slots if md == mod]
         if matching_mods and mod.stackable:
             assert len(matching_mods) == 1
             matching_mods[0].ability.uses_left += mod.ability.uses_left
