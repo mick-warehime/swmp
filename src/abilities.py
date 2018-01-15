@@ -20,7 +20,24 @@ def initialize_classes(timer: Timer) -> None:
     # AbilityFromData.initialize_class(timer)
 
 
-INFINITE_USES = -1000
+class Condition(object):
+    """Evaluates a boolean function on a Humanoid."""
+
+    def check(self, humanoid: Any) -> bool:
+        raise NotImplementedError
+
+    def __or__(self, other: Any) -> object:
+        assert isinstance(other, Condition)
+        return _Or(self, other)
+
+
+class _Or(Condition):
+    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
+        self._cond_0 = cond_0
+        self._cond_1 = cond_1
+
+    def check(self, humanoid: Any) -> bool:
+        return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
 
 
 class Ability(object):
@@ -31,9 +48,9 @@ class Ability(object):
         self._check_class_initialized()
 
         self._use_funs: List[UseFun] = []
-        self._can_use_funs: List[CanUseFun] = []
+        self._use_conditions: List[Condition] = []
 
-        self.uses_left = INFINITE_USES
+        self.uses_left = 0
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
@@ -41,13 +58,13 @@ class Ability(object):
         cls.class_initialized = True
 
     def can_use(self, humanoid: Any) -> bool:
-        for condition in self._can_use_funs:
-            if not condition(humanoid):
+        for condition in self._use_conditions:
+            if not condition.check(humanoid):
                 return False
         return True
 
-    def add_can_use_fun(self, can_use_fun: CanUseFun) -> None:
-        self._can_use_funs.append(can_use_fun)
+    def add_use_condition(self, condition: Condition) -> None:
+        self._use_conditions.append(condition)
 
     @property
     def cooldown_fraction(self) -> float:
@@ -108,7 +125,7 @@ class GenericAbility(Ability):
         super().__init__()
 
         cool_down = CooldownCondition(self._timer, data.cool_down_time)
-        self.add_can_use_fun(cool_down.check)
+        self.add_use_condition(cool_down)
         self.add_use_fun(cool_down.update_last_use)
         self._cool_down_fraction_fun = cool_down.cooldown_fraction
 
@@ -116,7 +133,7 @@ class GenericAbility(Ability):
             condition = EnergyAvailable(data.energy_required)
             effect: Effect = ExpendEnergy(data.energy_required)
             self.add_use_fun(effect.activate)
-            self.add_can_use_fun(condition.check)
+            self.add_use_condition(condition)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
@@ -143,18 +160,18 @@ class GenericAbility(Ability):
             condition = IsDamaged() or EnergyNotFull()
             heal: Effect = Heal(data.heal_amount)
             recharge: Effect = Recharge(data.recharge_amount)
-            self.add_can_use_fun(condition.check)
+            self.add_use_condition(condition)
             self.add_use_fun(heal.activate)
             self.add_use_fun(recharge.activate)
         elif data.heal_amount > 0:
             condition = IsDamaged()
             heal = Heal(data.heal_amount)
-            self.add_can_use_fun(condition.check)
+            self.add_use_condition(condition)
             self.add_use_fun(heal.activate)
         elif data.recharge_amount > 0:
             condition = EnergyNotFull()
             recharge = Recharge(data.recharge_amount)
-            self.add_can_use_fun(condition.check)
+            self.add_use_condition(condition)
             self.add_use_fun(recharge.activate)
 
     def _load_projectile_options(self, data: AbilityData) -> None:
@@ -166,26 +183,6 @@ class GenericAbility(Ability):
             effect = MakeProjectile(data.projectile_data, data.spread,
                                     data.projectile_count)
             self.add_use_fun(effect.activate)
-
-
-class Condition(object):
-    """Evaluates a boolean function on a Humanoid."""
-
-    def check(self, humanoid: Any) -> bool:
-        raise NotImplementedError
-
-    def __or__(self, other: Any) -> object:
-        assert isinstance(other, Condition)
-        return _Or(self, other)
-
-
-class _Or(Condition):
-    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
-        self._cond_0 = cond_0
-        self._cond_1 = cond_1
-
-    def check(self, humanoid: Any) -> bool:
-        return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
 
 
 class CooldownCondition(Condition):
