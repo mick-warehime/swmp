@@ -1,8 +1,11 @@
 import unittest
+from typing import Tuple
+
 from pygame.math import Vector2
 
 import model
 import mods
+from creatures.players import Player
 from items.bullet_weapons import PistolObject
 from items.laser_weapons import LaserGun
 from items.rocks import RockObject
@@ -68,7 +71,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(pistol)
         self.assertEqual(len(backpack), player.backpack.size)
 
-    def test_pickup_healthpacks(self):
+    def test_pickup_healthpacks(self) -> None:
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
 
@@ -119,7 +122,7 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
         self.assertEqual(player.health, player.max_health)
 
-    def _player_with_ready_healthpack(self):
+    def _player_with_ready_healthpack(self) -> Tuple[mods.ItemObject, Player]:
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)
