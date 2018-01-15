@@ -1,5 +1,5 @@
 """Module for defining Humanoid abilities."""
-
+from collections import namedtuple
 from random import uniform
 from typing import Any, List
 from typing import Union, Callable
@@ -73,80 +73,39 @@ class Ability(object):
                                'instantiating an object.' % (cls,))
 
 
-class AbilityData(object):
-    def __init__(self, cool_down_time: int, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0,
-                 sound_on_use: str = None) -> None:
-        self.cool_down_time = cool_down_time
-        self.finite_uses = finite_uses
-        self.uses_left = uses_left
-        self.energy_required = energy_required
-        self.sound_on_use = sound_on_use
+BaseAbilityData = namedtuple('BaseAbilityData',
+                             ('cool_down_time', 'finite_uses', 'uses_left',
+                              'energy_required', 'sound_on_use', 'kickback',
+                              'spread', 'projectile_count', 'projectile_data',
+                              'heal_amount', 'recharge_amount'))
+
+
+class AbilityData(BaseAbilityData):
+    def __new__(cls, cool_down_time: int, finite_uses: bool = False,
+                uses_left: int = 0, energy_required: int = 0,
+                sound_on_use: str = None, kickback: int = 0, spread: int = 0,
+                projectile_count: int = 1, projectile_label: str = None,
+                heal_amount: int = 0,
+                recharge_amount: int = 0) -> BaseAbilityData:
+
+        if projectile_label is not None:
+            projectile_data = load_projectile_data(projectile_label)
+        else:
+            projectile_data = None
+        return super().__new__(cls, cool_down_time, finite_uses, uses_left,
+                               energy_required, sound_on_use, kickback, spread,
+                               projectile_count, projectile_data, heal_amount,
+                               recharge_amount)
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(self, type(other)):
+        if not isinstance(other, AbilityData):
             return False
-        if self.cool_down_time != other.cool_down_time:
-            return False
-        if self.finite_uses != other.finite_uses:
-            return False
-        if self.energy_required != other.energy_required:
-            return False
-        if self.sound_on_use != other.sound_on_use:
-            return False
-        return True
-
-
-class RegenerationAbilityData(AbilityData):
-    def __init__(self, cool_down_time: int, heal_amount: int = 0,
-                 recharge_amount: int = 0, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0,
-                 sound_on_use: str = None) -> None:
-        super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required, sound_on_use)
-        self.heal_amount = heal_amount
-        self.recharge_amount = recharge_amount
-
-    def __eq__(self, other: Any) -> bool:
-        if not super().__eq__(other):
-            return False
-
-        if self.heal_amount != other.heal_amount:
-            return False
-        if self.recharge_amount != other.recharge_amount:
-            return False
-
-        return True
-
-
-class ProjectileAbilityData(AbilityData):
-    def __init__(self, cool_down_time: int,
-                 finite_uses: bool = False, uses_left: int = 0,
-                 energy_required: int = 0,
-                 kickback: int = 0, spread: int = 0,
-                 projectile_count: int = 1,
-                 projectile_label: str = None,
-                 sound_on_use: str = None) -> None:
-        super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required, sound_on_use)
-        self.projectile_data = load_projectile_data(projectile_label)
-        self.kickback = kickback
-        self.spread = spread
-        self.projectile_count = projectile_count
-
-    def __eq__(self, other: Any) -> bool:
-        if not super().__eq__(other):
-            return False
-
-        if self.projectile_data != other.projectile_data:
-            return False
-        if self.kickback != other.kickback:
-            return False
-        if self.spread != other.spread:
-            return False
-        if self.projectile_count != other.projectile_count:
-            return False
-
+        for field in self._fields:
+            # Uses left should not determine equality.
+            if field == 'uses_left':
+                continue
+            if getattr(self, field) != getattr(other, field):
+                return False
         return True
 
 

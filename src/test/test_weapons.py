@@ -9,6 +9,8 @@ from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player
 
+import src.test.dummy_audio_video
+
 
 def setUpModule() -> None:
     initialize_pygame()
@@ -27,8 +29,8 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        ability_data = load_ability_data('shotgun')
-        ability_data.projectile_count = 1
+        ability_data = load_ability_data('shotgun')._replace(
+            projectile_count=1)
 
         fire_little_bullet = GenericAbility(ability_data)
 
@@ -44,7 +46,7 @@ class WeaponsTest(unittest.TestCase):
         one_disp = (bullet.pos - first_pos).length()
 
         many = 10
-        ability_data.projectile_count = many
+        ability_data = ability_data._replace(projectile_count=many)
         fire_little_bullet = GenericAbility(ability_data)
 
         self.groups.bullets.empty()

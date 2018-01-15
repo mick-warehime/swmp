@@ -2,8 +2,8 @@ import unittest
 from copy import copy
 
 import model
-from abilities import ProjectileAbilityData, GenericAbility, \
-    RegenerationAbilityData, GenericAbility, AbilityData
+from abilities import AbilityData, GenericAbility, \
+    AbilityData, GenericAbility, AbilityData
 from data.abilities_io import load_ability_data
 from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
@@ -18,7 +18,6 @@ def setUpModule() -> None:
     initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
 
     ability_data = load_ability_data('pistol')
-    ability_data.fire_effects = [MuzzleFlash]
 
     AbilitiesTest.projectile_ability_data = ability_data
 
@@ -98,9 +97,10 @@ class AbilitiesTest(unittest.TestCase):
 
     def test_fire_many_bullets(self) -> None:
         player = make_player()
-        ability_data = copy(self.projectile_ability_data)  # type: ignore
+
         projectile_count = 15
-        ability_data.projectile_count = projectile_count
+        ability_data = self.projectile_ability_data._replace(
+            projectile_count=projectile_count)
         fire_many = GenericAbility(ability_data)
 
         self.assertEqual(len(self.groups.bullets), 0)
@@ -111,8 +111,8 @@ class AbilitiesTest(unittest.TestCase):
     def test_heal_player_not_damaged(self) -> None:
         player = make_player()
         heal_amount = 10
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=3, heal_amount=heal_amount)
+        data = AbilityData(cool_down_time=300, finite_uses=True,
+                           uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
         max_health = player.max_health
@@ -127,8 +127,8 @@ class AbilitiesTest(unittest.TestCase):
     def test_heal_player_damaged_to_full(self) -> None:
         player = make_player()
         heal_amount = 10
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=3, heal_amount=heal_amount)
+        data = AbilityData(cool_down_time=300, finite_uses=True,
+                           uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
         max_health = player.max_health
@@ -140,8 +140,8 @@ class AbilitiesTest(unittest.TestCase):
     def test_heal_player_damaged_correct_amount(self) -> None:
         player = make_player()
         heal_amount = 10
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=3, heal_amount=heal_amount)
+        data = AbilityData(cool_down_time=300, finite_uses=True,
+                           uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
         max_health = player.max_health
@@ -153,9 +153,9 @@ class AbilitiesTest(unittest.TestCase):
     def test_regenerate_player_energy_correct_amount(self) -> None:
         player = make_player()
         recharge_amount = 15
-        data = RegenerationAbilityData(cool_down_time=300, finite_uses=True,
-                                       uses_left=2,
-                                       recharge_amount=recharge_amount)
+        data = AbilityData(cool_down_time=300, finite_uses=True,
+                           uses_left=2,
+                           recharge_amount=recharge_amount)
         recharge = GenericAbility(data)
 
         source = player.energy_source
@@ -198,102 +198,102 @@ class AbilitiesTest(unittest.TestCase):
         self.assertNotEqual(base_data, 1)
         self.assertNotEqual(1, base_data)
 
-        reg_data = RegenerationAbilityData(300, heal_amount=10,
-                                           finite_uses=True, uses_left=1)
-        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
-                                             finite_uses=True, uses_left=1)
+        reg_data = AbilityData(300, heal_amount=10,
+                               finite_uses=True, uses_left=1)
+        reg_data_2 = AbilityData(300, heal_amount=10,
+                                 finite_uses=True, uses_left=1)
         self.assertEqual(reg_data, reg_data_2)
 
-        reg_data = RegenerationAbilityData(301, heal_amount=10,
-                                           finite_uses=True, uses_left=1)
-        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
-                                             finite_uses=True, uses_left=1)
+        reg_data = AbilityData(301, heal_amount=10,
+                               finite_uses=True, uses_left=1)
+        reg_data_2 = AbilityData(300, heal_amount=10,
+                                 finite_uses=True, uses_left=1)
         self.assertNotEqual(reg_data, reg_data_2)
 
-        reg_data = RegenerationAbilityData(300, heal_amount=10,
-                                           finite_uses=True, uses_left=1)
-        reg_data_2 = RegenerationAbilityData(300, heal_amount=11,
-                                             finite_uses=True, uses_left=1)
+        reg_data = AbilityData(300, heal_amount=10,
+                               finite_uses=True, uses_left=1)
+        reg_data_2 = AbilityData(300, heal_amount=11,
+                                 finite_uses=True, uses_left=1)
         self.assertNotEqual(reg_data, reg_data_2)
 
-        reg_data = RegenerationAbilityData(300, heal_amount=10,
-                                           finite_uses=True, uses_left=1)
-        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
-                                             finite_uses=True, uses_left=2)
+        reg_data = AbilityData(300, heal_amount=10,
+                               finite_uses=True, uses_left=1)
+        reg_data_2 = AbilityData(300, heal_amount=10,
+                                 finite_uses=True, uses_left=2)
         self.assertEqual(reg_data, reg_data_2)
 
-        reg_data = RegenerationAbilityData(300, heal_amount=10,
-                                           recharge_amount=1,
-                                           finite_uses=True, uses_left=1)
-        reg_data_2 = RegenerationAbilityData(300, heal_amount=10,
-                                             finite_uses=True, uses_left=1)
+        reg_data = AbilityData(300, heal_amount=10,
+                               recharge_amount=1,
+                               finite_uses=True, uses_left=1)
+        reg_data_2 = AbilityData(300, heal_amount=10,
+                                 finite_uses=True, uses_left=1)
         self.assertNotEqual(reg_data, reg_data_2)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             251, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=2,
             kickback=200, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=201, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=6)
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5, sound_on_use='a')
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5, sound_on_use='b')
 
         self.assertNotEqual(proj_ability_data_0, proj_ability_data_1)
 
-        proj_ability_data_0 = ProjectileAbilityData(
+        proj_ability_data_0 = AbilityData(
             250, projectile_label='bullet', projectile_count=1,
             kickback=200, spread=5)
 
-        proj_ability_data_1 = ProjectileAbilityData(
+        proj_ability_data_1 = AbilityData(
             250, projectile_label='little_bullet', projectile_count=1,
             kickback=200, spread=5)
 

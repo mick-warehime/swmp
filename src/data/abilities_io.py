@@ -1,7 +1,7 @@
 import yaml
 
-from abilities import AbilityData, ProjectileAbilityData, \
-    RegenerationAbilityData
+from abilities import AbilityData, AbilityData, \
+    AbilityData
 
 from src import __path__ as _src_path  # type: ignore
 
@@ -9,9 +9,9 @@ _src_path = _src_path[0]
 
 _ABILITIES_FILE = _src_path + '/data/abilities.yml'
 
-# TODO(dvirk): The MuzzleFlash and fire sounds must be added back in later.
-_ability_constructors = {'fire_projectile': ProjectileAbilityData,
-                         'regeneration': RegenerationAbilityData}
+
+# TODO(dvirk): The MuzzleFlash must be added back in later.
+
 
 
 # TODO(dvirk): Currently the file is read every time load... is
@@ -22,6 +22,5 @@ def load_ability_data(name: str) -> AbilityData:
 
         for ability_type, ability_kwargs in all_data.items():
             if name in ability_kwargs:
-                constructor = _ability_constructors[ability_type]
-                return constructor(**ability_kwargs[name])
+                return AbilityData(**ability_kwargs[name])
         raise KeyError('Ability name %s not recognized' % (name,))
