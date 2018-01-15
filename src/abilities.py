@@ -11,9 +11,6 @@ from data.projectiles_io import load_projectile_data
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory
 
-UseFun = Callable[[Any], None]
-CanUseFun = Callable[[Any], bool]
-
 
 def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
