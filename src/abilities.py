@@ -40,6 +40,13 @@ class _Or(Condition):
         return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
 
 
+class Effect(object):
+    """Implements an effect on a Humanoid."""
+
+    def activate(self, humanoid: Any) -> None:
+        raise NotImplementedError
+
+
 class Ability(object):
     _timer: Union[None, Timer] = None
     class_initialized = False
@@ -47,7 +54,7 @@ class Ability(object):
     def __init__(self) -> None:
         self._check_class_initialized()
 
-        self._use_funs: List[UseFun] = []
+        self._use_effects: List[Effect] = []
         self._use_conditions: List[Condition] = []
 
         self.uses_left = 0
@@ -71,11 +78,11 @@ class Ability(object):
         raise NotImplementedError
 
     def use(self, humanoid: Any) -> None:
-        for use_fun in self._use_funs:
-            use_fun(humanoid)
+        for effect in self._use_effects:
+            effect.activate(humanoid)
 
-    def add_use_fun(self, fun: UseFun) -> None:
-        self._use_funs.append(fun)
+    def add_use_effect(self, effect: Effect) -> None:
+        self._use_effects.append(effect)
 
     @classmethod
     def _check_class_initialized(cls) -> None:
@@ -125,25 +132,26 @@ class GenericAbility(Ability):
         super().__init__()
 
         cool_down = CooldownCondition(self._timer, data.cool_down_time)
+        update_use = UpdateLastUse(cool_down)
         self.add_use_condition(cool_down)
-        self.add_use_fun(cool_down.update_last_use)
+        self.add_use_effect(update_use)
         self._cool_down_fraction_fun = cool_down.cooldown_fraction
 
         if data.energy_required > 0:
             condition = EnergyAvailable(data.energy_required)
             effect: Effect = ExpendEnergy(data.energy_required)
-            self.add_use_fun(effect.activate)
+            self.add_use_effect(effect)
             self.add_use_condition(condition)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
             effect = DecrementUses(self)
-            self.add_use_fun(effect.activate)
+            self.add_use_effect(effect)
 
         if data.sound_on_use is not None:
             effect = PlaySound(data.sound_on_use)
-            self.add_use_fun(effect.activate)
+            self.add_use_effect(effect)
 
         if hasattr(data, 'heal_amount'):
             self._load_regeneration_options(data)
@@ -161,28 +169,28 @@ class GenericAbility(Ability):
             heal: Effect = Heal(data.heal_amount)
             recharge: Effect = Recharge(data.recharge_amount)
             self.add_use_condition(condition)
-            self.add_use_fun(heal.activate)
-            self.add_use_fun(recharge.activate)
+            self.add_use_effect(heal)
+            self.add_use_effect(recharge)
         elif data.heal_amount > 0:
             condition = IsDamaged()
             heal = Heal(data.heal_amount)
             self.add_use_condition(condition)
-            self.add_use_fun(heal.activate)
+            self.add_use_effect(heal)
         elif data.recharge_amount > 0:
             condition = EnergyNotFull()
             recharge = Recharge(data.recharge_amount)
             self.add_use_condition(condition)
-            self.add_use_fun(recharge.activate)
+            self.add_use_effect(recharge)
 
     def _load_projectile_options(self, data: AbilityData) -> None:
         if data.kickback:
             effect: Effect = Kickback(data.kickback)
-            self.add_use_fun(effect.activate)
+            self.add_use_effect(effect)
 
         if data.projectile_data is not None:
             effect = MakeProjectile(data.projectile_data, data.spread,
                                     data.projectile_count)
-            self.add_use_fun(effect.activate)
+            self.add_use_effect(effect)
 
 
 class CooldownCondition(Condition):
@@ -226,11 +234,12 @@ class EnergyNotFull(Condition):
         return source.energy_available < source.max_energy
 
 
-class Effect(object):
-    """Implements an effect on a Humanoid."""
+class UpdateLastUse(Effect):
+    def __init__(self, cool_down_condition: CooldownCondition) -> None:
+        self._cool_down_condition = cool_down_condition
 
     def activate(self, humanoid: Any) -> None:
-        raise NotImplementedError
+        self._cool_down_condition.update_last_use(humanoid)
 
 
 class Heal(Effect):
