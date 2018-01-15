@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 import images
 import model
-from data.input_output import load_projectile_data
+from data.projectiles_io import load_projectile_data
 from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -110,7 +110,7 @@ class ProjectilesTest(unittest.TestCase):
         self.assertEqual(len(self.groups.all_sprites), 0)
 
         for k in range(5):
-            factory.build_projectile(Vector2(0, 0), Vector2(1, 0))
+            factory.build(Vector2(0, 0), Vector2(1, 0))
             self.assertEqual(len(self.groups.all_sprites), k + 1)
             self.assertEqual(len(self.groups.enemy_projectiles), k + 1)
             self.assertEqual(len(self.groups.bullets), 0)

@@ -1,70 +1,84 @@
 """Module for defining Humanoid abilities."""
-
+from collections import namedtuple
 from random import uniform
-from typing import Any, List, Sequence
-from typing import Union, Callable
+from typing import Any, List, Union
 
 from pygame.math import Vector2
 
 import sounds
-from model import Timer, EnergySource
+from data.projectiles_io import load_projectile_data
+from model import Timer
 from projectiles import ProjectileData, ProjectileFactory
-
-UseFun = Callable[[Any], None]
-EffectFun = Callable[[Vector2], None]
 
 
 def initialize_classes(timer: Timer) -> None:
     Ability.initialize_class(timer)
+    # AbilityFromData.initialize_class(timer)
 
 
-def null_effect(origin: Vector2) -> None:
-    pass
+class Condition(object):
+    """Evaluates a boolean function on a Humanoid."""
+
+    def check(self, humanoid: Any) -> bool:
+        raise NotImplementedError
+
+    def __or__(self, other: Any) -> object:
+        assert isinstance(other, Condition)
+        return _Or(self, other)
 
 
-INFINITE_USES = -1000
+class _Or(Condition):
+    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
+        self._cond_0 = cond_0
+        self._cond_1 = cond_1
+
+    def check(self, humanoid: Any) -> bool:
+        return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
+
+
+class Effect(object):
+    """Implements an effect on a Humanoid."""
+
+    def activate(self, humanoid: Any) -> None:
+        raise NotImplementedError
 
 
 class Ability(object):
-    _cool_down_time: int = None
     _timer: Union[None, Timer] = None
     class_initialized = False
 
     def __init__(self) -> None:
         self._check_class_initialized()
-        self._update_last_use()
-        self._use_funs: List[Callable[[Any], None]] = []
-        self._uses_left = INFINITE_USES
+
+        self._use_effects: List[Effect] = []
+        self._use_conditions: List[Condition] = []
+
+        self.uses_left = 0
 
     @classmethod
     def initialize_class(cls, timer: Timer) -> None:
         cls._timer = timer
         cls.class_initialized = True
 
-    @property
-    def can_use(self) -> bool:
-        return self._time_since_last_use > self._cool_down_time
+    def can_use(self, humanoid: Any) -> bool:
+        for condition in self._use_conditions:
+            if not condition.check(humanoid):
+                return False
+        return True
+
+    def add_use_condition(self, condition: Condition) -> None:
+        self._use_conditions.append(condition)
 
     @property
     def cooldown_fraction(self) -> float:
-        fraction = float(self._time_since_last_use) / self._cool_down_time
-
-        return min(max(0.0, fraction), 1.0)
+        raise NotImplementedError
 
     def use(self, humanoid: Any) -> None:
-        for use_fun in self._use_funs:
-            use_fun(humanoid)
-        self._update_last_use()
+        for effect in self._use_effects:
+            effect.activate(humanoid)
 
-    def _add_use_fun(self, fun: UseFun) -> None:
-        self._use_funs.append(fun)
-
-    def _update_last_use(self) -> None:
-        self._last_use = self._timer.current_time
-
-    @property
-    def _time_since_last_use(self) -> int:
-        return self._timer.current_time - self._last_use
+    def add_use_effect(self, effect: Effect) -> None:
+        self._use_effects.append(effect)
 
     @classmethod
     def _check_class_initialized(cls) -> None:
@@ -72,196 +86,215 @@ class Ability(object):
             raise RuntimeError('Class %s must be initialized before '
                                'instantiating an object.' % (cls,))
 
-    @property
-    def uses_left(self) -> int:
-        return self._uses_left
 
-    @uses_left.setter
-    def uses_left(self, amnt: int) -> None:
-        self._uses_left = amnt
-
-
-class EnergyAbility(Ability):
-    """Ability that can only activate by modifying an energy source's reserves.
-
-    This uses the `decorator' (?) pattern to add an energy requirement to a
-    base ability.
-    """
-
-    def __init__(self, base_ability: Ability, energy_required: float) -> None:
-        super().__init__()
-        self._base_ability = base_ability
-        self._energy_source: EnergySource = None
-        self.energy_required = energy_required
-
-    def use(self, humanoid: Any) -> None:
-        assert self.can_use
-        self._base_ability.use(humanoid)
-        self._energy_source.expend_energy(self.energy_required)
-
-    def assign_energy_source(self, source: EnergySource) -> None:
-        self._energy_source = source
-
-    @property
-    def can_use(self) -> bool:
-        source = self._energy_source
-        if source is None:
-            raise RuntimeError('An energy source must be assigned before '
-                               '.can_use is defined.')
-        if self.energy_required > source.energy_available:
-            return False
-        return self._base_ability.can_use
-
-    @property
-    def cooldown_fraction(self) -> float:
-        return self._base_ability.cooldown_fraction
-
-    @property
-    def uses_left(self) -> int:
-        assert self.uses_left != INFINITE_USES, 'Ability %s is not finite ' \
-                                                'use.' % (self._base_ability,)
-        return self._base_ability.uses_left
-
-    @uses_left.setter
-    def uses_left(self, amount: int) -> None:
-        self._base_ability.uses_left = amount
+BaseAbilityData = namedtuple('BaseAbilityData',
+                             ('cool_down_time', 'finite_uses', 'uses_left',
+                              'energy_required', 'sound_on_use', 'kickback',
+                              'spread', 'projectile_count', 'projectile_data',
+                              'heal_amount', 'recharge_amount'))
 
 
-class AbilityData(object):
-    def __init__(self, cool_down_time: int, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0) -> None:
-        self.cool_down_time = cool_down_time
-        self.finite_uses = finite_uses
-        self.uses_left = uses_left
-        self.energy_required = energy_required
+class AbilityData(BaseAbilityData):
+    def __new__(cls, cool_down_time: int, finite_uses: bool = False,
+                uses_left: int = 0, energy_required: int = 0,
+                sound_on_use: str = None, kickback: int = 0, spread: int = 0,
+                projectile_count: int = 1, projectile_label: str = None,
+                heal_amount: int = 0,
+                recharge_amount: int = 0) -> BaseAbilityData:
+
+        if projectile_label is not None:
+            projectile_data = load_projectile_data(projectile_label)
+        else:
+            projectile_data = None
+        return super().__new__(cls, cool_down_time, finite_uses, uses_left,
+                               energy_required, sound_on_use, kickback, spread,
+                               projectile_count, projectile_data, heal_amount,
+                               recharge_amount)
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(self, type(other)):
+        if not isinstance(other, AbilityData):
             return False
-        if self.cool_down_time != other.cool_down_time:
-            return False
-        if self.finite_uses != other.finite_uses:
-            return False
-        if self.energy_required != other.energy_required:
-            return False
+        for field in self._fields:
+            # Uses left should not determine equality.
+            if field == 'uses_left':
+                continue
+            if getattr(self, field) != getattr(other, field):
+                return False
         return True
 
 
-class RegenerationAbilityData(AbilityData):
-    def __init__(self, cool_down_time: int, heal_amount: int = 0,
-                 recharge_amount: int = 0, finite_uses: bool = False,
-                 uses_left: int = 0, energy_required: int = 0) -> None:
-        super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required)
-        self.heal_amount = heal_amount
-        self.recharge_amount = recharge_amount
-
-    def __eq__(self, other: Any) -> bool:
-        if not super().__eq__(other):
-            return False
-
-        if self.heal_amount != other.heal_amount:
-            return False
-        if self.recharge_amount != other.recharge_amount:
-            return False
-
-        return True
-
-
-class RegenerationAbility(Ability):
-    def __init__(self, data: RegenerationAbilityData) -> None:
+class GenericAbility(Ability):
+    def __init__(self, data: AbilityData) -> None:
         super().__init__()
-        self._cool_down_time = data.cool_down_time
 
-        assert data.heal_amount > 0 or data.recharge_amount > 0
+        cool_down = CooldownCondition(self._timer, data.cool_down_time)
+        update_use = UpdateLastUse(cool_down)
+        self.add_use_condition(cool_down)
+        self.add_use_effect(update_use)
+        self._cool_down_fraction_fun = cool_down.cooldown_fraction
 
-        self._heal_amount = data.heal_amount
-        self._recharge_amount = data.recharge_amount
-        self._just_used = False
-
-        if data.heal_amount > 0:
-            self._add_use_fun(self._heal)
-
-        if data.recharge_amount > 0:
-            self._add_use_fun(self._recharge)
+        if data.energy_required > 0:
+            condition = EnergyAvailable(data.energy_required)
+            effect: Effect = ExpendEnergy(data.energy_required)
+            self.add_use_effect(effect)
+            self.add_use_condition(condition)
 
         self.finite_uses = data.finite_uses
         if data.finite_uses:
             self.uses_left = data.uses_left
-            self._add_use_fun(self._decrement_uses_just_used)
+            effect = DecrementUses(self)
+            self.add_use_effect(effect)
 
-    def _decrement_uses_just_used(self, *dummy_args: List[Any]) -> None:
+        if data.sound_on_use is not None:
+            effect = PlaySound(data.sound_on_use)
+            self.add_use_effect(effect)
 
-        if self._just_used:
-            self.uses_left -= 1
-            self._just_used = False
+        if hasattr(data, 'heal_amount'):
+            self._load_regeneration_options(data)
 
-    def _heal(self, humanoid: Any) -> None:
-        if humanoid.damaged:
-            sounds.play(sounds.HEALTH_UP)
-            humanoid.increment_health(self._heal_amount)
-            self._just_used = True
+        if hasattr(data, 'projectile_data'):
+            self._load_projectile_options(data)
 
-    def _recharge(self, humanoid: Any) -> None:
-        assert hasattr(humanoid, 'energy_source'), 'No energy source for %s' \
-                                                   % (humanoid,)
-        energy_source = humanoid.energy_source
-        if energy_source.energy_available < energy_source.max_energy:
-            energy_source.increment_energy(self._recharge_amount)
-            sounds.play(sounds.HEALTH_UP)
-            self._just_used = True
+    @property
+    def cooldown_fraction(self) -> float:
+        return self._cool_down_fraction_fun()
 
+    def _load_regeneration_options(self, data: AbilityData) -> None:
+        if data.heal_amount > 0 and data.recharge_amount > 0:
+            condition = IsDamaged() or EnergyNotFull()
+            heal: Effect = Heal(data.heal_amount)
+            recharge: Effect = Recharge(data.recharge_amount)
+            self.add_use_condition(condition)
+            self.add_use_effect(heal)
+            self.add_use_effect(recharge)
+        elif data.heal_amount > 0:
+            condition = IsDamaged()
+            heal = Heal(data.heal_amount)
+            self.add_use_condition(condition)
+            self.add_use_effect(heal)
+        elif data.recharge_amount > 0:
+            condition = EnergyNotFull()
+            recharge = Recharge(data.recharge_amount)
+            self.add_use_condition(condition)
+            self.add_use_effect(recharge)
 
-class ProjectileAbilityData(AbilityData):
-    def __init__(self, cool_down_time: int, projectile_data: ProjectileData,
-                 finite_uses: bool = False, uses_left: int = 0,
-                 energy_required: int = 0,
-                 kickback: int = 0, spread: int = 0,
-                 projectile_count: int = 1,
-                 fire_effects: Sequence[EffectFun] = ()) -> None:
-        super().__init__(cool_down_time, finite_uses, uses_left,
-                         energy_required)
-        self.projectile_data = projectile_data
-        self.kickback = kickback
-        self.spread = spread
-        self.projectile_count = projectile_count
-        self.fire_effects = fire_effects
+    def _load_projectile_options(self, data: AbilityData) -> None:
+        if data.kickback:
+            effect: Effect = Kickback(data.kickback)
+            self.add_use_effect(effect)
 
-    def __eq__(self, other: Any) -> bool:
-        if not super().__eq__(other):
-            return False
-
-        if self.projectile_data != other.projectile_data:
-            return False
-        if self.kickback != other.kickback:
-            return False
-        if self.spread != other.spread:
-            return False
-        if self.projectile_count != other.projectile_count:
-            return False
-        if set(self.fire_effects) != set(other.fire_effects):
-            return False
-
-        return True
+        if data.projectile_data is not None:
+            effect = MakeProjectile(data.projectile_data, data.spread,
+                                    data.projectile_count)
+            self.add_use_effect(effect)
 
 
-class FireProjectileBase(Ability):
-    _kickback: int = None
-    _spread: int = None
-    _projectile_count: int = None
+class CooldownCondition(Condition):
+    def __init__(self, timer: Timer, cool_down_time: int) -> None:
+        self._timer = timer
+        assert cool_down_time is not None
+        self._cool_down_time = cool_down_time
+        self._last_use = self._timer.current_time
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._add_use_fun(self._fire_projectile)
-        self._make_projectile: Callable[[Vector2, Vector2], None] = None
-        self._effect_funs: List[EffectFun] = []
+    @property
+    def _time_since_last_use(self) -> int:
+        return self._timer.current_time - self._last_use
 
-    def add_fire_effects(self, funs: Sequence[EffectFun]) -> None:
-        self._effect_funs += funs
+    def check(self, humanoid: Any) -> bool:
+        return self._time_since_last_use > self._cool_down_time
 
-    def _fire_projectile(self, humanoid: Any) -> None:
-        assert self._make_projectile is not None, 'self._make_projectile ' \
-                                                  'not defined.'
+    def update_last_use(self, humanoid: Any) -> None:
+        self._last_use = self._timer.current_time
+
+    def cooldown_fraction(self) -> float:
+        fraction = float(self._time_since_last_use) / self._cool_down_time
+        return min(max(0.0, fraction), 1.0)
+
+
+class EnergyAvailable(Condition):
+    def __init__(self, energy_required: int) -> None:
+        self._energy_required = energy_required
+
+    def check(self, humanoid: Any) -> bool:
+        return self._energy_required < humanoid.energy_source.energy_available
+
+
+class IsDamaged(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return humanoid.damaged
+
+
+class EnergyNotFull(Condition):
+    def check(self, humanoid: Any) -> bool:
+        source = humanoid.energy_source
+        return source.energy_available < source.max_energy
+
+
+class UpdateLastUse(Effect):
+    def __init__(self, cool_down_condition: CooldownCondition) -> None:
+        self._cool_down_condition = cool_down_condition
+
+    def activate(self, humanoid: Any) -> None:
+        self._cool_down_condition.update_last_use(humanoid)
+
+
+class Heal(Effect):
+    def __init__(self, heal_amount: int) -> None:
+        self._heal_amount = heal_amount
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid.increment_health(self._heal_amount)
+
+
+class Recharge(Effect):
+    def __init__(self, recharge_amount: int) -> None:
+        self._recharge_amount = recharge_amount
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid.energy_source.increment_energy(self._recharge_amount)
+
+
+class ExpendEnergy(Effect):
+    def __init__(self, energy_required: int) -> None:
+        self._energy_required = energy_required
+
+    def activate(self, humanoid: Any) -> None:
+        assert hasattr(humanoid, 'energy_source')
+        humanoid.energy_source.expend_energy(self._energy_required)
+
+
+class DecrementUses(Effect):
+    def __init__(self, ability: Ability) -> None:
+        self._used_ability = ability
+
+    def activate(self, humanoid: Any) -> None:
+        self._used_ability.uses_left -= 1
+
+
+class PlaySound(Effect):
+    def __init__(self, sound_file: str) -> None:
+        self._sound_file = sound_file
+
+    def activate(self, humanoid: Any) -> None:
+        sounds.play(self._sound_file)
+
+
+class Kickback(Effect):
+    def __init__(self, kickback: int) -> None:
+        self._kickback = kickback
+
+    def activate(self, humanoid: Any) -> None:
+        humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
+
+
+class MakeProjectile(Effect):
+    def __init__(self, projectile_data: ProjectileData, spread: int,
+                 projectile_count: int) -> None:
+        self._factory = ProjectileFactory(projectile_data)
+        self._spread = spread
+        self._count = projectile_count
+
+    def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
         rot = humanoid.rot
 
@@ -269,57 +302,6 @@ class FireProjectileBase(Ability):
         barrel_offset = Vector2(30, 10)
         origin = pos + barrel_offset.rotate(-rot)
 
-        for _ in range(self._projectile_count):
+        for _ in range(self._count):
             spread = uniform(-self._spread, self._spread)
-            self._make_projectile(origin, direction.rotate(spread))
-
-        humanoid._vel = Vector2(-self._kickback, 0).rotate(-rot)
-        self._fire_effects(origin)
-
-    def _fire_effects(self, origin: Vector2) -> None:
-        for fun in self._effect_funs:
-            fun(origin)
-
-
-class FireProjectile(FireProjectileBase):
-    def __init__(self, data: ProjectileAbilityData) -> None:
-        self._cool_down_time = data.cool_down_time
-        super().__init__()
-        self._kickback = data.kickback
-        self._spread = data.spread
-        self._projectile_count = data.projectile_count
-
-        factory = ProjectileFactory(data.projectile_data)
-        self._make_projectile: Callable[[Vector2, Vector2], None] = \
-            factory.build_projectile
-        self.add_fire_effects(data.fire_effects)
-
-        self.finite_uses = data.finite_uses
-        if data.finite_uses:
-            self.uses_left = data.uses_left
-            self._add_use_fun(self._decrement_uses)
-
-    def _decrement_uses(self, *dummy_args: List[Any]) -> None:
-        self.uses_left -= 1
-
-
-class AbilityFactory(object):
-    """Uses data to construct abilities."""
-
-    def __init__(self, data: AbilityData) -> None:
-        self._data = data
-
-    def build(self) -> Ability:
-
-        # TODO(dvirk): make an Enum for ability types?
-        if isinstance(self._data, RegenerationAbilityData):
-            ability = RegenerationAbility(self._data)  # type: ignore
-
-        elif isinstance(self._data, ProjectileAbilityData):
-            ability = FireProjectile(self._data)  # type: ignore
-
-        if self._data.energy_required > 0:
-            ability = EnergyAbility(ability,  # type: ignore
-                                    self._data.energy_required)
-
-        return ability
+            self._factory.build(origin, direction.rotate(spread))

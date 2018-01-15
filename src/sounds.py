@@ -30,6 +30,8 @@ EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
 
+OTHER_SOUNDS = ['phaser_up.wav', 'health_pack.wav']
+
 
 class SoundEffects(object):
     def __init__(self) -> None:
@@ -38,6 +40,7 @@ class SoundEffects(object):
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
         self.weapon_sounds: Dict[ObjectType, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
+        self.all_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
         game_folder = os.path.dirname(__file__)
@@ -46,23 +49,36 @@ class SoundEffects(object):
         pg.mixer.music.load(os.path.join(music_folder, BG_MUSIC))
         for label, file_name in EFFECTS_SOUNDS.items():
             sound_path = os.path.join(snd_folder, file_name)
-            self.effects_sounds[label] = pg.mixer.Sound(sound_path)
+            sound = pg.mixer.Sound(sound_path)
+            self.effects_sounds[label] = sound
+            self.all_sounds[label] = sound
         for weapon in WEAPON_SOUNDS.keys():
             self.weapon_sounds[weapon] = []
             for sound_file in WEAPON_SOUNDS[weapon]:
                 s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
                 s.set_volume(0.3)
                 self.weapon_sounds[weapon].append(s)
+                self.all_sounds[sound_file] = s
         for sound_file in ZOMBIE_MOAN_SOUNDS:
             s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
             s.set_volume(0.2)
             self.zombie_moan_sounds.append(s)
+            self.all_sounds[sound_file] = s
         for sound_file in PLAYER_HIT_SOUNDS:
             snd_path = os.path.join(snd_folder, sound_file)
-            self.player_hit_sounds.append(pg.mixer.Sound(snd_path))
+            sound = pg.mixer.Sound(snd_path)
+            self.player_hit_sounds.append(sound)
+            self.all_sounds[sound_file] = sound
         for sound_file in ZOMBIE_HIT_SOUNDS:
             snd_path = os.path.join(snd_folder, sound_file)
-            self.zombie_hit_sounds.append(pg.mixer.Sound(snd_path))
+            sound = pg.mixer.Sound(snd_path)
+            self.zombie_hit_sounds.append(sound)
+            self.all_sounds[sound_file] = sound
+
+        for sound_file in OTHER_SOUNDS:
+            snd_path = os.path.join(snd_folder, sound_file)
+            sound = pg.mixer.Sound(snd_path)
+            self.all_sounds[sound_file] = sound
 
 
 # Global sound effect object
@@ -75,7 +91,7 @@ def initialize_sounds() -> None:
 
 
 def play(sound_name: str) -> None:
-    effects.effects_sounds[sound_name].play()
+    effects.all_sounds[sound_name].play()
 
 
 def fire_weapon_sound(weapon_type: ObjectType) -> None:

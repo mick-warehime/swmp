@@ -1,7 +1,7 @@
 import unittest
 from pygame.math import Vector2
 import model
-from abilities import AbilityData, RegenerationAbilityData, RegenerationAbility
+from abilities import AbilityData
 from mods import Mod, Proficiencies, Buffs, ModData, ModLocation
 from items.bullet_weapons import PistolObject
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
@@ -14,8 +14,7 @@ import src.test.dummy_audio_video
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(ModTest.groups, ModTest.timer)
-
-    ModTest.ability_data = RegenerationAbilityData(10, 1)
+    ModTest.ability_data = AbilityData(10)
 
 
 class ModTest(unittest.TestCase):

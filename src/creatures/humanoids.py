@@ -7,7 +7,6 @@ from pygame.sprite import Group
 
 import model as mdl
 import mods
-from abilities import EnergyAbility
 
 
 class Humanoid(mdl.DynamicObject):
@@ -89,7 +88,7 @@ class Humanoid(mdl.DynamicObject):
         assert loc == item_mod.loc
         assert not item_mod.expended
 
-        if item_mod.ability.can_use:
+        if item_mod.ability.can_use(self):
             item_mod.ability.use(self)
 
         if item_mod.expended:
@@ -130,14 +129,6 @@ class Humanoid(mdl.DynamicObject):
         self.unequip(item_mod.loc)
         self.active_mods[item_mod.loc] = item_mod
 
-        # TODO(dvirk): This is rather kludgy and should be implemented more
-        # cleanly, probably in an Inventory class.
-        if isinstance(item_mod.ability, EnergyAbility):
-            assert hasattr(self, 'energy_source'), 'Right now only Players ' \
-                                                   'are given an energy  ' \
-                                                   'source.'
-            item_mod.ability.assign_energy_source(self.energy_source)
-
 
 class Backpack(object):
     """Stores the mods available to a Humanoid."""
@@ -155,7 +146,7 @@ class Backpack(object):
         return self._slots_filled == self.size
 
     def add_mod(self, mod: mods.Mod) -> None:
-        matching_mods = [md for md in self._slots if isinstance(md, type(mod))]
+        matching_mods = [md for md in self._slots if md == mod]
         if matching_mods and mod.stackable:
             assert len(matching_mods) == 1
             matching_mods[0].ability.uses_left += mod.ability.uses_left

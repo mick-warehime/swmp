@@ -1,0 +1,68 @@
+fire_projectile:
+  defaults: &projectile_defaults
+    finite_uses: false
+    uses_left: 0
+    kickback: 0
+    spread: 0
+    energy_required: 0
+    projectile_count: 1
+    sound_on_use: null
+  pistol:
+    <<: *projectile_defaults
+    cool_down_time: 250
+    projectile_label: 'bullet'
+    kickback: 200
+    spread: 5
+    sound_on_use: 'pistol.wav'
+  shotgun:
+    <<: *projectile_defaults
+    cool_down_time: 900
+    projectile_label: 'little_bullet'
+    kickback: 300
+    spread: 20
+    projectile_count: 12
+    sound_on_use: 'shotgun.wav'
+  vomit:
+    <<: *projectile_defaults
+    cool_down_time: 250
+    projectile_label: 'vomit'
+    spread: 20
+    projectile_count: 15
+    sound_on_use: 'zombie-roar-1.wav'
+  laser:
+    <<: *projectile_defaults
+    cool_down_time: 500
+    projectile_label: 'laser'
+    spread: 2
+    energy_required: 10
+    sound_on_use: 'laser_pew.wav'
+  rock:
+    <<: *projectile_defaults
+    cool_down_time: 500
+    spread: 2
+    projectile_label: 'rock'
+    finite_uses: true
+    uses_left: 1
+    sound_on_use: 'grunt.wav'
+
+
+
+
+regeneration:
+  defaults: &regeneration_defaults
+    finite_uses: true
+    uses_left: 1
+    energy_required: 0
+    sound_on_use: null
+  basic_heal:
+    <<: *regeneration_defaults
+    cool_down_time: 300
+    heal_amount: 20
+    sound_on_use: 'health_pack.wav'
+  basic_recharge:
+    <<: *regeneration_defaults
+    cool_down_time: 300
+    recharge_amount: 50
+    sound_on_use: 'phaser_up.wav'
+
+

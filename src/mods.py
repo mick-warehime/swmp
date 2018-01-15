@@ -7,7 +7,7 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, AbilityData, AbilityFactory
+from abilities import Ability, AbilityData, GenericAbility
 from model import DynamicObject
 
 BOB_RANGE = 1
@@ -61,8 +61,8 @@ class Mod(object):
         self._buffs = data.buffs
         self._profs = data.proficiencies
 
-        factory = AbilityFactory(self._data.ability_data)
-        self._ability = factory.build()
+        # factory = AbilityFactory(self._data.ability_data)
+        self._ability = GenericAbility(data.ability_data)
 
     @property
     def loc(self) -> ModLocation:

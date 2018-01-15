@@ -8,10 +8,10 @@ import images
 import items.bullet_weapons
 import settings
 import sounds
-from abilities import ProjectileAbilityData
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.input_output import load_projectile_data
+from data.abilities_io import load_ability_data
+
 from mods import ModLocation, ModData, Mod
 
 MOB_SPEEDS = [150, 100, 75, 125]
@@ -144,12 +144,7 @@ def spew_vomit_effect(origin: Vector2) -> None:
 
 
 def vomit_mod() -> Mod:
-    projectile_data = load_projectile_data('vomit')
-    ability_data = ProjectileAbilityData(250,
-                                         projectile_data=projectile_data,
-                                         projectile_count=1,
-                                         kickback=0, spread=5,
-                                         fire_effects=[spew_vomit_effect])
+    ability_data = load_ability_data('vomit')
 
     mod_data = ModData(ModLocation.HEAD, ability_data,
                        'none', 'none', 'vomit')
