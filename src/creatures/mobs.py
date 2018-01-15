@@ -10,9 +10,9 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.abilities_io import load_ability_data
+from data.mods_io import load_mod_data
 
-from mods import ModLocation, ModData, Mod
+from mods import Mod
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -139,13 +139,6 @@ class Mob(Humanoid):
         return col
 
 
-def spew_vomit_effect(origin: Vector2) -> None:
-    sounds.spew_vomit_sound()
-
-
 def vomit_mod() -> Mod:
-    ability_data = load_ability_data('vomit')
-
-    mod_data = ModData(ModLocation.HEAD, ability_data,
-                       'none', 'none', 'vomit')
+    mod_data = load_mod_data('vomit')
     return Mod(mod_data)

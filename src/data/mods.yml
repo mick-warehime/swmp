@@ -26,5 +26,14 @@ laser gun:
   equipped_image_file: 'laser_blue.png'
   backpack_image_file: 'laser_gun.png'
   description: 'laser gun'
+vomit:
+  location: null
+  ability_data: null
+  location_str: 'head'
+  ability_label: 'vomit'
+  equipped_image_file: ''
+  backpack_image_file: ''
+  description: 'vomit'
+
 
 
