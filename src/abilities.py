@@ -110,13 +110,13 @@ class AbilityData(BaseAbilityData):
 
 
 class GenericAbility(Ability):
-    def __init__(self, data: AbilityData):
+    def __init__(self, data: AbilityData) -> None:
         self._cool_down_time = data.cool_down_time
         super().__init__()
 
         if data.energy_required > 0:
             condition = EnergyAvailable(data.energy_required)
-            effect = ExpendEnergy(data.energy_required)
+            effect: Effect = ExpendEnergy(data.energy_required)
             self.add_use_fun(effect.activate)
             self.add_can_use_fun(condition.check)
 
@@ -139,8 +139,8 @@ class GenericAbility(Ability):
     def _load_regeneration_options(self, data: AbilityData) -> None:
         if data.heal_amount > 0 and data.recharge_amount > 0:
             condition = IsDamaged() or EnergyNotFull()
-            heal = Heal(data.heal_amount)
-            recharge = Recharge(data.recharge_amount)
+            heal: Effect = Heal(data.heal_amount)
+            recharge: Effect = Recharge(data.recharge_amount)
             self.add_can_use_fun(condition.check)
             self.add_use_fun(heal.activate)
             self.add_use_fun(recharge.activate)
@@ -155,9 +155,9 @@ class GenericAbility(Ability):
             self.add_can_use_fun(condition.check)
             self.add_use_fun(recharge.activate)
 
-    def _load_projectile_options(self, data: AbilityData):
+    def _load_projectile_options(self, data: AbilityData) -> None:
         if data.kickback:
-            effect = Kickback(data.kickback)
+            effect: Effect = Kickback(data.kickback)
             self.add_use_fun(effect.activate)
 
         if data.projectile_data is not None:
@@ -172,7 +172,7 @@ class Condition(object):
     def check(self, humanoid: Any) -> bool:
         raise NotImplementedError
 
-    def __or__(self, other) -> object:
+    def __or__(self, other: Any) -> object:
         assert isinstance(other, Condition)
         return _Or(self, other)
 
@@ -187,7 +187,7 @@ class _Or(Condition):
 
 
 class CooldownCondition(Condition):
-    def __init__(self, timer: Timer, cool_down_time: int):
+    def __init__(self, timer: Timer, cool_down_time: int) -> None:
         self._timer = timer
         assert cool_down_time is not None
         self._cool_down_time = cool_down_time
@@ -209,7 +209,7 @@ class CooldownCondition(Condition):
 
 
 class EnergyAvailable(Condition):
-    def __init__(self, energy_required: int):
+    def __init__(self, energy_required: int) -> None:
         self._energy_required = energy_required
 
     def check(self, humanoid: Any) -> bool:
@@ -251,7 +251,7 @@ class Recharge(Effect):
 
 
 class ExpendEnergy(Effect):
-    def __init__(self, energy_required: int):
+    def __init__(self, energy_required: int) -> None:
         self._energy_required = energy_required
 
     def activate(self, humanoid: Any) -> None:
@@ -268,7 +268,7 @@ class DecrementUses(Effect):
 
 
 class PlaySound(Effect):
-    def __init__(self, sound_file: str):
+    def __init__(self, sound_file: str) -> None:
         self._sound_file = sound_file
 
     def activate(self, humanoid: Any) -> None:
@@ -285,7 +285,7 @@ class Kickback(Effect):
 
 class MakeProjectile(Effect):
     def __init__(self, projectile_data: ProjectileData, spread: int,
-                 projectile_count: int):
+                 projectile_count: int) -> None:
         self._factory = ProjectileFactory(projectile_data)
         self._spread = spread
         self._count = projectile_count

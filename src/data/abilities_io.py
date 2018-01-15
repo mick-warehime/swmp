@@ -1,7 +1,6 @@
 import yaml
 
-from abilities import AbilityData, AbilityData, \
-    AbilityData
+from abilities import AbilityData
 
 from src import __path__ as _src_path  # type: ignore
 
@@ -11,8 +10,6 @@ _ABILITIES_FILE = _src_path + '/data/abilities.yml'
 
 
 # TODO(dvirk): The MuzzleFlash must be added back in later.
-
-
 
 # TODO(dvirk): Currently the file is read every time load... is
 #  called. This is unnecessary and should be done once.

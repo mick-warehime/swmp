@@ -190,7 +190,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(RockObject(pos))
         self.assertEqual(player.backpack[0].ability.uses_left, 4)
 
-    def test_pickup_several_items(self):
+    def test_pickup_several_items(self) -> None:
         player = make_player()
         pos = Vector2(0, 0)
 
@@ -198,7 +198,6 @@ class ModTest(unittest.TestCase):
         battery = Battery(pos)
         pistol = PistolObject(pos)
         medpack = HealthPackObject(pos)
-
 
         player.attempt_pickup(laser_gun)
         self.assertIs(laser_gun.mod, player.active_mods[mods.ModLocation.ARMS])
@@ -210,8 +209,6 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(medpack)
         self.assertIn(medpack.mod, player.backpack)
         self.assertTrue(player.backpack.slot_occupied(1))
-
-
 
 
 if __name__ == '__main__':

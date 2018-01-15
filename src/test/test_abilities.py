@@ -25,7 +25,7 @@ def setUpModule() -> None:
 class AbilitiesTest(unittest.TestCase):
     groups = model.Groups()
     timer = MockTimer()
-    projectile_ability_data = None
+    projectile_ability_data: AbilityData = None
 
     def tearDown(self) -> None:
         self.groups.empty()
