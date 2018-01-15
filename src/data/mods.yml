@@ -18,5 +18,13 @@ shotgun:
   equipped_image_file: 'mod_shotgun.png'
   backpack_image_file: 'obj_shotgun.png'
   description: 'shotgun'
+laser gun:
+  location: null
+  ability_data: null
+  location_str: 'arms'
+  ability_label: 'laser'
+  equipped_image_file: 'laser_blue.png'
+  backpack_image_file: 'laser_gun.png'
+  description: 'laser gun'
 
 

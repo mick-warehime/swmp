@@ -2,16 +2,10 @@ from pygame.math import Vector2
 from pygame.surface import Surface
 
 import images
-import sounds
 
-from data.abilities_io import load_ability_data
+from data.mods_io import load_mod_data
 
-from mods import ModLocation, ItemObject, ModData, Mod
-from tilemap import ObjectType
-
-
-def laser_pew_sound(origin: Vector2) -> None:
-    sounds.fire_weapon_sound(ObjectType.LASER_GUN)
+from mods import ItemObject, Mod
 
 
 class LaserGun(ItemObject):
@@ -20,10 +14,7 @@ class LaserGun(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        ability_data = load_ability_data('laser')
-
-        mod_data = ModData(ModLocation.ARMS, ability_data,
-                           images.LASER_BOLT, images.LASER_GUN, 'laser gun')
+        mod_data = load_mod_data('laser gun')
         mod = Mod(mod_data)
 
         super().__init__(mod, pos)
