@@ -68,7 +68,7 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(pistol)
         self.assertEqual(len(backpack), player.backpack.size)
 
-    def test_use_health_pack(self) -> None:
+    def test_pickup_healthpacks(self):
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
 
@@ -79,47 +79,54 @@ class ModTest(unittest.TestCase):
         self.assertNotIn(hp.mod, backpack)  # healthpack added to stack.
         active_mods = player.active_mods
         self.assertIn(hp.mod, active_mods.values())
+        self.assertEqual(active_mods[hp.mod.loc].ability.uses_left, 1)
 
         hp_2 = make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp_2)
 
         self.assertNotIn(hp_2.mod, backpack)
+        self.assertEqual(active_mods[hp.mod.loc].ability.uses_left, 2)
+
+    def test_health_pack_not_used_full_health(self) -> None:
+        hp, player = self._player_with_ready_healthpack()
 
         # health is full
         self.assertFalse(player.damaged)
-
         self.assertFalse(hp.mod.expended)
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
         self.assertFalse(hp.mod.expended)
 
         # health pack doesn't work if health is full
-        self.assertIn(hp.mod, active_mods.values())
+        self.assertIn(hp.mod, player.active_mods.values())
+
+    def test_health_pack_heals_back_to_full(self) -> None:
+        hp, player = self._player_with_ready_healthpack()
+
+        backpack = player.backpack
 
         # health pack fills health back up and is gone from active_mods
         player.increment_health(-5)
         self.assertTrue(player.damaged)
 
         # Ability is only usable after sufficient time has elapsed.
-        self.timer.current_time += hp.mod.ability._cool_down_time + 1
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
 
-        self.assertFalse(hp.mod.expended)
-        self.assertEqual(hp.mod.ability.uses_left, 1)
+        self.assertTrue(hp.mod.expended)
+        self.assertEqual(hp.mod.ability.uses_left, 0)
         self.assertNotIn(hp.mod, backpack)
         self.assertFalse(player.damaged)
+        self.assertEqual(player.health, player.max_health)
 
+    def _player_with_ready_healthpack(self):
+        player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)
-        player.increment_health(-1)
-
-        self.timer.current_time += hp.mod.ability._cool_down_time + 1
-        use_hp_mod = player.ability_caller(hp.mod.loc)
-        use_hp_mod()
-
-        # health pack doesn't fill you over max health
-        self.assertEqual(player.health, player.max_health)
+        while hp.mod.ability.cooldown_fraction < 1:
+            self.timer.current_time += 100
+        self.timer.current_time += 1
+        return hp, player
 
     def test_add_weapons(self) -> None:
         player = make_player()
