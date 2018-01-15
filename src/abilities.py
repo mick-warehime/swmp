@@ -24,7 +24,6 @@ INFINITE_USES = -1000
 
 
 class Ability(object):
-    _cool_down_time: int = None
     _timer: Union[None, Timer] = None
     class_initialized = False
 
@@ -33,11 +32,6 @@ class Ability(object):
 
         self._use_funs: List[UseFun] = []
         self._can_use_funs: List[CanUseFun] = []
-
-        cool_down = CooldownCondition(self._timer, self._cool_down_time)
-        self.add_can_use_fun(cool_down.check)
-        self.add_use_fun(cool_down.update_last_use)
-        self._cool_down_fraction_fun = cool_down.cooldown_fraction
 
         self.uses_left = INFINITE_USES
 
@@ -57,7 +51,7 @@ class Ability(object):
 
     @property
     def cooldown_fraction(self) -> float:
-        return self._cool_down_fraction_fun()
+        raise NotImplementedError
 
     def use(self, humanoid: Any) -> None:
         for use_fun in self._use_funs:
@@ -111,8 +105,12 @@ class AbilityData(BaseAbilityData):
 
 class GenericAbility(Ability):
     def __init__(self, data: AbilityData) -> None:
-        self._cool_down_time = data.cool_down_time
         super().__init__()
+
+        cool_down = CooldownCondition(self._timer, data.cool_down_time)
+        self.add_can_use_fun(cool_down.check)
+        self.add_use_fun(cool_down.update_last_use)
+        self._cool_down_fraction_fun = cool_down.cooldown_fraction
 
         if data.energy_required > 0:
             condition = EnergyAvailable(data.energy_required)
@@ -135,6 +133,10 @@ class GenericAbility(Ability):
 
         if hasattr(data, 'projectile_data'):
             self._load_projectile_options(data)
+
+    @property
+    def cooldown_fraction(self) -> float:
+        return self._cool_down_fraction_fun()
 
     def _load_regeneration_options(self, data: AbilityData) -> None:
         if data.heal_amount > 0 and data.recharge_amount > 0:

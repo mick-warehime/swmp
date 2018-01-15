@@ -35,7 +35,7 @@ class AbilitiesTest(unittest.TestCase):
         fire_pistol = GenericAbility(self.projectile_ability_data)
 
         self.assertFalse(fire_pistol.can_use('dummy_arg'))
-        self.timer.current_time += fire_pistol._cool_down_time
+        self.timer.current_time += self.projectile_ability_data.cool_down_time
         self.assertFalse(fire_pistol.can_use('dummy_arg'))
         self.timer.current_time += 1
         self.assertTrue(fire_pistol.can_use('dummy_arg'))
@@ -77,7 +77,8 @@ class AbilitiesTest(unittest.TestCase):
     def test_fireprojectile_cannot_use_after_firing(self) -> None:
         player = make_player()
         fire_pistol = GenericAbility(self.projectile_ability_data)
-        self.timer.current_time += fire_pistol._cool_down_time + 1
+        self.timer.current_time += \
+            self.projectile_ability_data.cool_down_time+1
 
         self.assertTrue(fire_pistol.can_use('dummy_arg'))
         fire_pistol.use(player)
