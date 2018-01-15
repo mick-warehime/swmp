@@ -9,7 +9,7 @@ pistol:
   ability_label: 'pistol'
   equipped_image_file: 'mod_pistol.png'
   backpack_image_file: 'obj_pistol.png'
-  description: 'pistol'
+  description: 'Pistol'
 shotgun:
   location: null
   ability_data: null
@@ -17,7 +17,7 @@ shotgun:
   ability_label: 'shotgun'
   equipped_image_file: 'mod_shotgun.png'
   backpack_image_file: 'obj_shotgun.png'
-  description: 'shotgun'
+  description: 'Shotgun'
 laser gun:
   location: null
   ability_data: null
@@ -25,7 +25,7 @@ laser gun:
   ability_label: 'laser'
   equipped_image_file: 'laser_blue.png'
   backpack_image_file: 'laser_gun.png'
-  description: 'laser gun'
+  description: 'Laser gun'
 vomit:
   location: null
   ability_data: null
@@ -33,7 +33,16 @@ vomit:
   ability_label: 'vomit'
   equipped_image_file: ''
   backpack_image_file: ''
-  description: 'vomit'
+  description: 'Vomit'
+rock:
+  location: null
+  ability_data: null
+  location_str: 'arms'
+  ability_label: 'rock'
+  equipped_image_file: 'rock.png'
+  backpack_image_file: 'rock.png'
+  description: 'Rock'
+  stackable: true
 
 
 
