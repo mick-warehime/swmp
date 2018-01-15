@@ -5,11 +5,9 @@ from pygame.math import Vector2
 
 import images
 import settings
-import sounds
 from data.abilities_io import load_ability_data
 from model import DynamicObject
 from mods import ModLocation, ItemObject, ModData, Mod
-from tilemap import ObjectType
 
 
 class MuzzleFlash(DynamicObject):
@@ -38,10 +36,6 @@ class MuzzleFlash(DynamicObject):
     @property
     def rect(self) -> pg.Rect:
         return self._rect
-
-
-def pistol_fire_sound(origin: Vector2) -> None:
-    sounds.fire_weapon_sound(ObjectType.PISTOL)
 
 
 class PistolObject(ItemObject):
