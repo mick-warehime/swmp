@@ -8,6 +8,7 @@ from pygame.math import Vector2
 
 import images
 from abilities import Ability, AbilityData, GenericAbility
+from data.abilities_io import load_ability_data
 from model import DynamicObject
 
 BOB_RANGE = 1
@@ -19,10 +20,10 @@ NO_MOD_AT_LOCATION = -1
 
 class ModLocation(Enum):
     __order__ = 'ARMS LEGS CHEST HEAD'
-    ARMS = 0
-    LEGS = 1
-    CHEST = 2
-    HEAD = 3
+    ARMS = 'arms'
+    LEGS = 'legs'
+    CHEST = 'chest'
+    HEAD = 'head'
 
 
 class Buffs(Enum):
@@ -48,7 +49,14 @@ class ModData(BaseModData):
                 equipped_image_file: str, backpack_image_file: str,
                 description: str, stackable: bool = False,
                 buffs: Set[Buffs] = None,
-                proficiencies: Set[Proficiencies] = None) -> BaseModData:
+                proficiencies: Set[Proficiencies] = None,
+                location_str: str = None,
+                ability_label: str = None) -> BaseModData:
+        if location is None:
+            location = ModLocation(location_str)
+        if ability_data is None:
+            ability_data = load_ability_data(ability_label)
+
         return super().__new__(cls, location, ability_data,
                                equipped_image_file, backpack_image_file,
                                description, stackable, buffs,
