@@ -2,11 +2,9 @@ import yaml
 
 from abilities import AbilityData
 
-from src import __path__ as _src_path  # type: ignore
+from os import path
 
-_src_path = _src_path[0]
-
-_ABILITIES_FILE = _src_path + '/data/abilities.yml'
+_ABILITIES_FILE = path.dirname(__file__) + '/abilities.yml'
 
 
 # TODO(dvirk): The MuzzleFlash must be added back in later.

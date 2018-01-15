@@ -4,11 +4,9 @@ import yaml
 
 from projectiles import ProjectileData
 
-from src import __path__ as _src_path  # type: ignore
+from os import path
 
-_src_path = _src_path[0]
-
-_PROJECTILE_FILE = _src_path + '/data/projectiles.yml'
+_PROJECTILE_FILE = path.dirname(__file__) + '/projectiles.yml'
 
 
 def print_rock_err_msg(*args: Any) -> None:
