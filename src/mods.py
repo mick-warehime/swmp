@@ -45,17 +45,14 @@ BaseModData = namedtuple('BaseModData',
 
 
 class ModData(BaseModData):
-    def __new__(cls, location: ModLocation, ability_data: AbilityData,
+    def __new__(cls, location_str: str, ability_label: str,
                 equipped_image_file: str, backpack_image_file: str,
                 description: str, stackable: bool = False,
                 buffs: Set[Buffs] = None,
-                proficiencies: Set[Proficiencies] = None,
-                location_str: str = None,
-                ability_label: str = None) -> BaseModData:
-        if location is None:
-            location = ModLocation(location_str)
-        if ability_data is None:
-            ability_data = load_ability_data(ability_label)
+                proficiencies: Set[Proficiencies] = None) -> BaseModData:
+
+        location = ModLocation(location_str)
+        ability_data = load_ability_data(ability_label)
 
         return super().__new__(cls, location, ability_data,
                                equipped_image_file, backpack_image_file,

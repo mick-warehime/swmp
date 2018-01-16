@@ -3,40 +3,30 @@ defaults: &defaults
   buffs: null
   proficiences: null
 pistol:
-  location: null
-  ability_data: null
   location_str: 'arms'
   ability_label: 'pistol'
   equipped_image_file: 'mod_pistol.png'
   backpack_image_file: 'obj_pistol.png'
   description: 'Pistol'
 shotgun:
-  location: null
-  ability_data: null
   location_str: 'arms'
   ability_label: 'shotgun'
   equipped_image_file: 'mod_shotgun.png'
   backpack_image_file: 'obj_shotgun.png'
   description: 'Shotgun'
 laser gun:
-  location: null
-  ability_data: null
   location_str: 'arms'
   ability_label: 'laser'
   equipped_image_file: 'laser_blue.png'
   backpack_image_file: 'laser_gun.png'
   description: 'Laser gun'
 vomit:
-  location: null
-  ability_data: null
   location_str: 'head'
   ability_label: 'vomit'
   equipped_image_file: ''
   backpack_image_file: ''
   description: 'Vomit'
 rock:
-  location: null
-  ability_data: null
   location_str: 'arms'
   ability_label: 'rock'
   equipped_image_file: 'rock.png'
@@ -44,8 +34,6 @@ rock:
   description: 'Rock'
   stackable: true
 healthpack:
-  location: null
-  ability_data: null
   location_str: 'chest'
   ability_label: 'basic_heal'
   equipped_image_file: 'health_pack.png'
@@ -53,8 +41,6 @@ healthpack:
   description: 'Health Pack'
   stackable: true
 battery:
-  location: null
-  ability_data: null
   location_str: 'chest'
   ability_label: 'basic_recharge'
   equipped_image_file: 'energy_pack.png'
