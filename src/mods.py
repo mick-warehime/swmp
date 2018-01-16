@@ -7,7 +7,7 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, AbilityData, GenericAbility
+from abilities import Ability, GenericAbility
 from data.abilities_io import load_ability_data
 from model import DynamicObject
 
@@ -45,19 +45,17 @@ BaseModData = namedtuple('BaseModData',
 
 
 class ModData(BaseModData):
-    def __new__(cls, location_str: str, ability_label: str,
+    def __new__(cls, location: str, ability_label: str,
                 equipped_image_file: str, backpack_image_file: str,
                 description: str, stackable: bool = False,
                 buffs: Set[Buffs] = None,
                 proficiencies: Set[Proficiencies] = None) -> BaseModData:
-
-        location = ModLocation(location_str)
         ability_data = load_ability_data(ability_label)
 
-        return super().__new__(cls, location, ability_data,
-                               equipped_image_file, backpack_image_file,
-                               description, stackable, buffs,
-                               proficiencies)
+        return super().__new__(cls, ModLocation(location),  # type: ignore
+                               ability_data, equipped_image_file,
+                               backpack_image_file, description, stackable,
+                               buffs, proficiencies)
 
 
 class Mod(object):
