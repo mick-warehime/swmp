@@ -1,5 +1,5 @@
 import unittest
-from quest import Quest, Dungeon, Decision
+from quests.quest import Quest, Dungeon, Decision
 import networkx as nx
 
 from test.pygame_mock import initialize_pygame

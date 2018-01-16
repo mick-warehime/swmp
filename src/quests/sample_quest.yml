@@ -1,0 +1,27 @@
+choice:
+  root: True
+  type: decision
+  description: What do you do?
+  options:
+      skill1:
+        text: Some meaningful choice
+        pass: far
+        fail: near
+      skill2:
+        text: Far no matter what
+        pass: far
+        fail: far
+      skill3: 
+        text: Near no matter what
+        pass: near
+        fail: near
+far:
+  type: dungeon
+  map: farzomboz.tmx
+  description: Two hard zomboz in the field
+  next: None
+near:
+  type: dungeon
+  map: nearzomboz.tmx
+  description: Two hard zomboz in the house
+  next: None
