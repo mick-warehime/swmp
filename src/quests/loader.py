@@ -200,6 +200,3 @@ class Loader(object):
             decisions[scene_name] = Decision(description, options)
 
         return decisions
-
-
-load_quest_from_file('sample_quest.yml')
