@@ -5,11 +5,9 @@ from pygame.math import Vector2
 
 import images
 import settings
-import sounds
-from data.abilities_io import load_ability_data
+from data.mods_io import load_mod_data
 from model import DynamicObject
-from mods import ModLocation, ItemObject, ModData, Mod
-from tilemap import ObjectType
+from mods import ItemObject, Mod
 
 
 class MuzzleFlash(DynamicObject):
@@ -40,20 +38,11 @@ class MuzzleFlash(DynamicObject):
         return self._rect
 
 
-def pistol_fire_sound(origin: Vector2) -> None:
-    sounds.fire_weapon_sound(ObjectType.PISTOL)
-
-
 class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        ability_data = load_ability_data('pistol')
-
-        mod_data = ModData(ModLocation.ARMS, ability_data, images.PISTOL_MOD,
-                           images.PISTOL, 'pistol')
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('pistol'))
 
         super().__init__(mod, pos)
 
@@ -70,11 +59,7 @@ class ShotgunObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        ability_data = load_ability_data('shotgun')
-        mod_data = ModData(ModLocation.ARMS, ability_data, images.SHOTGUN_MOD,
-                           images.SHOTGUN, 'shotgun')
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('shotgun'))
 
         super().__init__(mod, pos)
 

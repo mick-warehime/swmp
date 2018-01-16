@@ -46,15 +46,15 @@ class ModTest(unittest.TestCase):
 
     def test_mod_str_output(self) -> None:
         description = 'banana hammock'
-        mod_data = ModData(ModLocation.LEGS, self.ability_data,
-                           'no_image', 'no_image', description)
+        mod_data = ModData('legs', 'pistol', 'no_image', 'no_image',
+                           description)
         hammock_mod = Mod(mod_data)
 
         self.assertEqual(hammock_mod.description, description)
         self.assertEqual(str(hammock_mod), description)
 
-        mod_data = ModData(ModLocation.LEGS, self.ability_data,
-                           'no_image', 'no_image', description,
+        mod_data = ModData('legs', 'pistol', 'no_image', 'no_image',
+                           description,
                            buffs=[Buffs.DAMAGE],
                            proficiencies=[Proficiencies.STEALTH])
         nice_mod = Mod(mod_data)

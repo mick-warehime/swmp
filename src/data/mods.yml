@@ -1,0 +1,52 @@
+defaults: &defaults
+  stackable: false
+  buffs: null
+  proficiences: null
+pistol:
+  location: 'arms'
+  ability_label: 'pistol'
+  equipped_image_file: 'mod_pistol.png'
+  backpack_image_file: 'obj_pistol.png'
+  description: 'Pistol'
+shotgun:
+  location: 'arms'
+  ability_label: 'shotgun'
+  equipped_image_file: 'mod_shotgun.png'
+  backpack_image_file: 'obj_shotgun.png'
+  description: 'Shotgun'
+laser gun:
+  location: 'arms'
+  ability_label: 'laser'
+  equipped_image_file: 'laser_blue.png'
+  backpack_image_file: 'laser_gun.png'
+  description: 'Laser gun'
+vomit:
+  location: 'head'
+  ability_label: 'vomit'
+  equipped_image_file: ''
+  backpack_image_file: ''
+  description: 'Vomit'
+rock:
+  location: 'arms'
+  ability_label: 'rock'
+  equipped_image_file: 'rock.png'
+  backpack_image_file: 'rock.png'
+  description: 'Rock'
+  stackable: true
+healthpack:
+  location: 'chest'
+  ability_label: 'basic_heal'
+  equipped_image_file: 'health_pack.png'
+  backpack_image_file: 'health_pack.png'
+  description: 'Health Pack'
+  stackable: true
+battery:
+  location: 'chest'
+  ability_label: 'basic_recharge'
+  equipped_image_file: 'energy_pack.png'
+  backpack_image_file: 'energy_pack.png'
+  description: 'Battery'
+  stackable: true
+
+
+

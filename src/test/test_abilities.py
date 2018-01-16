@@ -1,15 +1,12 @@
 import unittest
-from copy import copy
 
 import model
-from abilities import AbilityData, GenericAbility, \
-    AbilityData, GenericAbility, AbilityData
+from abilities import GenericAbility, AbilityData
 from data.abilities_io import load_ability_data
-from images import BULLET_IMG
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from projectiles import Projectile, ProjectileData
-from items.bullet_weapons import MuzzleFlash, pistol_fire_sound
+from projectiles import Projectile
+from items.bullet_weapons import MuzzleFlash
 from src.test.testing_utilities import make_player
 
 

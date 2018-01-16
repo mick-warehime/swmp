@@ -7,7 +7,8 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from abilities import Ability, AbilityData, GenericAbility
+from abilities import Ability, GenericAbility
+from data.abilities_io import load_ability_data
 from model import DynamicObject
 
 BOB_RANGE = 1
@@ -19,10 +20,10 @@ NO_MOD_AT_LOCATION = -1
 
 class ModLocation(Enum):
     __order__ = 'ARMS LEGS CHEST HEAD'
-    ARMS = 0
-    LEGS = 1
-    CHEST = 2
-    HEAD = 3
+    ARMS = 'arms'
+    LEGS = 'legs'
+    CHEST = 'chest'
+    HEAD = 'head'
 
 
 class Buffs(Enum):
@@ -44,15 +45,17 @@ BaseModData = namedtuple('BaseModData',
 
 
 class ModData(BaseModData):
-    def __new__(cls, location: ModLocation, ability_data: AbilityData,
+    def __new__(cls, location: str, ability_label: str,
                 equipped_image_file: str, backpack_image_file: str,
                 description: str, stackable: bool = False,
                 buffs: Set[Buffs] = None,
                 proficiencies: Set[Proficiencies] = None) -> BaseModData:
-        return super().__new__(cls, location, ability_data,
-                               equipped_image_file, backpack_image_file,
-                               description, stackable, buffs,
-                               proficiencies)
+        ability_data = load_ability_data(ability_label)
+
+        return super().__new__(cls, ModLocation(location),  # type: ignore
+                               ability_data, equipped_image_file,
+                               backpack_image_file, description, stackable,
+                               buffs, proficiencies)
 
 
 class Mod(object):
@@ -61,7 +64,6 @@ class Mod(object):
         self._buffs = data.buffs
         self._profs = data.proficiencies
 
-        # factory = AbilityFactory(self._data.ability_data)
         self._ability = GenericAbility(data.ability_data)
 
     @property
