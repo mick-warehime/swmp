@@ -2,7 +2,6 @@ from typing import Dict, Any
 import yaml
 from enum import Enum
 from quests.quest import Dungeon, Decision
-import networkx as nx
 
 
 class SceneData(Enum):
@@ -45,7 +44,7 @@ class Loader(object):
         self.is_valid = False
         self.validate()
 
-    def validate(self) -> bool:
+    def validate(self) -> None:
         has_root = False
         for scene_name in self.quest:
             scene = self.quest[scene_name]
@@ -59,7 +58,7 @@ class Loader(object):
         if not has_root:
             raise ValueError('quest has no root!')
 
-    def validate_scene(self, scene: Dict) -> bool:
+    def validate_scene(self, scene: Dict) -> None:
         scene_type = self.get_type(scene)
 
         if SceneData.DESCRIPTION.value not in scene:
@@ -86,9 +85,9 @@ class Loader(object):
             pass_scene = self.get_pass(result)
             fail_scene = self.get_fail(result)
 
-            for scene in [pass_scene, fail_scene]:
+            for scene_name in [pass_scene, fail_scene]:
                 # ensure the resulting scene is in the quest
-                if scene not in self.quest:
+                if scene_name not in self.quest:
                     raise ValueError('scene "%s" not in quest' % scene)
 
     def validate_dungeon_scene(self, scene: Dict) -> None:
@@ -122,7 +121,7 @@ class Loader(object):
             raise ValueError('"%s" scene missing description value' % scene)
         return scene[SceneData.DESCRIPTION.value]
 
-    def get_options(self, scene: Dict) -> str:
+    def get_options(self, scene: Dict) -> dict:
         if SceneData.OPTIONS.value not in scene:
             raise ValueError('"%s" scene missing options value' % scene)
         return scene[SceneData.OPTIONS.value]
@@ -154,17 +153,21 @@ class Loader(object):
 
     def build_quest(self) -> Any:
 
-        dungeons = self.build_dungeons()
-        decisions = self.build_decisions()
+        # TODO - build quest graph given the dict in self.quest,
+        # first need to ensure decisions can handle options with random result
 
-        root_scene_name = self.root_scene()
-        print(root_scene_name)
-        if root_scene_name in decisions:
-            root_scene = decisions[root_scene_name]
-        else:
-            root_scene = dungeons[root_scene_name]
-
-        g = nx.DiGraph()
+        # dungeons = self.build_dungeons()
+        # decisions = self.build_decisions()
+        #
+        # root_scene_name = self.root_scene()
+        # print(root_scene_name)
+        # if root_scene_name in decisions:
+        #     root_scene = decisions[root_scene_name]
+        # else:
+        #     root_scene = dungeons[root_scene_name]
+        #
+        # g = nx.DiGraph()
+        pass
 
     def build_dungeons(self) -> Dict:
         dungeons: Dict[str, Dungeon] = {}
@@ -188,8 +191,8 @@ class Loader(object):
             description = self.get_description(scene)
             skills = self.get_options(scene)
 
-            # TODO - decisions should not have a flat list of options but a dict that
-            # maps skill + pass/fail -> result
+            # TODO - decisions should handle a dict of options
+            # maps skill : { pass: pass.tmx, fail: fail:fail.tmx}
             options = []
             for skill_name in skills:
                 result = skills[skill_name]
