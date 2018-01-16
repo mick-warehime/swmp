@@ -42,9 +42,7 @@ class PistolObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        mod_data = load_mod_data('pistol')
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('pistol'))
 
         super().__init__(mod, pos)
 
@@ -61,9 +59,7 @@ class ShotgunObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        mod_data = load_mod_data('shotgun')
-
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('shotgun'))
 
         super().__init__(mod, pos)
 

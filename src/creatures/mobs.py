@@ -140,5 +140,4 @@ class Mob(Humanoid):
 
 
 def vomit_mod() -> Mod:
-    mod_data = load_mod_data('vomit')
-    return Mod(mod_data)
+    return Mod(load_mod_data('vomit'))

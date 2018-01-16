@@ -14,8 +14,7 @@ class LaserGun(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
 
-        mod_data = load_mod_data('laser gun')
-        mod = Mod(mod_data)
+        mod = Mod(load_mod_data('laser gun'))
 
         super().__init__(mod, pos)
 
