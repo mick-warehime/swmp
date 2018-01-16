@@ -87,3 +87,7 @@ class DecisionController(controller.Controller):
 
     def should_exit(self) -> bool:
         return self.choice != -1
+
+    # decision controllers should take the option dict
+    # dungeon controllers should take the next scene name as a param
+    # all controllers should implement a function called next scene name
