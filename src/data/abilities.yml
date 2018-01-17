@@ -7,6 +7,7 @@ fire_projectile:
     energy_required: 0
     projectile_count: 1
     sound_on_use: null
+    muzzle_flash: false
   pistol:
     <<: *projectile_defaults
     cool_down_time: 250
@@ -14,6 +15,7 @@ fire_projectile:
     kickback: 200
     spread: 5
     sound_on_use: 'pistol.wav'
+    muzzle_flash: true
   shotgun:
     <<: *projectile_defaults
     cool_down_time: 900
@@ -22,6 +24,7 @@ fire_projectile:
     spread: 20
     projectile_count: 12
     sound_on_use: 'shotgun.wav'
+    muzzle_flash: true
   vomit:
     <<: *projectile_defaults
     cool_down_time: 250

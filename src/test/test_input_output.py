@@ -40,6 +40,6 @@ class InputOutputTest(unittest.TestCase):
 
         expected_data = AbilityData(250, projectile_label='bullet',
                                     kickback=200,
-                                    spread=5,
+                                    spread=5, muzzle_flash=True,
                                     sound_on_use='pistol.wav')
         self.assertEqual(data, expected_data)
