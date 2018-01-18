@@ -3,6 +3,7 @@ from typing import Tuple
 
 from pygame.math import Vector2
 
+import items_module
 import model
 import mods
 from creatures.players import Player
@@ -122,7 +123,8 @@ class ModTest(unittest.TestCase):
         self.assertFalse(player.damaged)
         self.assertEqual(player.health, player.max_health)
 
-    def _player_with_ready_healthpack(self) -> Tuple[mods.ItemObject, Player]:
+    def _player_with_ready_healthpack(self) -> Tuple[
+        items_module.ItemObject, Player]:
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)

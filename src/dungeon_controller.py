@@ -19,7 +19,7 @@ from creatures.players import Player
 from items.item_manager import ItemManager
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Waypoint, Group, ConflictGroups
-from mods import ItemObject
+from items_module import ItemObject
 from projectiles import Projectile
 
 

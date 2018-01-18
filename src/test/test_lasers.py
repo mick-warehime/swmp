@@ -1,6 +1,7 @@
 import unittest
 from typing import Tuple
 
+import items_module
 import model
 import mods
 from abilities import GenericAbility
@@ -79,7 +80,8 @@ class LaserTest(unittest.TestCase):
 
         self.assertFalse(laser_gun.mod.ability.can_use(player))
 
-    def _player_with_ready_laser(self) -> Tuple[mods.ItemObject, Player]:
+    def _player_with_ready_laser(self) -> Tuple[
+        items_module.ItemObject, Player]:
         player = make_player()
         laser_gun = make_item(ObjectType.LASER_GUN)
         player.attempt_pickup(laser_gun)

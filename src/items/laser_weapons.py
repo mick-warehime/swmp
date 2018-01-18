@@ -5,7 +5,8 @@ import images
 
 from data.mods_io import load_mod_data
 
-from mods import ItemObject, Mod
+from mods import Mod
+from items_module import ItemObject
 
 
 class LaserGun(ItemObject):

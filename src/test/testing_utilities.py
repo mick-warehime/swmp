@@ -5,6 +5,7 @@ from pygame.math import Vector2
 
 import creatures.mobs
 import creatures.players
+import items_module
 import mods
 import controller
 from dungeon_controller import DungeonController
@@ -24,7 +25,7 @@ def make_mob(player: Union[creatures.players.Player, None] = None) -> creatures.
     return creatures.mobs.Mob(pos, player, conflict_group=None)
 
 
-def make_item(label: str) -> mods.ItemObject:
+def make_item(label: str) -> items_module.ItemObject:
     pos = Vector2(0, 0)
     return ItemManager.item(pos, label)
 
