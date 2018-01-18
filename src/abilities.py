@@ -8,7 +8,7 @@ from pygame.math import Vector2
 import sounds
 from data.projectiles_io import load_projectile_data
 from model import Timer
-from projectiles import ProjectileData, ProjectileFactory
+from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
 
 
 def initialize_classes(timer: Timer) -> None:
@@ -90,7 +90,8 @@ class Ability(object):
 BaseAbilityData = namedtuple('BaseAbilityData',
                              ('cool_down_time', 'finite_uses', 'uses_left',
                               'energy_required', 'sound_on_use', 'kickback',
-                              'spread', 'projectile_count', 'projectile_data',
+                              'spread', 'projectile_count',
+                              'projectile_data', 'muzzle_flash',
                               'heal_amount', 'recharge_amount'))
 
 
@@ -99,7 +100,7 @@ class AbilityData(BaseAbilityData):
                 uses_left: int = 0, energy_required: int = 0,
                 sound_on_use: str = None, kickback: int = 0, spread: int = 0,
                 projectile_count: int = 1, projectile_label: str = None,
-                heal_amount: int = 0,
+                muzzle_flash: bool = False, heal_amount: int = 0,
                 recharge_amount: int = 0) -> BaseAbilityData:
 
         if projectile_label is not None:
@@ -108,8 +109,8 @@ class AbilityData(BaseAbilityData):
             projectile_data = None
         return super().__new__(cls, cool_down_time, finite_uses, uses_left,
                                energy_required, sound_on_use, kickback, spread,
-                               projectile_count, projectile_data, heal_amount,
-                               recharge_amount)
+                               projectile_count, projectile_data,
+                               muzzle_flash, heal_amount, recharge_amount)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, AbilityData):
@@ -149,11 +150,9 @@ class GenericAbility(Ability):
             effect = PlaySound(data.sound_on_use)
             self.add_use_effect(effect)
 
-        if hasattr(data, 'heal_amount'):
-            self._load_regeneration_options(data)
+        self._load_regeneration_options(data)
 
-        if hasattr(data, 'projectile_data'):
-            self._load_projectile_options(data)
+        self._load_projectile_options(data)
 
     @property
     def cooldown_fraction(self) -> float:
@@ -180,13 +179,14 @@ class GenericAbility(Ability):
 
     def _load_projectile_options(self, data: AbilityData) -> None:
         if data.kickback:
-            effect: Effect = Kickback(data.kickback)
-            self.add_use_effect(effect)
+            self.add_use_effect(Kickback(data.kickback))
 
         if data.projectile_data is not None:
             effect = MakeProjectile(data.projectile_data, data.spread,
                                     data.projectile_count)
             self.add_use_effect(effect)
+        if data.muzzle_flash:
+            self.add_use_effect(MuzzleFlashEffect())
 
 
 class CooldownCondition(Condition):
@@ -305,3 +305,10 @@ class MakeProjectile(Effect):
         for _ in range(self._count):
             spread = uniform(-self._spread, self._spread)
             self._factory.build(origin, direction.rotate(spread))
+
+
+class MuzzleFlashEffect(Effect):
+    def activate(self, humanoid: Any) -> None:
+        direction = humanoid.direction
+        direction = direction.rotate(20)
+        MuzzleFlash(humanoid.pos + 22 * direction)

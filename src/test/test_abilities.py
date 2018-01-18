@@ -5,8 +5,7 @@ from abilities import GenericAbility, AbilityData
 from data.abilities_io import load_ability_data
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from projectiles import Projectile
-from items.bullet_weapons import MuzzleFlash
+from projectiles import Projectile, MuzzleFlash
 from src.test.testing_utilities import make_player
 
 
@@ -58,8 +57,7 @@ class AbilitiesTest(unittest.TestCase):
                 num_others += 1
 
         self.assertEqual(num_bullets, 1)
-        # TODO(dvirk): Change this test back after flashes are readded.
-        self.assertEqual(num_flashes, 0)
+        self.assertEqual(num_flashes, 1)
         self.assertEqual(num_others, 1)
 
     def test_fireprojectile_use_ignores_can_use(self) -> None:

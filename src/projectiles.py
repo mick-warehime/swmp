@@ -1,5 +1,5 @@
 from collections import Callable, namedtuple
-from random import uniform
+from random import uniform, randint
 
 import pygame as pg
 from pygame.math import Vector2
@@ -7,6 +7,7 @@ from pygame.math import Vector2
 from pygame.transform import rotate
 
 import images
+import settings
 from model import DynamicObject
 
 
@@ -156,3 +157,31 @@ class ProjectileFactory(object):
         projectile = FancyProjectile(pos, direction, self._data)
 
         return projectile
+
+
+class MuzzleFlash(DynamicObject):
+    def __init__(self, pos: Vector2) -> None:
+        self._check_class_initialized()
+        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
+        super().__init__(pos)
+        self._rect = self.image.get_rect().copy()
+        self._rect.center = self.pos
+        self._spawn_time = self._timer.current_time
+
+    def update(self) -> None:
+        if self._fade_out():
+            self.kill()
+
+    @property
+    def image(self) -> pg.Surface:
+        size = randint(20, 50)
+        flash_img = images.get_muzzle_flash()
+        return pg.transform.scale(flash_img, (size, size))
+
+    def _fade_out(self) -> bool:
+        time_elapsed = self._timer.current_time - self._spawn_time
+        return time_elapsed > settings.FLASH_DURATION
+
+    @property
+    def rect(self) -> pg.Rect:
+        return self._rect
