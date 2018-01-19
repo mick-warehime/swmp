@@ -7,6 +7,8 @@ import items_module
 import model
 import mods
 from creatures.players import Player
+from data.abilities_io import load_ability_data
+from data.items_io import load_item_data
 from items.bullet_weapons import PistolObject
 from items.laser_weapons import LaserGun
 from items.rocks import RockObject
@@ -221,6 +223,22 @@ class ModTest(unittest.TestCase):
         player.attempt_pickup(medpack)
         self.assertIn(medpack.mod, player.backpack)
         self.assertTrue(player.backpack.slot_occupied(1))
+
+    def test_creation_of_usable_items_from_data(self):
+        player = make_player()
+        item_data = load_item_data('pistol')
+        pistol_ability = load_ability_data('pistol')
+
+        pistol = items_module.ItemFromData(item_data, Vector2(0, 0))
+        player.attempt_pickup(pistol)
+
+        self.assertIn(pistol.mod, player.active_mods)
+
+        use_pistol = player.ability_caller(mods.ModLocation.ARMS)
+        self.timer.current_time += pistol_ability.cool_down_time + 1
+
+        use_pistol()
+        self.assertEqual(len(self.groups.bullets), 1)
 
 
 if __name__ == '__main__':

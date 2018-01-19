@@ -67,7 +67,7 @@ class ItemObject(DynamicObject):
         raise NotImplementedError
 
 
-class ItemObjectFromData(ItemObject):
+class ItemFromData(ItemObject):
     def __init__(self, item_data: ItemData, pos: Vector2) -> None:
         mod = Mod(item_data.mod_data)
         self._image_file = item_data.image_file
