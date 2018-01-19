@@ -7,8 +7,6 @@ from os import path
 _ABILITIES_FILE = path.dirname(__file__) + '/abilities.yml'
 
 
-# TODO(dvirk): The MuzzleFlash must be added back in later.
-
 # TODO(dvirk): Currently the file is read every time load... is
 #  called. This is unnecessary and should be done once.
 def load_ability_data(name: str) -> AbilityData:
