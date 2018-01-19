@@ -2,7 +2,11 @@ import unittest
 
 from abilities import AbilityData
 from data.abilities_io import load_ability_data
+from data.items_io import load_item_data
+from data.mods_io import load_mod_data
 from data.projectiles_io import load_projectile_data
+from items_module import ItemData
+from mods import ModData, ModLocation
 from projectiles import ProjectileData
 
 
@@ -43,3 +47,17 @@ class InputOutputTest(unittest.TestCase):
                                     spread=5, muzzle_flash=True,
                                     sound_on_use='pistol.wav')
         self.assertEqual(data, expected_data)
+
+    def test_load_typical_mod(self) -> None:
+        mod_data = load_mod_data('pistol')
+
+        expected_data = ModData(
+            ModLocation.ARMS.value, 'pistol', 'mod_pistol.png',
+            'obj_pistol.png', 'Pistol')
+        self.assertEqual(mod_data, expected_data)
+
+    def test_load_typical_item(self) -> None:
+        item_data = load_item_data('pistol')
+
+        expected_data = ItemData('pistol', 'obj_pistol.png')
+        self.assertEqual(item_data, expected_data)

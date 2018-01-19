@@ -4,9 +4,19 @@ import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
+import images
 from data.mods_io import load_mod_data
 from model import DynamicObject
 from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED
+
+BaseItemData = namedtuple('BaseItemData', ('mod_data', 'image_file'))
+
+
+class ItemData(BaseItemData):
+    def __new__(cls, mod_label: str, image_file: str) -> None:
+        mod_data = load_mod_data(mod_label)
+
+        return super().__new__(cls, mod_data, image_file)
 
 
 class ItemObject(DynamicObject):
@@ -57,11 +67,12 @@ class ItemObject(DynamicObject):
         raise NotImplementedError
 
 
-BaseItemData = namedtuple('BaseItemData', ('mod_data', 'image_file'))
+class ItemObjectFromData(ItemObject):
+    def __init__(self, item_data: ItemData, pos: Vector2) -> None:
+        mod = Mod(item_data.mod_data)
+        self._image_file = item_data.image_file
+        super().__init__(mod, pos)
 
-
-class ItemData(BaseItemData):
-    def __new__(cls, mod_label: str, image_file: str) -> None:
-        mod_data = load_mod_data(mod_label)
-
-        return super().__new__(cls, mod_data, image_file)
+    @property
+    def image(self) -> pg.Surface:
+        return images.get_image(self._image_file)
