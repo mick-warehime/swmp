@@ -43,7 +43,7 @@ healthpack:
 battery:
   location: 'chest'
   ability_label: 'basic_recharge'
-  equipped_image_file: 'energy_pack.png'
+  equipped_image_file: 'lightning.png'
   backpack_image_file: 'energy_pack.png'
   description: 'Battery'
   stackable: true

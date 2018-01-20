@@ -9,7 +9,6 @@ from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
-from tilemap import ObjectType
 
 
 def setUpModule() -> None:
@@ -74,7 +73,7 @@ class ProjectilesTest(unittest.TestCase):
 
     def test_fancy_projectile_rotating_image_changes_width(self) -> None:
 
-        data = ProjectileData(True, 10, 100, 100, images.LASER_BOLT,
+        data = ProjectileData(False, 10, 10, 20, 'laser_blue.png',
                               rotating_image=True)
         projectile = FancyProjectile(Vector2(0, 0), Vector2(1, 0), data)
 
@@ -87,8 +86,8 @@ class ProjectilesTest(unittest.TestCase):
 
     def test_fancy_projectile_angled_image_changes_angle(self) -> None:
 
-        data = ProjectileData(True, 10, 100, 100, images.LASER_BOLT,
-                              angled_image=True)
+        data = load_projectile_data('laser')
+        assert data.angled_image
         projectile_y = FancyProjectile(Vector2(0, 0), Vector2(0, 1), data)
         projectile_x = FancyProjectile(Vector2(0, 0), Vector2(1, 0), data)
 
