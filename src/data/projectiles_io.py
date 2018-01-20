@@ -8,13 +8,12 @@ from os import path
 
 _PROJECTILE_FILE = path.dirname(__file__) + '/projectiles.yml'
 
+with open(_PROJECTILE_FILE, 'r') as stream:
+    _projectile_data = yaml.load(stream)
 
-# TODO(dvirk): Currently the file is read every time load_projectile_data is
-#  called. This is unnecessary and should be done once.
+
 def load_projectile_data(name: str) -> ProjectileData:
-    with open(_PROJECTILE_FILE, 'r') as stream:
-        data = yaml.load(stream)
-        if name not in data:
-            raise KeyError('Unrecognized projectile name: %s' % (name,))
-        kwargs = data[name]
-        return ProjectileData(**kwargs)
+    if name not in _projectile_data:
+        raise KeyError('Unrecognized projectile name: %s' % (name,))
+    kwargs = _projectile_data[name]
+    return ProjectileData(**kwargs)
