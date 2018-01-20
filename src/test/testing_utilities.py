@@ -10,6 +10,7 @@ import mods
 import controller
 from dungeon_controller import DungeonController
 from items.item_manager import ItemManager
+from tilemap import ObjectType
 
 
 def make_player() -> creatures.players.Player:
@@ -25,7 +26,7 @@ def make_mob(player: Union[creatures.players.Player, None] = None) -> creatures.
     return creatures.mobs.Mob(pos, player, conflict_group=None)
 
 
-def make_item(label: str) -> items_module.ItemObject:
+def make_item(label: ObjectType) -> items_module.ItemObject:
     pos = Vector2(0, 0)
     return ItemManager.item(pos, label)
 

@@ -1,10 +1,11 @@
 import pygame as pg
 
+from data.items_io import load_item_data
 from items.bullet_weapons import PistolObject, ShotgunObject
 from items.laser_weapons import LaserGun
 from items.rocks import RockObject
 from items.utility_items import HealthPackObject, Battery
-from items_module import ItemObject
+from items_module import ItemObject, ItemFromData
 from tilemap import ObjectType
 
 item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,
@@ -17,9 +18,7 @@ item_contructors = {ObjectType.HEALTHPACK: HealthPackObject,
 
 class ItemManager(object):
     @staticmethod
-    def item(pos: pg.math.Vector2, label: str) -> ItemObject:
-        if label not in item_contructors:
-            error_msg = 'Item label %s not recognized.'
-            raise ValueError(error_msg % (label,))
+    def item(pos: pg.math.Vector2, label: ObjectType) -> ItemObject:
 
-        return item_contructors[label](pos)
+        item_data = load_item_data(label.value)
+        return ItemFromData(item_data, pos)

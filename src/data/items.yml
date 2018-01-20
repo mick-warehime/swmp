@@ -1,3 +1,18 @@
 pistol:
   mod_label: 'pistol'
   image_file: 'obj_pistol.png'
+shotgun:
+  mod_label: 'shotgun'
+  image_file: 'obj_shotgun.png'
+healthpack:
+  mod_label: 'healthpack'
+  image_file: 'health_pack.png'
+rock:
+  mod_label: 'rock'
+  image_file: 'rock_small.png'
+laser:
+  mod_label: 'laser gun'
+  image_file: 'laser_gun.png'
+battery:
+  mod_label: 'battery'
+  image_file: 'energy_pack.png'

@@ -21,10 +21,6 @@ class PistolObject(ItemObject):
         return images.get_image(images.PISTOL)
 
 
-def make_flash(origin: Vector2) -> None:
-    MuzzleFlash(origin)
-
-
 class ShotgunObject(ItemObject):
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
