@@ -30,4 +30,4 @@ rock:
   max_lifetime: 800
   image_file: "little_rock.png"
   rotating_image: true
-  drops_on_kill: RockObject
+  drops_on_kill: 'rock'

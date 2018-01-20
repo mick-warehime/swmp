@@ -12,14 +12,13 @@ import settings
 import sounds
 import tilemap
 import view
-
-from creatures.mobs import Mob
 from creatures.humanoids import collide_hit_rect_with_rect
+from creatures.mobs import Mob
 from creatures.players import Player
-from items.item_manager import ItemManager
+from data.constructors import ItemManager
+from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Waypoint, Group, ConflictGroups
-from mods import ItemObject
 from projectiles import Projectile
 
 

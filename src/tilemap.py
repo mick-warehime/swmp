@@ -1,9 +1,11 @@
 from enum import unique, Enum
+from os import path
+from typing import Any, List
+
 import pygame as pg
 import pytmx
-from typing import Any, List
+
 from settings import WIDTH, HEIGHT
-from os import path
 
 CONFLICT = 'conflict'
 NOT_CONFLICT = 'not_conflict'
