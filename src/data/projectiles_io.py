@@ -1,3 +1,5 @@
+from typing import Set
+
 import yaml
 
 from projectiles import ProjectileData
@@ -15,3 +17,10 @@ def load_projectile_data(name: str) -> ProjectileData:
         raise KeyError('Unrecognized projectile name: %s' % (name,))
     kwargs = _projectile_data[name]
     return ProjectileData(**kwargs)
+
+
+def image_filenames() -> Set[str]:
+    filenames = set()
+    for projectile in _projectile_data.values():
+        filenames.add(projectile['image_file'])
+    return filenames

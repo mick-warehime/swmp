@@ -3,39 +3,27 @@ from typing import Dict
 from os import path
 import random
 
+from data import projectiles_io, mods_io, items_io
+
 PLAYER_IMG = 'manBlue_gun.png'
-BULLET_IMG = 'bullet.png'
 MOB_IMG = 'zombie1_hold.png'
 QMOB_IMG = 'zombie_red.png'
-ROCK = 'rock.png'
-ENERGY_PACK = 'energy_pack.png'
-HEALTH_PACK = 'health_pack.png'
-LASER_BOLT = 'laser_blue.png'
-LASER_GUN = 'laser_gun.png'
 LIGHT_MASK = "light_350_soft.png"
 LITTLE_BULLET = 'little_bullet.png'
-LITTLE_ROCK = 'little_rock.png'
-MEDIUM_ROCK = 'rock_small.png'
-LITTLE_LASER = 'little_laser.png'
-LIGHTNING = 'lightning.png'
 MUZZLE_FLASH1 = 'whitePuff15.png'
 MUZZLE_FLASH2 = 'whitePuff16.png'
 MUZZLE_FLASH3 = 'whitePuff17.png'
 MUZZLE_FLASH4 = 'whitePuff18.png'
-SHOTGUN = 'obj_shotgun.png'
-PISTOL = 'obj_pistol.png'
-SHOTGUN_MOD = 'mod_shotgun.png'
 SPLAT = 'splat green.png'
-PISTOL_MOD = 'mod_pistol.png'
-VOMIT = 'vomit.png'
 WAYPOINT_IMG = 'waypoint.png'
 
-ALL_IMAGES = [PLAYER_IMG, BULLET_IMG, MOB_IMG, SPLAT, LIGHTNING,
-              MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3, ENERGY_PACK,
-              MUZZLE_FLASH4, LASER_BOLT, LASER_GUN, LIGHT_MASK, LITTLE_BULLET,
-              LITTLE_LASER, LITTLE_ROCK, HEALTH_PACK, ROCK, SHOTGUN,
-              MEDIUM_ROCK, SHOTGUN_MOD, PISTOL, PISTOL_MOD, QMOB_IMG, VOMIT,
-              WAYPOINT_IMG]
+ALL_IMAGES = set([PLAYER_IMG, MOB_IMG, SPLAT, MUZZLE_FLASH1, MUZZLE_FLASH2,
+                  MUZZLE_FLASH3, MUZZLE_FLASH4, LIGHT_MASK, LITTLE_BULLET,
+                  QMOB_IMG, WAYPOINT_IMG])
+ALL_IMAGES = set(ALL_IMAGES)
+ALL_IMAGES |= projectiles_io.image_filenames()
+ALL_IMAGES |= mods_io.image_filenames()
+ALL_IMAGES |= items_io.image_filenames()
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'
@@ -83,14 +71,3 @@ def get_muzzle_flash() -> pg.Surface:
                    MUZZLE_FLASH3, MUZZLE_FLASH4]
     random_flash = random.choice(all_flashes)
     return get_image(random_flash)
-
-
-def get_item_image(item_name: str) -> pg.Surface:
-    if item_name == 'health':
-        return get_image(HEALTH_PACK)
-    elif item_name == 'shotgun':
-        return get_image(SHOTGUN)
-    elif item_name == 'pistol':
-        return get_image(PISTOL)
-
-    raise ValueError("failure loading image: %s" % item_name)
