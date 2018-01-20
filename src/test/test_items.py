@@ -232,7 +232,7 @@ class ModTest(unittest.TestCase):
         pistol = items_module.ItemFromData(item_data, Vector2(0, 0))
         player.attempt_pickup(pistol)
 
-        self.assertIn(pistol.mod, player.active_mods)
+        self.assertIs(pistol.mod, player.active_mods[pistol.mod.loc])
 
         use_pistol = player.ability_caller(mods.ModLocation.ARMS)
         self.timer.current_time += pistol_ability.cool_down_time + 1

@@ -73,7 +73,7 @@ class AbilitiesTest(unittest.TestCase):
         player = make_player()
         fire_pistol = GenericAbility(self.projectile_ability_data)
         self.timer.current_time += \
-            self.projectile_ability_data.cool_down_time+1
+            self.projectile_ability_data.cool_down_time + 1
 
         self.assertTrue(fire_pistol.can_use('dummy_arg'))
         fire_pistol.use(player)

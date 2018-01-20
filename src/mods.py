@@ -111,5 +111,3 @@ class Mod(object):
                 output += '%s, ' % (prof.value,)
             output += ')'
         return output
-
-
