@@ -6,10 +6,10 @@ from pygame.math import Vector2
 import controller
 import creatures.mobs
 import creatures.players
-from dungeon_controller import DungeonController
-from items import items_module
-from tilemap import ObjectType
+import items
 from data.constructors import ItemManager
+from dungeon_controller import DungeonController
+from tilemap import ObjectType
 
 
 def make_player() -> creatures.players.Player:
@@ -25,7 +25,7 @@ def make_mob(player: Union[creatures.players.Player, None] = None) -> creatures.
     return creatures.mobs.Mob(pos, player, conflict_group=None)
 
 
-def make_item(label: ObjectType) -> items_module.ItemObject:
+def make_item(label: ObjectType) -> items.ItemObject:
     pos = Vector2(0, 0)
     return ItemManager.item(pos, label)
 

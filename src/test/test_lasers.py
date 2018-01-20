@@ -1,11 +1,11 @@
 import unittest
 from typing import Tuple
 
+import items
 import model
 from abilities import GenericAbility
 from creatures.players import Player
 from data.abilities_io import load_ability_data
-from items import items_module
 from src.test.testing_utilities import make_player, make_item
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -80,7 +80,7 @@ class LaserTest(unittest.TestCase):
         self.assertFalse(laser_gun.mod.ability.can_use(player))
 
     def _player_with_ready_laser(self) -> Tuple[
-        items_module.ItemObject, Player]:
+        items.ItemObject, Player]:
         player = make_player()
         laser_gun = make_item(ObjectType.LASER_GUN)
         player.attempt_pickup(laser_gun)

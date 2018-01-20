@@ -76,5 +76,3 @@ class ItemFromData(ItemObject):
     @property
     def image(self) -> pg.Surface:
         return images.get_image(self._image_file)
-
-

@@ -59,7 +59,7 @@ class ProjectilesTest(unittest.TestCase):
         bullet.update()
         self.assertNotIn(bullet, self.groups.bullets)
 
-    def test_projectile_with_drops_on_kill_instantiates_object(self):
+    def test_projectile_with_drops_on_kill_instantiates_object(self) -> None:
         lifetime = 10
         dropper_data = ProjectileData(False, 10, 10, lifetime,
                                       images.LITTLE_BULLET,

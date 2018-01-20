@@ -3,17 +3,17 @@ from typing import Tuple
 
 from pygame.math import Vector2
 
+import items
 import model
 import mods
 from creatures.players import Player
 from data.abilities_io import load_ability_data
+from data.constructors import ItemManager
 from data.items_io import load_item_data
-from items import items_module
 from src.test.testing_utilities import make_player, make_item
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
-from data.constructors import ItemManager
 
 
 def setUpModule() -> None:
@@ -120,7 +120,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(player.health, player.max_health)
 
     def _player_with_ready_healthpack(self) -> Tuple[
-        items_module.ItemObject, Player]:
+        items.ItemObject, Player]:
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
         player.attempt_pickup(hp)
@@ -218,12 +218,12 @@ class ModTest(unittest.TestCase):
         self.assertIn(medpack.mod, player.backpack)
         self.assertTrue(player.backpack.slot_occupied(1))
 
-    def test_creation_of_usable_items_from_data(self):
+    def test_creation_of_usable_items_from_data(self) -> None:
         player = make_player()
         item_data = load_item_data('pistol')
         pistol_ability = load_ability_data('pistol')
 
-        pistol = items_module.ItemFromData(item_data, Vector2(0, 0))
+        pistol = items.ItemFromData(item_data, Vector2(0, 0))
         player.attempt_pickup(pistol)
 
         self.assertIs(pistol.mod, player.active_mods[pistol.mod.loc])

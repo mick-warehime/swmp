@@ -2,7 +2,7 @@ from os import path
 
 import yaml
 
-from items.items_module import ItemData
+from items import ItemData
 
 _ITEMS_FILE = path.dirname(__file__) + '/items.yml'
 

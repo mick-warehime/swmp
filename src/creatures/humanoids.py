@@ -5,9 +5,9 @@ import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group
 
+import items
 import model as mdl
 import mods
-from items import items_module
 
 
 class Humanoid(mdl.DynamicObject):
@@ -105,7 +105,7 @@ class Humanoid(mdl.DynamicObject):
 
         return called_ability
 
-    def attempt_pickup(self, item: items_module.ItemObject) -> None:
+    def attempt_pickup(self, item: items.ItemObject) -> None:
         if item.mod.loc not in self.active_mods:
             self.equip(item.mod)
             item.kill()
