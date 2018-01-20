@@ -6,8 +6,9 @@ from pygame.math import Vector2
 import items
 import model
 import mods
+from abilities import AbilityData
 from creatures.players import Player
-from data.abilities_io import load_ability_data
+from data.abilities_io import load_ability_data_kwargs
 from data.constructors import ItemManager
 from data.items_io import load_item_data
 from src.test.testing_utilities import make_player, make_item
@@ -221,7 +222,7 @@ class ModTest(unittest.TestCase):
     def test_creation_of_usable_items_from_data(self) -> None:
         player = make_player()
         item_data = load_item_data('pistol')
-        pistol_ability = load_ability_data('pistol')
+        pistol_ability = AbilityData(**load_ability_data_kwargs('pistol'))
 
         pistol = items.ItemFromData(item_data, Vector2(0, 0))
         player.attempt_pickup(pistol)

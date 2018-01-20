@@ -3,9 +3,9 @@ from typing import Tuple
 
 import items
 import model
-from abilities import GenericAbility
+from abilities import GenericAbility, AbilityData
 from creatures.players import Player
-from data.abilities_io import load_ability_data
+from data.abilities_io import load_ability_data_kwargs
 from src.test.testing_utilities import make_player, make_item
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -17,7 +17,7 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(LaserTest.groups, LaserTest.timer)
 
-    ability_data = load_ability_data('laser')
+    ability_data = AbilityData(**load_ability_data_kwargs('laser'))
     LaserTest.laser_ability = GenericAbility(ability_data)
     dummy_audio_video
 
@@ -65,7 +65,7 @@ class LaserTest(unittest.TestCase):
         fire_laser()
         final_energy = player.energy_source.energy_available
 
-        expected = load_ability_data('laser').energy_required
+        expected = load_ability_data_kwargs('laser')['energy_required']
         actual = starting_energy - final_energy
         self.assertEqual(actual, expected)
 
