@@ -5,8 +5,8 @@ from typing import Set, Any
 import pygame as pg
 
 import images
-from abilities import Ability, GenericAbility
-from data.abilities_io import load_ability_data
+from abilities import Ability, GenericAbility, AbilityData
+from data.abilities_io import load_ability_data_kwargs
 
 BOB_RANGE = 1
 BOB_SPEED = 0.3
@@ -47,7 +47,7 @@ class ModData(BaseModData):
                 description: str, stackable: bool = False,
                 buffs: Set[Buffs] = None,
                 proficiencies: Set[Proficiencies] = None) -> BaseModData:
-        ability_data = load_ability_data(ability_label)
+        ability_data = AbilityData(**load_ability_data_kwargs(ability_label))
 
         return super().__new__(cls, ModLocation(location),  # type: ignore
                                ability_data, equipped_image_file,

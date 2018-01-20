@@ -2,8 +2,8 @@ import unittest
 from pygame.math import Vector2
 
 import model
-from abilities import GenericAbility
-from data.abilities_io import load_ability_data
+from abilities import GenericAbility, AbilityData
+from data.abilities_io import load_ability_data_kwargs
 from data.projectiles_io import load_projectile_data
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
@@ -29,8 +29,9 @@ class WeaponsTest(unittest.TestCase):
         player = make_player()
         num_updates = 100
 
-        ability_data = load_ability_data('shotgun')._replace(
-            projectile_count=1)
+        data_dict = load_ability_data_kwargs('shotgun')
+        data_dict['projectile_count'] = 1
+        ability_data = AbilityData(**data_dict)
 
         fire_little_bullet = GenericAbility(ability_data)
 

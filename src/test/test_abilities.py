@@ -2,7 +2,7 @@ import unittest
 
 import model
 from abilities import GenericAbility, AbilityData
-from data.abilities_io import load_ability_data
+from data.abilities_io import load_ability_data_kwargs
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from projectiles import Projectile, MuzzleFlash
@@ -13,7 +13,7 @@ def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
 
-    ability_data = load_ability_data('pistol')
+    ability_data = AbilityData(**load_ability_data_kwargs('pistol'))
 
     AbilitiesTest.projectile_ability_data = ability_data
 

@@ -1,7 +1,7 @@
 import unittest
 
 from abilities import AbilityData
-from data.abilities_io import load_ability_data
+from data.abilities_io import load_ability_data_kwargs
 from data.items_io import load_item_data
 from data.mods_io import load_mod_data
 from data.projectiles_io import load_projectile_data
@@ -25,7 +25,7 @@ class InputOutputTest(unittest.TestCase):
             load_projectile_data(bad_name)
 
     def test_load_regeneration_ability_data(self) -> None:
-        data = load_ability_data('basic_heal')
+        data = AbilityData(**load_ability_data_kwargs('basic_heal'))
         expected_data = AbilityData(cool_down_time=300,
                                     heal_amount=20,
                                     finite_uses=True,
@@ -37,10 +37,10 @@ class InputOutputTest(unittest.TestCase):
         bad_name = 'seoifjosiejf'
 
         with self.assertRaisesRegex(KeyError, 'not recognized'):
-            load_ability_data(bad_name)
+            load_ability_data_kwargs(bad_name)
 
     def test_load_projectile_ability(self) -> None:
-        data = load_ability_data('pistol')
+        data = AbilityData(**load_ability_data_kwargs('pistol'))
 
         expected_data = AbilityData(250, projectile_label='bullet',
                                     kickback=200,
