@@ -4,12 +4,12 @@ from pygame.math import Vector2
 
 import model
 from abilities import AbilityData
-from items.item_manager import ItemManager
 from mods import Mod, Proficiencies, Buffs, ModData
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 # needs to be here to prevent screen from loading
 from tilemap import ObjectType
+from data.constructors import ItemManager
 
 
 def setUpModule() -> None:

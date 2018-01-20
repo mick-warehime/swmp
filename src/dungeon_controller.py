@@ -15,7 +15,7 @@ import view
 from creatures.humanoids import collide_hit_rect_with_rect
 from creatures.mobs import Mob
 from creatures.players import Player
-from items.item_manager import ItemManager
+from data.constructors import ItemManager
 from items.items_module import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Waypoint, Group, ConflictGroups

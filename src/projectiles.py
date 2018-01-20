@@ -10,7 +10,6 @@ import images
 import settings
 
 from model import DynamicObject
-from tilemap import ObjectType
 
 
 class Projectile(DynamicObject):
@@ -82,8 +81,6 @@ class ProjectileData(BaseProjectileData):
                 max_lifetime: int, image_file: str,
                 angled_image: bool = False, rotating_image: bool = False,
                 drops_on_kill: str = None) -> BaseProjectileData:
-        if drops_on_kill is not None:
-            drops_on_kill = ObjectType(drops_on_kill)
         return super().__new__(cls, hits_player, damage, speed,
                                max_lifetime, image_file, angled_image,
                                rotating_image, drops_on_kill)
@@ -143,8 +140,8 @@ class FancyProjectile(SimpleProjectile):
     def kill(self) -> None:
         super().kill()
         if self._data.drops_on_kill is not None:
-            print('Dropping %s' % (self._data.drops_on_kill,))
-            #ItemManager.item(self.pos, self._data.drops_on_kill)
+            from data.constructors import ItemManager
+            ItemManager.item(self.pos, self._data.drops_on_kill)
 
 
 class ProjectileFactory(object):

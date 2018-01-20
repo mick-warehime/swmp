@@ -5,10 +5,10 @@ from unittest.mock import Mock
 from pygame.math import Vector2
 
 import mods
-from items.item_manager import ItemManager
 from src.test.pygame_mock import initialize_pygame
 from src.test.testing_utilities import make_dungeon_controller, make_player
 from tilemap import ObjectType
+from data.constructors import ItemManager
 from view import DungeonView
 
 

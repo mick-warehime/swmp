@@ -7,12 +7,12 @@ from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
 
 import model
-from items.item_manager import ItemManager
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player, make_mob
 from test import dummy_audio_video
 from tilemap import ObjectType
+from data.constructors import ItemManager
 
 
 def setUpModule() -> None:

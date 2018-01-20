@@ -9,11 +9,11 @@ from creatures.players import Player
 from data.abilities_io import load_ability_data
 from data.items_io import load_item_data
 from items import items_module
-from items.item_manager import ItemManager
 from src.test.testing_utilities import make_player, make_item
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
+from data.constructors import ItemManager
 
 
 def setUpModule() -> None:

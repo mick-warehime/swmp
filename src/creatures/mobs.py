@@ -10,9 +10,9 @@ import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.mods_io import load_mod_data
-from items.item_manager import ItemManager
 from mods import Mod
 from tilemap import ObjectType
+from data.constructors import ItemManager
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)

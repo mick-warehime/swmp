@@ -8,8 +8,8 @@ import creatures.mobs
 import creatures.players
 from dungeon_controller import DungeonController
 from items import items_module
-from items.item_manager import ItemManager
 from tilemap import ObjectType
+from data.constructors import ItemManager
 
 
 def make_player() -> creatures.players.Player:
