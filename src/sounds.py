@@ -3,8 +3,7 @@ from typing import List, Dict
 import os
 import random
 
-# TODO - load sounds from JSON file -  issue#106
-from tilemap import ObjectType
+from data import abilities_io
 
 ZOMBIE_HIT = 'zombie hit'
 PLAYER_HIT = 'player hit'
@@ -22,15 +21,14 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-5.wav', 'zombie-roar-6.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
-WEAPON_SOUNDS = {ObjectType.PISTOL: ['pistol.wav'],
-                 ObjectType.SHOTGUN: ['shotgun.wav'],
-                 ObjectType.LASER_GUN: ['laser_pew.wav'],
-                 ObjectType.ROCK: ['grunt.wav']}
+
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
 
 OTHER_SOUNDS = ['phaser_up.wav', 'health_pack.wav']
+
+SOUNDS_FROM_DATA = abilities_io.sound_filenames()
 
 
 class SoundEffects(object):
@@ -38,7 +36,6 @@ class SoundEffects(object):
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
         self.player_hit_sounds: List[pg.mixer.Sound] = []
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.weapon_sounds: Dict[ObjectType, List[pg.mixer.Sound]] = {}
         self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
         self.all_sounds: Dict[str, pg.mixer.Sound] = {}
 
@@ -52,13 +49,6 @@ class SoundEffects(object):
             sound = pg.mixer.Sound(sound_path)
             self.effects_sounds[label] = sound
             self.all_sounds[label] = sound
-        for weapon in WEAPON_SOUNDS.keys():
-            self.weapon_sounds[weapon] = []
-            for sound_file in WEAPON_SOUNDS[weapon]:
-                s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
-                s.set_volume(0.3)
-                self.weapon_sounds[weapon].append(s)
-                self.all_sounds[sound_file] = s
         for sound_file in ZOMBIE_MOAN_SOUNDS:
             s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
             s.set_volume(0.2)
@@ -80,6 +70,13 @@ class SoundEffects(object):
             sound = pg.mixer.Sound(snd_path)
             self.all_sounds[sound_file] = sound
 
+        for sound_file in SOUNDS_FROM_DATA:
+            if sound_file in self.all_sounds:
+                continue
+            snd_path = os.path.join(snd_folder, sound_file)
+            sound = pg.mixer.Sound(snd_path)
+            self.all_sounds[sound_file] = sound
+
 
 # Global sound effect object
 effects = None
@@ -92,15 +89,6 @@ def initialize_sounds() -> None:
 
 def play(sound_name: str) -> None:
     effects.all_sounds[sound_name].play()
-
-
-def fire_weapon_sound(weapon_type: ObjectType) -> None:
-    sound = random.choice(effects.weapon_sounds[weapon_type])
-    sound.play()
-
-
-def spew_vomit_sound() -> None:
-    effects.zombie_moan_sounds[2].play()
 
 
 def player_hit_sound() -> None:
