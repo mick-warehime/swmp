@@ -5,14 +5,14 @@ from pygame.math import Vector2
 from pygame.sprite import Group
 
 import images
-import items.bullet_weapons
 import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.mods_io import load_mod_data
-
+from items.item_manager import ItemManager
 from mods import Mod
+from tilemap import ObjectType
 
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
@@ -59,7 +59,7 @@ class Mob(Humanoid):
 
     def kill(self) -> None:
         if self.is_quest:
-            items.bullet_weapons.PistolObject(self.pos)
+            ItemManager.item(self.pos, ObjectType.PISTOL)
         super().kill()
 
     def _check_class_initialized(self) -> None:

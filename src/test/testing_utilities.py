@@ -3,12 +3,11 @@ from typing import Union
 import pygame
 from pygame.math import Vector2
 
+import controller
 import creatures.mobs
 import creatures.players
-import items_module
-import mods
-import controller
 from dungeon_controller import DungeonController
+from items import items_module
 from items.item_manager import ItemManager
 from tilemap import ObjectType
 

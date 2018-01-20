@@ -5,9 +5,9 @@ import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group
 
-import items_module
 import model as mdl
 import mods
+from items import items_module
 
 
 class Humanoid(mdl.DynamicObject):

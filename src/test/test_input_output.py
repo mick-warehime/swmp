@@ -5,7 +5,7 @@ from data.abilities_io import load_ability_data
 from data.items_io import load_item_data
 from data.mods_io import load_mod_data
 from data.projectiles_io import load_projectile_data
-from items_module import ItemData
+from items.items_module import ItemData
 from mods import ModData, ModLocation
 from projectiles import ProjectileData
 

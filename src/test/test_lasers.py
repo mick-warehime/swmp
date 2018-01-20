@@ -1,17 +1,16 @@
 import unittest
 from typing import Tuple
 
-import items_module
 import model
-import mods
 from abilities import GenericAbility
 from creatures.players import Player
 from data.abilities_io import load_ability_data
+from items import items_module
+from src.test.testing_utilities import make_player, make_item
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 from tilemap import ObjectType
-from src.test.testing_utilities import make_player, make_item
 
 
 def setUpModule() -> None:

@@ -1,8 +1,8 @@
-import yaml
-
 from os import path
 
-from items_module import ItemData
+import yaml
+
+from items.items_module import ItemData
 
 _ITEMS_FILE = path.dirname(__file__) + '/items.yml'
 

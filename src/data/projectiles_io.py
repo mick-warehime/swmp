@@ -22,6 +22,6 @@ def load_projectile_data(name: str) -> ProjectileData:
             raise KeyError('Unrecognized projectile name: %s' % (name,))
         kwargs = data[name]
         if 'drops_on_kill' in kwargs:
-            assert kwargs['drops_on_kill'] == 'RockObject'
+            assert kwargs['drops_on_kill'] == 'rock'
             kwargs['drops_on_kill'] = print_rock_err_msg
         return ProjectileData(**kwargs)

@@ -1,15 +1,18 @@
+import math
 import unittest
+from itertools import product
 from typing import Tuple
+
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
+
 import model
-from items.rocks import RockObject
+from items.item_manager import ItemManager
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from itertools import product
-import math
 from src.test.testing_utilities import make_player, make_mob
 from test import dummy_audio_video
+from tilemap import ObjectType
 
 
 def setUpModule() -> None:
@@ -193,14 +196,14 @@ class HumanoidsTest(unittest.TestCase):
         mob.update()
         self.assertNotIn(mob, groups.mobs)
 
-    def test_pickup_rock_adds_to_active_mods(self) -> None:
+    def test_pickup_stackable_adds_to_active_mods(self) -> None:
         player = make_player()
 
-        player.attempt_pickup(RockObject(player.pos))
+        player.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
 
         self.assertFalse(player.backpack.slot_occupied(0))
 
-        player.attempt_pickup(RockObject(player.pos))
+        player.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
         self.assertFalse(player.backpack.slot_occupied(0))
 
 
