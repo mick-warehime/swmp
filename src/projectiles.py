@@ -1,4 +1,4 @@
-from collections import Callable, namedtuple
+from collections import namedtuple
 from random import uniform, randint
 
 import pygame as pg
@@ -8,7 +8,9 @@ from pygame.transform import rotate
 
 import images
 import settings
+
 from model import DynamicObject
+from tilemap import ObjectType
 
 
 class Projectile(DynamicObject):
@@ -79,7 +81,9 @@ class ProjectileData(BaseProjectileData):
     def __new__(cls, hits_player: bool, damage: int, speed: int,
                 max_lifetime: int, image_file: str,
                 angled_image: bool = False, rotating_image: bool = False,
-                drops_on_kill: Callable = None) -> BaseProjectileData:
+                drops_on_kill: str = None) -> BaseProjectileData:
+        if drops_on_kill is not None:
+            drops_on_kill = ObjectType(drops_on_kill)
         return super().__new__(cls, hits_player, damage, speed,
                                max_lifetime, image_file, angled_image,
                                rotating_image, drops_on_kill)
@@ -114,15 +118,8 @@ class FancyProjectile(SimpleProjectile):
     def __init__(self, pos: Vector2, direction: Vector2,
                  data: ProjectileData) -> None:
         self._init_image(data, direction)
-        self._init_kill_method(data.drops_on_kill)
 
         super().__init__(pos, direction, data)
-
-    def _init_kill_method(self, constructor: Callable) -> None:
-        if constructor is not None:
-            self._kill_method = constructor
-        else:
-            self._kill_method = lambda x: None
 
     def _init_image(self, data: ProjectileData,
                     direction: Vector2) -> None:
@@ -145,7 +142,9 @@ class FancyProjectile(SimpleProjectile):
 
     def kill(self) -> None:
         super().kill()
-        self._kill_method(self.pos)
+        if self._data.drops_on_kill is not None:
+            print('Dropping %s' % (self._data.drops_on_kill,))
+            #ItemManager.item(self.pos, self._data.drops_on_kill)
 
 
 class ProjectileFactory(object):

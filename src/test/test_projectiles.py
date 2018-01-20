@@ -9,6 +9,7 @@ from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
+from tilemap import ObjectType
 
 
 def setUpModule() -> None:
@@ -83,25 +84,6 @@ class ProjectilesTest(unittest.TestCase):
 
         self.assertEqual(image_y.get_width(), image_x.get_height())
         self.assertEqual(image_y.get_height(), image_x.get_width())
-
-    def test_fancy_projectile_drops_on_kill_calls_method(self) -> None:
-
-        self.num_calls = 0
-
-        def call_on_kill(pos: Vector2) -> None:
-            self.num_calls += 1
-
-        data = ProjectileData(True, 10, 100, 100, images.LASER_BOLT,
-                              drops_on_kill=call_on_kill)
-        projectile = FancyProjectile(Vector2(0, 0), Vector2(0, 1), data)
-
-        self.assertEqual(self.num_calls, 0)
-
-        for k in range(4):
-            projectile.kill()
-            self.assertEqual(self.num_calls, k + 1)
-
-        del self.num_calls
 
     def test_projectile_factory_build(self) -> None:
         basic_data = ProjectileData(True, 10, 100, 100, images.LITTLE_BULLET)
