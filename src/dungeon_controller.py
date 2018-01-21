@@ -141,7 +141,7 @@ class DungeonController(controller.Controller):
         items: List[ItemObject] = spritecollide(self.player,
                                                 self._groups.items, False)
         for item in items:
-            self.player.attempt_pickup(item)
+            self.player.inventory.attempt_pickup(item)
 
         # obs hit player
         hitters: List[Mob] = spritecollide(self.player, self._groups.mobs,
@@ -243,9 +243,9 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        backpack = self.player.backpack
+        backpack = self.player.inventory.backpack
         if backpack.slot_occupied(idx):
-            self.player.equip(backpack[idx])
+            self.player.inventory.equip(backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
@@ -255,7 +255,7 @@ class DungeonController(controller.Controller):
         if location == view.NO_SELECTION:
             return
 
-        self.player.unequip(location)
+        self.player.inventory.unequip(location)
 
     def _pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self._abs_mouse_pos()

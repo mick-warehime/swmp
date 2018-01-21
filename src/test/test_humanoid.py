@@ -199,11 +199,11 @@ class HumanoidsTest(unittest.TestCase):
     def test_pickup_stackable_adds_to_active_mods(self) -> None:
         player = make_player()
 
-        player.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
 
         self.assertFalse(player.backpack.slot_occupied(0))
 
-        player.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
         self.assertFalse(player.backpack.slot_occupied(0))
 
 

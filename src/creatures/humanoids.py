@@ -190,15 +190,6 @@ class Humanoid(mdl.DynamicObject):
 
         return called_ability
 
-    def attempt_pickup(self, item: items.ItemObject) -> None:
-        self.inventory.attempt_pickup(item)
-
-    def unequip(self, loc: mods.ModLocation) -> None:
-        self.inventory.unequip(loc)
-
-    def equip(self, item_mod: mods.Mod) -> None:
-        self.inventory.equip(item_mod)
-
     @property
     def backpack(self) -> Backpack:
         return self.inventory.backpack
