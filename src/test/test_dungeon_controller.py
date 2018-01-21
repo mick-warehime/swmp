@@ -49,7 +49,7 @@ class DungeonControllerTest(unittest.TestCase):
         shotgun_mod = shotgun.mod
         weapon_loc = pistol_mod.loc
         self.assertEqual(player.active_mods[weapon_loc], pistol_mod)
-        dng_ctrl.equip_mod_in_backpack()
+        dng_ctrl._equip_mod_in_backpack()
         self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
 
     def test_items_do_not_move_in_backpack_after_equip(self) -> None:
@@ -98,7 +98,7 @@ class DungeonControllerTest(unittest.TestCase):
         dungeon = make_dungeon_controller()
 
         # ensure this method doesn't fail (nothing selected)
-        dungeon.equip_mod_in_backpack()
+        dungeon._equip_mod_in_backpack()
 
     def test_pass_mouse_pos(self) -> None:
         import dungeon_controller
@@ -113,7 +113,7 @@ class DungeonControllerTest(unittest.TestCase):
             dungeon_controller.pg.mouse.get_pos = func
 
             dungeon = make_dungeon_controller()
-            dungeon.pass_mouse_pos_to_player()
+            dungeon._pass_mouse_pos_to_player()
 
             self.assertEqual(dungeon.player._mouse_pos, func())
 
@@ -125,7 +125,7 @@ class DungeonControllerTest(unittest.TestCase):
         dungeon = make_dungeon_controller()
         dungeon.get_clicked_pos = not_clicked
 
-        self.assertFalse(dungeon.try_handle_hud())
+        self.assertFalse(dungeon._try_handle_hud())
 
     def test_handle_hud_clicked_elsewhere(self) -> None:
         def clicked() -> Any:
@@ -134,7 +134,7 @@ class DungeonControllerTest(unittest.TestCase):
         dungeon = make_dungeon_controller()
         dungeon.get_clicked_pos = clicked
 
-        self.assertFalse(dungeon.try_handle_hud())
+        self.assertFalse(dungeon._try_handle_hud())
 
     def test_set_player(self) -> None:
         dungeon = make_dungeon_controller()
