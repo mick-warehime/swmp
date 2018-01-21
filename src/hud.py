@@ -109,8 +109,8 @@ class HUD(object):
                 col = settings.RED
             pg.draw.rect(self._screen, col, r, 2)
 
-        for idx, loc in enumerate(player.active_mods):
-            mod = player.active_mods[loc]
+        for idx, loc in enumerate(player.inventory.active_mods):
+            mod = player.inventory.active_mods[loc]
             img = mod.equipped_image
 
             img = pg.transform.scale(img, (50, 50))
