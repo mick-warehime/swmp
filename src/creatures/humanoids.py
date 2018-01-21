@@ -3,7 +3,6 @@ from typing import Dict
 
 import pygame as pg
 from pygame.math import Vector2
-from pygame.sprite import Group
 
 import items
 import model as mdl
@@ -119,10 +118,6 @@ class Humanoid(mdl.DynamicObject):
         self.inventory = Inventory()
 
     @property
-    def _walls(self) -> Group:
-        return self._groups.walls
-
-    @property
     def health(self) -> int:
         return self._health
 
@@ -153,13 +148,12 @@ class Humanoid(mdl.DynamicObject):
         dt = self._timer.dt
         self._vel += self._acc * dt
         self.pos += self._vel * dt
-        self.pos += 0.5 * self._acc * dt ** 2
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
-        _collide_hit_rect_in_direction(self, self._walls, 'x')
+        _collide_hit_rect_in_direction(self, self._groups.walls, 'x')
         self.hit_rect.centery = self.pos.y
-        _collide_hit_rect_in_direction(self, self._walls, 'y')
+        _collide_hit_rect_in_direction(self, self._groups.walls, 'y')
         # For some reason, mypy cannot infer the type of hit_rect in the line
         #  below.
         self.rect.center = self.hit_rect.center  # type: ignore

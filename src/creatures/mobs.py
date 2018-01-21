@@ -50,24 +50,13 @@ class Mob(Humanoid):
 
         if self.is_quest:
             self.speed *= 2
-            self._vomit_mod = vomit_mod()
+            self._vomit_mod = Mod(load_mod_data('vomit'))
             self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
-
-    @property
-    def _mob_group(self) -> Group:
-        return self._groups.mobs
 
     def kill(self) -> None:
         if self.is_quest:
             ItemManager.item(self.pos, ObjectType.PISTOL)
         super().kill()
-
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.class_initialized:
-            raise RuntimeError(
-                'Mob class must be initialized before an object can be'
-                ' instantiated.')
 
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
@@ -92,13 +81,6 @@ class Mob(Humanoid):
             pg.draw.rect(image, col, health_bar)
         return image
 
-    def _avoid_mobs(self) -> None:
-        for mob in self._mob_group:
-            if mob != self:
-                dist = self.pos - mob.pos
-                if 0 < dist.length() < AVOID_RADIUS:
-                    self._acc += dist.normalize()
-
     def update(self) -> None:
         target_dist = self.target.pos - self.pos
         if self._target_close(target_dist):
@@ -119,6 +101,19 @@ class Mob(Humanoid):
             self.kill()
             self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
 
+    def _check_class_initialized(self) -> None:
+        super()._check_class_initialized()
+        if not self.class_initialized:
+            raise RuntimeError('Mob class must be initialized before an object'
+                               ' can be instantiated.')
+
+    def _avoid_mobs(self) -> None:
+        for mob in self._groups.mobs:
+            if mob != self:
+                dist = self.pos - mob.pos
+                if 0 < dist.length() < AVOID_RADIUS:
+                    self._acc += dist.normalize()
+
     def _update_acc(self) -> None:
         self._acc = Vector2(1, 0).rotate(-self.rot)
         self._avoid_mobs()
@@ -137,7 +132,3 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         return col
-
-
-def vomit_mod() -> Mod:
-    return Mod(load_mod_data('vomit'))
