@@ -55,30 +55,30 @@ class ModTest(unittest.TestCase):
         player = make_player()
         pistol = make_item(ObjectType.PISTOL)
 
-        backpack = player.backpack
-        self.assertEqual(len(backpack), player.backpack.size)
+        backpack = player.inventory.backpack
+        self.assertEqual(len(backpack), backpack.size)
         # TODO (dvirk): You should not be able to add the same object to the
         # backpack more than once.
 
-        for i in range(player.backpack.size + 1):
-            self.assertFalse(player.backpack.is_full)
+        for i in range(backpack.size + 1):
+            self.assertFalse(backpack.is_full)
             player.inventory.attempt_pickup(pistol)
-        self.assertTrue(player.backpack.is_full)
+        self.assertTrue(backpack.is_full)
 
         # Item not gained since backpack full
         player.inventory.attempt_pickup(pistol)
-        self.assertEqual(len(backpack), player.backpack.size)
+        self.assertEqual(len(backpack), backpack.size)
 
     def test_pickup_healthpacks(self) -> None:
         player = make_player()
         hp = make_item(ObjectType.HEALTHPACK)
 
-        backpack = player.backpack
+        backpack = player.inventory.backpack
 
         player.inventory.attempt_pickup(hp)
         # healthpack goes straight to active mods.
         self.assertNotIn(hp.mod, backpack)  # healthpack added to stack.
-        active_mods = player.active_mods
+        active_mods = player.inventory.active_mods
         self.assertIn(hp.mod, active_mods.values())
         self.assertEqual(active_mods[hp.mod.loc].ability.uses_left, 1)
 
@@ -99,12 +99,12 @@ class ModTest(unittest.TestCase):
         self.assertFalse(hp.mod.expended)
 
         # health pack doesn't work if health is full
-        self.assertIn(hp.mod, player.active_mods.values())
+        self.assertIn(hp.mod, player.inventory.active_mods.values())
 
     def test_health_pack_heals_back_to_full(self) -> None:
         hp, player = self._player_with_ready_healthpack()
 
-        backpack = player.backpack
+        backpack = player.inventory.backpack
 
         # health pack fills health back up and is gone from active_mods
         player.increment_health(-5)
@@ -137,9 +137,9 @@ class ModTest(unittest.TestCase):
         player.inventory.attempt_pickup(shotgun)
 
         # nothing installed at arms location -> install shotgun
-        backpack = player.backpack
+        backpack = player.inventory.backpack
         self.assertNotIn(shotgun.mod, backpack)
-        active_mods = player.active_mods
+        active_mods = player.inventory.active_mods
         arm_mod = active_mods[mods.ModLocation.ARMS]
         self.assertIs(arm_mod, shotgun.mod)
 
@@ -163,19 +163,19 @@ class ModTest(unittest.TestCase):
         pos = Vector2(0, 0)
         hp = ItemManager.item(pos, ObjectType.HEALTHPACK)
 
-        self.assertNotIn(hp.mod.loc, player.active_mods)
+        self.assertNotIn(hp.mod.loc, player.inventory.active_mods)
 
         player.inventory.attempt_pickup(hp)
-        player_mod = player.active_mods[hp.mod.loc]
+        player_mod = player.inventory.active_mods[hp.mod.loc]
         self.assertIs(player_mod, hp.mod)
         self.assertEqual(player_mod.ability.uses_left, 1)
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
-        player_mod = player.active_mods[hp.mod.loc]
+        player_mod = player.inventory.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 2)
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
-        player_mod = player.active_mods[hp.mod.loc]
+        player_mod = player.inventory.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 3)
 
     def test_mod_stacking_in_backpack(self) -> None:
@@ -184,20 +184,20 @@ class ModTest(unittest.TestCase):
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.PISTOL))
 
-        self.assertFalse(player.backpack.slot_occupied(0))
+        self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
-        self.assertTrue(player.backpack.slot_occupied(0))
-        self.assertEqual(player.backpack[0].ability.uses_left, 1)
+        self.assertTrue(player.inventory.backpack.slot_occupied(0))
+        self.assertEqual(player.inventory.backpack[0].ability.uses_left, 1)
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
-        self.assertEqual(player.backpack[0].ability.uses_left, 2)
+        self.assertEqual(player.inventory.backpack[0].ability.uses_left, 2)
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
-        self.assertEqual(player.backpack[0].ability.uses_left, 3)
+        self.assertEqual(player.inventory.backpack[0].ability.uses_left, 3)
 
         player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
-        self.assertEqual(player.backpack[0].ability.uses_left, 4)
+        self.assertEqual(player.inventory.backpack[0].ability.uses_left, 4)
 
     def test_pickup_several_items(self) -> None:
         player = make_player()
@@ -209,15 +209,15 @@ class ModTest(unittest.TestCase):
         medpack = ItemManager.item(pos, ObjectType.HEALTHPACK)
 
         player.inventory.attempt_pickup(laser_gun)
-        self.assertIs(laser_gun.mod, player.active_mods[mods.ModLocation.ARMS])
+        self.assertIs(laser_gun.mod, player.inventory.active_mods[mods.ModLocation.ARMS])
         player.inventory.attempt_pickup(battery)
-        self.assertIs(battery.mod, player.active_mods[mods.ModLocation.CHEST])
+        self.assertIs(battery.mod, player.inventory.active_mods[mods.ModLocation.CHEST])
         player.inventory.attempt_pickup(pistol)
-        self.assertIn(pistol.mod, player.backpack)
-        self.assertTrue(player.backpack.slot_occupied(0))
+        self.assertIn(pistol.mod, player.inventory.backpack)
+        self.assertTrue(player.inventory.backpack.slot_occupied(0))
         player.inventory.attempt_pickup(medpack)
-        self.assertIn(medpack.mod, player.backpack)
-        self.assertTrue(player.backpack.slot_occupied(1))
+        self.assertIn(medpack.mod, player.inventory.backpack)
+        self.assertTrue(player.inventory.backpack.slot_occupied(1))
 
     def test_creation_of_usable_items_from_data(self) -> None:
         player = make_player()
@@ -227,7 +227,7 @@ class ModTest(unittest.TestCase):
         pistol = items.ItemFromData(item_data, Vector2(0, 0))
         player.inventory.attempt_pickup(pistol)
 
-        self.assertIs(pistol.mod, player.active_mods[pistol.mod.loc])
+        self.assertIs(pistol.mod, player.inventory.active_mods[pistol.mod.loc])
 
         use_pistol = player.ability_caller(mods.ModLocation.ARMS)
         self.timer.current_time += pistol_ability.cool_down_time + 1

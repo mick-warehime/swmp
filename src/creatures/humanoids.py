@@ -190,14 +190,6 @@ class Humanoid(mdl.DynamicObject):
 
         return called_ability
 
-    @property
-    def backpack(self) -> Backpack:
-        return self.inventory.backpack
-
-    @property
-    def active_mods(self) -> Dict[mods.ModLocation, mods.Mod]:
-        return self.inventory.active_mods
-
 
 def _collide_hit_rect_in_direction(hmn: Humanoid, group: mdl.Group,
                                    x_or_y: str) -> None:

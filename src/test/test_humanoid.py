@@ -201,10 +201,10 @@ class HumanoidsTest(unittest.TestCase):
 
         player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
 
-        self.assertFalse(player.backpack.slot_occupied(0))
+        self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
         player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
-        self.assertFalse(player.backpack.slot_occupied(0))
+        self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
 
 if __name__ == '__main__':

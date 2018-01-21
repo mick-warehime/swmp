@@ -167,8 +167,8 @@ class HUD(object):
                 color = settings.RED
             pg.draw.rect(self._screen, color, rect, 2)
 
-        for idx, item_mod in enumerate(player.backpack):
-            if not player.backpack.slot_occupied(idx):
+        for idx, item_mod in enumerate(player.inventory.backpack):
+            if not player.inventory.backpack.slot_occupied(idx):
                 continue
             rect = self.backpack_rects[idx]
             img = item_mod.backpack_image

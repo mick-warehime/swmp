@@ -34,7 +34,7 @@ class LaserTest(unittest.TestCase):
     def test_player_fire_laser_available_after_cooldown_time(self) -> None:
         player = make_player()
         laser_gun = make_item(ObjectType.LASER_GUN)
-        player.attempt_pickup(laser_gun)
+        player.inventory.attempt_pickup(laser_gun)
         fire_ability = laser_gun.mod.ability
 
         self.assertFalse(fire_ability.can_use(player))
@@ -79,11 +79,10 @@ class LaserTest(unittest.TestCase):
 
         self.assertFalse(laser_gun.mod.ability.can_use(player))
 
-    def _player_with_ready_laser(self) -> Tuple[
-        items.ItemObject, Player]:
+    def _player_with_ready_laser(self) -> Tuple[items.ItemObject, Player]:
         player = make_player()
         laser_gun = make_item(ObjectType.LASER_GUN)
-        player.attempt_pickup(laser_gun)
+        player.inventory.attempt_pickup(laser_gun)
         fire_ability = laser_gun.mod.ability
         while fire_ability.cooldown_fraction < 1:
             self.timer.current_time += 10
