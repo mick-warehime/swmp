@@ -1,8 +1,6 @@
-from typing import Set
+from typing import Set, Union, Dict
 
 import yaml
-
-from projectiles import ProjectileData
 
 from os import path
 
@@ -12,11 +10,11 @@ with open(_PROJECTILE_FILE, 'r') as stream:
     _projectile_data = yaml.load(stream)
 
 
-def load_projectile_data(name: str) -> ProjectileData:
+def load_projectile_data_kwargs(name: str) -> Dict[
+    str, Union[int, float, str]]:
     if name not in _projectile_data:
         raise KeyError('Unrecognized projectile name: %s' % (name,))
-    kwargs = _projectile_data[name]
-    return ProjectileData(**kwargs)
+    return _projectile_data[name]
 
 
 def image_filenames() -> Set[str]:

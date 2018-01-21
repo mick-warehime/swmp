@@ -2,9 +2,9 @@ import unittest
 
 from abilities import AbilityData
 from data.abilities_io import load_ability_data_kwargs
-from data.items_io import load_item_data
-from data.mods_io import load_mod_data
-from data.projectiles_io import load_projectile_data
+from data.items_io import load_item_data_kwargs
+from data.mods_io import load_mod_data_kwargs
+from data.projectiles_io import load_projectile_data_kwargs
 from items import ItemData
 from mods import ModData, ModLocation
 from projectiles import ProjectileData
@@ -12,7 +12,7 @@ from projectiles import ProjectileData
 
 class InputOutputTest(unittest.TestCase):
     def test_load_projectile_data(self) -> None:
-        data = load_projectile_data('bullet')
+        data = ProjectileData(**load_projectile_data_kwargs('bullet'))
 
         expected_data = ProjectileData(False, 75, 1000, 400, "bullet.png")
 
@@ -22,7 +22,7 @@ class InputOutputTest(unittest.TestCase):
         bad_name = 'bullett'
 
         with self.assertRaisesRegex(KeyError, 'Unrecognized'):
-            load_projectile_data(bad_name)
+            load_projectile_data_kwargs(bad_name)
 
     def test_load_regeneration_ability_data(self) -> None:
         data = AbilityData(**load_ability_data_kwargs('basic_heal'))
@@ -49,7 +49,7 @@ class InputOutputTest(unittest.TestCase):
         self.assertEqual(data, expected_data)
 
     def test_load_typical_mod(self) -> None:
-        mod_data = load_mod_data('pistol')
+        mod_data = ModData(**load_mod_data_kwargs('pistol'))
 
         expected_data = ModData(
             ModLocation.ARMS.value, 'pistol', 'mod_pistol.png',
@@ -57,7 +57,7 @@ class InputOutputTest(unittest.TestCase):
         self.assertEqual(mod_data, expected_data)
 
     def test_load_typical_item(self) -> None:
-        item_data = load_item_data('pistol')
+        item_data = ItemData(**load_item_data_kwargs('pistol'))
 
         expected_data = ItemData('pistol', 'obj_pistol.png')
         self.assertEqual(item_data, expected_data)

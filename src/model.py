@@ -1,11 +1,9 @@
 from collections import namedtuple, Counter
 from typing import Any, Union, Dict
+
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-
-import images
-from settings import TILESIZE
 
 NO_RESOLUTIONS = -69
 
@@ -233,39 +231,6 @@ class DynamicObject(GameObject):
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
-class Waypoint(DynamicObject):
-    _image = None
-
-    def __init__(self, pos: Vector2, player: Any,
-                 conflict_group: Group) -> None:
-        super().__init__(pos)
-        self._rect = self.image.get_rect().copy()
-        self._rect.center = pos
-        self.player = player
-
-        if conflict_group is None:
-            raise ValueError('missing conflict for waypoint at %s', str(pos))
-
-        waypoint_groups = [self._groups.all_sprites,
-                           self._groups.items,
-                           conflict_group]
-
-        pg.sprite.Sprite.__init__(self, waypoint_groups)
-
-    def update(self) -> None:
-        if self.rect.colliderect(self.player.rect):
-            self.kill()
-
-    @property
-    def image(self) -> pg.Surface:
-        if Waypoint._image is None:
-            img = images.get_image(images.WAYPOINT_IMG)
-            Waypoint._image = pg.transform.scale(img, (TILESIZE, TILESIZE))
-        return self._image
-
-    @property
-    def rect(self) -> pg.Rect:
-        return self._rect
 
 
 class EnergySource(object):

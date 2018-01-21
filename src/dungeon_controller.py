@@ -18,7 +18,8 @@ from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Waypoint, Group, ConflictGroups
+    DynamicObject, Group, ConflictGroups
+from waypoints import Waypoint
 from projectiles import Projectile
 
 
