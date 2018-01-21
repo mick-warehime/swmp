@@ -9,8 +9,8 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.mods_io import load_mod_data
-from mods import Mod
+from data.mods_io import load_mod_data_kwargs
+from mods import Mod, ModData
 from tilemap import ObjectType
 from data.constructors import ItemManager
 
@@ -33,7 +33,6 @@ class Mob(Humanoid):
     def __init__(self, pos: Vector2, player: Player,
                  conflict_group: Group) -> None:
         self._check_class_initialized()
-        self.rot = 0
         self.is_quest = conflict_group is not None
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
@@ -50,7 +49,7 @@ class Mob(Humanoid):
 
         if self.is_quest:
             self.speed *= 2
-            self._vomit_mod = Mod(load_mod_data('vomit'))
+            self._vomit_mod = Mod(ModData(**load_mod_data_kwargs('vomit')))
             self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     def kill(self) -> None:
@@ -90,7 +89,7 @@ class Mob(Humanoid):
             self.rot = target_dist.angle_to(Vector2(1, 0))
 
             self._update_acc()
-            self._update_trajectory()
+            self.motion.update()
             self._collide_with_walls()
 
             if self.is_quest and random() < 0.01:
@@ -112,13 +111,13 @@ class Mob(Humanoid):
             if mob != self:
                 dist = self.pos - mob.pos
                 if 0 < dist.length() < AVOID_RADIUS:
-                    self._acc += dist.normalize()
+                    self.motion.acc += dist.normalize()
 
     def _update_acc(self) -> None:
-        self._acc = Vector2(1, 0).rotate(-self.rot)
+        self.motion.acc = Vector2(1, 0).rotate(-self.rot)
         self._avoid_mobs()
-        self._acc.scale_to_length(self.speed)
-        self._acc += self._vel * -1
+        self.motion.acc.scale_to_length(self.speed)
+        self.motion.acc += self.vel * -1
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:

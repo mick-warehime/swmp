@@ -101,6 +101,7 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
+        self.motion = Motion(self, self._timer)
         self._health = max_health
         self._max_health = max_health
         super().__init__(pos)
@@ -110,10 +111,6 @@ class Humanoid(mdl.DynamicObject):
         # For some reason, mypy cannot infer the type of hit_rect in the line
         #  below.
         self.hit_rect.center = self.pos  # type: ignore
-
-        self._vel = Vector2(0, 0)
-        self._acc = Vector2(0, 0)
-        self.rot = 0
 
         self.inventory = Inventory()
 
@@ -138,16 +135,35 @@ class Humanoid(mdl.DynamicObject):
     def direction(self) -> Vector2:
         return Vector2(1, 0).rotate(-self.rot)
 
+    @property
+    def rot(self) -> int:
+        return self.motion.rot
+
+    @rot.setter
+    def rot(self, value: int) -> None:
+        self.motion.rot = value
+
+    @property
+    def vel(self) -> Vector2:
+        return self.motion.vel
+
+    @vel.setter
+    def vel(self, value: Vector2) -> None:
+        self.motion.vel = value
+
+    @property
+    def acc(self) -> Vector2:
+        return self.motion.vel
+
+    @vel.setter
+    def acc(self, value: Vector2) -> None:
+        self.motion.acc = value
+
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
         new_health = min(new_health, self._max_health)
         new_health = max(new_health, 0)
         self._health = new_health
-
-    def _update_trajectory(self) -> None:
-        dt = self._timer.dt
-        self._vel += self._acc * dt
-        self.pos += self._vel * dt
 
     def _collide_with_walls(self) -> None:
         self.hit_rect.centerx = self.pos.x
@@ -159,10 +175,10 @@ class Humanoid(mdl.DynamicObject):
         self.rect.center = self.hit_rect.center  # type: ignore
 
     def stop_x(self) -> None:
-        self._vel.x = 0
+        self.vel.x = 0
 
     def stop_y(self) -> None:
-        self._vel.y = 0
+        self.vel.y = 0
 
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
         active_mods = self.inventory.active_mods
@@ -214,3 +230,31 @@ def collide_hit_rect_with_rect(humanoid: Humanoid,
                                sprite: pg.sprite.Sprite) -> bool:
     """Collide the hit_rect of a Humanoid with the rect of a Sprite. """
     return humanoid.hit_rect.colliderect(sprite.rect)
+
+
+class Motion(object):
+    """Handles movement of Humanoids."""
+
+    def __init__(self, humanoid: Humanoid, timer: mdl.Timer):
+        self._humanoid = humanoid
+        self._timer = timer
+
+        self.vel = Vector2(0, 0)
+        self.acc = Vector2(0, 0)
+        self.rot = 0
+
+    @property
+    def pos(self) -> Vector2:
+        return self._humanoid.pos
+
+    @pos.setter
+    def pos(self, value: Vector2) -> None:
+        self._humanoid.pos = value
+
+    def update(self):
+        self._update_trajectory()
+
+    def _update_trajectory(self) -> None:
+        dt = self._timer.dt
+        self.vel += self.acc * dt
+        self.pos += self.vel * dt
