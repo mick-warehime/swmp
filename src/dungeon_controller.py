@@ -41,7 +41,7 @@ class DungeonController(controller.Controller):
         self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._groups)
 
-        self.init_controls()
+        self._init_controls()
 
         self.teleported = False
 
@@ -127,9 +127,9 @@ class DungeonController(controller.Controller):
         # needs to be called every frame to throttle max framerate
         self.dt = self._clock.tick(settings.FPS) / 1000.0
 
-        self.pass_mouse_pos_to_player()
+        self._pass_mouse_pos_to_player()
 
-        clicked_hud = self.try_handle_hud()
+        clicked_hud = self._try_handle_hud()
         if not clicked_hud:
             self.handle_input()
 
@@ -187,7 +187,42 @@ class DungeonController(controller.Controller):
     def game_over(self) -> bool:
         return self.player.health <= 0
 
-    def try_handle_hud(self) -> bool:
+    def resolved_conflict_index(self) -> int:
+        return self._conflicts.resolved_conflict()
+
+    def _init_controls(self) -> None:
+
+        self.bind_on_press(pg.K_n, self._view.toggle_night)
+        self.bind_on_press(pg.K_h, self._view.toggle_debug)
+
+        # players controls
+        self.bind(pg.K_LEFT, self.player.translate_left)
+        self.bind(pg.K_a, self.player.translate_left)
+
+        self.bind(pg.K_RIGHT, self.player.translate_right)
+        self.bind(pg.K_d, self.player.translate_right)
+
+        self.bind(pg.K_UP, self.player.translate_up)
+        self.bind(pg.K_w, self.player.translate_up)
+
+        self.bind(pg.K_DOWN, self.player.translate_down)
+        self.bind(pg.K_s, self.player.translate_down)
+
+        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
+        self.bind(pg.K_SPACE, arms_ability)
+        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
+
+        chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
+        self.bind_on_press(pg.K_r, chest_ability)
+
+        self.bind_on_press(pg.K_b, self._toggle_hide_backpack)
+
+        # equip / use
+        self.bind_on_press(pg.K_e, self._try_equip)
+
+        self.bind_on_press(pg.K_t, self._teleport)
+
+    def _try_handle_hud(self) -> bool:
         pos = self.get_clicked_pos()
         if pos == controller.NOT_CLICKED:
             return False
@@ -197,11 +232,11 @@ class DungeonController(controller.Controller):
 
         return self._view.clicked_hud(pos)
 
-    def try_equip(self) -> None:
-        self.equip_mod_in_backpack()
-        self.unequip_mod()
+    def _try_equip(self) -> None:
+        self._equip_mod_in_backpack()
+        self._unequip_mod()
 
-    def equip_mod_in_backpack(self) -> None:
+    def _equip_mod_in_backpack(self) -> None:
         '''equip amod if the user selects it in the backpack and hits the
         'equip' button binding.'''
         idx = self._view.selected_item()
@@ -213,7 +248,7 @@ class DungeonController(controller.Controller):
             self.player.equip(backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
-    def unequip_mod(self) -> None:
+    def _unequip_mod(self) -> None:
         '''unequip amod if the user selects it in the hud and hits the
                 'equip' button binding.'''
         location = self._view.selected_mod()
@@ -222,24 +257,21 @@ class DungeonController(controller.Controller):
 
         self.player.unequip(location)
 
-    def pass_mouse_pos_to_player(self) -> None:
-        mouse_pos = self.abs_mouse_pos()
+    def _pass_mouse_pos_to_player(self) -> None:
+        mouse_pos = self._abs_mouse_pos()
         self.player.set_mouse_pos(mouse_pos)
 
     # mouse coordinates are relative to the camera
     # most other coordinates are relative to the map
-    def abs_mouse_pos(self) -> Tuple[int, int]:
+    def _abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
         camera_pos = self._camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return (abs_mouse_x, abs_mouse_y)
 
-    def toggle_hide_backpack(self) -> None:
+    def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
 
-    def resolved_conflict_index(self) -> int:
-        return self._conflicts.resolved_conflict()
-
-    def teleport(self) -> None:
+    def _teleport(self) -> None:
         self.teleported = True

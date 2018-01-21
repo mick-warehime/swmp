@@ -5,13 +5,7 @@ import random
 
 from data import abilities_io
 
-ZOMBIE_HIT = 'zombie hit'
-PLAYER_HIT = 'player hit'
-ZOMBIE_MOAN = 'zombie moan'
-WEAPON_FIRE = 'weapon'
 LEVEL_START = 'level_start'
-HEALTH_UP = 'health_up'
-GUN_PICKUP = 'gun_pickup'
 
 # Sounds
 BG_MUSIC = 'espionage.ogg'
@@ -22,11 +16,7 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 
-EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
-                  'health_up': 'health_pack.wav',
-                  'gun_pickup': 'gun_pickup.wav'}
-
-OTHER_SOUNDS = ['phaser_up.wav', 'health_pack.wav']
+EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
 SOUNDS_FROM_DATA = abilities_io.sound_filenames()
 
@@ -36,7 +26,6 @@ class SoundEffects(object):
         self.zombie_hit_sounds: List[pg.mixer.Sound] = []
         self.player_hit_sounds: List[pg.mixer.Sound] = []
         self.zombie_moan_sounds: List[pg.mixer.Sound] = []
-        self.effects_sounds: Dict[str, pg.mixer.Sound] = {}
         self.all_sounds: Dict[str, pg.mixer.Sound] = {}
 
         # Sound loading
@@ -47,7 +36,6 @@ class SoundEffects(object):
         for label, file_name in EFFECTS_SOUNDS.items():
             sound_path = os.path.join(snd_folder, file_name)
             sound = pg.mixer.Sound(sound_path)
-            self.effects_sounds[label] = sound
             self.all_sounds[label] = sound
         for sound_file in ZOMBIE_MOAN_SOUNDS:
             s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
@@ -63,11 +51,6 @@ class SoundEffects(object):
             snd_path = os.path.join(snd_folder, sound_file)
             sound = pg.mixer.Sound(snd_path)
             self.zombie_hit_sounds.append(sound)
-            self.all_sounds[sound_file] = sound
-
-        for sound_file in OTHER_SOUNDS:
-            snd_path = os.path.join(snd_folder, sound_file)
-            sound = pg.mixer.Sound(snd_path)
             self.all_sounds[sound_file] = sound
 
         for sound_file in SOUNDS_FROM_DATA:
