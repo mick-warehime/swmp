@@ -190,42 +190,6 @@ class DungeonController(controller.Controller):
     def resolved_conflict_index(self) -> int:
         return self._conflicts.resolved_conflict()
 
-    def _init_map_objects(self) -> None:
-        # provide the group containers for the map objects
-        self._init_gameobjects()
-        self._conflicts = ConflictGroups()
-
-        # initialize the player on the map before anything else
-        for obj in self._map.objects:
-            if obj.type == tilemap.ObjectType.PLAYER:
-                self.player = Player(obj.center)
-
-        assert self.player is not None, 'no player found in map'
-
-        for obj in self._map.objects:
-            conflict_group = self._get_conflict(obj.conflict)
-            if obj.type == tilemap.ObjectType.ZOMBIE:
-                Mob(obj.center, self.player, conflict_group)
-            if obj.type == tilemap.ObjectType.WALL:
-                pos = Vector2(obj.x, obj.y)
-                Obstacle(pos, obj.width, obj.height)
-            if obj.type in tilemap.ITEMS:
-                ItemManager.item(obj.center, obj.type)
-            if obj.type == tilemap.ObjectType.WAYPOINT:
-                Waypoint(obj.center, self.player, conflict_group)
-
-    def _get_conflict(self, conflict_name: str) -> Group:
-        if conflict_name == tilemap.NOT_CONFLICT:
-            return None
-        return self._conflicts.get_group(conflict_name)
-
-    def _init_gameobjects(self) -> None:
-        GameObject.initialize_gameobjects(self._groups)
-        timer = Timer(self)
-        DynamicObject.initialize_dynamic_objects(timer)
-        Mob.init_class(self._map.img)
-        abilities.initialize_classes(timer)
-
     def _init_controls(self) -> None:
 
         self.bind_on_press(pg.K_n, self._view.toggle_night)
