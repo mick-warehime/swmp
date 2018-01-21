@@ -45,6 +45,15 @@ class DungeonController(controller.Controller):
 
         self.teleported = False
 
+    def draw(self) -> None:
+        pg.display.set_caption("{:.2f}".format(self.get_fps()))
+
+        self._view.draw(self.player, self._map, self._map.img, self._camera)
+
+        self._view.draw_conflicts(self._conflicts)
+
+        pg.display.flip()
+
     def update(self) -> None:
 
         # needs to be called every frame to throttle max framerate
