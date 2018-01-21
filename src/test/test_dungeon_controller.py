@@ -35,10 +35,13 @@ class DungeonControllerTest(unittest.TestCase):
         pistol = ItemManager.item(pos, ObjectType.PISTOL)
         shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
 
-        player.attempt_pickup(pistol)
-        player.attempt_pickup(shotgun)  # shotgun mod goes to slot 0 in backpack
-        player.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
-        player.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
+        player.inventory.attempt_pickup(pistol)
+        player.inventory.attempt_pickup(
+            shotgun)  # shotgun mod goes to slot 0 in backpack
+        player.inventory.attempt_pickup(
+            ItemManager.item(pos, ObjectType.HEALTHPACK))
+        player.inventory.attempt_pickup(
+            ItemManager.item(pos, ObjectType.HEALTHPACK))
 
         mock_view = Mock(spec=DungeonView)
 
@@ -48,9 +51,9 @@ class DungeonControllerTest(unittest.TestCase):
         pistol_mod = pistol.mod
         shotgun_mod = shotgun.mod
         weapon_loc = pistol_mod.loc
-        self.assertEqual(player.active_mods[weapon_loc], pistol_mod)
+        self.assertEqual(player.inventory.active_mods[weapon_loc], pistol_mod)
         dng_ctrl._equip_mod_in_backpack()
-        self.assertEqual(player.active_mods[weapon_loc], shotgun_mod)
+        self.assertEqual(player.inventory.active_mods[weapon_loc], shotgun_mod)
 
     def test_items_do_not_move_in_backpack_after_equip(self) -> None:
         player = make_player()
@@ -58,16 +61,18 @@ class DungeonControllerTest(unittest.TestCase):
         pos = Vector2(0, 0)
         shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
 
-        player.attempt_pickup(ItemManager.item(pos, ObjectType.PISTOL))
-        player.attempt_pickup(shotgun)  # shotgun mod goes to slot 0 in backpack
+        inventory = player.inventory
+        inventory.attempt_pickup(ItemManager.item(pos, ObjectType.PISTOL))
+        inventory.attempt_pickup(
+            shotgun)  # shotgun mod goes to slot 0 in backpack
 
-        player.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
+        inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
         shotgun_2 = ItemManager.item(pos, ObjectType.SHOTGUN)
-        player.attempt_pickup(shotgun_2)
+        inventory.attempt_pickup(shotgun_2)
 
-        self.assertIs(player.backpack[1], shotgun_2.mod)
-        player.equip(shotgun.mod)
-        self.assertIs(player.backpack[1], shotgun_2.mod)
+        self.assertIs(inventory.backpack[1], shotgun_2.mod)
+        inventory.equip(shotgun.mod)
+        self.assertIs(inventory.backpack[1], shotgun_2.mod)
 
     def test_game_over(self) -> None:
         dungeon = make_dungeon_controller()
@@ -92,7 +97,6 @@ class DungeonControllerTest(unittest.TestCase):
 
         # ensure the dungeon is now over
         self.assertTrue(dungeon.should_exit())
-
 
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()
@@ -143,8 +147,9 @@ class DungeonControllerTest(unittest.TestCase):
         pistol = ItemManager.item(pos, ObjectType.PISTOL)
         shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
 
-        player.attempt_pickup(pistol)
-        player.attempt_pickup(shotgun)  # shotgun mod goes to slot 0 in backpack
+        player.inventory.attempt_pickup(pistol)
+        player.inventory.attempt_pickup(
+            shotgun)  # shotgun mod goes to slot 0 in backpack
         player.increment_health(-10)
 
         dungeon.set_player(player)
@@ -153,8 +158,8 @@ class DungeonControllerTest(unittest.TestCase):
         # equiped and the shotgun in the backpack
         set_player = dungeon.player
         self.assertEqual(set_player.health, player.max_health - 10)
-        self.assertEqual(set_player.backpack._slots_filled, 1)
-        self.assertEqual(len(set_player.active_mods.values()), 1)
+        self.assertEqual(set_player.inventory.backpack._slots_filled, 1)
+        self.assertEqual(len(set_player.inventory.active_mods.values()), 1)
 
     def test_unequip(self) -> None:
         dng_ctrl = make_dungeon_controller()
@@ -162,23 +167,23 @@ class DungeonControllerTest(unittest.TestCase):
 
         pos = Vector2(0, 0)
         pistol = ItemManager.item(pos, ObjectType.PISTOL)
-        player.attempt_pickup(pistol)
+        player.inventory.attempt_pickup(pistol)
 
         # ensure nothing in backpack
-        self.assertEqual(player.backpack._slots_filled, 0)
+        self.assertEqual(player.inventory.backpack._slots_filled, 0)
 
         # ensure one mod equiped
-        arm_mod = player.active_mods[mods.ModLocation.ARMS]
+        arm_mod = player.inventory.active_mods[mods.ModLocation.ARMS]
         self.assertTrue(arm_mod is not None)
 
         # unequip
-        player.unequip(mods.ModLocation.ARMS)
+        player.inventory.unequip(mods.ModLocation.ARMS)
 
         # ensure something now in backpack
-        self.assertEqual(player.backpack._slots_filled, 1)
+        self.assertEqual(player.inventory.backpack._slots_filled, 1)
 
         # ensure nothing on the arms
-        self.assertNotIn(mods.ModLocation.ARMS, player.active_mods)
+        self.assertNotIn(mods.ModLocation.ARMS, player.inventory.active_mods)
 
 
 if __name__ == '__main__':

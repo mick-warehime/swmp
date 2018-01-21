@@ -106,10 +106,9 @@ class Controller(object):
         self.bind(pg.K_ESCAPE, self._quit_func)
 
     def set_player(self, new_player: Player) -> None:
-        self.player.backpack = new_player.backpack
+        self.player.inventory = new_player.inventory
         self.player.increment_health(-self.player.health)
         self.player.increment_health(new_player.health)
-        self.player.active_mods = new_player.active_mods
 
     def resolved_conflict_index(self) -> int:
         raise NotImplementedError()

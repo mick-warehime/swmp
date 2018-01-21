@@ -51,7 +51,7 @@ class Mob(Humanoid):
         if self.is_quest:
             self.speed *= 2
             self._vomit_mod = vomit_mod()
-            self.active_mods[self._vomit_mod.loc] = self._vomit_mod
+            self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     @property
     def _mob_group(self) -> Group:
