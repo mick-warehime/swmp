@@ -1,5 +1,4 @@
 import math
-from itertools import chain
 from typing import Tuple
 
 import pygame as pg
@@ -26,20 +25,19 @@ class Player(Humanoid):
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
-        self._damage_alpha = chain(DAMAGE_ALPHA * 4)
         self._mouse_pos = (0, 0)
 
         self.energy_source = EnergySource(PLAYER_MAX_ENERGY,
                                           PLAYER_ENERGY_RECHARGE)
 
     def move_towards_mouse(self) -> None:
-        self.turn()
+        self._rotate_towards_cursor()
 
         closest_approach = 10
         if self._distance_to_mouse() < closest_approach:
             return
 
-        self.step_forward()
+        self._step_forward()
 
     @property
     def image(self) -> pg.Surface:
@@ -61,23 +59,17 @@ class Player(Humanoid):
 
     # step_direction - rotates player towards the current direction
     # and then takes a step relative to that direction
-    def step_forward(self) -> None:
+    def _step_forward(self) -> None:
         self.motion.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.motion.rot)
 
-    def turn(self) -> None:
-        self._rotate_towards_cursor()
-
     def update(self) -> None:
-        self.turn()
+        self._rotate_towards_cursor()
 
         self.motion.update()
         self.energy_source.passive_recharge(self._timer.dt)
 
         # reset the movement after each update
         self.motion.vel = Vector2(0, 0)
-
-    def set_rotation(self, rotation: float) -> None:
-        self.motion.rot = int(rotation % 360)
 
     def set_mouse_pos(self, pos: Tuple[int, int]) -> None:
         self._mouse_pos = pos
@@ -94,7 +86,7 @@ class Player(Humanoid):
 
         angle = -(90 - math.atan2(x, y) * 180 / math.pi) % 360
 
-        self.set_rotation(angle)
+        self.motion.rot = int(angle % 360)
 
 # class Actions(object):
 #     """Handles movement actions that can be taken by a Humanoid."""

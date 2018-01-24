@@ -93,22 +93,22 @@ class HumanoidsTest(unittest.TestCase):
 
         # +x is to the right of player - no rotation
         player.set_mouse_pos((100, 0))
-        player.turn()
+        player._rotate_towards_cursor()
         self.assertAlmostEqual(player.motion.rot, 0, 1)
 
         # -y is above player - faces top of screen
         player.set_mouse_pos((0, -100))
-        player.turn()
+        player._rotate_towards_cursor()
         self.assertAlmostEqual(player.motion.rot, 90, 1)
 
         # +y is above below - faces bottom of screen
         player.set_mouse_pos((0, 100))
-        player.turn()
+        player._rotate_towards_cursor()
         self.assertAlmostEqual(player.motion.rot, 270, 1)
 
         # -x is left of player
         player.set_mouse_pos((-100, 0))
-        player.turn()
+        player._rotate_towards_cursor()
         self.assertAlmostEqual(player.motion.rot, 180, 1)
 
     def test_player_move_to_mouse(self) -> None:

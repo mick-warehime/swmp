@@ -97,7 +97,8 @@ class Inventory(object):
 
 
 class Humanoid(mdl.DynamicObject):
-    """DynamicObject with health and motion. We will add more to this later."""
+    """DynamicObject with health, inventory, and motion. We will add more to
+    this later."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
