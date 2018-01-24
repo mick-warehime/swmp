@@ -89,27 +89,27 @@ class HumanoidsTest(unittest.TestCase):
 
         # start player at origin facing right
         player.pos = (0, 0)
-        player.rot = 0
+        player.motion.rot = 0
 
         # +x is to the right of player - no rotation
         player.set_mouse_pos((100, 0))
-        player.turn()
-        self.assertAlmostEqual(player.rot, 0, 1)
+        player._rotate_towards_cursor()
+        self.assertAlmostEqual(player.motion.rot, 0, 1)
 
         # -y is above player - faces top of screen
         player.set_mouse_pos((0, -100))
-        player.turn()
-        self.assertAlmostEqual(player.rot, 90, 1)
+        player._rotate_towards_cursor()
+        self.assertAlmostEqual(player.motion.rot, 90, 1)
 
         # +y is above below - faces bottom of screen
         player.set_mouse_pos((0, 100))
-        player.turn()
-        self.assertAlmostEqual(player.rot, 270, 1)
+        player._rotate_towards_cursor()
+        self.assertAlmostEqual(player.motion.rot, 270, 1)
 
         # -x is left of player
         player.set_mouse_pos((-100, 0))
-        player.turn()
-        self.assertAlmostEqual(player.rot, 180, 1)
+        player._rotate_towards_cursor()
+        self.assertAlmostEqual(player.motion.rot, 180, 1)
 
     def test_player_move_to_mouse(self) -> None:
 
@@ -127,7 +127,7 @@ class HumanoidsTest(unittest.TestCase):
         possible_positions = [[0, 100, -100]] * 2
         for x, y in product(*possible_positions):
             player.pos = (0, 0)
-            player.rot = 0
+            player.motion.rot = 0
             player.set_mouse_pos((x, y))
             player.move_towards_mouse()
             player.update()
@@ -146,7 +146,7 @@ class HumanoidsTest(unittest.TestCase):
         player = make_player()
 
         player.pos = (0, 0)
-        player.rot = 0
+        player.motion.rot = 0
         player.set_mouse_pos((1, 1))
         player.move_towards_mouse()
         player.update()
@@ -162,14 +162,14 @@ class HumanoidsTest(unittest.TestCase):
 
         player.translate_down()
         player.translate_left()
-        player.stop_x()
+        player.motion.stop_x()
         player.update()
         expected = Vector2(0, 28)
         self.assertEqual(player.pos, expected)
 
         player.translate_down()
         player.translate_left()
-        player.stop_y()
+        player.motion.stop_y()
         player.update()
         expected = Vector2(-28, 28)
         self.assertEqual(player.pos, expected)

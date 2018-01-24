@@ -18,7 +18,8 @@ from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Waypoint, Group, ConflictGroups
+    DynamicObject, Group, ConflictGroups
+from waypoints import Waypoint
 from projectiles import Projectile
 
 
@@ -150,12 +151,12 @@ class DungeonController(controller.Controller):
             if random() < 0.7:
                 sounds.player_hit_sound()
                 self.player.increment_health(-Mob.damage)
-            zombie.stop_x()
-            zombie.stop_y()
+            zombie.motion.stop_x()
+            zombie.motion.stop_y()
 
         if hitters:
             knock_back = pg.math.Vector2(Mob.knockback, 0)
-            self.player.pos += knock_back.rotate(-hitters[0].rot)
+            self.player.pos += knock_back.rotate(-hitters[0].motion.rot)
 
         # enemy projectiles hit player
         projectiles: List[Projectile] = spritecollide(
@@ -171,8 +172,8 @@ class DungeonController(controller.Controller):
                                                          False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
-            mob.stop_x()
-            mob.stop_y()
+            mob.motion.stop_x()
+            mob.motion.stop_y()
 
         self.set_previous_input()
 

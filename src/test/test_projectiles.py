@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 import images
 import model
-from data.projectiles_io import load_projectile_data
+from data.input_output import load_projectile_data_kwargs
 from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -86,7 +86,7 @@ class ProjectilesTest(unittest.TestCase):
 
     def test_fancy_projectile_angled_image_changes_angle(self) -> None:
 
-        data = load_projectile_data('laser')
+        data = ProjectileData(**load_projectile_data_kwargs('laser'))
         assert data.angled_image
         projectile_y = FancyProjectile(Vector2(0, 0), Vector2(0, 1), data)
         projectile_x = FancyProjectile(Vector2(0, 0), Vector2(1, 0), data)
@@ -110,6 +110,6 @@ class ProjectilesTest(unittest.TestCase):
             self.assertEqual(len(self.groups.bullets), 0)
 
     def test_projectile_data_eq(self) -> None:
-        rock_data_0 = load_projectile_data('rock')
-        rock_data_1 = load_projectile_data('rock')
+        rock_data_0 = ProjectileData(**load_projectile_data_kwargs('rock'))
+        rock_data_1 = ProjectileData(**load_projectile_data_kwargs('rock'))
         self.assertEqual(rock_data_0, rock_data_1)

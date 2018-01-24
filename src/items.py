@@ -5,16 +5,16 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from data.mods_io import load_mod_data
+from data.input_output import load_mod_data_kwargs
 from model import DynamicObject
-from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED
+from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED, ModData
 
 BaseItemData = namedtuple('BaseItemData', ('mod_data', 'image_file'))
 
 
 class ItemData(BaseItemData):
     def __new__(cls, mod_label: str, image_file: str) -> None:
-        mod_data = load_mod_data(mod_label)
+        mod_data = ModData(**load_mod_data_kwargs(mod_label))
 
         return super().__new__(cls, mod_data, image_file)
 

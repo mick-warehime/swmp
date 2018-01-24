@@ -2,7 +2,7 @@ import unittest
 
 import model
 from abilities import GenericAbility, AbilityData
-from data.abilities_io import load_ability_data_kwargs
+from data.input_output import load_ability_data_kwargs
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from projectiles import Projectile, MuzzleFlash
@@ -83,9 +83,9 @@ class AbilitiesTest(unittest.TestCase):
         player = make_player()
         fire_pistol = GenericAbility(self.projectile_ability_data)
 
-        old_vel = (player._vel.x, player._vel.y)
+        old_vel = (player.motion.vel.x, player.motion.vel.y)
         fire_pistol.use(player)
-        new_vel = (player._vel.x, player._vel.y)
+        new_vel = (player.motion.vel.x, player.motion.vel.y)
 
         kickback = self.projectile_ability_data.kickback
         expected_vel = (-kickback + old_vel[0], old_vel[1])

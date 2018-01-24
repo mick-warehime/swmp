@@ -9,8 +9,8 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.mods_io import load_mod_data
-from mods import Mod
+from data.input_output import load_mod_data_kwargs
+from mods import Mod, ModData
 from tilemap import ObjectType
 from data.constructors import ItemManager
 
@@ -33,7 +33,6 @@ class Mob(Humanoid):
     def __init__(self, pos: Vector2, player: Player,
                  conflict_group: Group) -> None:
         self._check_class_initialized()
-        self.rot = 0
         self.is_quest = conflict_group is not None
         super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
 
@@ -50,24 +49,13 @@ class Mob(Humanoid):
 
         if self.is_quest:
             self.speed *= 2
-            self._vomit_mod = vomit_mod()
+            self._vomit_mod = Mod(ModData(**load_mod_data_kwargs('vomit')))
             self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
-
-    @property
-    def _mob_group(self) -> Group:
-        return self._groups.mobs
 
     def kill(self) -> None:
         if self.is_quest:
             ItemManager.item(self.pos, ObjectType.PISTOL)
         super().kill()
-
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.class_initialized:
-            raise RuntimeError(
-                'Mob class must be initialized before an object can be'
-                ' instantiated.')
 
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
@@ -83,7 +71,7 @@ class Mob(Humanoid):
             base_image = images.get_image(images.QMOB_IMG)
         else:
             base_image = images.get_image(images.MOB_IMG)
-        image = pg.transform.rotate(base_image, self.rot)
+        image = pg.transform.rotate(base_image, self.motion.rot)
 
         if self.damaged:
             col = self._health_bar_color()
@@ -92,24 +80,16 @@ class Mob(Humanoid):
             pg.draw.rect(image, col, health_bar)
         return image
 
-    def _avoid_mobs(self) -> None:
-        for mob in self._mob_group:
-            if mob != self:
-                dist = self.pos - mob.pos
-                if 0 < dist.length() < AVOID_RADIUS:
-                    self._acc += dist.normalize()
-
     def update(self) -> None:
-        target_dist = self.target.pos - self.pos
-        if self._target_close(target_dist):
+        target_disp = self.target.pos - self.pos
+        if self._target_close(target_disp):
             if random() < 0.002:
                 sounds.mob_moan_sound()
 
-            self.rot = target_dist.angle_to(Vector2(1, 0))
+            self.motion.rot = target_disp.angle_to(Vector2(1, 0))
 
             self._update_acc()
-            self._update_trajectory()
-            self._collide_with_walls()
+            self.motion.update()
 
             if self.is_quest and random() < 0.01:
                 self.ability_caller(self._vomit_mod.loc)()
@@ -119,15 +99,29 @@ class Mob(Humanoid):
             self.kill()
             self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
 
+    def _check_class_initialized(self) -> None:
+        super()._check_class_initialized()
+        if not self.class_initialized:
+            raise RuntimeError('Mob class must be initialized before an object'
+                               ' can be instantiated.')
+
+    def _avoid_mobs(self) -> None:
+        for mob in self._groups.mobs:
+            if mob is self:
+                continue
+            dist = self.pos - mob.pos
+            if 0 < dist.length() < AVOID_RADIUS:
+                self.motion.acc += dist.normalize()
+
     def _update_acc(self) -> None:
-        self._acc = Vector2(1, 0).rotate(-self.rot)
+        self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
-        self._acc.scale_to_length(self.speed)
-        self._acc += self._vel * -1
+        self.motion.acc.scale_to_length(self.speed)
+        self.motion.acc += self.motion.vel * -1
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:
-        return target_dist.length_squared() < DETECT_RADIUS ** 2
+        return target_dist.length() < DETECT_RADIUS
 
     def _health_bar_color(self) -> tuple:
         if self.health > 60:
@@ -137,7 +131,3 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         return col
-
-
-def vomit_mod() -> Mod:
-    return Mod(load_mod_data('vomit'))

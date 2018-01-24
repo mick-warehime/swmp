@@ -3,7 +3,7 @@ from typing import List, Dict
 import os
 import random
 
-from data import abilities_io
+import data.input_output
 
 LEVEL_START = 'level_start'
 
@@ -18,7 +18,7 @@ ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 
 EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
-SOUNDS_FROM_DATA = abilities_io.sound_filenames()
+SOUNDS_FROM_DATA = data.input_output.ability_sound_filenames()
 
 
 class SoundEffects(object):

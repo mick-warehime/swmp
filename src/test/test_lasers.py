@@ -5,7 +5,7 @@ import items
 import model
 from abilities import GenericAbility, AbilityData
 from creatures.players import Player
-from data.abilities_io import load_ability_data_kwargs
+from data.input_output import load_ability_data_kwargs
 from src.test.testing_utilities import make_player, make_item
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \

@@ -6,7 +6,7 @@ from typing import Any, List, Union
 from pygame.math import Vector2
 
 import sounds
-from data.projectiles_io import load_projectile_data
+from data.input_output import load_projectile_data_kwargs
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
 
@@ -104,7 +104,8 @@ class AbilityData(BaseAbilityData):
                 recharge_amount: int = 0) -> BaseAbilityData:
 
         if projectile_label is not None:
-            projectile_data = load_projectile_data(projectile_label)
+            projectile_data = ProjectileData(**load_projectile_data_kwargs(
+                projectile_label))
         else:
             projectile_data = None
         return super().__new__(cls, cool_down_time, finite_uses, uses_left,
@@ -284,7 +285,8 @@ class Kickback(Effect):
         self._kickback = kickback
 
     def activate(self, humanoid: Any) -> None:
-        humanoid._vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
+        humanoid.motion.vel = Vector2(-self._kickback, 0).rotate(
+            -humanoid.motion.rot)
 
 
 class MakeProjectile(Effect):
@@ -296,7 +298,7 @@ class MakeProjectile(Effect):
 
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
-        rot = humanoid.rot
+        rot = humanoid.motion.rot
 
         direction = Vector2(1, 0).rotate(-rot)
         barrel_offset = Vector2(30, 10)
@@ -309,6 +311,6 @@ class MakeProjectile(Effect):
 
 class MuzzleFlashEffect(Effect):
     def activate(self, humanoid: Any) -> None:
-        direction = humanoid.direction
+        direction = humanoid.motion.direction
         direction = direction.rotate(20)
         MuzzleFlash(humanoid.pos + 22 * direction)

@@ -6,7 +6,6 @@ import pygame
 import creatures.mobs
 import model
 from abilities import Ability
-from creatures import humanoids as hmn
 from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_mob
 
