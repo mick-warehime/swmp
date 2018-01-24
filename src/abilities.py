@@ -311,6 +311,6 @@ class MakeProjectile(Effect):
 
 class MuzzleFlashEffect(Effect):
     def activate(self, humanoid: Any) -> None:
-        direction = humanoid.direction
+        direction = humanoid.motion.direction
         direction = direction.rotate(20)
         MuzzleFlash(humanoid.pos + 22 * direction)
