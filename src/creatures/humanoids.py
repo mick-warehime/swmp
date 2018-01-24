@@ -135,14 +135,6 @@ class Humanoid(mdl.DynamicObject):
     def direction(self) -> Vector2:
         return Vector2(1, 0).rotate(-self.motion.rot)
 
-    @property
-    def acc(self) -> Vector2:
-        return self.motion.vel
-
-    @acc.setter
-    def acc(self, value: Vector2) -> None:
-        self.motion.acc = value
-
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
         new_health = min(new_health, self._max_health)
