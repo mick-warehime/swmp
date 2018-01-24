@@ -285,7 +285,7 @@ class Kickback(Effect):
         self._kickback = kickback
 
     def activate(self, humanoid: Any) -> None:
-        humanoid.vel = Vector2(-self._kickback, 0).rotate(-humanoid.rot)
+        humanoid.vel = Vector2(-self._kickback, 0).rotate(-humanoid.motion.rot)
 
 
 class MakeProjectile(Effect):
@@ -297,7 +297,7 @@ class MakeProjectile(Effect):
 
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
-        rot = humanoid.rot
+        rot = humanoid.motion.rot
 
         direction = Vector2(1, 0).rotate(-rot)
         barrel_offset = Vector2(30, 10)

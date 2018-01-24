@@ -101,7 +101,7 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
-        self.motion = Motion(self, self._timer)
+        self.motion: Motion = Motion(self, self._timer)
         self._health = max_health
         self._max_health = max_health
         super().__init__(pos)
@@ -133,15 +133,7 @@ class Humanoid(mdl.DynamicObject):
 
     @property
     def direction(self) -> Vector2:
-        return Vector2(1, 0).rotate(-self.rot)
-
-    @property
-    def rot(self) -> int:
-        return self.motion.rot
-
-    @rot.setter
-    def rot(self, value: int) -> None:
-        self.motion.rot = value
+        return Vector2(1, 0).rotate(-self.motion.rot)
 
     @property
     def vel(self) -> Vector2:

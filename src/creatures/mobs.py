@@ -71,7 +71,7 @@ class Mob(Humanoid):
             base_image = images.get_image(images.QMOB_IMG)
         else:
             base_image = images.get_image(images.MOB_IMG)
-        image = pg.transform.rotate(base_image, self.rot)
+        image = pg.transform.rotate(base_image, self.motion.rot)
 
         if self.damaged:
             col = self._health_bar_color()
@@ -86,7 +86,7 @@ class Mob(Humanoid):
             if random() < 0.002:
                 sounds.mob_moan_sound()
 
-            self.rot = target_dist.angle_to(Vector2(1, 0))
+            self.motion.rot = target_dist.angle_to(Vector2(1, 0))
 
             self._update_acc()
             self.motion.update()
@@ -114,7 +114,7 @@ class Mob(Humanoid):
                     self.motion.acc += dist.normalize()
 
     def _update_acc(self) -> None:
-        self.motion.acc = Vector2(1, 0).rotate(-self.rot)
+        self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
         self.motion.acc.scale_to_length(self.speed)
         self.motion.acc += self.vel * -1

@@ -46,7 +46,7 @@ class Player(Humanoid):
     @property
     def image(self) -> pg.Surface:
         base_image = images.get_image(images.PLAYER_IMG)
-        return pg.transform.rotate(base_image, self.rot)
+        return pg.transform.rotate(base_image, self.motion.rot)
 
     # translate_direction = slide in that direction
     def translate_up(self) -> None:
@@ -64,7 +64,7 @@ class Player(Humanoid):
     # step_direction - rotates player towards the current direction
     # and then takes a step relative to that direction
     def step_forward(self) -> None:
-        self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.rot)
+        self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.motion.rot)
 
     def turn(self) -> None:
         self._rotate_towards_cursor()
@@ -73,7 +73,7 @@ class Player(Humanoid):
         self.turn()
         time_elapsed = self._timer.dt
         delta_rot = int(self._rot_speed * time_elapsed)
-        self.rot = (self.rot + delta_rot) % 360
+        self.motion.rot = (self.motion.rot + delta_rot) % 360
 
         self.motion.update()
         self._collide_with_walls()
@@ -84,7 +84,7 @@ class Player(Humanoid):
         self.vel = Vector2(0, 0)
 
     def set_rotation(self, rotation: float) -> None:
-        self.rot = int(rotation % 360)
+        self.motion.rot = int(rotation % 360)
 
     def set_mouse_pos(self, pos: Tuple[int, int]) -> None:
         self._mouse_pos = pos
@@ -104,78 +104,78 @@ class Player(Humanoid):
         self.set_rotation(angle)
 
 
-class Actions(object):
-    """Handles movement actions that can be taken by a Humanoid."""
-
-    def __init__(self, humanoid: Humanoid):
-        self._humanoid = humanoid
-        self._rot_speed = 0
-        self._mouse_pos = (0, 0)
-
-    @property
-    def rot(self) -> int:
-        return self._humanoid.rot
-
-    @rot.setter
-    def rot(self, value: int) -> None:
-        self._humanoid.rot = value
-
-    def move_towards_mouse(self) -> None:
-        self.turn()
-
-        closest_approach = 10
-        if self._distance_to_mouse() < closest_approach:
-            return
-
-        self.step_forward()
-
-    def update(self) -> None:
-        self.turn()
-        time_elapsed = self._timer.dt
-        delta_rot = int(self._rot_speed * time_elapsed)
-        self.rot = (self.rot + delta_rot) % 360
-
-        # reset the movement after each update
-        self._rot_speed = 0
-
-    # translate_direction = slide in that direction
-    def translate_up(self) -> None:
-        self.vel += Vector2(0, -PLAYER_SPEED)
-
-    def translate_down(self) -> None:
-        self.vel += Vector2(0, PLAYER_SPEED)
-
-    def translate_right(self) -> None:
-        self.vel += Vector2(PLAYER_SPEED, 0)
-
-    def translate_left(self) -> None:
-        self.vel += Vector2(-PLAYER_SPEED, 0)
-
-        # step_direction - rotates player towards the current direction
-        # and then takes a step relative to that direction
-
-    def step_forward(self) -> None:
-        self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.rot)
-
-    def turn(self) -> None:
-        self._rotate_towards_cursor()
-
-    def set_rotation(self, rotation: float) -> None:
-        self.rot = int(rotation % 360)
-
-    def set_mouse_pos(self, pos: Tuple[int, int]) -> None:
-        self._mouse_pos = pos
-
-    def _distance_to_mouse(self) -> float:
-        x = self._mouse_pos[0] - self.pos[0]
-        y = self._mouse_pos[1] - self.pos[1]
-
-        return math.sqrt(x ** 2 + y ** 2)
-
-    def _rotate_towards_cursor(self) -> None:
-        x = self._mouse_pos[0] - self.pos[0]
-        y = self._mouse_pos[1] - self.pos[1]
-
-        angle = -(90 - math.atan2(x, y) * 180 / math.pi) % 360
-
-        self.set_rotation(angle)
+# class Actions(object):
+#     """Handles movement actions that can be taken by a Humanoid."""
+#
+#     def __init__(self, humanoid: Humanoid):
+#         self._humanoid = humanoid
+#         self._rot_speed = 0
+#         self._mouse_pos = (0, 0)
+#
+#     @property
+#     def rot(self) -> int:
+#         return self._humanoid.rot
+#
+#     @rot.setter
+#     def rot(self, value: int) -> None:
+#         self._humanoid.rot = value
+#
+#     def move_towards_mouse(self) -> None:
+#         self.turn()
+#
+#         closest_approach = 10
+#         if self._distance_to_mouse() < closest_approach:
+#             return
+#
+#         self.step_forward()
+#
+#     def update(self) -> None:
+#         self.turn()
+#         time_elapsed = self._timer.dt
+#         delta_rot = int(self._rot_speed * time_elapsed)
+#         self.motion.rot = (self.motion.rot + delta_rot) % 360
+#
+#         # reset the movement after each update
+#         self._rot_speed = 0
+#
+#     # translate_direction = slide in that direction
+#     def translate_up(self) -> None:
+#         self.vel += Vector2(0, -PLAYER_SPEED)
+#
+#     def translate_down(self) -> None:
+#         self.vel += Vector2(0, PLAYER_SPEED)
+#
+#     def translate_right(self) -> None:
+#         self.vel += Vector2(PLAYER_SPEED, 0)
+#
+#     def translate_left(self) -> None:
+#         self.vel += Vector2(-PLAYER_SPEED, 0)
+#
+#         # step_direction - rotates player towards the current direction
+#         # and then takes a step relative to that direction
+#
+#     def step_forward(self) -> None:
+#         self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.motion.rot)
+#
+#     def turn(self) -> None:
+#         self._rotate_towards_cursor()
+#
+#     def set_rotation(self, rotation: float) -> None:
+#         self.motion.rot = int(rotation % 360)
+#
+#     def set_mouse_pos(self, pos: Tuple[int, int]) -> None:
+#         self._mouse_pos = pos
+#
+#     def _distance_to_mouse(self) -> float:
+#         x = self._mouse_pos[0] - self.pos[0]
+#         y = self._mouse_pos[1] - self.pos[1]
+#
+#         return math.sqrt(x ** 2 + y ** 2)
+#
+#     def _rotate_towards_cursor(self) -> None:
+#         x = self._mouse_pos[0] - self.pos[0]
+#         y = self._mouse_pos[1] - self.pos[1]
+#
+#         angle = -(90 - math.atan2(x, y) * 180 / math.pi) % 360
+#
+#         self.set_rotation(angle)

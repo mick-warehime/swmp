@@ -156,7 +156,7 @@ class DungeonController(controller.Controller):
 
         if hitters:
             knock_back = pg.math.Vector2(Mob.knockback, 0)
-            self.player.pos += knock_back.rotate(-hitters[0].rot)
+            self.player.pos += knock_back.rotate(-hitters[0].motion.rot)
 
         # enemy projectiles hit player
         projectiles: List[Projectile] = spritecollide(
