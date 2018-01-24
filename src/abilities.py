@@ -285,7 +285,8 @@ class Kickback(Effect):
         self._kickback = kickback
 
     def activate(self, humanoid: Any) -> None:
-        humanoid.vel = Vector2(-self._kickback, 0).rotate(-humanoid.motion.rot)
+        humanoid.motion.vel = Vector2(-self._kickback, 0).rotate(
+            -humanoid.motion.rot)
 
 
 class MakeProjectile(Effect):

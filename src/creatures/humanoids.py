@@ -136,18 +136,10 @@ class Humanoid(mdl.DynamicObject):
         return Vector2(1, 0).rotate(-self.motion.rot)
 
     @property
-    def vel(self) -> Vector2:
-        return self.motion.vel
-
-    @vel.setter
-    def vel(self, value: Vector2) -> None:
-        self.motion.vel = value
-
-    @property
     def acc(self) -> Vector2:
         return self.motion.vel
 
-    @vel.setter
+    @acc.setter
     def acc(self, value: Vector2) -> None:
         self.motion.acc = value
 
@@ -167,10 +159,10 @@ class Humanoid(mdl.DynamicObject):
         self.rect.center = self.hit_rect.center  # type: ignore
 
     def stop_x(self) -> None:
-        self.vel.x = 0
+        self.motion.vel.x = 0
 
     def stop_y(self) -> None:
-        self.vel.y = 0
+        self.motion.vel.y = 0
 
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
         active_mods = self.inventory.active_mods

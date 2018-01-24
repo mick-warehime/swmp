@@ -50,21 +50,21 @@ class Player(Humanoid):
 
     # translate_direction = slide in that direction
     def translate_up(self) -> None:
-        self.vel += Vector2(0, -PLAYER_SPEED)
+        self.motion.vel += Vector2(0, -PLAYER_SPEED)
 
     def translate_down(self) -> None:
-        self.vel += Vector2(0, PLAYER_SPEED)
+        self.motion.vel += Vector2(0, PLAYER_SPEED)
 
     def translate_right(self) -> None:
-        self.vel += Vector2(PLAYER_SPEED, 0)
+        self.motion.vel += Vector2(PLAYER_SPEED, 0)
 
     def translate_left(self) -> None:
-        self.vel += Vector2(-PLAYER_SPEED, 0)
+        self.motion.vel += Vector2(-PLAYER_SPEED, 0)
 
     # step_direction - rotates player towards the current direction
     # and then takes a step relative to that direction
     def step_forward(self) -> None:
-        self.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.motion.rot)
+        self.motion.vel += Vector2(PLAYER_SPEED, 0).rotate(-self.motion.rot)
 
     def turn(self) -> None:
         self._rotate_towards_cursor()
@@ -81,7 +81,7 @@ class Player(Humanoid):
 
         # reset the movement after each update
         self._rot_speed = 0
-        self.vel = Vector2(0, 0)
+        self.motion.vel = Vector2(0, 0)
 
     def set_rotation(self, rotation: float) -> None:
         self.motion.rot = int(rotation % 360)

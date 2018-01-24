@@ -117,7 +117,7 @@ class Mob(Humanoid):
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
         self.motion.acc.scale_to_length(self.speed)
-        self.motion.acc += self.vel * -1
+        self.motion.acc += self.motion.vel * -1
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:

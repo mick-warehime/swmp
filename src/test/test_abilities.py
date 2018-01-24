@@ -83,9 +83,9 @@ class AbilitiesTest(unittest.TestCase):
         player = make_player()
         fire_pistol = GenericAbility(self.projectile_ability_data)
 
-        old_vel = (player.vel.x, player.vel.y)
+        old_vel = (player.motion.vel.x, player.motion.vel.y)
         fire_pistol.use(player)
-        new_vel = (player.vel.x, player.vel.y)
+        new_vel = (player.motion.vel.x, player.motion.vel.y)
 
         kickback = self.projectile_ability_data.kickback
         expected_vel = (-kickback + old_vel[0], old_vel[1])
