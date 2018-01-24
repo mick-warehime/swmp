@@ -6,7 +6,7 @@ from typing import Any, List, Union
 from pygame.math import Vector2
 
 import sounds
-from data.projectiles_io import load_projectile_data_kwargs
+from data.input_output import load_projectile_data_kwargs
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
 

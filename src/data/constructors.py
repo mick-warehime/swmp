@@ -2,7 +2,7 @@ from typing import Union
 
 import pygame as pg
 
-from data.items_io import load_item_data_kwargs
+from data.input_output import load_item_data_kwargs
 from items import ItemFromData, ItemData
 from tilemap import ObjectType
 

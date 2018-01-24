@@ -9,7 +9,7 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.mods_io import load_mod_data_kwargs
+from data.input_output import load_mod_data_kwargs
 from mods import Mod, ModData
 from tilemap import ObjectType
 from data.constructors import ItemManager

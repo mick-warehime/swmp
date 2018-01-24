@@ -6,7 +6,7 @@ import pygame as pg
 
 import images
 from abilities import Ability, GenericAbility, AbilityData
-from data.abilities_io import load_ability_data_kwargs
+from data.input_output import load_ability_data_kwargs
 
 BOB_RANGE = 1
 BOB_SPEED = 0.3

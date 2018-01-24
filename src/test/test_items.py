@@ -8,9 +8,8 @@ import model
 import mods
 from abilities import AbilityData
 from creatures.players import Player
-from data.abilities_io import load_ability_data_kwargs
 from data.constructors import ItemManager
-from data.items_io import load_item_data_kwargs
+from data.input_output import load_item_data_kwargs, load_ability_data_kwargs
 from src.test.testing_utilities import make_player, make_item
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer

@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 import model
 from abilities import GenericAbility, AbilityData
-from data.abilities_io import load_ability_data_kwargs
+from data.input_output import load_ability_data_kwargs
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player

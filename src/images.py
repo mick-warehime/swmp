@@ -3,7 +3,7 @@ from typing import Dict
 from os import path
 import random
 
-from data import projectiles_io, mods_io, items_io
+from data import input_output
 
 PLAYER_IMG = 'manBlue_gun.png'
 MOB_IMG = 'zombie1_hold.png'
@@ -21,9 +21,9 @@ ALL_IMAGES = set([PLAYER_IMG, MOB_IMG, SPLAT, MUZZLE_FLASH1, MUZZLE_FLASH2,
                   MUZZLE_FLASH3, MUZZLE_FLASH4, LIGHT_MASK, LITTLE_BULLET,
                   QMOB_IMG, WAYPOINT_IMG])
 ALL_IMAGES = set(ALL_IMAGES)
-ALL_IMAGES |= projectiles_io.image_filenames()
-ALL_IMAGES |= mods_io.image_filenames()
-ALL_IMAGES |= items_io.image_filenames()
+ALL_IMAGES |= input_output.projectile_image_filenames()
+ALL_IMAGES |= input_output.mod_image_filenames()
+ALL_IMAGES |= input_output.item_image_filenames()
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'

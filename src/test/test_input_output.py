@@ -1,10 +1,8 @@
 import unittest
 
 from abilities import AbilityData
-from data.abilities_io import load_ability_data_kwargs
-from data.items_io import load_item_data_kwargs
-from data.mods_io import load_mod_data_kwargs
-from data.projectiles_io import load_projectile_data_kwargs
+from data.input_output import load_item_data_kwargs, load_mod_data_kwargs, \
+    load_ability_data_kwargs, load_projectile_data_kwargs
 from items import ItemData
 from mods import ModData, ModLocation
 from projectiles import ProjectileData

@@ -2,7 +2,7 @@ import unittest
 
 import model
 from abilities import GenericAbility, AbilityData
-from data.abilities_io import load_ability_data_kwargs
+from data.input_output import load_ability_data_kwargs
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from projectiles import Projectile, MuzzleFlash

@@ -5,7 +5,7 @@ import pytweening as tween
 from pygame.math import Vector2
 
 import images
-from data.mods_io import load_mod_data_kwargs
+from data.input_output import load_mod_data_kwargs
 from model import DynamicObject
 from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED, ModData
 
