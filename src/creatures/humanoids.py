@@ -108,15 +108,16 @@ class Humanoid(mdl.DynamicObject):
         self._max_health = max_health
         super().__init__(pos)
         self._base_rect = self.image.get_rect().copy()
-        # Used in wall collisions
-
-
 
         self.inventory = Inventory()
 
     @property
     def health(self) -> int:
         return self._health
+
+    @property
+    def max_health(self) -> int:
+        return self._max_health
 
     @property
     def rect(self) -> pg.Rect:
@@ -133,7 +134,7 @@ class Humanoid(mdl.DynamicObject):
 
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount
-        new_health = min(new_health, self._max_health)
+        new_health = min(new_health, self.max_health)
         new_health = max(new_health, 0)
         self._health = new_health
 

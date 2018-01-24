@@ -107,10 +107,11 @@ class Mob(Humanoid):
 
     def _avoid_mobs(self) -> None:
         for mob in self._groups.mobs:
-            if mob != self:
-                dist = self.pos - mob.pos
-                if 0 < dist.length() < AVOID_RADIUS:
-                    self.motion.acc += dist.normalize()
+            if mob is self:
+                continue
+            dist = self.pos - mob.pos
+            if 0 < dist.length() < AVOID_RADIUS:
+                self.motion.acc += dist.normalize()
 
     def _update_acc(self) -> None:
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
@@ -120,7 +121,7 @@ class Mob(Humanoid):
 
     @staticmethod
     def _target_close(target_dist: Vector2) -> bool:
-        return target_dist.length_squared() < DETECT_RADIUS ** 2
+        return target_dist.length() < DETECT_RADIUS
 
     def _health_bar_color(self) -> tuple:
         if self.health > 60:

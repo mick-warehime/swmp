@@ -26,9 +26,7 @@ class Player(Humanoid):
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
-        self.max_health = PLAYER_HEALTH
         self._damage_alpha = chain(DAMAGE_ALPHA * 4)
-        self._rot_speed = 0
         self._mouse_pos = (0, 0)
 
         self.energy_source = EnergySource(PLAYER_MAX_ENERGY,
@@ -71,15 +69,11 @@ class Player(Humanoid):
 
     def update(self) -> None:
         self.turn()
-        time_elapsed = self._timer.dt
-        delta_rot = int(self._rot_speed * time_elapsed)
-        self.motion.rot = (self.motion.rot + delta_rot) % 360
 
         self.motion.update()
-        self.energy_source.passive_recharge(time_elapsed)
+        self.energy_source.passive_recharge(self._timer.dt)
 
         # reset the movement after each update
-        self._rot_speed = 0
         self.motion.vel = Vector2(0, 0)
 
     def set_rotation(self, rotation: float) -> None:
@@ -101,7 +95,6 @@ class Player(Humanoid):
         angle = -(90 - math.atan2(x, y) * 180 / math.pi) % 360
 
         self.set_rotation(angle)
-
 
 # class Actions(object):
 #     """Handles movement actions that can be taken by a Humanoid."""
