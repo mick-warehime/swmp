@@ -20,9 +20,10 @@ with open(_MODS_FILE, 'r') as stream:
 with open(_ITEMS_FILE, 'r') as stream:
     _items_data = yaml.load(stream)
 
+KwargType = Dict[str, Union[int, float, bool, str]]
 
-def load_item_data_kwargs(name: str) -> Dict[
-    str, Union[int, float, bool, str]]:
+
+def load_item_data_kwargs(name: str) -> KwargType:
     if name in _items_data:
         return _items_data[name]
     raise KeyError('Item name %s not recognized' % (name,))
@@ -50,7 +51,7 @@ def mod_image_filenames() -> Set[str]:
     return filenames
 
 
-def load_mod_data_kwargs(name: str) -> Dict[str, Union[str, int, float, bool]]:
+def load_mod_data_kwargs(name: str) -> KwargType:
     if name in _mods_data:
         return _mods_data[name]
     raise KeyError('Mod name %s not recognized' % (name,))
@@ -66,7 +67,7 @@ def ability_sound_filenames() -> Set[str]:
     return filenames
 
 
-def load_ability_data_kwargs(name: str) -> Dict[str, Union[int, float, str]]:
+def load_ability_data_kwargs(name: str) -> KwargType:
     for ability_type, ability_kwargs in _abilities_data.items():
         if name in ability_kwargs:
             return ability_kwargs[name]
@@ -80,8 +81,7 @@ def projectile_image_filenames() -> Set[str]:
     return filenames
 
 
-def load_projectile_data_kwargs(name: str) -> Dict[
-    str, Union[int, float, str]]:
+def load_projectile_data_kwargs(name: str) -> KwargType:
     if name not in _projectile_data:
         raise KeyError('Unrecognized projectile name: %s' % (name,))
     return _projectile_data[name]

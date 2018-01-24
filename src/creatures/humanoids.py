@@ -193,7 +193,7 @@ class Motion(object):
     def pos(self, value: Vector2) -> None:
         self._humanoid.pos = value
 
-    def update(self):
+    def update(self) -> None:
         self._update_trajectory()
         self._collide_with_walls()
 
