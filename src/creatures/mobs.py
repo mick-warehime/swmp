@@ -81,16 +81,15 @@ class Mob(Humanoid):
         return image
 
     def update(self) -> None:
-        target_dist = self.target.pos - self.pos
-        if self._target_close(target_dist):
+        target_disp = self.target.pos - self.pos
+        if self._target_close(target_disp):
             if random() < 0.002:
                 sounds.mob_moan_sound()
 
-            self.motion.rot = target_dist.angle_to(Vector2(1, 0))
+            self.motion.rot = target_disp.angle_to(Vector2(1, 0))
 
             self._update_acc()
             self.motion.update()
-            self._collide_with_walls()
 
             if self.is_quest and random() < 0.01:
                 self.ability_caller(self._vomit_mod.loc)()

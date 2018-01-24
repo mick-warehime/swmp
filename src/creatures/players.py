@@ -76,7 +76,6 @@ class Player(Humanoid):
         self.motion.rot = (self.motion.rot + delta_rot) % 360
 
         self.motion.update()
-        self._collide_with_walls()
         self.energy_source.passive_recharge(time_elapsed)
 
         # reset the movement after each update
