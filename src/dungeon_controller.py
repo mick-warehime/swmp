@@ -167,9 +167,8 @@ class DungeonController(controller.Controller):
             self.player.increment_health(-projectile.damage)
 
         # bullets hit hitting_mobs
-        hits: Dict[Enemy, List[Projectile]] = groupcollide(self._groups.mobs,
-                                                           self._groups.bullets,
-                                                           False, True)
+        hits: Dict[Enemy, List[Projectile]] = groupcollide(
+            self._groups.mobs, self._groups.bullets, False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.motion.stop()

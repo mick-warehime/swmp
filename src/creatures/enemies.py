@@ -1,5 +1,5 @@
-from collections import namedtuple
-from random import choice, random
+from random import random
+from typing import NamedTuple, Any
 
 import pygame as pg
 from pygame.math import Vector2
@@ -22,16 +22,25 @@ MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
-BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health hit_rect '
-                                            'damage knockback')
+
+class BaseEnemyData(NamedTuple):
+    max_speed: int
+    max_health: int
+    hit_rect: pg.Rect
+    damage: int
+    knockback: int
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
-                hit_rect_height: int, damage: int, knockback: int = 0):
+                hit_rect_height: int, damage: int,
+                knockback: int = 0) -> BaseEnemyData:
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
         return super().__new__(cls, max_speed, max_health, hit_rect, damage,
                                knockback)
+
+    def __init__(self, *args: Any) -> None:
+        pass
 
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
@@ -39,7 +48,7 @@ mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
 
 class Enemy(Humanoid):
     class_initialized = False
-    _map_img = None
+    _map_img: pg.Surface = None
 
     def __init__(self, pos: Vector2, player: Player,
                  conflict_group: Group, data: EnemyData) -> None:
