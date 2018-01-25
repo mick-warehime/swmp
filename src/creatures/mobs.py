@@ -1,3 +1,4 @@
+from collections import namedtuple
 from random import choice, random
 
 import pygame as pg
@@ -25,7 +26,6 @@ DETECT_RADIUS = 400
 
 class Mob(Humanoid):
     class_initialized = False
-    _splat = None
     _map_img = None
     damage = MOB_DAMAGE
     knockback = MOB_KNOCKBACK
@@ -44,11 +44,11 @@ class Mob(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.speed = choice(MOB_SPEEDS)
+        self.max_speed = choice(MOB_SPEEDS)
         self.target = player
 
         if self.is_quest:
-            self.speed *= 2
+            self.max_speed *= 2
             self._vomit_mod = Mod(ModData(**load_mod_data_kwargs('vomit')))
             self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
@@ -56,14 +56,13 @@ class Mob(Humanoid):
         if self.is_quest:
             ItemManager.item(self.pos, ObjectType.PISTOL)
         sounds.mob_hit_sound()
-        self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
+        splat = images.get_image(images.SPLAT)
+        self._map_img.blit(splat, self.pos - Vector2(32, 32))
         super().kill()
 
     @classmethod
     def init_class(cls, map_img: pg.Surface) -> None:
         if not cls.class_initialized:
-            splat_img = images.get_image(images.SPLAT)
-            cls._splat = pg.transform.scale(splat_img, (64, 64))
             cls._map_img = map_img
             cls.class_initialized = True
 
@@ -120,7 +119,7 @@ class Mob(Humanoid):
     def _update_acc(self) -> None:
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
-        self.motion.acc.scale_to_length(self.speed)
+        self.motion.acc.scale_to_length(self.max_speed)
         self.motion.acc += self.motion.vel * -1
 
     @staticmethod
@@ -135,3 +134,15 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         return col
+
+
+BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health')
+
+
+class EnemyData(BaseEnemyData):
+    def __new__(cls, max_speed: float, max_health: int):
+        return super().__new__(cls, max_speed, max_health)
+
+
+# class Enemy(Humanoid):
+#     pass
