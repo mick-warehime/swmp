@@ -151,8 +151,7 @@ class DungeonController(controller.Controller):
             if random() < 0.7:
                 sounds.player_hit_sound()
                 self.player.increment_health(-Mob.damage)
-            zombie.motion.stop_x()
-            zombie.motion.stop_y()
+            zombie.motion.stop()
 
         if hitters:
             knock_back = pg.math.Vector2(Mob.knockback, 0)
@@ -172,8 +171,7 @@ class DungeonController(controller.Controller):
                                                          False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
-            mob.motion.stop_x()
-            mob.motion.stop_y()
+            mob.motion.stop()
 
         self.set_previous_input()
 

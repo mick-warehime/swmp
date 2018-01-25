@@ -55,6 +55,8 @@ class Mob(Humanoid):
     def kill(self) -> None:
         if self.is_quest:
             ItemManager.item(self.pos, ObjectType.PISTOL)
+        sounds.mob_hit_sound()
+        self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
         super().kill()
 
     @classmethod
@@ -87,17 +89,17 @@ class Mob(Humanoid):
                 sounds.mob_moan_sound()
 
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
-
             self._update_acc()
-            self.motion.update()
 
             if self.is_quest and random() < 0.01:
                 self.ability_caller(self._vomit_mod.loc)()
+        else:
+            self.motion.stop()
+
+        self.motion.update()
 
         if self.health <= 0:
-            sounds.mob_hit_sound()
             self.kill()
-            self._map_img.blit(self._splat, self.pos - Vector2(32, 32))
 
     def _check_class_initialized(self) -> None:
         super()._check_class_initialized()

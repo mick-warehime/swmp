@@ -213,9 +213,15 @@ class Motion(object):
 
     def stop_x(self) -> None:
         self.vel.x = 0
+        self.acc.x = 0
 
     def stop_y(self) -> None:
         self.vel.y = 0
+        self.acc.y = 0
+
+    def stop(self) -> None:
+        self.stop_x()
+        self.stop_y()
 
     def _collide_walls_in_direction(self, x_or_y: str) -> None:
         assert x_or_y == 'x' or x_or_y == 'y'
