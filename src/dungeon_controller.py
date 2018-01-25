@@ -13,7 +13,7 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.mobs import Mob
+from creatures.enemies import Enemy, mob_data
 from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
@@ -61,7 +61,7 @@ class DungeonController(controller.Controller):
         for obj in self._map.objects:
             conflict_group = self._get_conflict(obj.conflict)
             if obj.type == tilemap.ObjectType.ZOMBIE:
-                Mob(obj.center, self.player, conflict_group)
+                Enemy(obj.center, self.player, conflict_group, mob_data)
             if obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
@@ -79,7 +79,7 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         timer = Timer(self)
         DynamicObject.initialize_dynamic_objects(timer)
-        Mob.init_class(self._map.img)
+        Enemy.init_class(self._map.img)
         abilities.initialize_classes(timer)
 
     def init_controls(self) -> None:
@@ -145,16 +145,17 @@ class DungeonController(controller.Controller):
             self.player.inventory.attempt_pickup(item)
 
         # obs hit player
-        hitters: List[Mob] = spritecollide(self.player, self._groups.mobs,
-                                           False, collide_hit_rect_with_rect)
+        hitters: List[Enemy] = spritecollide(self.player, self._groups.mobs,
+                                             False, collide_hit_rect_with_rect)
         for zombie in hitters:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-Mob.damage)
+                self.player.increment_health(-zombie.damage)
             zombie.motion.stop()
 
         if hitters:
-            knock_back = pg.math.Vector2(Mob.knockback, 0)
+            amount = max(hitter.knockback for hitter in hitters)
+            knock_back = pg.math.Vector2(amount, 0)
             self.player.pos += knock_back.rotate(-hitters[0].motion.rot)
 
         # enemy projectiles hit player
@@ -166,9 +167,9 @@ class DungeonController(controller.Controller):
             self.player.increment_health(-projectile.damage)
 
         # bullets hit hitting_mobs
-        hits: Dict[Mob, List[Projectile]] = groupcollide(self._groups.mobs,
-                                                         self._groups.bullets,
-                                                         False, True)
+        hits: Dict[Enemy, List[Projectile]] = groupcollide(self._groups.mobs,
+                                                           self._groups.bullets,
+                                                           False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.motion.stop()

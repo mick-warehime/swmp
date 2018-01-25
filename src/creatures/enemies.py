@@ -23,18 +23,29 @@ MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
+BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health')
 
-class Mob(Humanoid):
+
+class EnemyData(BaseEnemyData):
+    def __new__(cls, max_speed: float, max_health: int):
+        return super().__new__(cls, max_speed, max_health)
+
+
+mob_data = EnemyData(MOB_SPEEDS[1], MOB_HEALTH)
+
+
+class Enemy(Humanoid):
     class_initialized = False
     _map_img = None
-    damage = MOB_DAMAGE
-    knockback = MOB_KNOCKBACK
 
     def __init__(self, pos: Vector2, player: Player,
-                 conflict_group: Group) -> None:
+                 conflict_group: Group, data: EnemyData) -> None:
         self._check_class_initialized()
         self.is_quest = conflict_group is not None
-        super().__init__(MOB_HIT_RECT, pos, MOB_HEALTH)
+        super().__init__(MOB_HIT_RECT, pos, data.max_health)
+
+        self.damage = MOB_DAMAGE
+        self.knockback = MOB_KNOCKBACK
 
         if self.is_quest:
             my_groups = [self._groups.all_sprites, self._groups.mobs,
@@ -44,7 +55,7 @@ class Mob(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.max_speed = choice(MOB_SPEEDS)
+        self.max_speed = data.max_speed
         self.target = player
 
         if self.is_quest:
@@ -105,8 +116,9 @@ class Mob(Humanoid):
     def _check_class_initialized(self) -> None:
         super()._check_class_initialized()
         if not self.class_initialized:
-            raise RuntimeError('Mob class must be initialized before an object'
-                               ' can be instantiated.')
+            raise RuntimeError(
+                'Enemy class must be initialized before an object'
+                ' can be instantiated.')
 
     def _avoid_mobs(self) -> None:
         for mob in self._groups.mobs:
@@ -134,15 +146,3 @@ class Mob(Humanoid):
         else:
             col = settings.RED
         return col
-
-
-BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health')
-
-
-class EnemyData(BaseEnemyData):
-    def __new__(cls, max_speed: float, max_health: int):
-        return super().__new__(cls, max_speed, max_health)
-
-
-# class Enemy(Humanoid):
-#     pass
