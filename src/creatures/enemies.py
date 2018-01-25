@@ -29,31 +29,39 @@ class BaseEnemyData(NamedTuple):
     hit_rect: pg.Rect
     damage: int
     knockback: int
+    conflict_group: Group
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
-                hit_rect_height: int, damage: int,
-                knockback: int = 0) -> BaseEnemyData:
+                hit_rect_height: int, damage: int, knockback: int = 0,
+                conflict_group: Group = None) -> BaseEnemyData:
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
         return super().__new__(cls, max_speed, max_health, hit_rect, damage,
-                               knockback)
+                               knockback, conflict_group)
 
     def __init__(self, *args: Any) -> None:
         pass
 
+    def add_quest_group(self, group: Group) -> BaseEnemyData:
+        kwargs = self._asdict()
+        kwargs['conflict_group'] = group
+        return super().__new__(EnemyData, **kwargs)
 
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
+
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK,
+                     None)
+quest_mob_data = EnemyData(MOB_SPEED*2, MOB_HEALTH*1.5, 30, 30, MOB_DAMAGE*2,
+                           MOB_KNOCKBACK*2, None)
 
 
 class Enemy(Humanoid):
     class_initialized = False
     _map_img: pg.Surface = None
 
-    def __init__(self, pos: Vector2, player: Player,
-                 conflict_group: Group, data: EnemyData) -> None:
+    def __init__(self, pos: Vector2, player: Player, data: EnemyData) -> None:
         self._check_class_initialized()
-        self.is_quest = conflict_group is not None
+        self.is_quest = data.conflict_group is not None
         super().__init__(data.hit_rect, pos, data.max_health)
 
         self.damage = data.damage
@@ -61,7 +69,7 @@ class Enemy(Humanoid):
 
         if self.is_quest:
             my_groups = [self._groups.all_sprites, self._groups.mobs,
-                         conflict_group]
+                         data.conflict_group]
         else:
             my_groups = [self._groups.all_sprites, self._groups.mobs]
 

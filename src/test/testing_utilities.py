@@ -23,7 +23,7 @@ def make_mob(player: Union[
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return creatures.enemies.Enemy(pos, player, conflict_group=None,
+    return creatures.enemies.Enemy(pos, player,
                                    data=creatures.enemies.mob_data)
 
 

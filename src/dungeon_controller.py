@@ -13,7 +13,7 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data
+from creatures.enemies import Enemy, mob_data, quest_mob_data
 from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
@@ -60,8 +60,13 @@ class DungeonController(controller.Controller):
 
         for obj in self._map.objects:
             conflict_group = self._get_conflict(obj.conflict)
+
             if obj.type == tilemap.ObjectType.ZOMBIE:
-                Enemy(obj.center, self.player, conflict_group, mob_data)
+                if conflict_group is not None:
+                    data = quest_mob_data.add_quest_group(conflict_group)
+                else:
+                    data = mob_data
+                Enemy(obj.center, self.player, data)
             if obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
