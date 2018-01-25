@@ -16,16 +16,6 @@ def setUpModule() -> None:
     initialize_pygame()
 
 
-def tearDownModule() -> None:
-    from model import GameObject, DynamicObject
-    GameObject.gameobjects_initialized = False
-    DynamicObject.dynamic_initialized = False
-    from creatures.mobs import Mob
-    Mob.class_initialized = False
-    from abilities import Ability
-    Ability.class_initialized = False
-
-
 class DungeonControllerTest(unittest.TestCase):
     def test_health_pack_in_backpack_does_not_prevent_equip(self) -> None:
         dng_ctrl = make_dungeon_controller()
