@@ -85,13 +85,15 @@ class Mob(Humanoid):
     def update(self) -> None:
         target_disp = self.target.pos - self.pos
         if self._target_close(target_disp):
-            if random() < 0.002:
+            dt = self._timer.dt
+
+            if random() * dt < 0.00004:
                 sounds.mob_moan_sound()
 
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
             self._update_acc()
 
-            if self.is_quest and random() < 0.01:
+            if self.is_quest and random() * dt < 0.0002:
                 self.ability_caller(self._vomit_mod.loc)()
         else:
             self.motion.stop()
