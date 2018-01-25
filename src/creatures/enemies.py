@@ -15,23 +15,26 @@ from mods import Mod, ModData
 from tilemap import ObjectType
 from data.constructors import ItemManager
 
-MOB_SPEEDS = [150, 100, 75, 125]
-MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
+MOB_SPEED = 100
 MOB_HEALTH = 100
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
-BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health')
+BaseEnemyData = namedtuple('BaseEnemyData', 'max_speed max_health hit_rect '
+                                            'damage knockback')
 
 
 class EnemyData(BaseEnemyData):
-    def __new__(cls, max_speed: float, max_health: int):
-        return super().__new__(cls, max_speed, max_health)
+    def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
+                hit_rect_height: int, damage: int, knockback: int = 0):
+        hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
+        return super().__new__(cls, max_speed, max_health, hit_rect, damage,
+                               knockback)
 
 
-mob_data = EnemyData(MOB_SPEEDS[1], MOB_HEALTH)
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
 
 
 class Enemy(Humanoid):
@@ -42,10 +45,10 @@ class Enemy(Humanoid):
                  conflict_group: Group, data: EnemyData) -> None:
         self._check_class_initialized()
         self.is_quest = conflict_group is not None
-        super().__init__(MOB_HIT_RECT, pos, data.max_health)
+        super().__init__(data.hit_rect, pos, data.max_health)
 
-        self.damage = MOB_DAMAGE
-        self.knockback = MOB_KNOCKBACK
+        self.damage = data.damage
+        self.knockback = data.knockback
 
         if self.is_quest:
             my_groups = [self._groups.all_sprites, self._groups.mobs,
