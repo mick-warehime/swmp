@@ -28,7 +28,9 @@ class BaseEnemyData(NamedTuple):
     max_speed: int
     max_health: int
     hit_rect: pg.Rect
+
     image_file: str
+
     damage: int
     knockback: int
     conflict_group: Group
@@ -47,6 +49,7 @@ class EnemyData(BaseEnemyData):
                 mod_specs: ModSpec = None, drops_on_kill: str = None,
                 death_sound: str = None, death_image: str = None) -> \
             BaseEnemyData:  # type: ignore
+
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         mods = []
@@ -64,16 +67,17 @@ class EnemyData(BaseEnemyData):
                                mod_rates, drops_on_kill, death_sound,
                                death_image)
 
+
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
         kwargs = self._asdict()
         kwargs['conflict_group'] = group
         return super().__new__(EnemyData, **kwargs)
 
-
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
                      death_sound='splat-15.wav', death_image=images.SPLAT)
+
 
 
 class Enemy(Humanoid):
@@ -93,6 +97,7 @@ class Enemy(Humanoid):
             my_groups.append(data.conflict_group)
 
         pg.sprite.Sprite.__init__(self, my_groups)
+
 
         self._kill_effects: List[Effect] = []
         if data.drops_on_kill is not None:

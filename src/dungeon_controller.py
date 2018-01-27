@@ -96,6 +96,7 @@ class DungeonController(controller.Controller):
                                         None, specs, 'pistol', 'splat-15.wav',
                                         'splat green.png')
 
+
     def init_controls(self) -> None:
 
         self.bind_on_press(pg.K_n, self._view.toggle_night)
