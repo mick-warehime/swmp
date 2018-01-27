@@ -103,6 +103,8 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
+        hit_rect = hit_rect.copy()
+        hit_rect.center = pos
         self.motion: Motion = Motion(self, self._timer, self._groups.walls,
                                      hit_rect)
         self._health = max_health

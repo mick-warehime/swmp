@@ -223,8 +223,6 @@ class HumanoidsTest(unittest.TestCase):
     def test_collide_hit_rect_with_rect(self) -> None:
         player = make_player()
         pos = player.pos
-        # TODO (dvirk): This should not be necessary to center the hit_rect
-        player.update()
 
         x = pos.x
         y = pos.y
@@ -268,6 +266,9 @@ class HumanoidsTest(unittest.TestCase):
         self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
         self.assertEqual(player.motion.vel.y, 0)
 
+    def test_hit_rect_matches_rect(self):
+        mob = make_mob()
+        self.assertEqual(mob.pos, mob.motion.hit_rect.center)
 
 if __name__ == '__main__':
     unittest.main()

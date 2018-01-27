@@ -53,8 +53,7 @@ mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK,
                      None)
 
 quest_mob_data = EnemyData(MOB_SPEED * 4, MOB_HEALTH * 2, 30, 30,
-                           MOB_DAMAGE * 2,
-                           MOB_KNOCKBACK * 2, None)
+                           MOB_DAMAGE * 2, MOB_KNOCKBACK * 2, None)
 
 
 class Enemy(Humanoid):
