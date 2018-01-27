@@ -93,7 +93,7 @@ class DungeonController(controller.Controller):
         specs = {'vomit': {'rate': 0.5}}
         image_file = 'zombie_red.png'
         self.quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
-                                        None, specs)
+                                        None, specs, 'pistol')
 
     def init_controls(self) -> None:
 

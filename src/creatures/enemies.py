@@ -35,13 +35,16 @@ class BaseEnemyData(NamedTuple):
     conflict_group: Group
     mods: List[Mod]
     mod_use_rates: List[float]
+    drops_on_kill: str
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
-                mod_specs: ModSpec = None) -> BaseEnemyData:  # type:ignore
+                mod_specs: ModSpec = None, drops_on_kill: str = None) -> \
+            BaseEnemyData:  #
+        # type:ignore
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         mods = []
@@ -56,7 +59,7 @@ class EnemyData(BaseEnemyData):
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
                                damage, knockback, conflict_group, mods,
-                               mod_rates)
+                               mod_rates, drops_on_kill)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -76,7 +79,6 @@ class Enemy(Humanoid):
     def __init__(self, pos: Vector2, player: Player, data: EnemyData) -> None:
         self._check_class_initialized()
         self._data = data
-        self.is_quest = data.conflict_group is not None
         super().__init__(data.hit_rect, pos, data.max_health)
 
         self.damage = data.damage
@@ -92,8 +94,8 @@ class Enemy(Humanoid):
         self.target = player
 
     def kill(self) -> None:
-        if self.is_quest:
-            ItemManager.item(self.pos, ObjectType.PISTOL)
+        if self._data.drops_on_kill is not None:
+            ItemManager.item(self.pos, self._data.drops_on_kill)
         sounds.mob_hit_sound()
         splat = images.get_image(images.SPLAT)
         self._map_img.blit(splat, self.pos - Vector2(32, 32))
