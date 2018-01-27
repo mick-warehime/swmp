@@ -143,6 +143,11 @@ class DungeonController(controller.Controller):
         self._groups.all_sprites.update()
         self._camera.update(self.player)
 
+        self._handle_collisions()
+
+        self.set_previous_input()
+
+    def _handle_collisions(self) -> None:
         # player hits items
         items: List[ItemObject] = spritecollide(self.player,
                                                 self._groups.items, False)
@@ -157,7 +162,6 @@ class DungeonController(controller.Controller):
                 sounds.player_hit_sound()
                 self.player.increment_health(-zombie.damage)
             zombie.motion.stop()
-
         if hitters:
             amount = max(hitter.knockback for hitter in hitters)
             knock_back = pg.math.Vector2(amount, 0)
@@ -167,7 +171,6 @@ class DungeonController(controller.Controller):
         projectiles: List[Projectile] = spritecollide(
             self.player, self._groups.enemy_projectiles, True,
             collide_hit_rect_with_rect)
-
         for projectile in projectiles:
             self.player.increment_health(-projectile.damage)
 
@@ -177,8 +180,6 @@ class DungeonController(controller.Controller):
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
-
-        self.set_previous_input()
 
     def get_fps(self) -> float:
         return self._clock.get_fps()
