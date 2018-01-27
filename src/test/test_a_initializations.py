@@ -3,7 +3,7 @@ from typing import Callable
 
 import pygame
 
-import creatures.mobs
+import creatures.enemies
 import model
 from abilities import Ability
 from src.test.pygame_mock import MockTimer, initialize_pygame
@@ -24,7 +24,7 @@ def _initialization_tests() -> None:
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
     _assert_runtime_exception_raised(make_mob)
     blank_screen = pygame.Surface((800, 600))
-    creatures.mobs.Mob.init_class(blank_screen)
+    creatures.enemies.Enemy.init_class(blank_screen)
     _assert_runtime_exception_raised(Ability)
     Ability.initialize_class(InitsTest.timer)
 

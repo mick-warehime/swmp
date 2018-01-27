@@ -4,9 +4,12 @@ from itertools import product
 from typing import Tuple
 
 from pygame.math import Vector2
-from pygame.sprite import Group, LayeredUpdates
+from pygame.rect import Rect
+from pygame.sprite import Group, LayeredUpdates, Sprite
 
 import model
+from creatures.humanoids import collide_hit_rect_with_rect
+from mods import ModLocation
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player, make_mob
@@ -199,12 +202,71 @@ class HumanoidsTest(unittest.TestCase):
     def test_pickup_stackable_adds_to_active_mods(self) -> None:
         player = make_player()
 
-        player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(
+            ItemManager.item(player.pos, ObjectType.ROCK))
 
         self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
-        player.inventory.attempt_pickup(ItemManager.item(player.pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(
+            ItemManager.item(player.pos, ObjectType.ROCK))
         self.assertFalse(player.inventory.backpack.slot_occupied(0))
+
+    def test_use_ability_at_empty_slot_no_effect(self) -> None:
+        player = make_player()
+
+        self.assertEqual(len(self.groups.all_sprites), 1)
+
+        arms_ability_caller = player.ability_caller(ModLocation.ARMS)
+        arms_ability_caller()
+        self.assertEqual(len(self.groups.all_sprites), 1)
+
+    def test_collide_hit_rect_with_rect(self) -> None:
+        player = make_player()
+        pos = player.pos
+
+        x = pos.x
+        y = pos.y
+
+        wall_sprite = Sprite([self.groups.walls])
+        wall_sprite.rect = Rect(x, y, 30, 30)
+
+        self.assertTrue(collide_hit_rect_with_rect(player, wall_sprite))
+
+    def test_x_wall_collisions(self) -> None:
+        player = make_player()
+        hit_rect = player.motion.hit_rect
+
+        wall_sprite = Sprite([self.groups.walls])
+
+        x = player.pos.x + hit_rect.width / 2 + 1
+        y = player.pos.y
+        wall_sprite.rect = Rect(x, y, 30, 30)
+        self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
+
+        player.motion.vel.x = 10
+        player.update()
+        self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
+        self.assertEqual(player.motion.vel.x, 0)
+
+    def test_y_wall_collisions(self) -> None:
+        player = make_player()
+        hit_rect = player.motion.hit_rect
+
+        wall_sprite = Sprite([self.groups.walls])
+
+        x = player.pos.x
+        y = player.pos.x + hit_rect.height / 2 + 1
+        wall_sprite.rect = Rect(x, y, 30, 30)
+        self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
+
+        player.motion.vel.y = 10
+        player.update()
+        self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
+        self.assertEqual(player.motion.vel.y, 0)
+
+    def test_hit_rect_matches_rect(self) -> None:
+        mob = make_mob()
+        self.assertEqual(mob.pos, mob.motion.hit_rect.center)
 
 
 if __name__ == '__main__':

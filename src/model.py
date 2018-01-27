@@ -99,8 +99,8 @@ class Conflict(object):
 
     def class_name_short(self, obj_type: type) -> str:
         obj_type_str = str(obj_type)
-        if 'mob' in obj_type_str.lower():
-            return 'killed %d/%d mobs'
+        if 'enemy' in obj_type_str.lower():
+            return 'killed %d/%d enemies'
         elif 'waypoint' in obj_type_str.lower():
             return 'find %d/%d waypoints'
         else:

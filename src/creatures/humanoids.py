@@ -103,6 +103,8 @@ class Humanoid(mdl.DynamicObject):
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
         self._check_class_initialized()
+        hit_rect = hit_rect.copy()
+        hit_rect.center = pos
         self.motion: Motion = Motion(self, self._timer, self._groups.walls,
                                      hit_rect)
         self._health = max_health
@@ -213,9 +215,15 @@ class Motion(object):
 
     def stop_x(self) -> None:
         self.vel.x = 0
+        self.acc.x = 0
 
     def stop_y(self) -> None:
         self.vel.y = 0
+        self.acc.y = 0
+
+    def stop(self) -> None:
+        self.stop_x()
+        self.stop_y()
 
     def _collide_walls_in_direction(self, x_or_y: str) -> None:
         assert x_or_y == 'x' or x_or_y == 'y'

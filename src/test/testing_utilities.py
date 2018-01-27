@@ -4,7 +4,7 @@ import pygame
 from pygame.math import Vector2
 
 import controller
-import creatures.mobs
+import creatures.enemies
 import creatures.players
 import items
 from data.constructors import ItemManager
@@ -18,11 +18,13 @@ def make_player() -> creatures.players.Player:
     return player
 
 
-def make_mob(player: Union[creatures.players.Player, None] = None) -> creatures.mobs.Mob:
+def make_mob(player: Union[
+    creatures.players.Player, None] = None) -> creatures.enemies.Enemy:
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return creatures.mobs.Mob(pos, player, conflict_group=None)
+    return creatures.enemies.Enemy(pos, player,
+                                   data=creatures.enemies.mob_data)
 
 
 def make_item(label: ObjectType) -> items.ItemObject:

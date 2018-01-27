@@ -13,9 +13,9 @@ TODO:
         * grenade
         * rocket
 
-* Mob improvements
+* Enemy improvements
     * mob pathfinding (detect range)
-    * Mob states (chasing, roaming)
+    * Enemy states (chasing, roaming)
 
 * Model improvements
     * Make a groups dictionary to instantiate Humanoids, etc rather than

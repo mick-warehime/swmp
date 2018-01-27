@@ -73,8 +73,8 @@ class DungeonView(object):
 
     def _draw_debug_rects(self, camera: Camera) -> None:
         for sprite in self._groups.all_sprites:
-            if hasattr(sprite, 'hit_rect'):
-                rect = sprite.hit_rect
+            if hasattr(sprite, 'motion'):
+                rect = sprite.motion.hit_rect
             else:
                 rect = sprite.rect
             sprite_camera = camera.apply_rect(rect)
