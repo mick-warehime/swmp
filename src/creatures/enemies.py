@@ -39,6 +39,7 @@ class BaseEnemyData(NamedTuple):
     death_image: str
 
 
+# TODO(dvirk): Add tests for EnemyData
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
