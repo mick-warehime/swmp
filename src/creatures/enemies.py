@@ -28,9 +28,7 @@ class BaseEnemyData(NamedTuple):
     max_speed: int
     max_health: int
     hit_rect: pg.Rect
-
     image_file: str
-
     damage: int
     knockback: int
     conflict_group: Group
