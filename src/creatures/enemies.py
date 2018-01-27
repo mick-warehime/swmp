@@ -10,11 +10,9 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.constructors import ItemManager
 from data.input_output import load_mod_data_kwargs
 from effects import DropItem
 from mods import Mod, ModData
-from tilemap import ObjectType
 
 MOB_SPEED = 100
 MOB_HEALTH = 100

@@ -7,7 +7,6 @@ import sounds
 
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
-from tilemap import ObjectType
 
 
 class Condition(object):
