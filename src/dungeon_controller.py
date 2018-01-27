@@ -13,7 +13,7 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data, quest_mob_data
+from creatures.enemies import Enemy, mob_data, EnemyData
 from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
@@ -63,7 +63,7 @@ class DungeonController(controller.Controller):
 
             if obj.type == tilemap.ObjectType.ZOMBIE:
                 if conflict_group is not None:
-                    data = quest_mob_data.add_quest_group(conflict_group)
+                    data = self.quest_mob_data.add_quest_group(conflict_group)
                 else:
                     data = mob_data
                 Enemy(obj.center, self.player, data)
@@ -84,8 +84,14 @@ class DungeonController(controller.Controller):
         GameObject.initialize_gameobjects(self._groups)
         timer = Timer(self)
         DynamicObject.initialize_dynamic_objects(timer)
-        Enemy.init_class(self._map.img)
         abilities.initialize_classes(timer)
+        Enemy.init_class(self._map.img)
+
+        # TODO (dvirk): This is a kludgy fix. I can't instantiate EnemyData
+        # untilt abilities have been initialized, since it instantiates an
+        # Ability.
+        specs = {'vomit': {'rate': 0.0002}}
+        self.quest_mob_data = EnemyData(400, 200, 30, 30, 20, 40, None, specs)
 
     def init_controls(self) -> None:
 

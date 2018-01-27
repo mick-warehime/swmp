@@ -1,5 +1,5 @@
 from random import random
-from typing import NamedTuple, Any
+from typing import NamedTuple, List, Dict
 
 import pygame as pg
 from pygame.math import Vector2, Vector3
@@ -10,10 +10,10 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
+from data.constructors import ItemManager
 from data.input_output import load_mod_data_kwargs
 from mods import Mod, ModData
 from tilemap import ObjectType
-from data.constructors import ItemManager
 
 MOB_SPEED = 100
 MOB_HEALTH = 100
@@ -21,6 +21,8 @@ MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
+
+ModSpec = Dict[str, Dict[str, float]]
 
 
 class BaseEnemyData(NamedTuple):
@@ -30,30 +32,37 @@ class BaseEnemyData(NamedTuple):
     damage: int
     knockback: int
     conflict_group: Group
+    mods: List[Mod]
+    mod_use_rates: List[float]
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, damage: int, knockback: int = 0,
-                conflict_group: Group = None) -> BaseEnemyData:
+                conflict_group: Group = None,
+                mod_specs: ModSpec = None) -> BaseEnemyData:  # type:ignore
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
-        return super().__new__(cls, max_speed, max_health, hit_rect, damage,
-                               knockback, conflict_group)
 
-    def __init__(self, *args: Any) -> None:
-        pass
+        mods = []
+        mod_rates = []
+        if mod_specs is not None:
+            for mod_name, spec in mod_specs.items():
+                mod = Mod(ModData(**load_mod_data_kwargs(mod_name)))
+                rate = spec['rate']
+                mods.append(mod)
+                mod_rates.append(rate)
+
+        return super().__new__(cls, max_speed, max_health, hit_rect, damage,
+                               knockback, conflict_group, mods, mod_rates)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
+        """Generate a new EnemyData with a given conflict group."""
         kwargs = self._asdict()
         kwargs['conflict_group'] = group
         return super().__new__(EnemyData, **kwargs)
 
 
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK,
-                     None)
-
-quest_mob_data = EnemyData(MOB_SPEED * 4, MOB_HEALTH * 2, 30, 30,
-                           MOB_DAMAGE * 2, MOB_KNOCKBACK * 2, None)
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
 
 
 class Enemy(Humanoid):
@@ -79,10 +88,6 @@ class Enemy(Humanoid):
 
         self.max_speed = data.max_speed
         self.target = player
-
-        if self.is_quest:
-            self._vomit_mod = Mod(ModData(**load_mod_data_kwargs('vomit')))
-            self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
     def kill(self) -> None:
         if self.is_quest:
@@ -127,8 +132,12 @@ class Enemy(Humanoid):
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
             self._update_acc()
 
-            if self.is_quest and random() * dt < 0.0002:
-                self.ability_caller(self._vomit_mod.loc)()
+            for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
+                if random() * dt < rate:
+                    self.inventory.equip(mod)
+                    self.ability_caller(mod.loc)()
+
+
         else:
             self.motion.stop()
 
