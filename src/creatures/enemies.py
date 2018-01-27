@@ -90,7 +90,6 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.max_speed = data.max_speed
         self.target = player
 
     def kill(self) -> None:
@@ -163,7 +162,7 @@ class Enemy(Humanoid):
     def _update_acc(self) -> None:
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
-        self.motion.acc.scale_to_length(self.max_speed)
+        self.motion.acc.scale_to_length(self._data.max_speed)
         self.motion.acc += self.motion.vel * -1
 
     @staticmethod
