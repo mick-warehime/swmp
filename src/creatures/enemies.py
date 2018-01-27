@@ -126,14 +126,14 @@ class Enemy(Humanoid):
         if self._target_close(target_disp):
             dt = self._timer.dt
 
-            if random() * dt < 0.00004:
+            if random() < 0.1 * dt:
                 sounds.mob_moan_sound()
 
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
             self._update_acc()
 
             for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
-                if random() * dt < rate:
+                if random() < rate * dt:
                     self.inventory.equip(mod)
                     self.ability_caller(mod.loc)()
         else:
