@@ -29,6 +29,7 @@ class BaseEnemyData(NamedTuple):
     max_speed: int
     max_health: int
     hit_rect: pg.Rect
+    image_file: str
     damage: int
     knockback: int
     conflict_group: Group
@@ -38,8 +39,8 @@ class BaseEnemyData(NamedTuple):
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
-                hit_rect_height: int, damage: int, knockback: int = 0,
-                conflict_group: Group = None,
+                hit_rect_height: int, image_file: str, damage: int,
+                knockback: int = 0, conflict_group: Group = None,
                 mod_specs: ModSpec = None) -> BaseEnemyData:  # type:ignore
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
@@ -53,8 +54,9 @@ class EnemyData(BaseEnemyData):
                 mod_rates.append(rate)
 
         return super().__new__(cls,  # type:ignore
-                               max_speed, max_health, hit_rect, damage,
-                               knockback, conflict_group, mods, mod_rates)
+                               max_speed, max_health, hit_rect, image_file,
+                               damage, knockback, conflict_group, mods,
+                               mod_rates)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -63,8 +65,8 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **kwargs)
 
 
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE,  # type: ignore
-                     MOB_KNOCKBACK)
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
+                     images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK)
 
 
 class Enemy(Humanoid):
@@ -105,10 +107,7 @@ class Enemy(Humanoid):
 
     @property
     def image(self) -> pg.Surface:
-        if self.is_quest:
-            base_image = images.get_image(images.QMOB_IMG)
-        else:
-            base_image = images.get_image(images.MOB_IMG)
+        base_image = images.get_image(self._data.image_file)
         image = pg.transform.rotate(base_image, self.motion.rot)
 
         if self.damaged:
