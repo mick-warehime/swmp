@@ -80,11 +80,9 @@ class Enemy(Humanoid):
         self.damage = data.damage
         self.knockback = data.knockback
 
-        if self.is_quest:
-            my_groups = [self._groups.all_sprites, self._groups.mobs,
-                         data.conflict_group]
-        else:
-            my_groups = [self._groups.all_sprites, self._groups.mobs]
+        my_groups = [self._groups.all_sprites, self._groups.mobs]
+        if data.conflict_group is not None:
+            my_groups.append(data.conflict_group)
 
         pg.sprite.Sprite.__init__(self, my_groups)
 

@@ -235,7 +235,6 @@ class HumanoidsTest(unittest.TestCase):
     def test_x_wall_collisions(self) -> None:
         player = make_player()
         hit_rect = player.motion.hit_rect
-        player.update()
 
         wall_sprite = Sprite([self.groups.walls])
 
@@ -252,7 +251,6 @@ class HumanoidsTest(unittest.TestCase):
     def test_y_wall_collisions(self) -> None:
         player = make_player()
         hit_rect = player.motion.hit_rect
-        player.update()
 
         wall_sprite = Sprite([self.groups.walls])
 
