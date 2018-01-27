@@ -11,7 +11,7 @@ import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
-from effects import DropItem, PlaySound, DrawOnSurface
+from effects import DropItem, PlaySound, DrawOnSurface, Effect
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -94,7 +94,7 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self._kill_effects = []
+        self._kill_effects: List[Effect] = []
         if data.drops_on_kill is not None:
             self._kill_effects.append(DropItem(data.drops_on_kill))
         if data.death_sound is not None:

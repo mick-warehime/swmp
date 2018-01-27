@@ -1,4 +1,4 @@
-from random import uniform, random
+from random import uniform, choice
 from typing import Any, List
 
 from pygame.math import Vector2
@@ -135,7 +135,7 @@ class PlayRandomSound(Effect):
         self._sound_files = sound_files
 
     def activate(self, humanoid: Any) -> None:
-        sound_file = random.choice(self._sound_files)
+        sound_file = choice(self._sound_files)
         sounds.play(sound_file)
 
 
@@ -176,7 +176,7 @@ class MuzzleFlashEffect(Effect):
 
 
 class DropItem(Effect):
-    def __init__(self, item_label: str):
+    def __init__(self, item_label: str) -> None:
         self.item_label = item_label
 
     def activate(self, humanoid: Any) -> None:
