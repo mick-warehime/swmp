@@ -11,7 +11,7 @@ import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
-from effects import DropItem, PlaySound
+from effects import DropItem, PlaySound, DrawOnSurface
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -35,7 +35,8 @@ class BaseEnemyData(NamedTuple):
     mods: List[Mod]
     mod_use_rates: List[float]
     drops_on_kill: str
-    death_sound: List[str]
+    death_sound: str
+    death_image: str
 
 
 class EnemyData(BaseEnemyData):
@@ -43,8 +44,8 @@ class EnemyData(BaseEnemyData):
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
                 mod_specs: ModSpec = None, drops_on_kill: str = None,
-                death_sound: List[
-                    str] = None) -> BaseEnemyData:  # type:ignore
+                death_sound: str = None, death_image: str = None) -> \
+            BaseEnemyData:  # type: ignore
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         mods = []
@@ -59,7 +60,8 @@ class EnemyData(BaseEnemyData):
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
                                damage, knockback, conflict_group, mods,
-                               mod_rates, drops_on_kill, death_sound)
+                               mod_rates, drops_on_kill, death_sound,
+                               death_image)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -70,7 +72,7 @@ class EnemyData(BaseEnemyData):
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
-                     death_sound='splat-15.wav')
+                     death_sound='splat-15.wav', death_image=images.SPLAT)
 
 
 class Enemy(Humanoid):
@@ -96,14 +98,15 @@ class Enemy(Humanoid):
             self._kill_effects.append(DropItem(data.drops_on_kill))
         if data.death_sound is not None:
             self._kill_effects.append(PlaySound(data.death_sound))
+        if data.death_image is not None:
+            image = images.get_image(data.death_image)
+            self._kill_effects.append(DrawOnSurface(self._map_img, image))
 
         self.target = player
 
     def kill(self) -> None:
         for effect in self._kill_effects:
             effect.activate(self)
-        splat = images.get_image(images.SPLAT)
-        self._map_img.blit(splat, self.pos - Vector2(32, 32))
         super().kill()
 
     @classmethod

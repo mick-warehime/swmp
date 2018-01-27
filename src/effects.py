@@ -1,7 +1,8 @@
-from random import uniform
-from typing import Any
+from random import uniform, random
+from typing import Any, List
 
 from pygame.math import Vector2
+from pygame.surface import Surface
 
 import sounds
 
@@ -116,6 +117,26 @@ class PlaySound(Effect):
 
     def activate(self, humanoid: Any) -> None:
         sounds.play(self._sound_file)
+
+
+class DrawOnSurface(Effect):
+    def activate(self, humanoid: Any) -> None:
+        pos = humanoid.pos
+        self._drawn_on.blit(self._to_draw, pos - Vector2(32, 32))
+
+    def __init__(self, drawn_on: Surface, to_draw: Surface) -> None:
+        self._drawn_on = drawn_on
+        self._to_draw = to_draw
+
+
+class PlayRandomSound(Effect):
+    def __init__(self, sound_files: List[str]) -> None:
+        assert sound_files, 'At least one sound file must be specified.'
+        self._sound_files = sound_files
+
+    def activate(self, humanoid: Any) -> None:
+        sound_file = random.choice(self._sound_files)
+        sounds.play(sound_file)
 
 
 class Kickback(Effect):
