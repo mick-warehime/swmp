@@ -266,9 +266,10 @@ class HumanoidsTest(unittest.TestCase):
         self.assertFalse(collide_hit_rect_with_rect(player, wall_sprite))
         self.assertEqual(player.motion.vel.y, 0)
 
-    def test_hit_rect_matches_rect(self):
+    def test_hit_rect_matches_rect(self) -> None:
         mob = make_mob()
         self.assertEqual(mob.pos, mob.motion.hit_rect.center)
+
 
 if __name__ == '__main__':
     unittest.main()

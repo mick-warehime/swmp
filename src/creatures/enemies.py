@@ -52,7 +52,8 @@ class EnemyData(BaseEnemyData):
                 mods.append(mod)
                 mod_rates.append(rate)
 
-        return super().__new__(cls, max_speed, max_health, hit_rect, damage,
+        return super().__new__(cls,  # type:ignore
+                               max_speed, max_health, hit_rect, damage,
                                knockback, conflict_group, mods, mod_rates)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
@@ -62,7 +63,8 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **kwargs)
 
 
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK)
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE,  # type: ignore
+                     MOB_KNOCKBACK)
 
 
 class Enemy(Humanoid):
@@ -136,8 +138,6 @@ class Enemy(Humanoid):
                 if random() * dt < rate:
                     self.inventory.equip(mod)
                     self.ability_caller(mod.loc)()
-
-
         else:
             self.motion.stop()
 
