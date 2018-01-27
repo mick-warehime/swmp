@@ -43,8 +43,7 @@ class EnemyData(BaseEnemyData):
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
                 mod_specs: ModSpec = None, drops_on_kill: str = None) -> \
-            BaseEnemyData:  #
-        # type:ignore
+            BaseEnemyData:  # type:ignore
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         mods = []
