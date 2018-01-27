@@ -2,7 +2,7 @@ from random import random
 from typing import NamedTuple, Any
 
 import pygame as pg
-from pygame.math import Vector2
+from pygame.math import Vector2, Vector3
 from pygame.sprite import Group
 
 import images
@@ -51,8 +51,10 @@ class EnemyData(BaseEnemyData):
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE, MOB_KNOCKBACK,
                      None)
-quest_mob_data = EnemyData(MOB_SPEED*2, MOB_HEALTH*1.5, 30, 30, MOB_DAMAGE*2,
-                           MOB_KNOCKBACK*2, None)
+
+quest_mob_data = EnemyData(MOB_SPEED * 4, MOB_HEALTH * 2, 30, 30,
+                           MOB_DAMAGE * 2,
+                           MOB_KNOCKBACK * 2, None)
 
 
 class Enemy(Humanoid):
@@ -61,6 +63,7 @@ class Enemy(Humanoid):
 
     def __init__(self, pos: Vector2, player: Player, data: EnemyData) -> None:
         self._check_class_initialized()
+        self._data = data
         self.is_quest = data.conflict_group is not None
         super().__init__(data.hit_rect, pos, data.max_health)
 
@@ -79,7 +82,6 @@ class Enemy(Humanoid):
         self.target = player
 
         if self.is_quest:
-            self.max_speed *= 2
             self._vomit_mod = Mod(ModData(**load_mod_data_kwargs('vomit')))
             self.inventory.active_mods[self._vomit_mod.loc] = self._vomit_mod
 
@@ -106,11 +108,14 @@ class Enemy(Humanoid):
         image = pg.transform.rotate(base_image, self.motion.rot)
 
         if self.damaged:
-            col = self._health_bar_color()
-            width = int(image.get_width() * self.health / MOB_HEALTH)
-            health_bar = pg.Rect(0, 0, width, 7)
-            pg.draw.rect(image, col, health_bar)
+            self._draw_health_bar(image)
         return image
+
+    def _draw_health_bar(self, image: pg.Surface) -> None:
+        col = self._health_bar_color()
+        width = int(image.get_width() * self.health / MOB_HEALTH)
+        health_bar = pg.Rect(0, 0, width, 7)
+        pg.draw.rect(image, col, health_bar)
 
     def update(self) -> None:
         target_disp = self.target.pos - self.pos
@@ -159,10 +164,15 @@ class Enemy(Humanoid):
         return target_dist.length() < DETECT_RADIUS
 
     def _health_bar_color(self) -> tuple:
-        if self.health > 60:
-            col = settings.GREEN
-        elif self.health > 30:
-            col = settings.YELLOW
+        health_fraction = float(self.health) / self.max_health
+        if health_fraction > 0.5:
+            frac = 2 * (1 - health_fraction)
+            vec = Vector3(settings.GREEN) * frac
+            vec += Vector3(settings.YELLOW) * (1 - frac)
+            col = tuple(vec)
         else:
-            col = settings.RED
+            frac = 2 * health_fraction
+            vec = Vector3(settings.YELLOW) * frac
+            vec += Vector3(settings.RED) * (1 - frac)
+            col = tuple(vec)
         return col
