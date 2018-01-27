@@ -12,6 +12,7 @@ from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.constructors import ItemManager
 from data.input_output import load_mod_data_kwargs
+from effects import DropItem
 from mods import Mod, ModData
 from tilemap import ObjectType
 
@@ -89,11 +90,15 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
+        self._kill_effects = []
+        if data.drops_on_kill is not None:
+            self._kill_effects.append(DropItem(data.drops_on_kill))
+
         self.target = player
 
     def kill(self) -> None:
-        if self._data.drops_on_kill is not None:
-            ItemManager.item(self.pos, self._data.drops_on_kill)
+        for effect in self._kill_effects:
+            effect.activate(self)
         sounds.mob_hit_sound()
         splat = images.get_image(images.SPLAT)
         self._map_img.blit(splat, self.pos - Vector2(32, 32))

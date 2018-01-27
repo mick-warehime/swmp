@@ -4,8 +4,10 @@ from typing import Any
 from pygame.math import Vector2
 
 import sounds
+
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
+from tilemap import ObjectType
 
 
 class Condition(object):
@@ -151,3 +153,14 @@ class MuzzleFlashEffect(Effect):
         direction = humanoid.motion.direction
         direction = direction.rotate(20)
         MuzzleFlash(humanoid.pos + 22 * direction)
+
+
+class DropItem(Effect):
+    def __init__(self, item_label: str):
+        self.item_label = item_label
+
+    def activate(self, humanoid: Any) -> None:
+        # TODO(dvirk): I need to import locally to avoid circular import
+        # errors. Is this bad?
+        from data.constructors import ItemManager
+        ItemManager.item(humanoid.pos, self.item_label)
