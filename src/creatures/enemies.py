@@ -10,10 +10,9 @@ import settings
 import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.constructors import ItemManager
 from data.input_output import load_mod_data_kwargs
+from effects import DropItem, PlaySound, DrawOnSurface, Effect
 from mods import Mod, ModData
-from tilemap import ObjectType
 
 MOB_SPEED = 100
 MOB_HEALTH = 100
@@ -29,18 +28,26 @@ class BaseEnemyData(NamedTuple):
     max_speed: int
     max_health: int
     hit_rect: pg.Rect
+    image_file: str
     damage: int
     knockback: int
     conflict_group: Group
     mods: List[Mod]
     mod_use_rates: List[float]
+    drops_on_kill: str
+    death_sound: str
+    death_image: str
 
 
+# TODO(dvirk): Add tests for EnemyData
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
-                hit_rect_height: int, damage: int, knockback: int = 0,
-                conflict_group: Group = None,
-                mod_specs: ModSpec = None) -> BaseEnemyData:  # type:ignore
+                hit_rect_height: int, image_file: str, damage: int,
+                knockback: int = 0, conflict_group: Group = None,
+                mod_specs: ModSpec = None, drops_on_kill: str = None,
+                death_sound: str = None, death_image: str = None) -> \
+            BaseEnemyData:  # type: ignore
+
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         mods = []
@@ -53,8 +60,10 @@ class EnemyData(BaseEnemyData):
                 mod_rates.append(rate)
 
         return super().__new__(cls,  # type:ignore
-                               max_speed, max_health, hit_rect, damage,
-                               knockback, conflict_group, mods, mod_rates)
+                               max_speed, max_health, hit_rect, image_file,
+                               damage, knockback, conflict_group, mods,
+                               mod_rates, drops_on_kill, death_sound,
+                               death_image)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -63,8 +72,9 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **kwargs)
 
 
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30, MOB_DAMAGE,  # type: ignore
-                     MOB_KNOCKBACK)
+mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
+                     images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
+                     death_sound='splat-15.wav', death_image=images.SPLAT)
 
 
 class Enemy(Humanoid):
@@ -74,7 +84,6 @@ class Enemy(Humanoid):
     def __init__(self, pos: Vector2, player: Player, data: EnemyData) -> None:
         self._check_class_initialized()
         self._data = data
-        self.is_quest = data.conflict_group is not None
         super().__init__(data.hit_rect, pos, data.max_health)
 
         self.damage = data.damage
@@ -86,15 +95,20 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.max_speed = data.max_speed
+        self._kill_effects: List[Effect] = []
+        if data.drops_on_kill is not None:
+            self._kill_effects.append(DropItem(data.drops_on_kill))
+        if data.death_sound is not None:
+            self._kill_effects.append(PlaySound(data.death_sound))
+        if data.death_image is not None:
+            image = images.get_image(data.death_image)
+            self._kill_effects.append(DrawOnSurface(self._map_img, image))
+
         self.target = player
 
     def kill(self) -> None:
-        if self.is_quest:
-            ItemManager.item(self.pos, ObjectType.PISTOL)
-        sounds.mob_hit_sound()
-        splat = images.get_image(images.SPLAT)
-        self._map_img.blit(splat, self.pos - Vector2(32, 32))
+        for effect in self._kill_effects:
+            effect.activate(self)
         super().kill()
 
     @classmethod
@@ -105,10 +119,7 @@ class Enemy(Humanoid):
 
     @property
     def image(self) -> pg.Surface:
-        if self.is_quest:
-            base_image = images.get_image(images.QMOB_IMG)
-        else:
-            base_image = images.get_image(images.MOB_IMG)
+        base_image = images.get_image(self._data.image_file)
         image = pg.transform.rotate(base_image, self.motion.rot)
 
         if self.damaged:
@@ -162,7 +173,7 @@ class Enemy(Humanoid):
     def _update_acc(self) -> None:
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
-        self.motion.acc.scale_to_length(self.max_speed)
+        self.motion.acc.scale_to_length(self._data.max_speed)
         self.motion.acc += self.motion.vel * -1
 
     @staticmethod

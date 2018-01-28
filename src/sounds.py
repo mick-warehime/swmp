@@ -78,9 +78,5 @@ def player_hit_sound() -> None:
     random.choice(effects.player_hit_sounds).play()
 
 
-def mob_hit_sound() -> None:
-    random.choice(effects.zombie_hit_sounds).play()
-
-
 def mob_moan_sound() -> None:
     random.choice(effects.zombie_moan_sounds).play()

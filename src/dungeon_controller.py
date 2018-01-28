@@ -91,7 +91,10 @@ class DungeonController(controller.Controller):
         # untilt abilities have been initialized, since it instantiates an
         # Ability.
         specs = {'vomit': {'rate': 0.5}}
-        self.quest_mob_data = EnemyData(400, 250, 30, 30, 20, 40, None, specs)
+        image_file = 'zombie_red.png'
+        self.quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
+                                        None, specs, 'pistol', 'splat-15.wav',
+                                        'splat green.png')
 
     def init_controls(self) -> None:
 
