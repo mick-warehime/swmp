@@ -164,7 +164,7 @@ class DungeonController(controller.Controller):
             self.player.inventory.attempt_pickup(item)
 
         # obs hit player
-        hitters: List[Enemy] = spritecollide(self.player, self._groups.mobs,
+        hitters: List[Enemy] = spritecollide(self.player, self._groups.enemies,
                                              False, collide_hit_rect_with_rect)
         for zombie in hitters:
             if random() < 0.7:
@@ -185,7 +185,7 @@ class DungeonController(controller.Controller):
 
         # bullets hit hitting_mobs
         hits: Dict[Enemy, List[Projectile]] = groupcollide(
-            self._groups.mobs, self._groups.bullets, False, True)
+            self._groups.enemies, self._groups.bullets, False, True)
         for mob, bullets in hits.items():
             mob.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.motion.stop()

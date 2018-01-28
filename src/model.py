@@ -9,7 +9,7 @@ NO_RESOLUTIONS = -69
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
-                          'items', 'mobs', 'all_sprites'))
+                          'items', 'enemies', 'all_sprites'))
 
 
 class Groups(_GroupsBase):
@@ -23,7 +23,7 @@ class Groups(_GroupsBase):
     def empty(self) -> None:
         """Empty each group field."""
         self.walls.empty()
-        self.mobs.empty()
+        self.enemies.empty()
         self.bullets.empty()
         self.all_sprites.empty()
         self.items.empty()

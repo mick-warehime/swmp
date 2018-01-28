@@ -194,10 +194,10 @@ class HumanoidsTest(unittest.TestCase):
         mob.increment_health(31 - 61)
         mob.increment_health(0 - 31)
 
-        self.assertIn(mob, groups.mobs)
+        self.assertIn(mob, groups.enemies)
 
         mob.update()
-        self.assertNotIn(mob, groups.mobs)
+        self.assertNotIn(mob, groups.enemies)
 
     def test_pickup_stackable_adds_to_active_mods(self) -> None:
         player = make_player()

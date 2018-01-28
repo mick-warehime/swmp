@@ -89,7 +89,7 @@ class Enemy(Humanoid):
         self.damage = data.damage
         self.knockback = data.knockback
 
-        my_groups = [self._groups.all_sprites, self._groups.mobs]
+        my_groups = [self._groups.all_sprites, self._groups.enemies]
         if data.conflict_group is not None:
             my_groups.append(data.conflict_group)
 
@@ -163,7 +163,7 @@ class Enemy(Humanoid):
                 ' can be instantiated.')
 
     def _avoid_mobs(self) -> None:
-        for mob in self._groups.mobs:
+        for mob in self._groups.enemies:
             if mob is self:
                 continue
             dist = self.pos - mob.pos
