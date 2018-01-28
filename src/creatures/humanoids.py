@@ -116,10 +116,6 @@ class Humanoid(mdl.DynamicObject):
         self.inventory = Inventory()
 
     @property
-    def max_health(self) -> int:
-        return self.status.max_health
-
-    @property
     def rect(self) -> pg.Rect:
         self._base_rect.center = Vector2(self.pos)
         return self._base_rect

@@ -181,7 +181,7 @@ class Enemy(Humanoid):
         return target_dist.length() < DETECT_RADIUS
 
     def _health_bar_color(self) -> tuple:
-        health_fraction = float(self.status.health) / self.max_health
+        health_fraction = float(self.status.health) / self.status.max_health
         if health_fraction > 0.5:
             frac = 2 * (1 - health_fraction)
             vec = Vector3(settings.GREEN) * frac

@@ -111,7 +111,7 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
+        max_health = player.status.max_health
         self.assertEqual(player.status.health, max_health)
         self.assertFalse(heal.can_use(player))
 
@@ -127,7 +127,7 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
+        max_health = player.status.max_health
         player.increment_health(-heal_amount + 2)
         heal.use(player)
         self.assertEqual(player.status.health, max_health)
@@ -140,7 +140,7 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
+        max_health = player.status.max_health
         player.increment_health(-heal_amount - 2)
         heal.use(player)
         self.assertEqual(player.status.health, max_health - 2)
