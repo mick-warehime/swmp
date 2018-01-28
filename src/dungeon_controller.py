@@ -94,8 +94,8 @@ class DungeonController(controller.Controller):
         image_file = 'zombie_red.png'
         self.quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
                                         None, specs, 'pistol', 'splat-15.wav',
-                                        'splat green.png')
-
+                                        'splat green.png',
+                                        ['passive', 'active'])
     def init_controls(self) -> None:
 
         self.bind_on_press(pg.K_n, self._view.toggle_night)
@@ -187,7 +187,8 @@ class DungeonController(controller.Controller):
         hits: Dict[Enemy, List[Projectile]] = groupcollide(
             self._groups.enemies, self._groups.bullets, False, True)
         for mob, bullets in hits.items():
-            mob.status.increment_health(-sum(bullet.damage for bullet in bullets))
+            mob.status.increment_health(
+                -sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
 
     def get_fps(self) -> float:

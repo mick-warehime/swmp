@@ -153,6 +153,7 @@ class Status(object):
     def __init__(self, max_health: int) -> None:
         self._max_health = max_health
         self._health = max_health
+        self.state = None
 
     def increment_health(self, amount: int) -> None:
         new_health = self._health + amount

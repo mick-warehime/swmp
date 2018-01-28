@@ -37,6 +37,7 @@ class BaseEnemyData(NamedTuple):
     drops_on_kill: str
     death_sound: str
     death_image: str
+    states: List[str]
 
 
 # TODO(dvirk): Add tests for EnemyData
@@ -45,8 +46,8 @@ class EnemyData(BaseEnemyData):
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
                 mod_specs: ModSpec = None, drops_on_kill: str = None,
-                death_sound: str = None, death_image: str = None) -> \
-            BaseEnemyData:  # type: ignore
+                death_sound: str = None, death_image: str = None, states:
+            List[str] = None) -> BaseEnemyData:  # type: ignore
 
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
@@ -63,7 +64,7 @@ class EnemyData(BaseEnemyData):
                                max_speed, max_health, hit_rect, image_file,
                                damage, knockback, conflict_group, mods,
                                mod_rates, drops_on_kill, death_sound,
-                               death_image)
+                               death_image, states)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -74,7 +75,8 @@ class EnemyData(BaseEnemyData):
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
-                     death_sound='splat-15.wav', death_image=images.SPLAT)
+                     death_sound='splat-15.wav', death_image=images.SPLAT,
+                     states=['passive', 'active'])
 
 
 class Enemy(Humanoid):
@@ -103,6 +105,9 @@ class Enemy(Humanoid):
         if data.death_image is not None:
             image = images.get_image(data.death_image)
             self._kill_effects.append(DrawOnSurface(self._map_img, image))
+
+        if data.states is not None:
+            self.status.state = data.states[0]
 
         self.target = player
 
@@ -135,6 +140,11 @@ class Enemy(Humanoid):
     def update(self) -> None:
         target_disp = self.target.pos - self.pos
         if self._target_close(target_disp):
+            self.status.state = self._data.states[1]
+        else:
+            self.status.state = self._data.states[0]
+
+        if self.status.state == 'active':
             dt = self._timer.dt
 
             if random() < 0.1 * dt:
@@ -147,7 +157,7 @@ class Enemy(Humanoid):
                 if random() < rate * dt:
                     self.inventory.equip(mod)
                     self.ability_caller(mod.loc)()
-        else:
+        elif self.status.state == 'passive':
             self.motion.stop()
 
         self.motion.update()
