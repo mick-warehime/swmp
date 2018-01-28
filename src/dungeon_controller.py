@@ -169,7 +169,7 @@ class DungeonController(controller.Controller):
         for zombie in hitters:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-zombie.damage)
+                self.player.status.increment_health(-zombie.damage)
             zombie.motion.stop()
         if hitters:
             amount = max(hitter.knockback for hitter in hitters)
@@ -181,13 +181,13 @@ class DungeonController(controller.Controller):
             self.player, self._groups.enemy_projectiles, True,
             collide_hit_rect_with_rect)
         for projectile in projectiles:
-            self.player.increment_health(-projectile.damage)
+            self.player.status.increment_health(-projectile.damage)
 
         # bullets hit hitting_mobs
         hits: Dict[Enemy, List[Projectile]] = groupcollide(
             self._groups.enemies, self._groups.bullets, False, True)
         for mob, bullets in hits.items():
-            mob.increment_health(-sum(bullet.damage for bullet in bullets))
+            mob.status.increment_health(-sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
 
     def get_fps(self) -> float:

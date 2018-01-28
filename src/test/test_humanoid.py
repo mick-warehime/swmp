@@ -50,11 +50,11 @@ class HumanoidsTest(unittest.TestCase):
         player = make_player()
         max_health = player.status.max_health
 
-        player.increment_health(-1)
+        player.status.increment_health(-1)
         self.assertEqual(player.status.health, max_health - 1)
-        player.increment_health(100)
+        player.status.increment_health(100)
         self.assertEqual(player.status.health, max_health)
-        player.increment_health(-max_health - 2)
+        player.status.increment_health(-max_health - 2)
         self.assertEqual(player.status.health, 0)
 
     def test_player_move(self) -> None:
@@ -190,9 +190,9 @@ class HumanoidsTest(unittest.TestCase):
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
         mob = make_mob()
-        mob.increment_health(61 - mob._max_health)
-        mob.increment_health(31 - 61)
-        mob.increment_health(0 - 31)
+        mob.status.increment_health(61 - mob._max_health)
+        mob.status.increment_health(31 - 61)
+        mob.status.increment_health(0 - 31)
 
         self.assertIn(mob, groups.enemies)
 

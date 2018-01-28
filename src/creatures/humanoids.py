@@ -124,9 +124,6 @@ class Humanoid(mdl.DynamicObject):
     def image(self) -> pg.Surface:
         raise NotImplementedError
 
-    def increment_health(self, amount: int) -> None:
-        self.status.increment_health(amount)
-
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
         active_mods = self.inventory.active_mods
         if loc not in active_mods:

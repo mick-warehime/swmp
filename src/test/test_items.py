@@ -106,7 +106,7 @@ class ModTest(unittest.TestCase):
         backpack = player.inventory.backpack
 
         # health pack fills health back up and is gone from active_mods
-        player.increment_health(-5)
+        player.status.increment_health(-5)
         self.assertTrue(player.status.damaged)
 
         # Ability is only usable after sufficient time has elapsed.

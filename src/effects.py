@@ -91,7 +91,7 @@ class Heal(Effect):
         self._heal_amount = heal_amount
 
     def activate(self, humanoid: Any) -> None:
-        humanoid.increment_health(self._heal_amount)
+        humanoid.status.increment_health(self._heal_amount)
 
 
 class Recharge(Effect):
