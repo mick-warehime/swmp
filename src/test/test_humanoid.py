@@ -48,14 +48,14 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_humanoid_increment_health(self) -> None:
         player = make_player()
-        max_health = player.health
+        max_health = player.status.max_health
 
         player.increment_health(-1)
-        self.assertEqual(player.health, max_health - 1)
+        self.assertEqual(player.status.health, max_health - 1)
         player.increment_health(100)
-        self.assertEqual(player.health, max_health)
+        self.assertEqual(player.status.health, max_health)
         player.increment_health(-max_health - 2)
-        self.assertEqual(player.health, 0)
+        self.assertEqual(player.status.health, 0)
 
     def test_player_move(self) -> None:
         player = make_player()

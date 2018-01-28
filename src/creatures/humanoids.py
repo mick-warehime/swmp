@@ -109,18 +109,15 @@ class Humanoid(mdl.DynamicObject):
                                      hit_rect)
         self._health = max_health
         self._max_health = max_health
+        self.status = Status(max_health)
         super().__init__(pos)
         self._base_rect = self.image.get_rect().copy()
 
         self.inventory = Inventory()
 
     @property
-    def health(self) -> int:
-        return self._health
-
-    @property
     def max_health(self) -> int:
-        return self._max_health
+        return self.status.max_health
 
     @property
     def rect(self) -> pg.Rect:
@@ -129,17 +126,14 @@ class Humanoid(mdl.DynamicObject):
 
     @property
     def damaged(self) -> bool:
-        return self.health < self._max_health
+        return self.status.damaged
 
     @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
 
     def increment_health(self, amount: int) -> None:
-        new_health = self._health + amount
-        new_health = min(new_health, self.max_health)
-        new_health = max(new_health, 0)
-        self._health = new_health
+        self.status.increment_health(amount)
 
     def _use_ability_at(self, loc: mods.ModLocation) -> None:
         active_mods = self.inventory.active_mods
@@ -163,6 +157,32 @@ class Humanoid(mdl.DynamicObject):
 
     def update(self) -> None:
         raise NotImplementedError
+
+
+class Status(object):
+    """Represents the current state of a Humanoid."""
+
+    def __init__(self, max_health: int) -> None:
+        self._max_health = max_health
+        self._health = max_health
+
+    def increment_health(self, amount: int) -> None:
+        new_health = self._health + amount
+        new_health = min(new_health, self.max_health)
+        new_health = max(new_health, 0)
+        self._health = new_health
+
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @property
+    def max_health(self) -> int:
+        return self._max_health
+
+    @property
+    def damaged(self) -> bool:
+        return self.health < self._max_health
 
 
 class Motion(object):

@@ -117,7 +117,7 @@ class ModTest(unittest.TestCase):
         self.assertEqual(hp.mod.ability.uses_left, 0)
         self.assertNotIn(hp.mod, backpack)
         self.assertFalse(player.damaged)
-        self.assertEqual(player.health, player.max_health)
+        self.assertEqual(player.status.health, player.max_health)
 
     def _player_with_ready_healthpack(self) -> Tuple[
         items.ItemObject, Player]:

@@ -128,7 +128,7 @@ class Enemy(Humanoid):
 
     def _draw_health_bar(self, image: pg.Surface, full_width: int) -> None:
         col = self._health_bar_color()
-        width = int(full_width * self.health / MOB_HEALTH)
+        width = int(full_width * self.status.health / MOB_HEALTH)
         health_bar = pg.Rect(0, 0, width, 7)
         pg.draw.rect(image, col, health_bar)
 
@@ -152,7 +152,7 @@ class Enemy(Humanoid):
 
         self.motion.update()
 
-        if self.health <= 0:
+        if self.status.health <= 0:
             self.kill()
 
     def _check_class_initialized(self) -> None:
@@ -181,7 +181,7 @@ class Enemy(Humanoid):
         return target_dist.length() < DETECT_RADIUS
 
     def _health_bar_color(self) -> tuple:
-        health_fraction = float(self.health) / self.max_health
+        health_fraction = float(self.status.health) / self.max_health
         if health_fraction > 0.5:
             frac = 2 * (1 - health_fraction)
             vec = Vector3(settings.GREEN) * frac

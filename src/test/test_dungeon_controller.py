@@ -147,7 +147,7 @@ class DungeonControllerTest(unittest.TestCase):
         # make sure the player in the dungeon has 10 less health and the pistol
         # equiped and the shotgun in the backpack
         set_player = dungeon.player
-        self.assertEqual(set_player.health, player.max_health - 10)
+        self.assertEqual(set_player.status.health, player.max_health - 10)
         self.assertEqual(set_player.inventory.backpack._slots_filled, 1)
         self.assertEqual(len(set_player.inventory.active_mods.values()), 1)
 

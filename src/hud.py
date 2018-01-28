@@ -73,7 +73,7 @@ class HUD(object):
     def _draw_bar(self, player: Player, bar_type: str) -> None:
 
         if 'health' in bar_type:
-            frac_full = player.health / player.max_health
+            frac_full = player.status.health / player.max_health
             col = settings.HUDGREEN1
             back_col = settings.HUDGREEN2
             x_offset = 0
