@@ -69,7 +69,7 @@ class EnergyAvailable(Condition):
 
 class IsDamaged(Condition):
     def check(self, humanoid: Any) -> bool:
-        return humanoid.damaged
+        return humanoid.status.damaged
 
 
 class EnergyNotFull(Condition):

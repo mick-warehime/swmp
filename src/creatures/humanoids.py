@@ -121,10 +121,6 @@ class Humanoid(mdl.DynamicObject):
         return self._base_rect
 
     @property
-    def damaged(self) -> bool:
-        return self.status.damaged
-
-    @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
 

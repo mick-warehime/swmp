@@ -122,7 +122,7 @@ class Enemy(Humanoid):
         base_image = images.get_image(self._data.image_file)
         image = pg.transform.rotate(base_image, self.motion.rot)
 
-        if self.damaged:
+        if self.status.damaged:
             self._draw_health_bar(image, base_image.get_width())
         return image
 

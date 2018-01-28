@@ -91,7 +91,7 @@ class ModTest(unittest.TestCase):
         hp, player = self._player_with_ready_healthpack()
 
         # health is full
-        self.assertFalse(player.damaged)
+        self.assertFalse(player.status.damaged)
         self.assertFalse(hp.mod.expended)
         use_hp_mod = player.ability_caller(hp.mod.loc)
         use_hp_mod()
@@ -107,7 +107,7 @@ class ModTest(unittest.TestCase):
 
         # health pack fills health back up and is gone from active_mods
         player.increment_health(-5)
-        self.assertTrue(player.damaged)
+        self.assertTrue(player.status.damaged)
 
         # Ability is only usable after sufficient time has elapsed.
         use_hp_mod = player.ability_caller(hp.mod.loc)
@@ -116,7 +116,7 @@ class ModTest(unittest.TestCase):
         self.assertTrue(hp.mod.expended)
         self.assertEqual(hp.mod.ability.uses_left, 0)
         self.assertNotIn(hp.mod, backpack)
-        self.assertFalse(player.damaged)
+        self.assertFalse(player.status.damaged)
         self.assertEqual(player.status.health, player.status.max_health)
 
     def _player_with_ready_healthpack(self) -> Tuple[
