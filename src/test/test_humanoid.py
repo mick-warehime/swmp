@@ -56,6 +56,7 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.status.health, max_health)
         player.status.increment_health(-max_health - 2)
         self.assertEqual(player.status.health, 0)
+        self.assertTrue(player.status.is_dead)
 
     def test_player_move(self) -> None:
         player = make_player()

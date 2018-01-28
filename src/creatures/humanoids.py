@@ -173,6 +173,10 @@ class Status(object):
     def damaged(self) -> bool:
         return self.health < self._max_health
 
+    @property
+    def is_dead(self) -> bool:
+        return self.health <= 0
+
 
 class Motion(object):
     """Handles movement of Humanoids."""

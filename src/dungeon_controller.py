@@ -200,7 +200,7 @@ class DungeonController(controller.Controller):
         return conflict_resolved and self.teleported
 
     def game_over(self) -> bool:
-        return self.player.status.health <= 0
+        return self.player.status.is_dead
 
     def resolved_conflict_index(self) -> int:
         return self._conflicts.resolved_conflict()

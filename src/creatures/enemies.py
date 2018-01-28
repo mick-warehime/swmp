@@ -162,7 +162,7 @@ class Enemy(Humanoid):
 
         self.motion.update()
 
-        if self.status.health <= 0:
+        if self.status.is_dead:
             self.kill()
 
     def _check_class_initialized(self) -> None:
