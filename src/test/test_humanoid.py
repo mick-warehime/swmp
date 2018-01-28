@@ -190,7 +190,7 @@ class HumanoidsTest(unittest.TestCase):
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
         mob = make_mob()
-        mob.status.increment_health(61 - mob._max_health)
+        mob.status.increment_health(61 - mob.status.max_health)
         mob.status.increment_health(31 - 61)
         mob.status.increment_health(0 - 31)
 

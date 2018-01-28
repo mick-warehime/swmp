@@ -107,8 +107,7 @@ class Humanoid(mdl.DynamicObject):
         hit_rect.center = pos
         self.motion: Motion = Motion(self, self._timer, self._groups.walls,
                                      hit_rect)
-        self._health = max_health
-        self._max_health = max_health
+
         self.status = Status(max_health)
         super().__init__(pos)
         self._base_rect = self.image.get_rect().copy()
