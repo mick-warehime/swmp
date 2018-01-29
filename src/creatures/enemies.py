@@ -1,5 +1,5 @@
 from random import random
-from typing import NamedTuple, List, Dict
+from typing import NamedTuple, List, Dict, Any
 
 import pygame as pg
 from pygame.math import Vector2, Vector3
@@ -12,7 +12,7 @@ from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
-    EquipAndUseMod, RandomEventAtRate
+    EquipAndUseMod, RandomEventAtRate, Effects, Conditions
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -23,6 +23,7 @@ AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
 ModSpec = Dict[str, Dict[str, float]]
+BehaviorData = Dict[str, Any]
 
 
 class BaseEnemyData(NamedTuple):
@@ -33,12 +34,11 @@ class BaseEnemyData(NamedTuple):
     damage: int
     knockback: int
     conflict_group: Group
-    mods: List[Mod]
-    mod_use_rates: List[float]
     drops_on_kill: str
     death_sound: str
     death_image: str
     states: List[str]
+    active_behavior: BehaviorData
 
 
 # TODO(dvirk): Add tests for EnemyData
@@ -46,26 +46,21 @@ class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
-                mod_specs: ModSpec = None, drops_on_kill: str = None,
-                death_sound: str = None, death_image: str = None, states:
-            List[str] = None) -> BaseEnemyData:  # type: ignore
+                drops_on_kill: str = None,
+                death_sound: str = None, death_image: str = None,
+                states: List[str] = None,
+                active_behavior: BehaviorData = None) -> BaseEnemyData:  # type: ignore
 
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
-        mods = []
-        mod_rates = []
-        if mod_specs is not None:
-            for mod_name, spec in mod_specs.items():
-                mod = Mod(ModData(**load_mod_data_kwargs(mod_name)))
-                rate = spec['rate']
-                mods.append(mod)
-                mod_rates.append(rate)
+        if active_behavior is None:
+            active_behavior = {}
 
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
-                               damage, knockback, conflict_group, mods,
-                               mod_rates, drops_on_kill, death_sound,
-                               death_image, states)
+                               damage, knockback, conflict_group,
+                               drops_on_kill, death_sound, death_image, states,
+                               active_behavior)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -74,14 +69,20 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **kwargs)
 
 
-# states -> list of (Conditions + Effects) -> Reaction?
-
-
-
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
                      death_sound='splat-15.wav', death_image=images.SPLAT,
                      states=['passive', 'active'])
+
+behavior = {
+    Effects.EQUIP_AND_USE_MOD: {'condition': {'label': Conditions.RANDOM_RATE,
+                                              'rate': 0.5},
+                                'mod': 'vomit'}}
+
+image_file = 'zombie_red.png'
+quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40, None,
+                           'pistol', 'splat-15.wav', 'splat green.png',
+                           ['passive', 'active'], behavior)
 
 
 class Enemy(Humanoid):
@@ -115,9 +116,29 @@ class Enemy(Humanoid):
             self.status.state = data.states[0]
 
         self._active_behavior: Dict[Effect, Condition] = {}
-        for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
-            condition = RandomEventAtRate(self._timer, rate)
-            self._active_behavior[EquipAndUseMod(mod)] = condition
+        for effect_label, effect_data in data.active_behavior.items():
+            assert 'condition' in effect_data
+            if effect_label == Effects.EQUIP_AND_USE_MOD:
+                mod_label = effect_data['mod']
+                mod = Mod(ModData(**load_mod_data_kwargs(mod_label)))
+                effect = EquipAndUseMod(mod)
+            else:
+                raise NotImplementedError(
+                    'Unrecognized effect label %s' % (effect_label,))
+
+            condition_data = effect_data['condition']
+            condition_label = condition_data['label']
+            if condition_label == Conditions.RANDOM_RATE:
+                rate = condition_data['rate']
+                condition = RandomEventAtRate(self._timer, rate)
+            else:
+                raise NotImplementedError(
+                    'Unrecognized condition label %s' % (condition_label,))
+            self._active_behavior[effect] = condition
+
+        # for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
+        #     condition = RandomEventAtRate(self._timer, rate)
+        #     self._active_behavior[EquipAndUseMod(mod)] = condition
 
         self.target = player
 

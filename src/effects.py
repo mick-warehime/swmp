@@ -1,5 +1,6 @@
+from enum import Enum
 from random import uniform, choice, random
-from typing import Any, List
+from typing import Any, List, Union
 
 from pygame.math import Vector2
 from pygame.surface import Surface
@@ -8,6 +9,18 @@ import sounds
 
 from model import Timer
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
+
+
+class Conditions(Enum):
+    RANDOM_RATE = 'random rate'
+    COOLDOWN = 'cooldown'
+    ENERGY_AVAILABLE = 'energy available'
+    DAMAGED = 'damaged'
+    ENERGY_NOT_FULL = 'energy not full'
+
+
+class Effects(Enum):
+    EQUIP_AND_USE_MOD = 'equip and use mod'
 
 
 class Condition(object):

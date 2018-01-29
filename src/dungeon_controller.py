@@ -13,9 +13,10 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data, EnemyData
+from creatures.enemies import Enemy, mob_data, EnemyData, quest_mob_data
 from creatures.players import Player
 from data.constructors import ItemManager
+from effects import Effects, Conditions
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Group, ConflictGroups
@@ -63,7 +64,7 @@ class DungeonController(controller.Controller):
 
             if obj.type == tilemap.ObjectType.ZOMBIE:
                 if conflict_group is not None:
-                    data = self.quest_mob_data.add_quest_group(conflict_group)
+                    data = quest_mob_data.add_quest_group(conflict_group)
                 else:
                     data = mob_data
                 Enemy(obj.center, self.player, data)
@@ -87,15 +88,6 @@ class DungeonController(controller.Controller):
         abilities.initialize_classes(timer)
         Enemy.init_class(self._map.img)
 
-        # TODO (dvirk): This is a kludgy fix. I can't instantiate EnemyData
-        # untilt abilities have been initialized, since it instantiates an
-        # Ability.
-        specs = {'vomit': {'rate': 0.5}}
-        image_file = 'zombie_red.png'
-        self.quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
-                                        None, specs, 'pistol', 'splat-15.wav',
-                                        'splat green.png',
-                                        ['passive', 'active'])
     def init_controls(self) -> None:
 
         self.bind_on_press(pg.K_n, self._view.toggle_night)
