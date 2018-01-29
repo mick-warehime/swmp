@@ -68,6 +68,16 @@ class EnemyData(BaseEnemyData):
         kwargs['conflict_group'] = group
         return super().__new__(EnemyData, **kwargs)
 
+    def replace(self, **kwargs: Any) -> BaseEnemyData:
+        """Make a new EnemyData with specific parameters replaced.
+
+        key word arguments must match BaseEnemyData.
+        """
+        new_kwargs = self._asdict()
+        for k, v in kwargs.items():
+            new_kwargs[k] = v
+        return super().__new__(EnemyData, **new_kwargs)
+
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
@@ -80,9 +90,10 @@ behavior = {
                                 'mod': 'vomit'}}
 
 image_file = 'zombie_red.png'
-quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40, None,
-                           'pistol', 'splat-15.wav', 'splat green.png',
-                           ['passive', 'active'], behavior)
+quest_mob_data = mob_data.replace(max_speed=400, max_health=250,
+                                  image_file=image_file, damage=20,
+                                  knockback=40, drops_on_kill='pistol',
+                                  active_behavior=behavior)
 
 
 class Enemy(Humanoid):
