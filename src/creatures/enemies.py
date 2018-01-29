@@ -11,7 +11,8 @@ import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
-from effects import DropItem, PlaySound, DrawOnSurface, Effect
+from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
+    EquipAndUseMod, RandomEventAtRate
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -73,6 +74,10 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **kwargs)
 
 
+# states -> list of (Conditions + Effects) -> Reaction?
+
+
+
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
                      death_sound='splat-15.wav', death_image=images.SPLAT,
@@ -108,6 +113,11 @@ class Enemy(Humanoid):
 
         if data.states is not None:
             self.status.state = data.states[0]
+
+        self._active_behavior: Dict[Effect, Condition] = {}
+        for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
+            condition = RandomEventAtRate(self._timer, rate)
+            self._active_behavior[EquipAndUseMod(mod)] = condition
 
         self.target = player
 
@@ -153,10 +163,9 @@ class Enemy(Humanoid):
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
             self._update_acc()
 
-            for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
-                if random() < rate * dt:
-                    self.inventory.equip(mod)
-                    self.ability_caller(mod.loc)()
+            for effect, condition in self._active_behavior.items():
+                if condition.check(self):
+                    effect.activate(self)
         elif self.status.state == 'passive':
             self.motion.stop()
 

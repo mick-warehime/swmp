@@ -1,4 +1,4 @@
-from random import uniform, choice
+from random import uniform, choice, random
 from typing import Any, List
 
 from pygame.math import Vector2
@@ -35,6 +35,21 @@ class Effect(object):
 
     def activate(self, humanoid: Any) -> None:
         raise NotImplementedError
+
+
+class RandomEventAtRate(Condition):
+    """Gives true checks at a given rate.
+
+    It is assumed that check is called at every time step.
+    """
+
+    def check(self, humanoid: Any) -> bool:
+        return random() < self._timer.dt * self._rate
+
+    def __init__(self, timer: Timer, rate: float) -> None:
+        self._timer = timer
+        assert rate > 0
+        self._rate = rate
 
 
 class CooldownCondition(Condition):
@@ -76,6 +91,15 @@ class EnergyNotFull(Condition):
     def check(self, humanoid: Any) -> bool:
         source = humanoid.energy_source
         return source.energy_available < source.max_energy
+
+
+class EquipAndUseMod(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.inventory.equip(self._mod)
+        humanoid.ability_caller(self._mod.loc)()
+
+    def __init__(self, mod: Any) -> None:
+        self._mod = mod
 
 
 class UpdateLastUse(Effect):
