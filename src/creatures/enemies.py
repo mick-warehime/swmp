@@ -12,7 +12,7 @@ from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
-    EquipAndUseMod, RandomEventAtRate, Effects, Conditions
+    EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -79,21 +79,26 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **new_kwargs)
 
 
+behavior = {
+    Effects.RANDOM_SOUND: {'condition': {'label': Conditions.RANDOM_RATE,
+                                         'rate': 1.0},
+                           'sound_files': sounds.ZOMBIE_MOAN_SOUNDS}}
+
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
                      death_sound='splat-15.wav', death_image=images.SPLAT,
-                     states=['passive', 'active'])
+                     states=['passive', 'active'], active_behavior=behavior)
 
-behavior = {
-    Effects.EQUIP_AND_USE_MOD: {'condition': {'label': Conditions.RANDOM_RATE,
-                                              'rate': 0.5},
-                                'mod': 'vomit'}}
+quest_behavior = behavior.copy()
+quest_behavior[Effects.EQUIP_AND_USE_MOD] = {
+    'condition': {'label': Conditions.RANDOM_RATE, 'rate': 0.5},
+    'mod': 'vomit'}
 
 image_file = 'zombie_red.png'
 quest_mob_data = mob_data.replace(max_speed=400, max_health=250,
                                   image_file=image_file, damage=20,
                                   knockback=40, drops_on_kill='pistol',
-                                  active_behavior=behavior)
+                                  active_behavior=quest_behavior)
 
 
 class Enemy(Humanoid):
@@ -126,6 +131,7 @@ class Enemy(Humanoid):
         if data.states is not None:
             self.status.state = data.states[0]
 
+        # TODO (dvirk): make this into a behavior class
         self._active_behavior: Dict[Effect, Condition] = {}
         for effect_label, effect_data in data.active_behavior.items():
             assert 'condition' in effect_data
@@ -133,6 +139,9 @@ class Enemy(Humanoid):
                 mod_label = effect_data['mod']
                 mod = Mod(ModData(**load_mod_data_kwargs(mod_label)))
                 effect = EquipAndUseMod(mod)
+            elif effect_label == Effects.RANDOM_SOUND:
+                sound_files = effect_data['sound_files']
+                effect = PlayRandomSound(sound_files)
             else:
                 raise NotImplementedError(
                     'Unrecognized effect label %s' % (effect_label,))
@@ -146,10 +155,6 @@ class Enemy(Humanoid):
                 raise NotImplementedError(
                     'Unrecognized condition label %s' % (condition_label,))
             self._active_behavior[effect] = condition
-
-        # for mod, rate in zip(self._data.mods, self._data.mod_use_rates):
-        #     condition = RandomEventAtRate(self._timer, rate)
-        #     self._active_behavior[EquipAndUseMod(mod)] = condition
 
         self.target = player
 
@@ -188,9 +193,6 @@ class Enemy(Humanoid):
 
         if self.status.state == 'active':
             dt = self._timer.dt
-
-            if random() < 0.1 * dt:
-                sounds.mob_moan_sound()
 
             self.motion.rot = target_disp.angle_to(Vector2(1, 0))
             self._update_acc()

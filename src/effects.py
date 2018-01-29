@@ -21,6 +21,7 @@ class Conditions(Enum):
 
 class Effects(Enum):
     EQUIP_AND_USE_MOD = 'equip and use mod'
+    RANDOM_SOUND = 'play random sound'
 
 
 class Condition(object):
