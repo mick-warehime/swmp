@@ -12,7 +12,8 @@ from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
-    EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound
+    EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound, \
+    FaceAndPursueTarget, TargetClose
 from mods import Mod, ModData
 
 MOB_SPEED = 100
@@ -81,8 +82,10 @@ class EnemyData(BaseEnemyData):
 
 behavior = {
     Effects.RANDOM_SOUND: {'condition': {'label': Conditions.RANDOM_RATE,
-                                         'rate': 1.0},
-                           'sound_files': sounds.ZOMBIE_MOAN_SOUNDS}}
+                                         'rate': 0.2},
+                           'sound_files': sounds.ZOMBIE_MOAN_SOUNDS},
+    Effects.FACE_AND_PURSUE: {'condition': {'label': Conditions.TARGET_CLOSE,
+                                            'threshold': 400}}}
 
 mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
@@ -142,6 +145,8 @@ class Enemy(Humanoid):
             elif effect_label == Effects.RANDOM_SOUND:
                 sound_files = effect_data['sound_files']
                 effect = PlayRandomSound(sound_files)
+            elif effect_label == Effects.FACE_AND_PURSUE:
+                effect = FaceAndPursueTarget(player)
             else:
                 raise NotImplementedError(
                     'Unrecognized effect label %s' % (effect_label,))
@@ -151,6 +156,9 @@ class Enemy(Humanoid):
             if condition_label == Conditions.RANDOM_RATE:
                 rate = condition_data['rate']
                 condition = RandomEventAtRate(self._timer, rate)
+            elif condition_label == Conditions.TARGET_CLOSE:
+                threshold = condition_data['threshold']
+                condition = TargetClose(player, threshold)
             else:
                 raise NotImplementedError(
                     'Unrecognized condition label %s' % (condition_label,))
@@ -192,11 +200,6 @@ class Enemy(Humanoid):
             self.status.state = self._data.states[0]
 
         if self.status.state == 'active':
-            dt = self._timer.dt
-
-            self.motion.rot = target_disp.angle_to(Vector2(1, 0))
-            self._update_acc()
-
             for effect, condition in self._active_behavior.items():
                 if condition.check(self):
                     effect.activate(self)
@@ -223,7 +226,7 @@ class Enemy(Humanoid):
             if 0 < dist.length() < AVOID_RADIUS:
                 self.motion.acc += dist.normalize()
 
-    def _update_acc(self) -> None:
+    def update_acc(self) -> None:
         self.motion.acc = Vector2(1, 0).rotate(-self.motion.rot)
         self._avoid_mobs()
         self.motion.acc.scale_to_length(self._data.max_speed)

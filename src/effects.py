@@ -7,7 +7,7 @@ from pygame.surface import Surface
 
 import sounds
 
-from model import Timer
+from model import Timer, GameObject
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
 
 
@@ -17,11 +17,13 @@ class Conditions(Enum):
     ENERGY_AVAILABLE = 'energy available'
     DAMAGED = 'damaged'
     ENERGY_NOT_FULL = 'energy not full'
+    TARGET_CLOSE = 'target close'
 
 
 class Effects(Enum):
     EQUIP_AND_USE_MOD = 'equip and use mod'
     RANDOM_SOUND = 'play random sound'
+    FACE_AND_PURSUE = 'face and pursue target'
 
 
 class Condition(object):
@@ -49,6 +51,16 @@ class Effect(object):
 
     def activate(self, humanoid: Any) -> None:
         raise NotImplementedError
+
+
+class TargetClose(Condition):
+    def __init__(self, target: GameObject, close_threshold: float) -> None:
+        self._target = target
+        self._close_threshold = close_threshold
+
+    def check(self, humanoid: Any) -> bool:
+        target_disp = humanoid.pos - self._target.pos
+        return target_disp.length() < self._close_threshold
 
 
 class RandomEventAtRate(Condition):
@@ -222,3 +234,15 @@ class DropItem(Effect):
         # errors. Is this bad?
         from data.constructors import ItemManager
         ItemManager.item(humanoid.pos, self.item_label)
+
+
+class FaceAndPursueTarget(Effect):
+    def __init__(self, target: GameObject) -> None:
+        self._target = target
+
+    def activate(self, humanoid: Any) -> None:
+        target_disp = self._target.pos - humanoid.pos
+        humanoid.motion.rot = target_disp.angle_to(Vector2(1, 0))
+        # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
+        # kludgy.
+        humanoid.update_acc()
