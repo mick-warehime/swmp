@@ -67,7 +67,7 @@ class DungeonControllerTest(unittest.TestCase):
     def test_game_over(self) -> None:
         dungeon = make_dungeon_controller()
         player = dungeon.player
-        dungeon.player.increment_health(- 2 * player.max_health)
+        dungeon.player.status.increment_health(- 2 * player.status.max_health)
 
         self.assertTrue(dungeon.game_over())
 
@@ -140,14 +140,14 @@ class DungeonControllerTest(unittest.TestCase):
         player.inventory.attempt_pickup(pistol)
         player.inventory.attempt_pickup(
             shotgun)  # shotgun mod goes to slot 0 in backpack
-        player.increment_health(-10)
+        player.status.increment_health(-10)
 
         dungeon.set_player(player)
 
         # make sure the player in the dungeon has 10 less health and the pistol
         # equiped and the shotgun in the backpack
         set_player = dungeon.player
-        self.assertEqual(set_player.health, player.max_health - 10)
+        self.assertEqual(set_player.status.health, player.status.max_health - 10)
         self.assertEqual(set_player.inventory.backpack._slots_filled, 1)
         self.assertEqual(len(set_player.inventory.active_mods.values()), 1)
 

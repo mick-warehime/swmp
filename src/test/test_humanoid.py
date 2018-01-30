@@ -48,14 +48,15 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_humanoid_increment_health(self) -> None:
         player = make_player()
-        max_health = player.health
+        max_health = player.status.max_health
 
-        player.increment_health(-1)
-        self.assertEqual(player.health, max_health - 1)
-        player.increment_health(100)
-        self.assertEqual(player.health, max_health)
-        player.increment_health(-max_health - 2)
-        self.assertEqual(player.health, 0)
+        player.status.increment_health(-1)
+        self.assertEqual(player.status.health, max_health - 1)
+        player.status.increment_health(100)
+        self.assertEqual(player.status.health, max_health)
+        player.status.increment_health(-max_health - 2)
+        self.assertEqual(player.status.health, 0)
+        self.assertTrue(player.status.is_dead)
 
     def test_player_move(self) -> None:
         player = make_player()
@@ -190,14 +191,14 @@ class HumanoidsTest(unittest.TestCase):
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
         mob = make_mob()
-        mob.increment_health(61 - mob._max_health)
-        mob.increment_health(31 - 61)
-        mob.increment_health(0 - 31)
+        mob.status.increment_health(61 - mob.status.max_health)
+        mob.status.increment_health(31 - 61)
+        mob.status.increment_health(0 - 31)
 
-        self.assertIn(mob, groups.mobs)
+        self.assertIn(mob, groups.enemies)
 
         mob.update()
-        self.assertNotIn(mob, groups.mobs)
+        self.assertNotIn(mob, groups.enemies)
 
     def test_pickup_stackable_adds_to_active_mods(self) -> None:
         player = make_player()

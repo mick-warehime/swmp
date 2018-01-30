@@ -111,13 +111,13 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
-        self.assertEqual(player.health, max_health)
+        max_health = player.status.max_health
+        self.assertEqual(player.status.health, max_health)
         self.assertFalse(heal.can_use(player))
 
         # use implements a heal anyway
         heal.use(player)
-        self.assertEqual(player.health, max_health)
+        self.assertEqual(player.status.health, max_health)
         self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_to_full(self) -> None:
@@ -127,10 +127,10 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
-        player.increment_health(-heal_amount + 2)
+        max_health = player.status.max_health
+        player.status.increment_health(-heal_amount + 2)
         heal.use(player)
-        self.assertEqual(player.health, max_health)
+        self.assertEqual(player.status.health, max_health)
         self.assertEqual(heal.uses_left, 2)
 
     def test_heal_player_damaged_correct_amount(self) -> None:
@@ -140,10 +140,10 @@ class AbilitiesTest(unittest.TestCase):
                            uses_left=3, heal_amount=heal_amount)
         heal = GenericAbility(data)
 
-        max_health = player.max_health
-        player.increment_health(-heal_amount - 2)
+        max_health = player.status.max_health
+        player.status.increment_health(-heal_amount - 2)
         heal.use(player)
-        self.assertEqual(player.health, max_health - 2)
+        self.assertEqual(player.status.health, max_health - 2)
         self.assertEqual(heal.uses_left, 2)
 
     def test_regenerate_player_energy_correct_amount(self) -> None:

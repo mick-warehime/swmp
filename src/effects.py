@@ -1,4 +1,5 @@
-from random import uniform, choice
+from enum import Enum
+from random import uniform, choice, random
 from typing import Any, List
 
 from pygame.math import Vector2
@@ -6,8 +7,23 @@ from pygame.surface import Surface
 
 import sounds
 
-from model import Timer
+from model import Timer, GameObject
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
+
+
+class Conditions(Enum):
+    RANDOM_RATE = 'random rate'
+    COOLDOWN = 'cooldown'
+    ENERGY_AVAILABLE = 'energy available'
+    DAMAGED = 'damaged'
+    ENERGY_NOT_FULL = 'energy not full'
+    TARGET_CLOSE = 'target close'
+
+
+class Effects(Enum):
+    EQUIP_AND_USE_MOD = 'equip and use mod'
+    RANDOM_SOUND = 'play random sound'
+    FACE_AND_PURSUE = 'face and pursue target'
 
 
 class Condition(object):
@@ -35,6 +51,31 @@ class Effect(object):
 
     def activate(self, humanoid: Any) -> None:
         raise NotImplementedError
+
+
+class TargetClose(Condition):
+    def __init__(self, target: GameObject, close_threshold: float) -> None:
+        self._target = target
+        self._close_threshold = close_threshold
+
+    def check(self, humanoid: Any) -> bool:
+        target_disp = humanoid.pos - self._target.pos
+        return target_disp.length() < self._close_threshold
+
+
+class RandomEventAtRate(Condition):
+    """Gives true checks at a given rate.
+
+    It is assumed that check is called at every time step.
+    """
+
+    def check(self, humanoid: Any) -> bool:
+        return random() < self._timer.dt * self._rate
+
+    def __init__(self, timer: Timer, rate: float) -> None:
+        self._timer = timer
+        assert rate > 0
+        self._rate = rate
 
 
 class CooldownCondition(Condition):
@@ -69,13 +110,22 @@ class EnergyAvailable(Condition):
 
 class IsDamaged(Condition):
     def check(self, humanoid: Any) -> bool:
-        return humanoid.damaged
+        return humanoid.status.damaged
 
 
 class EnergyNotFull(Condition):
     def check(self, humanoid: Any) -> bool:
         source = humanoid.energy_source
         return source.energy_available < source.max_energy
+
+
+class EquipAndUseMod(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.inventory.equip(self._mod)
+        humanoid.ability_caller(self._mod.loc)()
+
+    def __init__(self, mod: Any) -> None:
+        self._mod = mod
 
 
 class UpdateLastUse(Effect):
@@ -91,7 +141,7 @@ class Heal(Effect):
         self._heal_amount = heal_amount
 
     def activate(self, humanoid: Any) -> None:
-        humanoid.increment_health(self._heal_amount)
+        humanoid.status.increment_health(self._heal_amount)
 
 
 class Recharge(Effect):
@@ -184,3 +234,15 @@ class DropItem(Effect):
         # errors. Is this bad?
         from data.constructors import ItemManager
         ItemManager.item(humanoid.pos, self.item_label)
+
+
+class FaceAndPursueTarget(Effect):
+    def __init__(self, target: GameObject) -> None:
+        self._target = target
+
+    def activate(self, humanoid: Any) -> None:
+        target_disp = self._target.pos - humanoid.pos
+        humanoid.motion.rot = target_disp.angle_to(Vector2(1, 0))
+        # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
+        # kludgy.
+        humanoid.update_acc()

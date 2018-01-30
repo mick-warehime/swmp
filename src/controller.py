@@ -107,8 +107,8 @@ class Controller(object):
 
     def set_player(self, new_player: Player) -> None:
         self.player.inventory = new_player.inventory
-        self.player.increment_health(-self.player.health)
-        self.player.increment_health(new_player.health)
+        self.player.status.increment_health(-self.player.status.health)
+        self.player.status.increment_health(new_player.status.health)
 
     def resolved_conflict_index(self) -> int:
         raise NotImplementedError()

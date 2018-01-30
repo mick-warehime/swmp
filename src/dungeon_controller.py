@@ -13,7 +13,7 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data, EnemyData
+from creatures.enemies import Enemy, mob_data, quest_mob_data
 from creatures.players import Player
 from data.constructors import ItemManager
 from items import ItemObject
@@ -63,7 +63,7 @@ class DungeonController(controller.Controller):
 
             if obj.type == tilemap.ObjectType.ZOMBIE:
                 if conflict_group is not None:
-                    data = self.quest_mob_data.add_quest_group(conflict_group)
+                    data = quest_mob_data.add_quest_group(conflict_group)
                 else:
                     data = mob_data
                 Enemy(obj.center, self.player, data)
@@ -86,15 +86,6 @@ class DungeonController(controller.Controller):
         DynamicObject.initialize_dynamic_objects(timer)
         abilities.initialize_classes(timer)
         Enemy.init_class(self._map.img)
-
-        # TODO (dvirk): This is a kludgy fix. I can't instantiate EnemyData
-        # untilt abilities have been initialized, since it instantiates an
-        # Ability.
-        specs = {'vomit': {'rate': 0.5}}
-        image_file = 'zombie_red.png'
-        self.quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
-                                        None, specs, 'pistol', 'splat-15.wav',
-                                        'splat green.png')
 
     def init_controls(self) -> None:
 
@@ -164,12 +155,12 @@ class DungeonController(controller.Controller):
             self.player.inventory.attempt_pickup(item)
 
         # obs hit player
-        hitters: List[Enemy] = spritecollide(self.player, self._groups.mobs,
+        hitters: List[Enemy] = spritecollide(self.player, self._groups.enemies,
                                              False, collide_hit_rect_with_rect)
         for zombie in hitters:
             if random() < 0.7:
                 sounds.player_hit_sound()
-                self.player.increment_health(-zombie.damage)
+                self.player.status.increment_health(-zombie.damage)
             zombie.motion.stop()
         if hitters:
             amount = max(hitter.knockback for hitter in hitters)
@@ -181,13 +172,14 @@ class DungeonController(controller.Controller):
             self.player, self._groups.enemy_projectiles, True,
             collide_hit_rect_with_rect)
         for projectile in projectiles:
-            self.player.increment_health(-projectile.damage)
+            self.player.status.increment_health(-projectile.damage)
 
         # bullets hit hitting_mobs
         hits: Dict[Enemy, List[Projectile]] = groupcollide(
-            self._groups.mobs, self._groups.bullets, False, True)
+            self._groups.enemies, self._groups.bullets, False, True)
         for mob, bullets in hits.items():
-            mob.increment_health(-sum(bullet.damage for bullet in bullets))
+            mob.status.increment_health(
+                -sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
 
     def get_fps(self) -> float:
@@ -199,7 +191,7 @@ class DungeonController(controller.Controller):
         return conflict_resolved and self.teleported
 
     def game_over(self) -> bool:
-        return self.player.health <= 0
+        return self.player.status.is_dead
 
     def resolved_conflict_index(self) -> int:
         return self._conflicts.resolved_conflict()
