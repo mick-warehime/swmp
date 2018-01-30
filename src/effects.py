@@ -1,6 +1,6 @@
 from enum import Enum
 from random import uniform, choice, random
-from typing import Any, List, Union
+from typing import Any, List
 
 from pygame.math import Vector2
 from pygame.surface import Surface

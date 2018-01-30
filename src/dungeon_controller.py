@@ -13,10 +13,9 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data, EnemyData, quest_mob_data
+from creatures.enemies import Enemy, mob_data, quest_mob_data
 from creatures.players import Player
 from data.constructors import ItemManager
-from effects import Effects, Conditions
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Group, ConflictGroups

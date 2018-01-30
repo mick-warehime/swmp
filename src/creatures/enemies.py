@@ -1,4 +1,3 @@
-from random import random
 from typing import NamedTuple, List, Dict, Any
 
 import pygame as pg
@@ -50,7 +49,7 @@ class EnemyData(BaseEnemyData):
                 drops_on_kill: str = None,
                 death_sound: str = None, death_image: str = None,
                 states: List[str] = None,
-                active_behavior: BehaviorData = None) -> BaseEnemyData:  # type: ignore
+                active_behavior: BehaviorData = None) -> BaseEnemyData:
 
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
