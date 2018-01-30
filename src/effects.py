@@ -24,6 +24,7 @@ class Effects(Enum):
     EQUIP_AND_USE_MOD = 'equip and use mod'
     RANDOM_SOUND = 'play random sound'
     FACE_AND_PURSUE = 'face and pursue target'
+    STOP_MOTION = 'stop motion'
 
 
 class Condition(object):
@@ -35,6 +36,17 @@ class Condition(object):
     def __or__(self, other: Any) -> object:
         assert isinstance(other, Condition)
         return _Or(self, other)
+
+    def __invert__(self) -> object:
+        return _Not(self)
+
+
+class _Not(Condition):
+    def __init__(self, cond: Condition) -> None:
+        self._cond = cond
+
+    def check(self, humanoid: Any) -> bool:
+        return not self._cond.check(humanoid)
 
 
 class _Or(Condition):
@@ -117,6 +129,11 @@ class EnergyNotFull(Condition):
     def check(self, humanoid: Any) -> bool:
         source = humanoid.energy_source
         return source.energy_available < source.max_energy
+
+
+class StopMotion(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.motion.stop()
 
 
 class EquipAndUseMod(Effect):
