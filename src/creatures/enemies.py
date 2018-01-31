@@ -221,12 +221,9 @@ class Behavior(object):
         elif effect_label == Effects.KILL:
             effect = Kill()
         elif effect_label == Effects.PLAY_SOUND:
-            sound_file = effect_data['sound file']
-            effect = PlaySound(sound_file)
+            effect = PlaySound(effect_data['sound file'])
         elif effect_label == Effects.DRAW_ON_MAP:
-            image_file = effect_data['image file']
-            image = images.get_image(image_file)
-            effect = DrawOnSurface(map_image, image)
+            effect = DrawOnSurface(map_image, effect_data['image file'])
         else:
             raise NotImplementedError(
                 'Unrecognized effect label %s' % (effect_label,))

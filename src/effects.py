@@ -5,6 +5,7 @@ from typing import Any, List
 from pygame.math import Vector2
 from pygame.surface import Surface
 
+import images
 import sounds
 
 from model import Timer, GameObject
@@ -205,11 +206,12 @@ class PlaySound(Effect):
 class DrawOnSurface(Effect):
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
-        self._drawn_on.blit(self._to_draw, pos - Vector2(32, 32))
+        image = images.get_image(self._to_draw_file)
+        self._drawn_on.blit(image, pos - Vector2(32, 32))
 
-    def __init__(self, drawn_on: Surface, to_draw: Surface) -> None:
+    def __init__(self, drawn_on: Surface, to_draw_file: str) -> None:
         self._drawn_on = drawn_on
-        self._to_draw = to_draw
+        self._to_draw_file = to_draw_file
 
 
 class PlayRandomSound(Effect):
