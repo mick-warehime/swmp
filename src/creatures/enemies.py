@@ -79,10 +79,14 @@ class EnemyData(BaseEnemyData):
 
 
 passive_behavior = {
+    'conditions': ['default'],
     Effects.STOP_MOTION: {'condition': {'label': Conditions.TARGET_CLOSE,
                                         'logical_not': True,
                                         'threshold': 500}}}
 active_behavior = {
+    'conditions': [{'label': Conditions.TARGET_CLOSE,
+                    'threshold': 400,
+                    'value': 1}],
     Effects.RANDOM_SOUND: {'condition': {'label': Conditions.RANDOM_RATE,
                                          'rate': 0.2},
                            'sound_files': sounds.ZOMBIE_MOAN_SOUNDS},
@@ -97,12 +101,12 @@ mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
                      death_sound='splat-15.wav', death_image=images.SPLAT,
                      behavior_dict=behavior_dict)
 
-quest_behavior = active_behavior.copy()
-quest_behavior[Effects.EQUIP_AND_USE_MOD] = {
+quest_active_behavior = active_behavior.copy()
+quest_active_behavior[Effects.EQUIP_AND_USE_MOD] = {
     'condition': {'label': Conditions.RANDOM_RATE, 'rate': 0.5},
     'mod': 'vomit'}
 quest_behavior_dict = {'passive': passive_behavior,
-                       'active': quest_behavior}
+                       'active': quest_active_behavior}
 
 image_file = 'zombie_red.png'
 quest_mob_data = mob_data.replace(max_speed=400, max_health=250,
@@ -111,25 +115,79 @@ quest_mob_data = mob_data.replace(max_speed=400, max_health=250,
                                   behavior_dict=quest_behavior_dict)
 
 
-class Behavior(dict):
+class Behavior(object):
     """Represents the possible behavior of an Enemy."""
 
     def __init__(self, behavior_dict: BehaviorData, player: Humanoid,
                  timer: Timer) -> None:
 
+        self.default_state: Condition = None
+        self._state_condition_values: Dict[str, Dict[Condition, int]] = {}
+        self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
+        self._set_state_condition_values(behavior_dict, player, timer)
+        self._set_state_effects_conditions(behavior_dict, player, timer)
+
+    def determine_state(self, humanoid: Humanoid) -> str:
+
+        current_state = self.default_state
+        highest_priority = 0
+
+        for state, state_conditions in self._state_condition_values.items():
+            priority = 0
+            for cond, value in state_conditions.items():
+                if cond.check(humanoid):
+                    priority += value
+            if priority > highest_priority:
+                highest_priority = priority
+                current_state = state
+
+        return current_state
+
+    def do_state_behavior(self, humanoid: Humanoid) -> None:
+
+        state = humanoid.status.state
+        for effect, condition in self._state_effects_conditions[state].items():
+            if condition.check(humanoid):
+                effect.activate(humanoid)
+
+    def _set_state_effects_conditions(self, behavior_dict: BehaviorData,
+                                      player: Player,
+                                      timer: Timer) -> None:
         for state, state_data in behavior_dict.items():
+
             state_behavior = {}
             for effect_label, effect_data in state_data.items():
+                if effect_label == 'conditions':
+                    continue
                 effect = self._effect_from_data(effect_data, effect_label,
                                                 player)
 
                 assert 'condition' in effect_data
-                condition_data = effect_data['condition']
-                condition = self._condition_from_data(condition_data, player,
-                                                      timer)
+                cond_data = effect_data['condition']
+                condition = self._condition_from_data(cond_data, player, timer)
 
                 state_behavior[effect] = condition
-            self[state] = state_behavior
+            self._state_effects_conditions[state] = state_behavior
+
+    def _set_state_condition_values(self, behavior_dict: BehaviorData,
+                                    player: Player, timer: Timer) -> None:
+        for state, state_data in behavior_dict.items():
+
+            assert 'conditions' in state_data
+
+            conditions_list = state_data['conditions']
+            if 'default' in conditions_list:
+                assert self.default_state is None, 'Cannot have more than ' \
+                                                   'one default state.'
+                self.default_state = state
+            else:
+                condition_values = {}
+                for cond_data in conditions_list:
+                    assert 'value' in cond_data
+                    condition = self._condition_from_data(cond_data, player,
+                                                          timer)
+                    condition_values[condition] = cond_data['value']
+                self._state_condition_values[state] = condition_values
 
     def _effect_from_data(self, effect_data: Dict, effect_label: str,
                           player: Player) -> Effect:
@@ -193,9 +251,8 @@ class Enemy(Humanoid):
             image = images.get_image(data.death_image)
             self._kill_effects.append(DrawOnSurface(self._map_img, image))
 
-        self.status.state = 'passive'
-
         self.behavior = Behavior(data.behavior_dict, player, self._timer)
+        self.status.state = self.behavior.default_state
 
         self.target = player
 
@@ -226,15 +283,8 @@ class Enemy(Humanoid):
         pg.draw.rect(image, col, health_bar)
 
     def update(self) -> None:
-        target_disp = self.target.pos - self.pos
-        if self._target_close(target_disp):
-            self.status.state = 'active'
-        else:
-            self.status.state = 'passive'
-
-        for effect, condition in self.behavior[self.status.state].items():
-            if condition.check(self):
-                effect.activate(self)
+        self.status.state = self.behavior.determine_state(self)
+        self.behavior.do_state_behavior(self)
 
         self.motion.update()
 
