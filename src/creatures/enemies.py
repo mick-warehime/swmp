@@ -86,7 +86,6 @@ active_behavior = {
                            'sound_files': sounds.ZOMBIE_MOAN_SOUNDS},
     Effects.FACE_AND_PURSUE: {'condition': {'label': Conditions.TARGET_CLOSE,
                                             'threshold': 400}}}
-
 death_behavior = {
     'conditions': [{'label': Conditions.DEAD,
                     'value': 100}],
@@ -94,8 +93,7 @@ death_behavior = {
     Effects.PLAY_SOUND: {'condition': {'label': Conditions.ALWAYS},
                          'sound file': 'splat-15.wav'},
     Effects.DRAW_ON_MAP: {'condition': {'label': Conditions.ALWAYS},
-                          'image file': images.SPLAT}
-}
+                          'image file': images.SPLAT}}
 
 behavior_dict = {'passive': passive_behavior,
                  'active': active_behavior,
@@ -120,10 +118,8 @@ quest_behavior_dict = {'passive': passive_behavior,
                        'dead': quest_death_behavior}
 
 image_file = 'zombie_red.png'
-quest_mob_data = mob_data.replace(max_speed=400, max_health=250,
-                                  image_file=image_file, damage=20,
-                                  knockback=40,
-                                  behavior_dict=quest_behavior_dict)
+quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
+                           behavior_dict=quest_behavior_dict)
 
 
 class Behavior(object):
