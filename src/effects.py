@@ -18,13 +18,19 @@ class Conditions(Enum):
     DAMAGED = 'damaged'
     ENERGY_NOT_FULL = 'energy not full'
     TARGET_CLOSE = 'target close'
+    DEAD = 'dead'
+    ALWAYS = 'always'
 
 
 class Effects(Enum):
     EQUIP_AND_USE_MOD = 'equip and use mod'
-    RANDOM_SOUND = 'play random sound'
+    RANDOM_SOUND = 'random sound'
     FACE_AND_PURSUE = 'face and pursue target'
     STOP_MOTION = 'stop motion'
+    DROP_ITEM = 'drop item'
+    KILL = 'kill'
+    PLAY_SOUND = 'play sound'
+    DRAW_ON_MAP = 'draw image on map'
 
 
 class Condition(object):
@@ -129,6 +135,16 @@ class EnergyNotFull(Condition):
     def check(self, humanoid: Any) -> bool:
         source = humanoid.energy_source
         return source.energy_available < source.max_energy
+
+
+class IsDead(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return humanoid.status.is_dead
+
+
+class AlwaysTrue(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return True
 
 
 class StopMotion(Effect):
@@ -263,3 +279,8 @@ class FaceAndPursueTarget(Effect):
         # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
         # kludgy.
         humanoid.update_acc()
+
+
+class Kill(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.kill()
