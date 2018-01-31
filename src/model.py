@@ -149,7 +149,7 @@ class GameObject(pg.sprite.Sprite):
     subclasses.
     """
     gameobjects_initialized = False
-    _groups: Union[Groups, None] = None
+    _groups: Groups = None
 
     def __init__(self, pos: Vector2) -> None:
         self._check_class_initialized()
