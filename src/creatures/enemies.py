@@ -36,13 +36,9 @@ class BaseEnemyData(NamedTuple):
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
-                knockback: int = 0, conflict_group: Group = None,
-                behavior: BehaviorData = None) -> BaseEnemyData:
-
+                behavior: BehaviorData, knockback: int = 0,
+                conflict_group: Group = None) -> BaseEnemyData:
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
-
-        if behavior is None:
-            behavior = {}
 
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
