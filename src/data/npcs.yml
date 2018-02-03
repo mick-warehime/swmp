@@ -1,0 +1,76 @@
+mob:
+  max_speed: 100
+  max_health: 100
+  damage: 10
+  knockback: 20
+  hit_rect_width: 30
+  hit_rect_height: 30
+  image_file: 'zombie1_hold.png'
+  behavior:
+    passive: &mob_passive
+      conditions:
+        - 'default'
+      effects:
+        stop motion:
+          conditions:
+            - target close:
+                logical_not:
+                threshold: 500
+    active: &mob_active
+      conditions: # For each condition that is true, add value to priority.
+        - target close:
+            threshold: 400
+            value: 1
+      effects: &mob_active_effects
+        random sound:
+          conditions: # All conditions must be true for effect to activate.
+            - random rate:
+                rate: 0.2
+          sound files:
+            - 'brains2.wav'
+            - 'brains3.wav'
+            - 'zombie-roar-1.wav'
+            - 'zombie-roar-2.wav'
+            - 'zombie-roar-3.wav'
+            - 'zombie-roar-5.wav'
+            - 'zombie-roar-6.wav'
+            - 'zombie-roar-7.wav'
+        face and pursue target:
+    dead: &mob_dead
+      conditions:
+        - dead:
+            value: 100
+      effects: &mob_dead_effects
+        kill:
+        play sound:
+          sound file: 'splat-15.wav'
+        draw image on map:
+          image file: 'splat green.png'
+
+quest_mob:
+  max_speed: 400
+  max_health: 250
+  damage: 20
+  knockback: 40
+  hit_rect_width: 30
+  hit_rect_height: 30
+  image_file: 'zombie_red.png'
+  behavior:
+    passive:
+      <<: *mob_passive
+    active:
+      <<: *mob_active
+      effects:
+        <<: *mob_active_effects
+        equip and use mod:
+          conditions:
+            - random rate:
+                rate: 0.5
+          mod: 'vomit'
+    dead:
+      <<: *mob_dead
+      effects:
+        <<: *mob_dead_effects
+        drop item:
+          item_label: 'pistol'
+

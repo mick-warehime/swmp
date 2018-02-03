@@ -1,4 +1,4 @@
-from typing import NamedTuple, List, Dict, Any
+from typing import NamedTuple, Dict, Any
 
 import pygame as pg
 from pygame.math import Vector2, Vector3
@@ -6,24 +6,19 @@ from pygame.sprite import Group
 
 import images
 import settings
-import sounds
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.input_output import load_mod_data_kwargs
+from data.input_output import load_mod_data_kwargs, load_npc_data_kwargs
 from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
     EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound, \
-    FaceAndPursueTarget, TargetClose, StopMotion, IsDead, AlwaysTrue, Kill
+    FaceAndPursueTarget, TargetClose, StopMotion, IsDead, AlwaysTrue, Kill, \
+    EnergyNotFull
 from model import Timer
 from mods import Mod, ModData
 
-MOB_SPEED = 100
-MOB_HEALTH = 100
-MOB_DAMAGE = 10
-MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
 
-ModSpec = Dict[str, Dict[str, float]]
 BehaviorData = Dict[str, Any]
 
 
@@ -38,22 +33,21 @@ class BaseEnemyData(NamedTuple):
     behavior_dict: BehaviorData
 
 
-# TODO(dvirk): Add tests for EnemyData
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
                 knockback: int = 0, conflict_group: Group = None,
-                behavior_dict: BehaviorData = None) -> BaseEnemyData:
+                behavior: BehaviorData = None) -> BaseEnemyData:
 
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
-        if behavior_dict is None:
-            behavior_dict = {}
+        if behavior is None:
+            behavior = {}
 
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
                                damage, knockback, conflict_group,
-                               behavior_dict)
+                               behavior)
 
     def add_quest_group(self, group: Group) -> BaseEnemyData:
         """Generate a new EnemyData with a given conflict group."""
@@ -72,54 +66,8 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **new_kwargs)
 
 
-passive_behavior = {
-    'conditions': ['default'],
-    Effects.STOP_MOTION: {'condition': {'label': Conditions.TARGET_CLOSE,
-                                        'logical_not': True,
-                                        'threshold': 500}}}
-active_behavior = {
-    'conditions': [{'label': Conditions.TARGET_CLOSE,
-                    'threshold': 400,
-                    'value': 1}],
-    Effects.RANDOM_SOUND: {'condition': {'label': Conditions.RANDOM_RATE,
-                                         'rate': 0.2},
-                           'sound_files': sounds.ZOMBIE_MOAN_SOUNDS},
-    Effects.FACE_AND_PURSUE: {'condition': {'label': Conditions.TARGET_CLOSE,
-                                            'threshold': 400}}}
-death_behavior = {
-    'conditions': [{'label': Conditions.DEAD,
-                    'value': 100}],
-    Effects.KILL: {'condition': {'label': Conditions.ALWAYS}},
-    Effects.PLAY_SOUND: {'condition': {'label': Conditions.ALWAYS},
-                         'sound file': 'splat-15.wav'},
-    Effects.DRAW_ON_MAP: {'condition': {'label': Conditions.ALWAYS},
-                          'image file': images.SPLAT}}
-
-behavior_dict = {'passive': passive_behavior,
-                 'active': active_behavior,
-                 'dead': death_behavior}
-
-mob_data = EnemyData(MOB_SPEED, MOB_HEALTH, 30, 30,  # type: ignore
-                     images.MOB_IMG, MOB_DAMAGE, MOB_KNOCKBACK,
-                     behavior_dict=behavior_dict)
-
-quest_active_behavior = active_behavior.copy()
-quest_active_behavior[Effects.EQUIP_AND_USE_MOD] = {
-    'condition': {'label': Conditions.RANDOM_RATE, 'rate': 0.5},
-    'mod': 'vomit'}
-
-quest_death_behavior = death_behavior.copy()
-quest_death_behavior[Effects.DROP_ITEM] = {
-    'condition': {'label': Conditions.ALWAYS},
-    'item_label': 'pistol'}
-
-quest_behavior_dict = {'passive': passive_behavior,
-                       'active': quest_active_behavior,
-                       'dead': quest_death_behavior}
-
-image_file = 'zombie_red.png'
-quest_mob_data = EnemyData(400, 250, 30, 30, image_file, 20, 40,
-                           behavior_dict=quest_behavior_dict)
+mob_data = EnemyData(**load_npc_data_kwargs('mob'))
+quest_mob_data = EnemyData(**load_npc_data_kwargs('quest_mob'))
 
 
 class Behavior(object):
@@ -131,6 +79,7 @@ class Behavior(object):
         self.default_state: Condition = None
         self._state_condition_values: Dict[str, Dict[Condition, int]] = {}
         self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
+
         self._set_state_condition_values(behavior_dict, player, timer)
         self._set_state_effects_conditions(behavior_dict, player, timer,
                                            map_image)
@@ -162,18 +111,25 @@ class Behavior(object):
                                       player: Player,
                                       timer: Timer,
                                       map_image: pg.Surface) -> None:
-        for state, state_data in behavior_dict.items():
 
+        for state, state_data in behavior_dict.items():
+            effect_datas = state_data['effects']
             state_behavior = {}
-            for effect_label, effect_data in state_data.items():
-                if effect_label == 'conditions':
-                    continue
+            for effect_label, effect_data in effect_datas.items():
                 effect = self._effect_from_data(effect_data, effect_label,
                                                 player, map_image)
 
-                assert 'condition' in effect_data
-                cond_data = effect_data['condition']
-                condition = self._condition_from_data(cond_data, player, timer)
+                if effect_data is not None and 'conditions' in effect_data:
+                    condition = None
+                    for cond_data in effect_data['conditions']:
+                        new_cond = self._condition_from_data(cond_data, player,
+                                                             timer)
+                        if condition is None:
+                            condition = new_cond
+                        else:
+                            condition &= new_cond
+                else:
+                    condition = AlwaysTrue()
 
                 state_behavior[effect] = condition
             self._state_effects_conditions[state] = state_behavior
@@ -192,20 +148,21 @@ class Behavior(object):
             else:
                 condition_values = {}
                 for cond_data in conditions_list:
-                    assert 'value' in cond_data
                     condition = self._condition_from_data(cond_data, player,
                                                           timer)
-                    condition_values[condition] = cond_data['value']
+                    value = self._condition_value_from_data(cond_data)
+                    condition_values[condition] = value
                 self._state_condition_values[state] = condition_values
 
     def _effect_from_data(self, effect_data: Dict, effect_label: str,
                           player: Player, map_image: pg.Surface) -> Effect:
+        effect_label = Effects(effect_label)
         if effect_label == Effects.EQUIP_AND_USE_MOD:
             mod_label = effect_data['mod']
             mod = Mod(ModData(**load_mod_data_kwargs(mod_label)))
             effect = EquipAndUseMod(mod)
         elif effect_label == Effects.RANDOM_SOUND:
-            sound_files = effect_data['sound_files']
+            sound_files = effect_data['sound files']
             effect = PlayRandomSound(sound_files)
         elif effect_label == Effects.FACE_AND_PURSUE:
             effect = FaceAndPursueTarget(player)
@@ -225,9 +182,17 @@ class Behavior(object):
                 'Unrecognized effect label %s' % (effect_label,))
         return effect
 
+    def _condition_value_from_data(self, condition_data: Dict) -> int:
+        assert len(condition_data.keys()) == 1
+        label_str = next(iter(condition_data.keys()))
+        return condition_data[label_str]['value']
+
     def _condition_from_data(self, condition_data: Dict, player: Player,
                              timer: Timer) -> Condition:
-        condition_label = condition_data['label']
+        assert len(condition_data.keys()) == 1
+        label_str = next(iter(condition_data.keys()))
+        condition_label = Conditions(label_str)
+        condition_data = condition_data[label_str]
         if condition_label == Conditions.RANDOM_RATE:
             rate = condition_data['rate']
             condition = RandomEventAtRate(timer, rate)
@@ -238,10 +203,12 @@ class Behavior(object):
             condition = IsDead()
         elif condition_label == Conditions.ALWAYS:
             condition = AlwaysTrue()
+        elif condition_label == Conditions.ENERGY_NOT_FULL:
+            condition = EnergyNotFull()
         else:
             raise NotImplementedError(
                 'Unrecognized condition label %s' % (condition_label,))
-        if 'logical_not' in condition_data:
+        if condition_data is not None and 'logical_not' in condition_data:
             condition = ~ condition
         return condition
 
@@ -287,7 +254,7 @@ class Enemy(Humanoid):
 
     def _draw_health_bar(self, image: pg.Surface, full_width: int) -> None:
         col = self._health_bar_color()
-        width = int(full_width * self.status.health / MOB_HEALTH)
+        width = int(full_width * self.status.health / self.status.max_health)
         health_bar = pg.Rect(0, 0, width, 7)
         pg.draw.rect(image, col, health_bar)
 

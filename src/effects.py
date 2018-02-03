@@ -44,6 +44,10 @@ class Condition(object):
         assert isinstance(other, Condition)
         return _Or(self, other)
 
+    def __and__(self, other: Any) -> object:
+        assert isinstance(other, Condition)
+        return _And(self, other)
+
     def __invert__(self) -> object:
         return _Not(self)
 
@@ -63,6 +67,15 @@ class _Or(Condition):
 
     def check(self, humanoid: Any) -> bool:
         return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
+
+
+class _And(Condition):
+    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
+        self._cond_0 = cond_0
+        self._cond_1 = cond_1
+
+    def check(self, humanoid: Any) -> bool:
+        return self._cond_0.check(humanoid) and self._cond_1.check(humanoid)
 
 
 class Effect(object):
