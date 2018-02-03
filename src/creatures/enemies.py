@@ -12,7 +12,7 @@ from data.input_output import load_mod_data_kwargs, load_npc_data_kwargs
 from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
     EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound, \
     FaceAndPursueTarget, TargetClose, StopMotion, IsDead, AlwaysTrue, Kill, \
-    EnergyNotFull
+    EnergyNotFull, FaceTarget
 from model import Timer
 from mods import Mod, ModData
 
@@ -67,13 +67,21 @@ quest_mob_data = EnemyData(**load_npc_data_kwargs('quest_mob'))
 
 
 class Behavior(object):
-    """Represents the possible behavior of an Enemy."""
+    """Represents the possible behavior of an Enemy.
+
+    Behavior is state based. Behavior has a default_state, as well as other
+    states (defined by string keys). Each state is assigned conditions (used in
+    determine_state) and effects (used in do_state_behavior). The effects
+    themselves are also assigned conditions, so that they only occur when
+    their conditions are met.
+
+    """
 
     def __init__(self, behavior_dict: BehaviorData, player: Humanoid,
                  timer: Timer, map_image: pg.Surface) -> None:
 
         self.default_state: Condition = None
-        self._state_condition_values: Dict[str, Dict[Condition, int]] = {}
+        self._state_conditions_values: Dict[str, Dict[Condition, int]] = {}
         self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
 
         self._set_state_condition_values(behavior_dict, player, timer)
@@ -85,7 +93,7 @@ class Behavior(object):
         current_state = self.default_state
         highest_priority = 0
 
-        for state, state_conditions in self._state_condition_values.items():
+        for state, state_conditions in self._state_conditions_values.items():
             priority = 0
             for cond, value in state_conditions.items():
                 if cond.check(humanoid):
@@ -148,7 +156,7 @@ class Behavior(object):
                                                           timer)
                     value = self._condition_value_from_data(cond_data)
                     condition_values[condition] = value
-                self._state_condition_values[state] = condition_values
+                self._state_conditions_values[state] = condition_values
 
     def _effect_from_data(self, effect_data: Dict, effect_label: str,
                           player: Player, map_image: pg.Surface) -> Effect:
@@ -170,9 +178,11 @@ class Behavior(object):
         elif effect_label == Effects.KILL:
             effect = Kill()
         elif effect_label == Effects.PLAY_SOUND:
-            effect = PlaySound(effect_data['sound file'])
+            effect = PlaySound(effect_data['sound_file'])
         elif effect_label == Effects.DRAW_ON_MAP:
-            effect = DrawOnSurface(map_image, effect_data['image file'])
+            effect = DrawOnSurface(map_image, effect_data['image_file'])
+        elif effect_label == Effects.FACE:
+            effect = FaceTarget(player)
         else:
             raise NotImplementedError(
                 'Unrecognized effect label %s' % (effect_label,))

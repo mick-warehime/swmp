@@ -32,6 +32,7 @@ class Effects(Enum):
     KILL = 'kill'
     PLAY_SOUND = 'play sound'
     DRAW_ON_MAP = 'draw image on map'
+    FACE = 'face target'
 
 
 class Condition(object):
@@ -294,6 +295,15 @@ class FaceAndPursueTarget(Effect):
         # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
         # kludgy.
         humanoid.update_acc()
+
+
+class FaceTarget(Effect):
+    def __init__(self, target: GameObject) -> None:
+        self._target = target
+
+    def activate(self, humanoid: Any) -> None:
+        target_disp = self._target.pos - humanoid.pos
+        humanoid.motion.rot = target_disp.angle_to(Vector2(1, 0))
 
 
 class Kill(Effect):
