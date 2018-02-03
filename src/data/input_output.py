@@ -95,3 +95,7 @@ def load_npc_data_kwargs(name: str) -> KwargType:
     if name not in _npc_data:
         raise KeyError('Unrecognized npc name: %s' % (name,))
     return _npc_data[name]
+
+
+def npc_image_filenames() -> Set[str]:
+    return set(_npc_data['image files'].values())
