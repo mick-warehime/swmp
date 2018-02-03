@@ -5,6 +5,7 @@ from typing import Any, List
 from pygame.math import Vector2
 from pygame.surface import Surface
 
+import images
 import sounds
 
 from model import Timer, GameObject
@@ -18,12 +19,19 @@ class Conditions(Enum):
     DAMAGED = 'damaged'
     ENERGY_NOT_FULL = 'energy not full'
     TARGET_CLOSE = 'target close'
+    DEAD = 'dead'
+    ALWAYS = 'always'
 
 
 class Effects(Enum):
     EQUIP_AND_USE_MOD = 'equip and use mod'
-    RANDOM_SOUND = 'play random sound'
+    RANDOM_SOUND = 'random sound'
     FACE_AND_PURSUE = 'face and pursue target'
+    STOP_MOTION = 'stop motion'
+    DROP_ITEM = 'drop item'
+    KILL = 'kill'
+    PLAY_SOUND = 'play sound'
+    DRAW_ON_MAP = 'draw image on map'
 
 
 class Condition(object):
@@ -36,6 +44,21 @@ class Condition(object):
         assert isinstance(other, Condition)
         return _Or(self, other)
 
+    def __and__(self, other: Any) -> object:
+        assert isinstance(other, Condition)
+        return _And(self, other)
+
+    def __invert__(self) -> object:
+        return _Not(self)
+
+
+class _Not(Condition):
+    def __init__(self, cond: Condition) -> None:
+        self._cond = cond
+
+    def check(self, humanoid: Any) -> bool:
+        return not self._cond.check(humanoid)
+
 
 class _Or(Condition):
     def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
@@ -44,6 +67,15 @@ class _Or(Condition):
 
     def check(self, humanoid: Any) -> bool:
         return self._cond_0.check(humanoid) or self._cond_1.check(humanoid)
+
+
+class _And(Condition):
+    def __init__(self, cond_0: Condition, cond_1: Condition) -> None:
+        self._cond_0 = cond_0
+        self._cond_1 = cond_1
+
+    def check(self, humanoid: Any) -> bool:
+        return self._cond_0.check(humanoid) and self._cond_1.check(humanoid)
 
 
 class Effect(object):
@@ -119,6 +151,21 @@ class EnergyNotFull(Condition):
         return source.energy_available < source.max_energy
 
 
+class IsDead(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return humanoid.status.is_dead
+
+
+class AlwaysTrue(Condition):
+    def check(self, humanoid: Any) -> bool:
+        return True
+
+
+class StopMotion(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.motion.stop()
+
+
 class EquipAndUseMod(Effect):
     def activate(self, humanoid: Any) -> None:
         humanoid.inventory.equip(self._mod)
@@ -172,11 +219,12 @@ class PlaySound(Effect):
 class DrawOnSurface(Effect):
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
-        self._drawn_on.blit(self._to_draw, pos - Vector2(32, 32))
+        image = images.get_image(self._to_draw_file)
+        self._drawn_on.blit(image, pos - Vector2(32, 32))
 
-    def __init__(self, drawn_on: Surface, to_draw: Surface) -> None:
+    def __init__(self, drawn_on: Surface, to_draw_file: str) -> None:
         self._drawn_on = drawn_on
-        self._to_draw = to_draw
+        self._to_draw_file = to_draw_file
 
 
 class PlayRandomSound(Effect):
@@ -246,3 +294,8 @@ class FaceAndPursueTarget(Effect):
         # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
         # kludgy.
         humanoid.update_acc()
+
+
+class Kill(Effect):
+    def activate(self, humanoid: Any) -> None:
+        humanoid.kill()

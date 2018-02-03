@@ -7,6 +7,7 @@ _PROJECTILE_FILE = path.dirname(__file__) + '/projectiles.yml'
 _ABILITIES_FILE = path.dirname(__file__) + '/abilities.yml'
 _MODS_FILE = path.dirname(__file__) + '/mods.yml'
 _ITEMS_FILE = path.dirname(__file__) + '/items.yml'
+_NPCS_FILE = path.dirname(__file__) + '/npcs.yml'
 
 with open(_PROJECTILE_FILE, 'r') as stream:
     _projectile_data = yaml.load(stream)
@@ -19,6 +20,9 @@ with open(_MODS_FILE, 'r') as stream:
 
 with open(_ITEMS_FILE, 'r') as stream:
     _items_data = yaml.load(stream)
+
+with open(_NPCS_FILE, 'r') as stream:
+    _npc_data = yaml.load(stream)
 
 KwargType = Dict[str, Union[int, float, bool, str]]
 
@@ -85,3 +89,9 @@ def load_projectile_data_kwargs(name: str) -> KwargType:
     if name not in _projectile_data:
         raise KeyError('Unrecognized projectile name: %s' % (name,))
     return _projectile_data[name]
+
+
+def load_npc_data_kwargs(name: str) -> KwargType:
+    if name not in _npc_data:
+        raise KeyError('Unrecognized npc name: %s' % (name,))
+    return _npc_data[name]
