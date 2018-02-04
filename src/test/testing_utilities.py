@@ -23,8 +23,7 @@ def make_zombie(player: Union[
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return creatures.enemies.Enemy(pos, player,
-                                   data=creatures.enemies.zombie_data)
+    return build_map_object('zombie', pos, player)
 
 
 def make_item(label: ObjectType) -> items.ItemObject:

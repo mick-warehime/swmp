@@ -60,10 +60,6 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **new_kwargs)
 
 
-zombie_data = EnemyData(**load_npc_data_kwargs('zombie'))
-quest_zombie_data = EnemyData(**load_npc_data_kwargs('quest_zombie'))
-
-
 class Behavior(object):
     """Represents the possible behavior of an Enemy.
 
@@ -193,7 +189,8 @@ class Behavior(object):
                 'Unrecognized effect label %s' % (effect_label,))
         return effect
 
-    def _condition_value_from_data(self, condition_data: Dict) -> int:
+    @staticmethod
+    def _condition_value_from_data(condition_data: Dict) -> int:
         assert len(condition_data.keys()) == 1
         label_str = next(iter(condition_data.keys()))
         return condition_data[label_str]['value']
