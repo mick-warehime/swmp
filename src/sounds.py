@@ -13,8 +13,7 @@ PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 
 EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
-SOUNDS_FROM_DATA = data.input_output.ability_sound_filenames()
-SOUNDS_FROM_DATA |= data.input_output.npc_sound_filenames()
+SOUNDS_FROM_DATA = data.input_output.sound_filenames()
 
 
 class SoundEffects(object):

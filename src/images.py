@@ -18,10 +18,7 @@ ALL_IMAGES = set(
     [PLAYER_IMG, MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3, MUZZLE_FLASH4,
      LIGHT_MASK, LITTLE_BULLET, WAYPOINT_IMG])
 ALL_IMAGES = set(ALL_IMAGES)
-ALL_IMAGES |= input_output.projectile_image_filenames()
-ALL_IMAGES |= input_output.mod_image_filenames()
-ALL_IMAGES |= input_output.item_image_filenames()
-ALL_IMAGES |= input_output.npc_image_filenames()
+ALL_IMAGES |= input_output.image_filenames()
 
 IMPACTED_FONT = 'Impacted2.0.ttf'
 ZOMBIE_FONT = 'ZOMBIE.TTF'
