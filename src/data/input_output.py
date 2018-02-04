@@ -58,6 +58,15 @@ def load_npc_data_kwargs(name: str) -> KwargType:
     return _npc_data[name]
 
 
+def is_npc_type(name: str) -> bool:
+    assert name not in ('image files', 'sound files')
+    return name in _npc_data
+
+
+def is_item_type(name: str) -> bool:
+    return name in _items_data
+
+
 def image_filenames() -> Set[str]:
     filenames = _item_image_filenames()
     filenames |= _mod_image_filenames()

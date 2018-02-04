@@ -16,7 +16,7 @@ from creatures.humanoids import collide_hit_rect_with_rect
 from creatures.enemies import Enemy, zombie_data, quest_zombie_data, EnemyData
 from creatures.players import Player
 from data.constructors import ItemManager
-from data.input_output import load_npc_data_kwargs
+from data.input_output import load_npc_data_kwargs, is_npc_type, is_item_type
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Group, ConflictGroups
@@ -62,17 +62,23 @@ class DungeonController(controller.Controller):
         for obj in self._map.objects:
             conflict_group = self._get_conflict(obj.conflict)
 
-            if obj.type in tilemap.NPCS:
+            if obj.type == tilemap.ObjectType.PLAYER:
+                continue
+
+            if is_npc_type(obj.type.value):
                 data = EnemyData(**load_npc_data_kwargs(obj.type.value))
                 if conflict_group is not None:
                     data = data.add_quest_group(conflict_group)
                 Enemy(obj.center, self.player, data)
-            if obj.type == tilemap.ObjectType.WALL:
+            elif is_item_type(obj.type.value):
+                ItemManager.item(obj.center, obj.type)
+            elif obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
-            if obj.type in tilemap.ITEMS:
-                ItemManager.item(obj.center, obj.type)
-            if obj.type == tilemap.ObjectType.WAYPOINT:
+            else:
+                if obj.type != tilemap.ObjectType.WAYPOINT:
+                    raise ValueError('Unrecognized object %s of type %s.'
+                                     % (obj, obj.type))
                 Waypoint(obj.center, self.player, conflict_group)
 
     def _get_conflict(self, conflict_name: str) -> Group:

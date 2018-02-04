@@ -28,11 +28,6 @@ class ObjectType(Enum):
     TURRET = 'turret'
 
 
-ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
-         ObjectType.ROCK, ObjectType.LASER_GUN, ObjectType.BATTERY)
-NPCS = (ObjectType.ZOMBIE, ObjectType.TURRET, ObjectType.QUEST_ZOMBIE)
-
-
 class MapObject(object):
     '''simple wrapper class for objects in the tiled map'''
 
