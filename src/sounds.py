@@ -19,6 +19,7 @@ ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
 SOUNDS_FROM_DATA = data.input_output.ability_sound_filenames()
+SOUNDS_FROM_DATA.add('explosion.wav')
 
 
 class SoundEffects(object):

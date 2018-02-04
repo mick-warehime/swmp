@@ -183,8 +183,9 @@ class Behavior(object):
         elif effect_label == Effects.PLAY_SOUND:
             effect = effects.PlaySound(effect_data['sound_file'])
         elif effect_label == Effects.DRAW_ON_MAP:
-            effect = effects.DrawOnSurface(map_image,
-                                           effect_data['image_file'])
+            image_file = effect_data['image_file']
+            angled = 'angled' in effect_data
+            effect = effects.DrawOnSurface(map_image, image_file, angled)
         elif effect_label == Effects.FACE:
             effect = effects.FaceTarget(player)
         else:

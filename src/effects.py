@@ -4,6 +4,7 @@ from typing import Any, List
 
 from pygame.math import Vector2
 from pygame.surface import Surface
+from pygame.transform import rotate
 
 import images
 import sounds
@@ -218,16 +219,20 @@ class PlaySound(Effect):
 
 
 class DrawOnSurface(Effect):
+    def __init__(self, drawn_on: Surface, to_draw_file: str,
+                 angled: bool = False) -> None:
+        self._drawn_on = drawn_on
+        self._to_draw_file = to_draw_file
+        self._angled = angled
+
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
         image = images.get_image(self._to_draw_file)
+        if self._angled:
+            image = rotate(image, humanoid.motion.rot)
         w = image.get_width() / 2
         h = image.get_height() / 2
         self._drawn_on.blit(image, pos - Vector2(w, h))
-
-    def __init__(self, drawn_on: Surface, to_draw_file: str) -> None:
-        self._drawn_on = drawn_on
-        self._to_draw_file = to_draw_file
 
 
 class PlayRandomSound(Effect):

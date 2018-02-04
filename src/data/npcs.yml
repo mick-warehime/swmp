@@ -90,7 +90,7 @@ quest_zombie:
 
 turret:
   max_speed: 0
-  max_health: 100
+  max_health: 500
   damage: 0
   knockback: 0
   hit_rect_width: 60
@@ -120,4 +120,7 @@ turret:
           item_label: 'battery'
         draw image on map:
           image_file: *dead_turret_image
+          angled:
+        play sound:
+          sound_file: 'explosion.wav'
 
