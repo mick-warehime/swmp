@@ -7,7 +7,7 @@ import controller
 import creatures.enemies
 import creatures.players
 import items
-from data.constructors import ItemManager
+from data.constructors import build_map_object
 from dungeon_controller import DungeonController
 from tilemap import ObjectType
 
@@ -29,7 +29,7 @@ def make_zombie(player: Union[
 
 def make_item(label: ObjectType) -> items.ItemObject:
     pos = Vector2(0, 0)
-    return ItemManager.item(pos, label)
+    return build_map_object(label, pos)
 
 
 def make_dungeon_controller() -> DungeonController:

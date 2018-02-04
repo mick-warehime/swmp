@@ -8,7 +8,7 @@ import mods
 from src.test.pygame_mock import initialize_pygame
 from src.test.testing_utilities import make_dungeon_controller, make_player
 from tilemap import ObjectType
-from data.constructors import ItemManager
+from data.constructors import build_map_object
 from view import DungeonView
 
 
@@ -22,16 +22,16 @@ class DungeonControllerTest(unittest.TestCase):
         player = dng_ctrl.player
 
         pos = Vector2(0, 0)
-        pistol = ItemManager.item(pos, ObjectType.PISTOL)
-        shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
+        pistol = build_map_object(ObjectType.PISTOL, pos)
+        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
 
         player.inventory.attempt_pickup(pistol)
         player.inventory.attempt_pickup(
             shotgun)  # shotgun mod goes to slot 0 in backpack
         player.inventory.attempt_pickup(
-            ItemManager.item(pos, ObjectType.HEALTHPACK))
+            build_map_object(ObjectType.HEALTHPACK, pos))
         player.inventory.attempt_pickup(
-            ItemManager.item(pos, ObjectType.HEALTHPACK))
+            build_map_object(ObjectType.HEALTHPACK, pos))
 
         mock_view = Mock(spec=DungeonView)
 
@@ -49,15 +49,15 @@ class DungeonControllerTest(unittest.TestCase):
         player = make_player()
 
         pos = Vector2(0, 0)
-        shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
+        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
 
         inventory = player.inventory
-        inventory.attempt_pickup(ItemManager.item(pos, ObjectType.PISTOL))
+        inventory.attempt_pickup(build_map_object(ObjectType.PISTOL, pos))
         inventory.attempt_pickup(
             shotgun)  # shotgun mod goes to slot 0 in backpack
 
-        inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
-        shotgun_2 = ItemManager.item(pos, ObjectType.SHOTGUN)
+        inventory.attempt_pickup(build_map_object(ObjectType.HEALTHPACK, pos))
+        shotgun_2 = build_map_object(ObjectType.SHOTGUN, pos)
         inventory.attempt_pickup(shotgun_2)
 
         self.assertIs(inventory.backpack[1], shotgun_2.mod)
@@ -134,8 +134,8 @@ class DungeonControllerTest(unittest.TestCase):
         dungeon = make_dungeon_controller()
         player = make_player()
         pos = Vector2(0, 0)
-        pistol = ItemManager.item(pos, ObjectType.PISTOL)
-        shotgun = ItemManager.item(pos, ObjectType.SHOTGUN)
+        pistol = build_map_object(ObjectType.PISTOL, pos)
+        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
 
         player.inventory.attempt_pickup(pistol)
         player.inventory.attempt_pickup(
@@ -147,7 +147,8 @@ class DungeonControllerTest(unittest.TestCase):
         # make sure the player in the dungeon has 10 less health and the pistol
         # equiped and the shotgun in the backpack
         set_player = dungeon.player
-        self.assertEqual(set_player.status.health, player.status.max_health - 10)
+        self.assertEqual(set_player.status.health,
+                         player.status.max_health - 10)
         self.assertEqual(set_player.inventory.backpack._slots_filled, 1)
         self.assertEqual(len(set_player.inventory.active_mods.values()), 1)
 
@@ -156,7 +157,7 @@ class DungeonControllerTest(unittest.TestCase):
         player = dng_ctrl.player
 
         pos = Vector2(0, 0)
-        pistol = ItemManager.item(pos, ObjectType.PISTOL)
+        pistol = build_map_object(ObjectType.PISTOL, pos)
         player.inventory.attempt_pickup(pistol)
 
         # ensure nothing in backpack

@@ -288,8 +288,8 @@ class DropItem(Effect):
     def activate(self, humanoid: Any) -> None:
         # TODO(dvirk): I need to import locally to avoid circular import
         # errors. Is this bad?
-        from data.constructors import ItemManager
-        ItemManager.item(humanoid.pos, self.item_label)
+        from data.constructors import build_map_object
+        build_map_object(self.item_label, humanoid.pos)
 
 
 class FaceAndPursueTarget(Effect):

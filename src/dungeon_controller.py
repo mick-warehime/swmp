@@ -13,11 +13,12 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, zombie_data, quest_zombie_data, EnemyData
+from creatures.enemies import Enemy, EnemyData
 from creatures.players import Player
-from data.constructors import ItemManager
-from data.input_output import load_npc_data_kwargs, is_npc_type, is_item_type
-from items import ItemObject
+from data import constructors
+from data.input_output import load_npc_data_kwargs, is_npc_type, is_item_type, \
+    load_item_data_kwargs
+from items import ItemObject, ItemData, ItemFromData
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Group, ConflictGroups
 from waypoints import Waypoint
@@ -64,22 +65,13 @@ class DungeonController(controller.Controller):
 
             if obj.type == tilemap.ObjectType.PLAYER:
                 continue
-
-            if is_npc_type(obj.type.value):
-                data = EnemyData(**load_npc_data_kwargs(obj.type.value))
-                if conflict_group is not None:
-                    data = data.add_quest_group(conflict_group)
-                Enemy(obj.center, self.player, data)
-            elif is_item_type(obj.type.value):
-                ItemManager.item(obj.center, obj.type)
-            elif obj.type == tilemap.ObjectType.WALL:
+            if obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
-            else:
-                if obj.type != tilemap.ObjectType.WAYPOINT:
-                    raise ValueError('Unrecognized object %s of type %s.'
-                                     % (obj, obj.type))
-                Waypoint(obj.center, self.player, conflict_group)
+                continue
+
+            constructors.build_map_object(obj.type, obj.center, self.player,
+                                          conflict_group)
 
     def _get_conflict(self, conflict_name: str) -> Group:
         if conflict_name == tilemap.NOT_CONFLICT:
