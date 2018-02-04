@@ -17,8 +17,8 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Group, ConflictGroups
+from model import Obstacle, Groups, GameObject, Timer, DynamicObject, Group, \
+    ConflictGroups
 from projectiles import Projectile
 
 
@@ -80,38 +80,6 @@ class DungeonController(controller.Controller):
         DynamicObject.initialize_dynamic_objects(timer)
         abilities.initialize_classes(timer)
         Enemy.init_class(self._map.img)
-
-    def init_controls(self) -> None:
-
-        self.bind_on_press(pg.K_n, self._view.toggle_night)
-        self.bind_on_press(pg.K_h, self._view.toggle_debug)
-
-        # players controls
-        self.bind(pg.K_LEFT, self.player.translate_left)
-        self.bind(pg.K_a, self.player.translate_left)
-
-        self.bind(pg.K_RIGHT, self.player.translate_right)
-        self.bind(pg.K_d, self.player.translate_right)
-
-        self.bind(pg.K_UP, self.player.translate_up)
-        self.bind(pg.K_w, self.player.translate_up)
-
-        self.bind(pg.K_DOWN, self.player.translate_down)
-        self.bind(pg.K_s, self.player.translate_down)
-
-        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
-        self.bind(pg.K_SPACE, arms_ability)
-        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
-
-        chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
-        self.bind_on_press(pg.K_r, chest_ability)
-
-        self.bind_on_press(pg.K_b, self.toggle_hide_backpack)
-
-        # equip / use
-        self.bind_on_press(pg.K_e, self.try_equip)
-
-        self.bind_on_press(pg.K_t, self.teleport)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
