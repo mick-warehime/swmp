@@ -13,6 +13,8 @@ image files:
 sound files:
   0: &turret_death
     'explosion.wav'
+  1: &splat_sound
+    'splat-15.wav'
 
 
 
@@ -61,7 +63,7 @@ zombie:
       effects: &zombie_dead_effects
         kill:
         play sound:
-          sound_file: 'splat-15.wav'
+          sound_file: *splat_sound
         draw image on map:
           image_file: *splat_image
 
