@@ -15,6 +15,22 @@ sound files:
     'explosion.wav'
   1: &splat_sound
     'splat-15.wav'
+  2: &moan_0
+    'brains2.wav'
+  3: &moan_1
+    'brains3.wav'
+  4: &moan_2
+   'zombie-roar-1.wav'
+  5: &moan_3
+    'zombie-roar-2.wav'
+  6: &moan_4
+    'zombie-roar-3.wav'
+  7: &moan_5
+    'zombie-roar-5.wav'
+  8: &moan_6
+    'zombie-roar-6.wav'
+  9: &moan_7
+    'zombie-roar-7.wav'
 
 
 
@@ -47,14 +63,14 @@ zombie:
             - random rate:
                 rate: 0.2
           sound files:
-            - 'brains2.wav'
-            - 'brains3.wav'
-            - 'zombie-roar-1.wav'
-            - 'zombie-roar-2.wav'
-            - 'zombie-roar-3.wav'
-            - 'zombie-roar-5.wav'
-            - 'zombie-roar-6.wav'
-            - 'zombie-roar-7.wav'
+            - *moan_0
+            - *moan_1
+            - *moan_2
+            - *moan_3
+            - *moan_4
+            - *moan_5
+            - *moan_6
+            - *moan_7
         face and pursue target:
     dead: &zombie_dead
       conditions:
