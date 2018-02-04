@@ -47,6 +47,12 @@ fire_projectile:
     finite_uses: true
     uses_left: 1
     sound_on_use: 'grunt.wav'
+  turret laser:
+    <<: *projectile_defaults
+    cool_down_time: 300
+    spread: 5
+    sound_on_use: 'laser_pew.wav'
+    projectile_label: 'turret laser'
 
 
 

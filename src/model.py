@@ -1,5 +1,5 @@
 from collections import namedtuple, Counter
-from typing import Any, Union, Dict
+from typing import Union, Dict
 
 import pygame as pg
 from pygame.math import Vector2
@@ -111,12 +111,12 @@ class Conflict(object):
 class Timer(object):
     """Keeps track of game time."""
 
-    def __init__(self, controller: Any) -> None:
-        self._dungeon_controller = controller
+    def __init__(self, clock: pg.time.Clock) -> None:
+        self._clock = clock
 
     @property
     def dt(self) -> float:
-        return self._dungeon_controller.dt
+        return self._clock.get_time() / 1000.0
 
     @property
     def current_time(self) -> int:

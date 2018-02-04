@@ -1,20 +1,30 @@
-from typing import Union
+from typing import Union, Any
 
-import pygame as pg
+from pygame.math import Vector2
+from pygame.sprite import Group
 
-from data.input_output import load_item_data_kwargs
+from creatures.enemies import EnemyData, Enemy
+from data.input_output import load_item_data_kwargs, load_npc_data_kwargs, \
+    is_npc_type, is_item_type
 from items import ItemFromData, ItemData
+from model import GameObject
 from tilemap import ObjectType
+from waypoints import Waypoint
 
 
-class ItemManager(object):
-    @staticmethod
-    def item(pos: pg.math.Vector2,
-             label: Union[ObjectType, str]) -> ItemFromData:
-        # TODO(dvirk): This is a bit kludgy. We need to decide whether we
-        # still want to use the ObjectType class for construction.
-        if isinstance(label, ObjectType):
-            label = label.value  # type: ignore
-
-        item_data = ItemData(**load_item_data_kwargs(label))
-        return ItemFromData(item_data, pos)
+def build_map_object(label: Union[ObjectType, str], pos: Vector2,
+                     player: Any = None,
+                     conflict_group: Group = None) -> GameObject:
+    label_str = label if isinstance(label, str) else label.value
+    if is_npc_type(label_str):
+        data = EnemyData(**load_npc_data_kwargs(label_str))
+        if conflict_group is not None:
+            data = data.add_quest_group(conflict_group)
+        return Enemy(pos, player, data)
+    elif is_item_type(label_str):
+        data = ItemData(**load_item_data_kwargs(label_str))
+        return ItemFromData(data, pos)
+    else:
+        if label != ObjectType.WAYPOINT:
+            raise ValueError('Unrecognized object of type %s.' % (label,))
+        return Waypoint(pos, player, conflict_group)

@@ -9,7 +9,7 @@ from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 # needs to be here to prevent screen from loading
 from tilemap import ObjectType
-from data.constructors import ItemManager
+from data.constructors import build_map_object
 
 
 def setUpModule() -> None:
@@ -28,7 +28,7 @@ class ModTest(unittest.TestCase):
         self.timer.reset()
 
     def test_item_object_bob_motion(self) -> None:
-        pistol_item = ItemManager.item(Vector2(0, 0), ObjectType.PISTOL)
+        pistol_item = build_map_object(ObjectType.PISTOL, Vector2(0, 0))
         time_for_sweep = int(pistol_item._bob_period * 10)
 
         center = pistol_item.rect.center

@@ -7,7 +7,7 @@ import controller
 import creatures.enemies
 import creatures.players
 import items
-from data.constructors import ItemManager
+from data.constructors import build_map_object
 from dungeon_controller import DungeonController
 from tilemap import ObjectType
 
@@ -18,18 +18,17 @@ def make_player() -> creatures.players.Player:
     return player
 
 
-def make_mob(player: Union[
+def make_zombie(player: Union[
     creatures.players.Player, None] = None) -> creatures.enemies.Enemy:
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
-    return creatures.enemies.Enemy(pos, player,
-                                   data=creatures.enemies.mob_data)
+    return build_map_object('zombie', pos, player)
 
 
 def make_item(label: ObjectType) -> items.ItemObject:
     pos = Vector2(0, 0)
-    return ItemManager.item(pos, label)
+    return build_map_object(label, pos)
 
 
 def make_dungeon_controller() -> DungeonController:

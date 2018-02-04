@@ -33,14 +33,55 @@ def load_item_data_kwargs(name: str) -> KwargType:
     raise KeyError('Item name %s not recognized' % (name,))
 
 
-def item_image_filenames() -> Set[str]:
-    filenames = set()
-    for item_dict in _items_data.values():
-        filenames.add(item_dict['image_file'])
+def load_mod_data_kwargs(name: str) -> KwargType:
+    if name in _mods_data:
+        return _mods_data[name]
+    raise KeyError('Mod name %s not recognized' % (name,))
+
+
+def load_ability_data_kwargs(name: str) -> KwargType:
+    for ability_type, ability_kwargs in _abilities_data.items():
+        if name in ability_kwargs:
+            return ability_kwargs[name]
+    raise KeyError('Ability name %s not recognized' % (name,))
+
+
+def load_projectile_data_kwargs(name: str) -> KwargType:
+    if name not in _projectile_data:
+        raise KeyError('Unrecognized projectile name: %s' % (name,))
+    return _projectile_data[name]
+
+
+def load_npc_data_kwargs(name: str) -> KwargType:
+    if name not in _npc_data:
+        raise KeyError('Unrecognized npc name: %s' % (name,))
+    return _npc_data[name]
+
+
+def is_npc_type(name: str) -> bool:
+    assert name not in ('image files', 'sound files')
+    return name in _npc_data
+
+
+def is_item_type(name: str) -> bool:
+    return name in _items_data
+
+
+def image_filenames() -> Set[str]:
+    filenames = _item_image_filenames()
+    filenames |= _mod_image_filenames()
+    filenames |= _projectile_image_filenames()
+    filenames |= _npc_image_filenames()
     return filenames
 
 
-def mod_image_filenames() -> Set[str]:
+def sound_filenames() -> Set[str]:
+    filenames = _ability_sound_filenames()
+    filenames |= _npc_sound_filenames()
+    return filenames
+
+
+def _mod_image_filenames() -> Set[str]:
     filenames = set()
     for mod_data_dict in _mods_data.values():
         if 'equipped_image_file' not in mod_data_dict:
@@ -55,13 +96,14 @@ def mod_image_filenames() -> Set[str]:
     return filenames
 
 
-def load_mod_data_kwargs(name: str) -> KwargType:
-    if name in _mods_data:
-        return _mods_data[name]
-    raise KeyError('Mod name %s not recognized' % (name,))
+def _item_image_filenames() -> Set[str]:
+    filenames = set()
+    for item_dict in _items_data.values():
+        filenames.add(item_dict['image_file'])
+    return filenames
 
 
-def ability_sound_filenames() -> Set[str]:
+def _ability_sound_filenames() -> Set[str]:
     filenames = set()
     for ability_types in _abilities_data.values():
         for ability_data in ability_types.values():
@@ -71,27 +113,16 @@ def ability_sound_filenames() -> Set[str]:
     return filenames
 
 
-def load_ability_data_kwargs(name: str) -> KwargType:
-    for ability_type, ability_kwargs in _abilities_data.items():
-        if name in ability_kwargs:
-            return ability_kwargs[name]
-    raise KeyError('Ability name %s not recognized' % (name,))
-
-
-def projectile_image_filenames() -> Set[str]:
+def _projectile_image_filenames() -> Set[str]:
     filenames = set()
     for projectile in _projectile_data.values():
         filenames.add(projectile['image_file'])
     return filenames
 
 
-def load_projectile_data_kwargs(name: str) -> KwargType:
-    if name not in _projectile_data:
-        raise KeyError('Unrecognized projectile name: %s' % (name,))
-    return _projectile_data[name]
+def _npc_image_filenames() -> Set[str]:
+    return set(_npc_data['image files'].values())
 
 
-def load_npc_data_kwargs(name: str) -> KwargType:
-    if name not in _npc_data:
-        raise KeyError('Unrecognized npc name: %s' % (name,))
-    return _npc_data[name]
+def _npc_sound_filenames() -> Set[str]:
+    return set(_npc_data['sound files'].values())

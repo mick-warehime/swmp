@@ -10,15 +10,10 @@ LEVEL_START = 'level_start'
 # Sounds
 BG_MUSIC = 'espionage.ogg'
 PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
-ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
-                      'zombie-roar-2.wav', 'zombie-roar-3.wav',
-                      'zombie-roar-5.wav', 'zombie-roar-6.wav',
-                      'zombie-roar-7.wav']
-ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 
 EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
-SOUNDS_FROM_DATA = data.input_output.ability_sound_filenames()
+SOUNDS_FROM_DATA = data.input_output.sound_filenames()
 
 
 class SoundEffects(object):
@@ -37,20 +32,10 @@ class SoundEffects(object):
             sound_path = os.path.join(snd_folder, file_name)
             sound = pg.mixer.Sound(sound_path)
             self.all_sounds[label] = sound
-        for sound_file in ZOMBIE_MOAN_SOUNDS:
-            s = pg.mixer.Sound(os.path.join(snd_folder, sound_file))
-            s.set_volume(0.2)
-            self.zombie_moan_sounds.append(s)
-            self.all_sounds[sound_file] = s
         for sound_file in PLAYER_HIT_SOUNDS:
             snd_path = os.path.join(snd_folder, sound_file)
             sound = pg.mixer.Sound(snd_path)
             self.player_hit_sounds.append(sound)
-            self.all_sounds[sound_file] = sound
-        for sound_file in ZOMBIE_HIT_SOUNDS:
-            snd_path = os.path.join(snd_folder, sound_file)
-            sound = pg.mixer.Sound(snd_path)
-            self.zombie_hit_sounds.append(sound)
             self.all_sounds[sound_file] = sound
 
         for sound_file in SOUNDS_FROM_DATA:

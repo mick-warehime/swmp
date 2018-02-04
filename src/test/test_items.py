@@ -8,7 +8,7 @@ import model
 import mods
 from abilities import AbilityData
 from creatures.players import Player
-from data.constructors import ItemManager
+from data.constructors import build_map_object
 from data.input_output import load_item_data_kwargs, load_ability_data_kwargs
 from src.test.testing_utilities import make_player, make_item
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
@@ -160,7 +160,7 @@ class ModTest(unittest.TestCase):
     def test_mod_stacking_in_active_mods(self) -> None:
         player = make_player()
         pos = Vector2(0, 0)
-        hp = ItemManager.item(pos, ObjectType.HEALTHPACK)
+        hp = build_map_object(ObjectType.HEALTHPACK, pos)
 
         self.assertNotIn(hp.mod.loc, player.inventory.active_mods)
 
@@ -169,11 +169,13 @@ class ModTest(unittest.TestCase):
         self.assertIs(player_mod, hp.mod)
         self.assertEqual(player_mod.ability.uses_left, 1)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
+        player.inventory.attempt_pickup(
+            build_map_object(ObjectType.HEALTHPACK, pos))
         player_mod = player.inventory.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 2)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.HEALTHPACK))
+        player.inventory.attempt_pickup(
+            build_map_object(ObjectType.HEALTHPACK, pos))
         player_mod = player.inventory.active_mods[hp.mod.loc]
         self.assertEqual(player_mod.ability.uses_left, 3)
 
@@ -181,31 +183,32 @@ class ModTest(unittest.TestCase):
         player = make_player()
         pos = Vector2(0, 0)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.PISTOL))
+        player.inventory.attempt_pickup(
+            build_map_object(ObjectType.PISTOL, pos))
 
         self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(build_map_object(ObjectType.ROCK, pos))
         self.assertTrue(player.inventory.backpack.slot_occupied(0))
         self.assertEqual(player.inventory.backpack[0].ability.uses_left, 1)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(build_map_object(ObjectType.ROCK, pos))
         self.assertEqual(player.inventory.backpack[0].ability.uses_left, 2)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(build_map_object(ObjectType.ROCK, pos))
         self.assertEqual(player.inventory.backpack[0].ability.uses_left, 3)
 
-        player.inventory.attempt_pickup(ItemManager.item(pos, ObjectType.ROCK))
+        player.inventory.attempt_pickup(build_map_object(ObjectType.ROCK, pos))
         self.assertEqual(player.inventory.backpack[0].ability.uses_left, 4)
 
     def test_pickup_several_items(self) -> None:
         player = make_player()
         pos = Vector2(0, 0)
 
-        laser_gun = ItemManager.item(pos, ObjectType.LASER_GUN)
-        battery = ItemManager.item(pos, ObjectType.BATTERY)
-        pistol = ItemManager.item(pos, ObjectType.PISTOL)
-        medpack = ItemManager.item(pos, ObjectType.HEALTHPACK)
+        laser_gun = build_map_object(ObjectType.LASER_GUN, pos)
+        battery = build_map_object(ObjectType.BATTERY, pos)
+        pistol = build_map_object(ObjectType.PISTOL, pos)
+        medpack = build_map_object(ObjectType.HEALTHPACK, pos)
 
         player.inventory.attempt_pickup(laser_gun)
         self.assertIs(laser_gun.mod, player.inventory.active_mods[mods.ModLocation.ARMS])
