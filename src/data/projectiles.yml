@@ -36,5 +36,5 @@ turret laser:
   damage: 20
   speed: 500
   max_lifetime: 1000
-  image_file: "little_laser.png"
+  image_file: "little_pink_laser.png"
   angled_image: true
