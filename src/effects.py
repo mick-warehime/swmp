@@ -221,7 +221,9 @@ class DrawOnSurface(Effect):
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
         image = images.get_image(self._to_draw_file)
-        self._drawn_on.blit(image, pos - Vector2(32, 32))
+        w = image.get_width() / 2
+        h = image.get_height() / 2
+        self._drawn_on.blit(image, pos - Vector2(w, h))
 
     def __init__(self, drawn_on: Surface, to_draw_file: str) -> None:
         self._drawn_on = drawn_on

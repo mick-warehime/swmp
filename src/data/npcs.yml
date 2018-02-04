@@ -7,6 +7,8 @@ image files:
     'splat green.png'
   3: &turret_image
     'turret-red.png'
+  4: &dead_turret_image
+    'dead_turret.png'
 
 
 
@@ -116,4 +118,6 @@ turret:
         kill:
         drop item:
           item_label: 'battery'
+        draw image on map:
+          image_file: *dead_turret_image
 
