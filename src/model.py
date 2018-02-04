@@ -1,11 +1,9 @@
 from collections import namedtuple, Counter
-from typing import Any, Union, Dict
+from typing import Union, Dict
 
 import pygame as pg
 from pygame.math import Vector2
 from pygame.sprite import Group, LayeredUpdates
-
-import settings
 
 NO_RESOLUTIONS = -69
 

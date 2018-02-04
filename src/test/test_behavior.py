@@ -113,7 +113,7 @@ class HumanoidsTest(unittest.TestCase):
         enemy_data = EnemyData(**enemy_data_dict)
         Enemy(player.pos, player, enemy_data)
 
-    def test_turret_behavior(self):
+    def test_turret_behavior(self) -> None:
         player = make_player()
 
         enemy_data_dict = load_npc_data_kwargs('turret')

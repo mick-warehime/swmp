@@ -8,7 +8,7 @@ import images
 import settings
 from creatures.humanoids import Humanoid
 from creatures.players import Player
-from data.input_output import load_mod_data_kwargs, load_npc_data_kwargs
+from data.input_output import load_mod_data_kwargs
 import effects
 from effects import Conditions, Effects, Condition, Effect
 from model import Timer
@@ -113,7 +113,7 @@ class Behavior(object):
 
         for state, state_data in behavior_dict.items():
             effect_datas = state_data['effects']
-            state_behavior = {}
+            state_behavior: Dict[str, Any] = {}
 
             if effect_datas is None:
                 self._state_effects_conditions[state] = state_behavior
