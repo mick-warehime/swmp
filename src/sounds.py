@@ -14,12 +14,11 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav',
                       'zombie-roar-2.wav', 'zombie-roar-3.wav',
                       'zombie-roar-5.wav', 'zombie-roar-6.wav',
                       'zombie-roar-7.wav']
-ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 
 EFFECTS_SOUNDS = {LEVEL_START: 'level_start.wav'}
 
 SOUNDS_FROM_DATA = data.input_output.ability_sound_filenames()
-SOUNDS_FROM_DATA.add('explosion.wav')
+SOUNDS_FROM_DATA |= data.input_output.npc_sound_filenames()
 
 
 class SoundEffects(object):
@@ -47,11 +46,6 @@ class SoundEffects(object):
             snd_path = os.path.join(snd_folder, sound_file)
             sound = pg.mixer.Sound(snd_path)
             self.player_hit_sounds.append(sound)
-            self.all_sounds[sound_file] = sound
-        for sound_file in ZOMBIE_HIT_SOUNDS:
-            snd_path = os.path.join(snd_folder, sound_file)
-            sound = pg.mixer.Sound(snd_path)
-            self.zombie_hit_sounds.append(sound)
             self.all_sounds[sound_file] = sound
 
         for sound_file in SOUNDS_FROM_DATA:

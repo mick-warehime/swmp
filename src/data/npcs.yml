@@ -10,6 +10,10 @@ image files:
   4: &dead_turret_image
     'dead_turret.png'
 
+sound files:
+  0: &turret_death
+    'explosion.wav'
+
 
 
 zombie:
@@ -122,5 +126,5 @@ turret:
           image_file: *dead_turret_image
           angled:
         play sound:
-          sound_file: 'explosion.wav'
+          sound_file: *turret_death
 

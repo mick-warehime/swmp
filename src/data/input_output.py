@@ -99,3 +99,7 @@ def load_npc_data_kwargs(name: str) -> KwargType:
 
 def npc_image_filenames() -> Set[str]:
     return set(_npc_data['image files'].values())
+
+
+def npc_sound_filenames() -> Set[str]:
+    return set(_npc_data['sound files'].values())
