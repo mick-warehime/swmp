@@ -20,6 +20,12 @@ laser gun:
   equipped_image_file: 'laser_blue.png'
   backpack_image_file: 'laser_gun.png'
   description: 'Laser gun'
+turret laser gun:
+  location: 'arms'
+  ability_label: 'turret laser'
+  equipped_image_file: 'laser_blue.png'
+  backpack_image_file: 'laser_gun.png'
+  description: 'Turret laser gun'
 vomit:
   location: 'head'
   ability_label: 'vomit'

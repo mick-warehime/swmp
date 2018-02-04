@@ -12,7 +12,7 @@ from creatures.humanoids import collide_hit_rect_with_rect
 from mods import ModLocation
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from src.test.testing_utilities import make_player, make_mob
+from src.test.testing_utilities import make_player, make_zombie
 from test import dummy_audio_video
 from tilemap import ObjectType
 from data.constructors import ItemManager
@@ -180,7 +180,7 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_mob_move_to_player(self) -> None:
         player = make_player()
-        mob = make_mob(player)
+        mob = make_zombie(player)
 
         initial_dist = _dist(player.pos, mob.pos)
         mob.update()
@@ -190,7 +190,7 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_mob_damage_and_death(self) -> None:
         groups = self.groups
-        mob = make_mob()
+        mob = make_zombie()
         mob.status.increment_health(61 - mob.status.max_health)
         mob.status.increment_health(31 - 61)
         mob.status.increment_health(0 - 31)
@@ -266,7 +266,7 @@ class HumanoidsTest(unittest.TestCase):
         self.assertEqual(player.motion.vel.y, 0)
 
     def test_hit_rect_matches_rect(self) -> None:
-        mob = make_mob()
+        mob = make_zombie()
         self.assertEqual(mob.pos, mob.motion.hit_rect.center)
 
 

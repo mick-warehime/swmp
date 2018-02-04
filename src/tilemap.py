@@ -15,6 +15,7 @@ NOT_CONFLICT = 'not_conflict'
 class ObjectType(Enum):
     PLAYER = 'player'
     ZOMBIE = 'zombie'
+    QUEST_ZOMBIE = 'quest_zombie'
     WALL = 'wall'
     PISTOL = 'pistol'
     HEALTHPACK = 'healthpack'
@@ -24,10 +25,12 @@ class ObjectType(Enum):
     WAYPOINT = 'waypoint'
     LASER_GUN = 'laser'
     BATTERY = 'battery'
+    TURRET = 'turret'
 
 
 ITEMS = (ObjectType.HEALTHPACK, ObjectType.SHOTGUN, ObjectType.PISTOL,
          ObjectType.ROCK, ObjectType.LASER_GUN, ObjectType.BATTERY)
+NPCS = (ObjectType.ZOMBIE, ObjectType.TURRET, ObjectType.QUEST_ZOMBIE)
 
 
 class MapObject(object):

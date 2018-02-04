@@ -1,5 +1,6 @@
 import unittest
 
+from pygame.math import Vector2
 from pygame.surface import Surface
 
 import model
@@ -46,7 +47,7 @@ class HumanoidsTest(unittest.TestCase):
 
         behavior = Behavior(behavior_dict, player, self.timer, fake_map)
 
-        state_condition_values = behavior._state_condition_values
+        state_condition_values = behavior._state_conditions_values
 
         states = set(state_condition_values.keys())
         expected = {'active', 'dead'}
@@ -62,7 +63,6 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_behavior_load_from_data_correct_effects(self) -> None:
         player = make_player()
-        fake_map = Surface(size=(10, 10))
 
         behavior_dict = {
             'passive': {
@@ -76,19 +76,55 @@ class HumanoidsTest(unittest.TestCase):
                 'effects': {
                     'face and pursue target':
                         {'conditions': [{'dead': {'logical_not': None}},
-                                        {'energy not full': None}]}
+                                        {'damaged': {'logical_not': None}}]}
                 }},
             'dead': {
                 'conditions': [
                     {'dead': {'value': 100}}],
-                'effects': {}}
+                'effects': {
+                    'kill': None
+                }}
         }
 
-        behavior = Behavior(behavior_dict, player, self.timer, fake_map)
+        enemy_data = EnemyData(**load_npc_data_kwargs('zombie')).replace(
+            behavior_dict=behavior_dict)
+
+        enemy = Enemy(player.pos + Vector2(100, 0), player, enemy_data)
+
+        self.assertEqual(enemy.status.state, 'passive')
+
+        self.assertEqual(enemy.motion.vel, Vector2(0, 0))
+        self.assertEqual(enemy.motion.rot, 0)
+        enemy.update()
+        self.assertEqual(enemy.status.state, 'active')
+        self.assertLess(enemy.motion.vel.x, 0)
+        self.assertAlmostEqual(enemy.motion.rot % 360, 180)
+
+        enemy.status.increment_health(-enemy.status.max_health)
+        self.assertEqual(len(self.groups.enemies), 1)
+        enemy.update()
+        self.assertEqual(enemy.status.state, 'dead')
+        self.assertEqual(len(self.groups.enemies), 0)
 
     def test_enemy_construction_with_behavior(self) -> None:
         player = make_player()
 
-        enemy_data_dict = load_npc_data_kwargs('mob')
+        enemy_data_dict = load_npc_data_kwargs('zombie')
         enemy_data = EnemyData(**enemy_data_dict)
         Enemy(player.pos, player, enemy_data)
+
+    def test_turret_behavior(self):
+        player = make_player()
+
+        enemy_data_dict = load_npc_data_kwargs('turret')
+        enemy_data = EnemyData(**enemy_data_dict)
+        turret = Enemy(player.pos + Vector2(100, 0), player, enemy_data)
+
+        self.assertEqual(turret.status.state, 'passive')
+        self.assertEqual(turret.motion.rot, 0)
+        self.assertEqual(len(self.groups.enemy_projectiles), 0)
+
+        turret.update()
+
+        self.assertEqual(turret.status.state, 'active')
+        self.assertAlmostEqual(turret.motion.rot % 360, 180)

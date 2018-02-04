@@ -9,10 +9,8 @@ import settings
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs, load_npc_data_kwargs
-from effects import DropItem, PlaySound, DrawOnSurface, Effect, Condition, \
-    EquipAndUseMod, RandomEventAtRate, Effects, Conditions, PlayRandomSound, \
-    FaceAndPursueTarget, TargetClose, StopMotion, IsDead, AlwaysTrue, Kill, \
-    EnergyNotFull, FaceTarget
+import effects
+from effects import Conditions, Effects, Condition, Effect
 from model import Timer
 from mods import Mod, ModData
 
@@ -62,8 +60,8 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **new_kwargs)
 
 
-mob_data = EnemyData(**load_npc_data_kwargs('mob'))
-quest_mob_data = EnemyData(**load_npc_data_kwargs('quest_mob'))
+zombie_data = EnemyData(**load_npc_data_kwargs('zombie'))
+quest_zombie_data = EnemyData(**load_npc_data_kwargs('quest_zombie'))
 
 
 class Behavior(object):
@@ -119,6 +117,11 @@ class Behavior(object):
         for state, state_data in behavior_dict.items():
             effect_datas = state_data['effects']
             state_behavior = {}
+
+            if effect_datas is None:
+                self._state_effects_conditions[state] = state_behavior
+                continue
+
             for effect_label, effect_data in effect_datas.items():
                 effect = self._effect_from_data(effect_data, effect_label,
                                                 player, map_image)
@@ -133,7 +136,7 @@ class Behavior(object):
                         else:
                             condition &= new_cond
                 else:
-                    condition = AlwaysTrue()
+                    condition = effects.AlwaysTrue()
 
                 state_behavior[effect] = condition
             self._state_effects_conditions[state] = state_behavior
@@ -164,25 +167,26 @@ class Behavior(object):
         if effect_label == Effects.EQUIP_AND_USE_MOD:
             mod_label = effect_data['mod']
             mod = Mod(ModData(**load_mod_data_kwargs(mod_label)))
-            effect = EquipAndUseMod(mod)
+            effect = effects.EquipAndUseMod(mod)
         elif effect_label == Effects.RANDOM_SOUND:
             sound_files = effect_data['sound files']
-            effect = PlayRandomSound(sound_files)
+            effect = effects.PlayRandomSound(sound_files)
         elif effect_label == Effects.FACE_AND_PURSUE:
-            effect = FaceAndPursueTarget(player)
+            effect = effects.FaceAndPursueTarget(player)
         elif effect_label == Effects.STOP_MOTION:
-            effect = StopMotion()
+            effect = effects.StopMotion()
         elif effect_label == Effects.DROP_ITEM:
             item_label = effect_data['item_label']
-            effect = DropItem(item_label)
+            effect = effects.DropItem(item_label)
         elif effect_label == Effects.KILL:
-            effect = Kill()
+            effect = effects.Kill()
         elif effect_label == Effects.PLAY_SOUND:
-            effect = PlaySound(effect_data['sound_file'])
+            effect = effects.PlaySound(effect_data['sound_file'])
         elif effect_label == Effects.DRAW_ON_MAP:
-            effect = DrawOnSurface(map_image, effect_data['image_file'])
+            effect = effects.DrawOnSurface(map_image,
+                                           effect_data['image_file'])
         elif effect_label == Effects.FACE:
-            effect = FaceTarget(player)
+            effect = effects.FaceTarget(player)
         else:
             raise NotImplementedError(
                 'Unrecognized effect label %s' % (effect_label,))
@@ -201,16 +205,16 @@ class Behavior(object):
         condition_data = condition_data[label_str]
         if condition_label == Conditions.RANDOM_RATE:
             rate = condition_data['rate']
-            condition = RandomEventAtRate(timer, rate)
+            condition = effects.RandomEventAtRate(timer, rate)
         elif condition_label == Conditions.TARGET_CLOSE:
             threshold = condition_data['threshold']
-            condition = TargetClose(player, threshold)
+            condition = effects.TargetClose(player, threshold)
         elif condition_label == Conditions.DEAD:
-            condition = IsDead()
+            condition = effects.IsDead()
         elif condition_label == Conditions.ALWAYS:
-            condition = AlwaysTrue()
-        elif condition_label == Conditions.ENERGY_NOT_FULL:
-            condition = EnergyNotFull()
+            condition = effects.AlwaysTrue()
+        elif condition_label == Conditions.DAMAGED:
+            condition = effects.IsDamaged()
         else:
             raise NotImplementedError(
                 'Unrecognized condition label %s' % (condition_label,))

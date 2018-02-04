@@ -31,3 +31,10 @@ rock:
   image_file: "little_rock.png"
   rotating_image: true
   drops_on_kill: 'rock'
+turret laser:
+  hits_player: true
+  damage: 20
+  speed: 500
+  max_lifetime: 1000
+  image_file: "little_laser.png"
+  angled_image: true

@@ -7,7 +7,7 @@ import creatures.enemies
 import model
 from abilities import Ability
 from src.test.pygame_mock import MockTimer, initialize_pygame
-from src.test.testing_utilities import make_player, make_mob
+from src.test.testing_utilities import make_player, make_zombie
 
 
 def setUpModule() -> None:
@@ -22,7 +22,7 @@ def _initialization_tests() -> None:
     model.GameObject.initialize_gameobjects(InitsTest.groups)
     _assert_runtime_exception_raised(make_player)
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
-    _assert_runtime_exception_raised(make_mob)
+    _assert_runtime_exception_raised(make_zombie)
     blank_screen = pygame.Surface((800, 600))
     creatures.enemies.Enemy.init_class(blank_screen)
     _assert_runtime_exception_raised(Ability)

@@ -18,13 +18,13 @@ def make_player() -> creatures.players.Player:
     return player
 
 
-def make_mob(player: Union[
+def make_zombie(player: Union[
     creatures.players.Player, None] = None) -> creatures.enemies.Enemy:
     if player is None:
         player = make_player()
     pos = player.pos + pygame.math.Vector2(100, 0)
     return creatures.enemies.Enemy(pos, player,
-                                   data=creatures.enemies.mob_data)
+                                   data=creatures.enemies.zombie_data)
 
 
 def make_item(label: ObjectType) -> items.ItemObject:

@@ -1,7 +1,7 @@
 image files:
-  0: &mob_image
+  0: &zombie_image
     'zombie1_hold.png'
-  1: &quest_mob_image
+  1: &quest_zombie_image
     'zombie_red.png'
   2: &splat_image
     'splat green.png'
@@ -10,16 +10,16 @@ image files:
 
 
 
-mob:
+zombie:
   max_speed: 100
   max_health: 100
   damage: 10
   knockback: 20
   hit_rect_width: 30
   hit_rect_height: 30
-  image_file: *mob_image
+  image_file: *zombie_image
   behavior:
-    passive: &mob_passive
+    passive: &zombie_passive
       conditions:
         - 'default'
       effects:
@@ -28,12 +28,12 @@ mob:
             - target close:
                 logical_not:
                 threshold: 500
-    active: &mob_active
+    active: &zombie_active
       conditions: # For each condition that is true, add value to priority.
         - target close:
             threshold: 400
             value: 1
-      effects: &mob_active_effects
+      effects: &zombie_active_effects
         random sound:
           conditions: # All conditions must be true for effect to activate.
             - random rate:
@@ -48,41 +48,72 @@ mob:
             - 'zombie-roar-6.wav'
             - 'zombie-roar-7.wav'
         face and pursue target:
-    dead: &mob_dead
+    dead: &zombie_dead
       conditions:
         - dead:
             value: 100
-      effects: &mob_dead_effects
+      effects: &zombie_dead_effects
         kill:
         play sound:
           sound_file: 'splat-15.wav'
         draw image on map:
           image_file: *splat_image
 
-quest_mob:
+quest_zombie:
   max_speed: 400
   max_health: 250
   damage: 20
   knockback: 40
   hit_rect_width: 30
   hit_rect_height: 30
-  image_file: *quest_mob_image
+  image_file: *quest_zombie_image
   behavior:
     passive:
-      <<: *mob_passive
+      <<: *zombie_passive
     active:
-      <<: *mob_active
+      <<: *zombie_active
       effects:
-        <<: *mob_active_effects
+        <<: *zombie_active_effects
         equip and use mod:
           conditions:
             - random rate:
                 rate: 0.5
           mod: 'vomit'
     dead:
-      <<: *mob_dead
+      <<: *zombie_dead
       effects:
-        <<: *mob_dead_effects
+        <<: *zombie_dead_effects
         drop item:
           item_label: 'pistol'
+
+turret:
+  max_speed: 0
+  max_health: 100
+  damage: 0
+  knockback: 0
+  hit_rect_width: 60
+  hit_rect_height: 40
+  image_file: *turret_image
+  behavior:
+    passive:
+      conditions:
+        - default
+      effects:
+    active:
+      conditions:
+        - target close:
+            threshold: 300
+            value: 1
+      effects:
+        face target:
+        equip and use mod:
+          mod: 'turret laser gun'
+    dead:
+      conditions:
+        - dead:
+            value: 100
+      effects:
+        kill:
+        drop item:
+          item_label: 'battery'
 
