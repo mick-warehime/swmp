@@ -205,8 +205,8 @@ class DungeonController(controller.Controller):
         self._unequip_mod()
 
     def _equip_mod_in_backpack(self) -> None:
-        '''equip amod if the user selects it in the backpack and hits the
-        'equip' button binding.'''
+        """equip amod if the user selects it in the backpack and hits the
+        'equip' button binding."""
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
@@ -217,8 +217,8 @@ class DungeonController(controller.Controller):
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
-        '''unequip amod if the user selects it in the hud and hits the
-                'equip' button binding.'''
+        """unequip amod if the user selects it in the hud and hits the
+                'equip' button binding."""
         location = self._view.selected_mod()
         if location == view.NO_SELECTION:
             return
@@ -236,7 +236,7 @@ class DungeonController(controller.Controller):
         camera_pos = self._camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
-        return (abs_mouse_x, abs_mouse_y)
+        return abs_mouse_x, abs_mouse_y
 
     def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
