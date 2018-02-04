@@ -36,6 +36,7 @@ class EnemyData(BaseEnemyData):
                 hit_rect_height: int, image_file: str, damage: int,
                 behavior: BehaviorData, knockback: int = 0,
                 conflict_group: Group = None) -> BaseEnemyData:
+
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         return super().__new__(cls,  # type:ignore

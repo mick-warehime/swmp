@@ -13,15 +13,12 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, EnemyData
+from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
-from data.input_output import load_npc_data_kwargs, is_npc_type, is_item_type, \
-    load_item_data_kwargs
-from items import ItemObject, ItemData, ItemFromData
+from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, \
     DynamicObject, Group, ConflictGroups
-from waypoints import Waypoint
 from projectiles import Projectile
 
 
