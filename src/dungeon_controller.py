@@ -30,7 +30,6 @@ class DungeonController(controller.Controller):
         self._groups = Groups()
 
         self._clock = pg.time.Clock()
-        self.dt = 0
 
         # init_map
         self._map = tilemap.TiledMap(map_file)
@@ -77,7 +76,7 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        timer = Timer(self)
+        timer = Timer(self._clock)
         DynamicObject.initialize_dynamic_objects(timer)
         abilities.initialize_classes(timer)
         Enemy.init_class(self._map.img)
@@ -126,7 +125,7 @@ class DungeonController(controller.Controller):
     def update(self) -> None:
 
         # needs to be called every frame to throttle max framerate
-        self.dt = self._clock.tick(settings.FPS) / 1000.0
+        self._clock.tick(settings.FPS)
 
         self._pass_mouse_pos_to_player()
 
