@@ -4,6 +4,7 @@ from typing import Any, List
 
 from pygame.math import Vector2
 from pygame.surface import Surface
+from pygame.transform import rotate
 
 import images
 import sounds
@@ -32,6 +33,7 @@ class Effects(Enum):
     KILL = 'kill'
     PLAY_SOUND = 'play sound'
     DRAW_ON_MAP = 'draw image on map'
+    FACE = 'face target'
 
 
 class Condition(object):
@@ -217,14 +219,20 @@ class PlaySound(Effect):
 
 
 class DrawOnSurface(Effect):
+    def __init__(self, drawn_on: Surface, to_draw_file: str,
+                 angled: bool = False) -> None:
+        self._drawn_on = drawn_on
+        self._to_draw_file = to_draw_file
+        self._angled = angled
+
     def activate(self, humanoid: Any) -> None:
         pos = humanoid.pos
         image = images.get_image(self._to_draw_file)
-        self._drawn_on.blit(image, pos - Vector2(32, 32))
-
-    def __init__(self, drawn_on: Surface, to_draw_file: str) -> None:
-        self._drawn_on = drawn_on
-        self._to_draw_file = to_draw_file
+        if self._angled:
+            image = rotate(image, humanoid.motion.rot)
+        w = image.get_width() / 2
+        h = image.get_height() / 2
+        self._drawn_on.blit(image, pos - Vector2(w, h))
 
 
 class PlayRandomSound(Effect):
@@ -280,8 +288,8 @@ class DropItem(Effect):
     def activate(self, humanoid: Any) -> None:
         # TODO(dvirk): I need to import locally to avoid circular import
         # errors. Is this bad?
-        from data.constructors import ItemManager
-        ItemManager.item(humanoid.pos, self.item_label)
+        from data.constructors import build_map_object
+        build_map_object(self.item_label, humanoid.pos)
 
 
 class FaceAndPursueTarget(Effect):
@@ -294,6 +302,15 @@ class FaceAndPursueTarget(Effect):
         # TODO(dvirk): update_acc is only a method for Enemy. This is a bit
         # kludgy.
         humanoid.update_acc()
+
+
+class FaceTarget(Effect):
+    def __init__(self, target: GameObject) -> None:
+        self._target = target
+
+    def activate(self, humanoid: Any) -> None:
+        target_disp = self._target.pos - humanoid.pos
+        humanoid.motion.rot = target_disp.angle_to(Vector2(1, 0))
 
 
 class Kill(Effect):

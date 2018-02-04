@@ -13,13 +13,12 @@ import sounds
 import tilemap
 import view
 from creatures.humanoids import collide_hit_rect_with_rect
-from creatures.enemies import Enemy, mob_data, quest_mob_data
+from creatures.enemies import Enemy
 from creatures.players import Player
-from data.constructors import ItemManager
+from data import constructors
 from items import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, \
-    DynamicObject, Group, ConflictGroups
-from waypoints import Waypoint
+from model import Obstacle, Groups, GameObject, Timer, DynamicObject, Group, \
+    ConflictGroups
 from projectiles import Projectile
 
 
@@ -31,7 +30,6 @@ class DungeonController(controller.Controller):
         self._groups = Groups()
 
         self._clock = pg.time.Clock()
-        self.dt = 0
 
         # init_map
         self._map = tilemap.TiledMap(map_file)
@@ -61,19 +59,15 @@ class DungeonController(controller.Controller):
         for obj in self._map.objects:
             conflict_group = self._get_conflict(obj.conflict)
 
-            if obj.type == tilemap.ObjectType.ZOMBIE:
-                if conflict_group is not None:
-                    data = quest_mob_data.add_quest_group(conflict_group)
-                else:
-                    data = mob_data
-                Enemy(obj.center, self.player, data)
+            if obj.type == tilemap.ObjectType.PLAYER:
+                continue
             if obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
-            if obj.type in tilemap.ITEMS:
-                ItemManager.item(obj.center, obj.type)
-            if obj.type == tilemap.ObjectType.WAYPOINT:
-                Waypoint(obj.center, self.player, conflict_group)
+                continue
+
+            constructors.build_map_object(obj.type, obj.center, self.player,
+                                          conflict_group)
 
     def _get_conflict(self, conflict_name: str) -> Group:
         if conflict_name == tilemap.NOT_CONFLICT:
@@ -82,42 +76,10 @@ class DungeonController(controller.Controller):
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self._groups)
-        timer = Timer(self)
+        timer = Timer(self._clock)
         DynamicObject.initialize_dynamic_objects(timer)
         abilities.initialize_classes(timer)
         Enemy.init_class(self._map.img)
-
-    def init_controls(self) -> None:
-
-        self.bind_on_press(pg.K_n, self._view.toggle_night)
-        self.bind_on_press(pg.K_h, self._view.toggle_debug)
-
-        # players controls
-        self.bind(pg.K_LEFT, self.player.translate_left)
-        self.bind(pg.K_a, self.player.translate_left)
-
-        self.bind(pg.K_RIGHT, self.player.translate_right)
-        self.bind(pg.K_d, self.player.translate_right)
-
-        self.bind(pg.K_UP, self.player.translate_up)
-        self.bind(pg.K_w, self.player.translate_up)
-
-        self.bind(pg.K_DOWN, self.player.translate_down)
-        self.bind(pg.K_s, self.player.translate_down)
-
-        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
-        self.bind(pg.K_SPACE, arms_ability)
-        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
-
-        chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
-        self.bind_on_press(pg.K_r, chest_ability)
-
-        self.bind_on_press(pg.K_b, self.toggle_hide_backpack)
-
-        # equip / use
-        self.bind_on_press(pg.K_e, self.try_equip)
-
-        self.bind_on_press(pg.K_t, self.teleport)
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -131,7 +93,7 @@ class DungeonController(controller.Controller):
     def update(self) -> None:
 
         # needs to be called every frame to throttle max framerate
-        self.dt = self._clock.tick(settings.FPS) / 1000.0
+        self._clock.tick(settings.FPS)
 
         self._pass_mouse_pos_to_player()
 
@@ -243,8 +205,8 @@ class DungeonController(controller.Controller):
         self._unequip_mod()
 
     def _equip_mod_in_backpack(self) -> None:
-        '''equip amod if the user selects it in the backpack and hits the
-        'equip' button binding.'''
+        """equip amod if the user selects it in the backpack and hits the
+        'equip' button binding."""
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
             return
@@ -255,8 +217,8 @@ class DungeonController(controller.Controller):
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
-        '''unequip amod if the user selects it in the hud and hits the
-                'equip' button binding.'''
+        """unequip amod if the user selects it in the hud and hits the
+                'equip' button binding."""
         location = self._view.selected_mod()
         if location == view.NO_SELECTION:
             return
@@ -274,7 +236,7 @@ class DungeonController(controller.Controller):
         camera_pos = self._camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
-        return (abs_mouse_x, abs_mouse_y)
+        return abs_mouse_x, abs_mouse_y
 
     def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()

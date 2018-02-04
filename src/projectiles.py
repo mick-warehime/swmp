@@ -140,8 +140,8 @@ class FancyProjectile(SimpleProjectile):
     def kill(self) -> None:
         super().kill()
         if self._data.drops_on_kill is not None:
-            from data.constructors import ItemManager
-            ItemManager.item(self.pos, self._data.drops_on_kill)
+            from data.constructors import build_map_object
+            build_map_object(self._data.drops_on_kill, self.pos)
 
 
 class ProjectileFactory(object):

@@ -1,13 +1,49 @@
-mob:
+image files:
+  0: &zombie_image
+    'zombie1_hold.png'
+  1: &quest_zombie_image
+    'zombie_red.png'
+  2: &splat_image
+    'splat green.png'
+  3: &turret_image
+    'turret-red.png'
+  4: &dead_turret_image
+    'dead_turret.png'
+
+sound files:
+  0: &turret_death
+    'explosion.wav'
+  1: &splat_sound
+    'splat-15.wav'
+  2: &moan_0
+    'brains2.wav'
+  3: &moan_1
+    'brains3.wav'
+  4: &moan_2
+   'zombie-roar-1.wav'
+  5: &moan_3
+    'zombie-roar-2.wav'
+  6: &moan_4
+    'zombie-roar-3.wav'
+  7: &moan_5
+    'zombie-roar-5.wav'
+  8: &moan_6
+    'zombie-roar-6.wav'
+  9: &moan_7
+    'zombie-roar-7.wav'
+
+
+
+zombie:
   max_speed: 100
   max_health: 100
   damage: 10
   knockback: 20
   hit_rect_width: 30
   hit_rect_height: 30
-  image_file: 'zombie1_hold.png'
+  image_file: *zombie_image
   behavior:
-    passive: &mob_passive
+    passive: &zombie_passive
       conditions:
         - 'default'
       effects:
@@ -16,61 +52,97 @@ mob:
             - target close:
                 logical_not:
                 threshold: 500
-    active: &mob_active
+    active: &zombie_active
       conditions: # For each condition that is true, add value to priority.
         - target close:
             threshold: 400
             value: 1
-      effects: &mob_active_effects
+      effects: &zombie_active_effects
         random sound:
           conditions: # All conditions must be true for effect to activate.
             - random rate:
                 rate: 0.2
           sound files:
-            - 'brains2.wav'
-            - 'brains3.wav'
-            - 'zombie-roar-1.wav'
-            - 'zombie-roar-2.wav'
-            - 'zombie-roar-3.wav'
-            - 'zombie-roar-5.wav'
-            - 'zombie-roar-6.wav'
-            - 'zombie-roar-7.wav'
+            - *moan_0
+            - *moan_1
+            - *moan_2
+            - *moan_3
+            - *moan_4
+            - *moan_5
+            - *moan_6
+            - *moan_7
         face and pursue target:
-    dead: &mob_dead
+    dead: &zombie_dead
       conditions:
         - dead:
             value: 100
-      effects: &mob_dead_effects
+      effects: &zombie_dead_effects
         kill:
         play sound:
-          sound file: 'splat-15.wav'
+          sound_file: *splat_sound
         draw image on map:
-          image file: 'splat green.png'
+          image_file: *splat_image
 
-quest_mob:
+quest_zombie:
   max_speed: 400
   max_health: 250
   damage: 20
   knockback: 40
   hit_rect_width: 30
   hit_rect_height: 30
-  image_file: 'zombie_red.png'
+  image_file: *quest_zombie_image
   behavior:
     passive:
-      <<: *mob_passive
+      <<: *zombie_passive
     active:
-      <<: *mob_active
+      <<: *zombie_active
       effects:
-        <<: *mob_active_effects
+        <<: *zombie_active_effects
         equip and use mod:
           conditions:
             - random rate:
                 rate: 0.5
           mod: 'vomit'
     dead:
-      <<: *mob_dead
+      <<: *zombie_dead
       effects:
-        <<: *mob_dead_effects
+        <<: *zombie_dead_effects
         drop item:
           item_label: 'pistol'
+
+turret:
+  max_speed: 0
+  max_health: 500
+  damage: 0
+  knockback: 0
+  hit_rect_width: 60
+  hit_rect_height: 40
+  image_file: *turret_image
+  behavior:
+    passive:
+      conditions:
+        - default
+      effects:
+    active:
+      conditions:
+        - target close:
+            threshold: 300
+            value: 1
+      effects:
+        face target:
+        equip and use mod:
+          mod: 'turret laser gun'
+    dead:
+      conditions:
+        - dead:
+            value: 100
+      effects:
+        kill:
+        drop item:
+          item_label: 'battery'
+        draw image on map:
+          image_file: *dead_turret_image
+          angled:
+        play sound:
+          sound_file: *turret_death
 
