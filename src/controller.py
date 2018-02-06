@@ -67,14 +67,14 @@ class Controller(object):
         if key_allowed:
             funcs[key_id]()
 
-    def get_clicked_pos(self) -> Tuple[int, int]:
+    @property
+    def mouse_just_clicked(self) -> bool:
         mouse = pg.mouse.get_pressed()
+        return mouse[MOUSE_LEFT] and not self._prev_mouse[MOUSE_LEFT]
 
-        # determine if we clicked this frame
-        if mouse[MOUSE_LEFT] and not self._prev_mouse[MOUSE_LEFT]:
-            return pg.mouse.get_pos()
-
-        return NOT_CLICKED
+    @property
+    def mouse_pos(self) -> Tuple[int, int]:
+        return pg.mouse.get_pressed()
 
     def set_previous_input(self) -> None:
         self._prev_keys = list(pg.key.get_pressed())
