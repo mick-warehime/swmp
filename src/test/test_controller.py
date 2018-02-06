@@ -44,7 +44,7 @@ class ControllerTest(unittest.TestCase):
         controller.pg.key.pressed[self.a_key] = 1
 
         # test we set the key
-        self.assertEqual(len(ctrl.bindings), 1 + n_default)
+        self.assertEqual(len(ctrl._bindings), 1 + n_default)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.a, '')
@@ -113,8 +113,8 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind_mouse(self.a_key, lambda: self.set_d(test_mouse_1))
         ctrl.bind_mouse(self.b_key, lambda: self.set_e(test_mouse_2))
 
-        self.assertEqual(len(ctrl.bindings), 3 + n_default)
-        self.assertEqual(len(ctrl.mouse_bindings), 2)
+        self.assertEqual(len(ctrl._bindings), 3 + n_default)
+        self.assertEqual(len(ctrl._mouse_bindings), 2)
 
         # every combination of 3 keys and two mouse presses
         for key_1, key_2, key_3, mouse_1, mouse_2 in product(*[[0, 1]] * 5):
@@ -159,7 +159,7 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind(self.c_key, lambda: self.set_c(test_string_c))
 
         # test we set the key
-        self.assertEqual(len(ctrl.bindings), 3 + n_default)
+        self.assertEqual(len(ctrl._bindings), 3 + n_default)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.b, '')
@@ -179,7 +179,7 @@ class ControllerTest(unittest.TestCase):
         controller.pg.key.pressed[self.a_key] = 1
         controller.pg.key.pressed[self.b_key] = 1
         controller.pg.key.pressed[self.c_key] = 1
-        ctrl.handle_input(only_handle=[self.a_key])
+        ctrl.handle_input(allowed_keys=[self.a_key])
         self.assertEqual(self.a, test_string_a)
         self.assertEqual(self.b, '')
         self.assertEqual(self.c, '')
