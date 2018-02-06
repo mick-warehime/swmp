@@ -74,7 +74,7 @@ class Controller(object):
 
     @property
     def mouse_pos(self) -> Tuple[int, int]:
-        return pg.mouse.get_pressed()
+        return pg.mouse.get_pos()
 
     def set_previous_input(self) -> None:
         self._prev_keys = list(pg.key.get_pressed())
