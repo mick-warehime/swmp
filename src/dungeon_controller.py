@@ -191,9 +191,9 @@ class DungeonController(controller.Controller):
         self.bind_on_press(pg.K_t, self._teleport)
 
     def _try_handle_hud(self) -> bool:
-        pos = self.mouse_pos
-        if pos == controller.NOT_CLICKED:
+        if not self.mouse_just_clicked:
             return False
+        pos = self.mouse_pos
 
         self._view.try_click_mod(pos)
         self._view.try_click_item(pos)
