@@ -5,7 +5,6 @@ from creatures.players import Player
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
 MOUSE_RIGHT = 2
-NOT_CLICKED = (-1, -1)
 
 
 def initialize_controller(screen: pg.Surface,
