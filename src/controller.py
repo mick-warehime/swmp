@@ -11,12 +11,12 @@ NOT_CLICKED = (-1, -1)
 def initialize_controller(screen: pg.Surface,
                           quit_func: Any) -> None:
     Controller._screen = screen
-    Controller._quit_func = quit_func
+    Keyboard.quit_func = quit_func
 
 
-class Controller(object):
-    _screen = None
-    _quit_func = None
+class Keyboard(object):
+    """Handles input/output from keyboard and mouse."""
+    quit_func = None
 
     def __init__(self) -> None:
 
@@ -31,8 +31,6 @@ class Controller(object):
 
         # default bindings for every controller (currently only escape)
         self._bind_quit()
-
-        self.player: Player = None
 
     # calls this function every frame when the key is held down
     def bind(self, key: int, bound_func: Callable[..., None]) -> None:
@@ -80,21 +78,7 @@ class Controller(object):
         self._prev_mouse = list(pg.mouse.get_pressed())
 
     def _bind_quit(self) -> None:
-        self.bind(pg.K_ESCAPE, self._quit_func)
-
-    def set_player(self, new_player: Player) -> None:
-        self.player.inventory = new_player.inventory
-        self.player.status.increment_health(-self.player.status.health)
-        self.player.status.increment_health(new_player.status.health)
-
-    def resolved_conflict_index(self) -> int:
-        raise NotImplementedError()
-
-    def game_over(self) -> bool:
-        raise NotImplementedError()
-
-    def should_exit(self) -> bool:
-        raise NotImplementedError()
+        self.bind(pg.K_ESCAPE, self.quit_func)
 
     def _just_pressed_keys(self) -> List[int]:
         key_array = pg.key.get_pressed()
@@ -116,3 +100,25 @@ class Controller(object):
         key_array = pg.key.get_pressed()
         pressed_keys = [keyid for keyid in self._bindings if key_array[keyid]]
         return pressed_keys
+
+
+class Controller(object):
+    _screen = None
+
+    def __init__(self) -> None:
+        self.keyboard = Keyboard()
+
+        self.player: Player = None
+
+    def set_player(self, new_player: Player) -> None:
+        self.player.inventory = new_player.inventory
+        self.player.status = new_player.status
+
+    def resolved_conflict_index(self) -> int:
+        raise NotImplementedError()
+
+    def game_over(self) -> bool:
+        raise NotImplementedError()
+
+    def should_exit(self) -> bool:
+        raise NotImplementedError()

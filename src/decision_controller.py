@@ -33,7 +33,7 @@ class DecisionController(controller.Controller):
         assert idx >= 0, 'decision must be a >= 0'
 
         key = self.options_keys[idx]
-        self.bind(key, self.get_choice_function(idx))
+        self.keyboard.bind(key, self.get_choice_function(idx))
         self.options[idx] = option
 
     def get_choice_function(self, key_idx: int) -> Callable[..., None]:
@@ -46,7 +46,7 @@ class DecisionController(controller.Controller):
         self.choice = choice
 
     def update(self) -> None:
-        self.handle_input(allowed_keys=self.keys_to_handle)
+        self.keyboard.handle_input(allowed_keys=self.keys_to_handle)
 
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)

@@ -4,7 +4,7 @@ import controller
 from test import pygame_mock
 
 
-class ControllerTest(unittest.TestCase):
+class KeyboardTest(unittest.TestCase):
     def setUp(self) -> None:
         pg = pygame_mock.Pygame()
         controller.pg.mouse = pg.mouse
@@ -35,34 +35,34 @@ class ControllerTest(unittest.TestCase):
         self.e = e
 
     def test_bind(self) -> None:
-        ctrl = controller.Controller()
+        keyboard = controller.Keyboard()
 
-        n_bindings = len(ctrl._bindings)
+        n_bindings = len(keyboard._bindings)
 
         test_string = 'set a'
-        ctrl.bind(self.a_key, lambda: self.set_a(test_string))
+        keyboard.bind(self.a_key, lambda: self.set_a(test_string))
 
         controller.pg.key.pressed[self.a_key] = 1
 
         # test we set the key
-        self.assertEqual(len(ctrl._bindings), 1 + n_bindings)
+        self.assertEqual(len(keyboard._bindings), 1 + n_bindings)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.a, '')
 
-        ctrl.handle_input()
+        keyboard.handle_input()
         self.assertEqual(self.a, test_string)
 
     def test_bind_down(self) -> None:
-        ctrl = controller.Controller()
+        keyboard = controller.Keyboard()
 
         test_string = 'set a'
-        ctrl.bind_on_press(self.a_key, lambda: self.set_a(test_string))
+        keyboard.bind_on_press(self.a_key, lambda: self.set_a(test_string))
 
         # function is called when you press the key
         controller.pg.key.pressed[self.a_key] = 1
-        ctrl.handle_input()
-        ctrl.set_previous_input()
+        keyboard.handle_input()
+        keyboard.set_previous_input()
         self.assertEqual(self.a, test_string)
 
         # reset to detect future calls
@@ -70,37 +70,36 @@ class ControllerTest(unittest.TestCase):
 
         # nothing happens if you keep it help down
         controller.pg.key.pressed[self.a_key] = 1
-        ctrl.handle_input()
-        ctrl.set_previous_input()
+        keyboard.handle_input()
+        keyboard.set_previous_input()
         self.assertEqual(self.a, '')
 
         # nothing happens when you release
         controller.pg.key.pressed[self.a_key] = 0
-        ctrl.handle_input()
-        ctrl.set_previous_input()
+        keyboard.handle_input()
+        keyboard.set_previous_input()
         self.assertEqual(self.a, '')
 
         # function called again when you press down
         controller.pg.key.pressed[self.a_key] = 1
-        ctrl.handle_input()
-        ctrl.set_previous_input()
+        keyboard.handle_input()
+        keyboard.set_previous_input()
         self.assertEqual(self.a, test_string)
 
     def test_mouse(self) -> None:
-        ctrl = controller.Controller()
+        keyboard = controller.Keyboard()
 
         test_string = 'set a'
-        ctrl.bind_mouse(self.a_key, lambda: self.set_a(test_string))
+        keyboard.bind_mouse(self.a_key, lambda: self.set_a(test_string))
 
         controller.pg.mouse.pressed[self.a_key] = 1
 
-        ctrl.handle_input()
+        keyboard.handle_input()
         self.assertEqual(self.a, test_string)
 
     def test_multiple_press(self) -> None:
-        ctrl = controller.Controller()
-
-        n_bindings = len(ctrl._bindings)
+        keyboard = controller.Keyboard()
+        n_bindings = len(keyboard._bindings)
 
         test_string_a = 'set a'
         test_string_b = 'set b'
@@ -109,14 +108,14 @@ class ControllerTest(unittest.TestCase):
         test_mouse_1 = 'mouse 1'
         test_mouse_2 = 'mouse 2'
 
-        ctrl.bind(self.a_key, lambda: self.set_a(test_string_a))
-        ctrl.bind(self.b_key, lambda: self.set_b(test_string_b))
-        ctrl.bind(self.c_key, lambda: self.set_c(test_string_c))
-        ctrl.bind_mouse(self.a_key, lambda: self.set_d(test_mouse_1))
-        ctrl.bind_mouse(self.b_key, lambda: self.set_e(test_mouse_2))
+        keyboard.bind(self.a_key, lambda: self.set_a(test_string_a))
+        keyboard.bind(self.b_key, lambda: self.set_b(test_string_b))
+        keyboard.bind(self.c_key, lambda: self.set_c(test_string_c))
+        keyboard.bind_mouse(self.a_key, lambda: self.set_d(test_mouse_1))
+        keyboard.bind_mouse(self.b_key, lambda: self.set_e(test_mouse_2))
 
-        self.assertEqual(len(ctrl._bindings), 3 + n_bindings)
-        self.assertEqual(len(ctrl._mouse_bindings), 2)
+        self.assertEqual(len(keyboard._bindings), 3 + n_bindings)
+        self.assertEqual(len(keyboard._mouse_bindings), 2)
 
         # every combination of 3 keys and two mouse presses
         for key_1, key_2, key_3, mouse_1, mouse_2 in product(*[[0, 1]] * 5):
@@ -128,7 +127,7 @@ class ControllerTest(unittest.TestCase):
             controller.pg.mouse.pressed[1] = mouse_2
 
             # .handle_input() combinations
-            ctrl.handle_input()
+            keyboard.handle_input()
 
             if key_1:
                 self.assertEqual(self.a, test_string_a)
@@ -149,29 +148,29 @@ class ControllerTest(unittest.TestCase):
             self.e = ''
 
     def test_only_handle(self) -> None:
-        ctrl = controller.Controller()
-        n_bindings = len(ctrl._bindings)
+        keyboard = controller.Keyboard()
+        n_bindings = len(keyboard._bindings)
 
         test_string_a = 'set a'
         test_string_b = 'set b'
         test_string_c = 'set c'
 
-        ctrl.bind(self.a_key, lambda: self.set_a(test_string_a))
-        ctrl.bind(self.b_key, lambda: self.set_b(test_string_b))
-        ctrl.bind(self.c_key, lambda: self.set_c(test_string_c))
+        keyboard.bind(self.a_key, lambda: self.set_a(test_string_a))
+        keyboard.bind(self.b_key, lambda: self.set_b(test_string_b))
+        keyboard.bind(self.c_key, lambda: self.set_c(test_string_c))
 
         # test we set the key
-        self.assertEqual(len(ctrl._bindings), 3 + n_bindings)
+        self.assertEqual(len(keyboard._bindings), 3 + n_bindings)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.b, '')
 
         controller.pg.key.pressed[self.b_key] = 1
-        ctrl.handle_input()
+        keyboard.handle_input()
         self.assertEqual(self.b, test_string_b)
 
         controller.pg.key.pressed[self.c_key] = 1
-        ctrl.handle_input()
+        keyboard.handle_input()
         self.assertEqual(self.c, test_string_c)
 
         self.a = ''
@@ -181,7 +180,7 @@ class ControllerTest(unittest.TestCase):
         controller.pg.key.pressed[self.a_key] = 1
         controller.pg.key.pressed[self.b_key] = 1
         controller.pg.key.pressed[self.c_key] = 1
-        ctrl.handle_input(allowed_keys=[self.a_key])
+        keyboard.handle_input(allowed_keys=[self.a_key])
         self.assertEqual(self.a, test_string_a)
         self.assertEqual(self.b, '')
         self.assertEqual(self.c, '')

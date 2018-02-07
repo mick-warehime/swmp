@@ -99,7 +99,7 @@ class DungeonController(controller.Controller):
 
         clicked_hud = self._try_handle_hud()
         if not clicked_hud:
-            self.handle_input()
+            self.keyboard.handle_input()
 
         # update portion of the game loop
         self._groups.all_sprites.update()
@@ -107,7 +107,7 @@ class DungeonController(controller.Controller):
 
         self._handle_collisions()
 
-        self.set_previous_input()
+        self.keyboard.set_previous_input()
 
     def _handle_collisions(self) -> None:
         # player hits items
@@ -160,40 +160,40 @@ class DungeonController(controller.Controller):
 
     def _init_controls(self) -> None:
 
-        self.bind_on_press(pg.K_n, self._view.toggle_night)
-        self.bind_on_press(pg.K_h, self._view.toggle_debug)
+        self.keyboard.bind_on_press(pg.K_n, self._view.toggle_night)
+        self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        self.bind(pg.K_LEFT, self.player.translate_left)
-        self.bind(pg.K_a, self.player.translate_left)
+        self.keyboard.bind(pg.K_LEFT, self.player.translate_left)
+        self.keyboard.bind(pg.K_a, self.player.translate_left)
 
-        self.bind(pg.K_RIGHT, self.player.translate_right)
-        self.bind(pg.K_d, self.player.translate_right)
+        self.keyboard.bind(pg.K_RIGHT, self.player.translate_right)
+        self.keyboard.bind(pg.K_d, self.player.translate_right)
 
-        self.bind(pg.K_UP, self.player.translate_up)
-        self.bind(pg.K_w, self.player.translate_up)
+        self.keyboard.bind(pg.K_UP, self.player.translate_up)
+        self.keyboard.bind(pg.K_w, self.player.translate_up)
 
-        self.bind(pg.K_DOWN, self.player.translate_down)
-        self.bind(pg.K_s, self.player.translate_down)
+        self.keyboard.bind(pg.K_DOWN, self.player.translate_down)
+        self.keyboard.bind(pg.K_s, self.player.translate_down)
 
         arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
-        self.bind(pg.K_SPACE, arms_ability)
-        self.bind_mouse(controller.MOUSE_LEFT, arms_ability)
+        self.keyboard.bind(pg.K_SPACE, arms_ability)
+        self.keyboard.bind_mouse(controller.MOUSE_LEFT, arms_ability)
 
         chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
-        self.bind_on_press(pg.K_r, chest_ability)
+        self.keyboard.bind_on_press(pg.K_r, chest_ability)
 
-        self.bind_on_press(pg.K_b, self._toggle_hide_backpack)
+        self.keyboard.bind_on_press(pg.K_b, self._toggle_hide_backpack)
 
         # equip / use
-        self.bind_on_press(pg.K_e, self._try_equip)
+        self.keyboard.bind_on_press(pg.K_e, self._try_equip)
 
-        self.bind_on_press(pg.K_t, self._teleport)
+        self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
     def _try_handle_hud(self) -> bool:
-        if not self.mouse_just_clicked:
+        if not self.keyboard.mouse_just_clicked:
             return False
-        pos = self.mouse_pos
+        pos = self.keyboard.mouse_pos
 
         self._view.try_click_mod(pos)
         self._view.try_click_item(pos)
