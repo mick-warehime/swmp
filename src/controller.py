@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Union, Tuple, Any
+from typing import Callable, Dict, List, Tuple, Any
 import pygame as pg
 from creatures.players import Player
 
