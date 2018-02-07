@@ -30,8 +30,7 @@ class Controller(object):
         self._mouse_bindings: Dict[int, Callable[..., None]] = {}
 
         # default bindings for every controller (currently only escape)
-        self.bind_quit()
-        self.n_default_bindings = 1
+        self._bind_quit()
 
         self.player: Player = None
 
@@ -80,7 +79,7 @@ class Controller(object):
         self._prev_keys = list(pg.key.get_pressed())
         self._prev_mouse = list(pg.mouse.get_pressed())
 
-    def bind_quit(self) -> None:
+    def _bind_quit(self) -> None:
         self.bind(pg.K_ESCAPE, self._quit_func)
 
     def set_player(self, new_player: Player) -> None:

@@ -36,7 +36,8 @@ class ControllerTest(unittest.TestCase):
 
     def test_bind(self) -> None:
         ctrl = controller.Controller()
-        n_default = ctrl.n_default_bindings
+
+        n_bindings = len(ctrl._bindings)
 
         test_string = 'set a'
         ctrl.bind(self.a_key, lambda: self.set_a(test_string))
@@ -44,7 +45,7 @@ class ControllerTest(unittest.TestCase):
         controller.pg.key.pressed[self.a_key] = 1
 
         # test we set the key
-        self.assertEqual(len(ctrl._bindings), 1 + n_default)
+        self.assertEqual(len(ctrl._bindings), 1 + n_bindings)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.a, '')
@@ -98,7 +99,8 @@ class ControllerTest(unittest.TestCase):
 
     def test_multiple_press(self) -> None:
         ctrl = controller.Controller()
-        n_default = ctrl.n_default_bindings
+
+        n_bindings = len(ctrl._bindings)
 
         test_string_a = 'set a'
         test_string_b = 'set b'
@@ -113,7 +115,7 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind_mouse(self.a_key, lambda: self.set_d(test_mouse_1))
         ctrl.bind_mouse(self.b_key, lambda: self.set_e(test_mouse_2))
 
-        self.assertEqual(len(ctrl._bindings), 3 + n_default)
+        self.assertEqual(len(ctrl._bindings), 3 + n_bindings)
         self.assertEqual(len(ctrl._mouse_bindings), 2)
 
         # every combination of 3 keys and two mouse presses
@@ -148,7 +150,7 @@ class ControllerTest(unittest.TestCase):
 
     def test_only_handle(self) -> None:
         ctrl = controller.Controller()
-        n_default = ctrl.n_default_bindings
+        n_bindings = len(ctrl._bindings)
 
         test_string_a = 'set a'
         test_string_b = 'set b'
@@ -159,7 +161,7 @@ class ControllerTest(unittest.TestCase):
         ctrl.bind(self.c_key, lambda: self.set_c(test_string_c))
 
         # test we set the key
-        self.assertEqual(len(ctrl._bindings), 3 + n_default)
+        self.assertEqual(len(ctrl._bindings), 3 + n_bindings)
 
         # ensure we haven't changed this yet
         self.assertEqual(self.b, '')
