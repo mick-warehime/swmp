@@ -111,25 +111,6 @@ class DungeonControllerTest(unittest.TestCase):
 
             self.assertEqual(dungeon.player._mouse_pos, func())
 
-    def test_handle_hud_not_clicked(self) -> None:
-        import controller
-        def not_clicked() -> Any:
-            return controller.NOT_CLICKED
-
-        dungeon = make_dungeon_controller()
-        dungeon.get_clicked_pos = not_clicked
-
-        self.assertFalse(dungeon._try_handle_hud())
-
-    def test_handle_hud_clicked_elsewhere(self) -> None:
-        def clicked() -> Any:
-            return (-1000, -4000)
-
-        dungeon = make_dungeon_controller()
-        dungeon.get_clicked_pos = clicked
-
-        self.assertFalse(dungeon._try_handle_hud())
-
     def test_set_player(self) -> None:
         dungeon = make_dungeon_controller()
         player = make_player()

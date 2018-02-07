@@ -45,7 +45,7 @@ class Game(object):
             return
 
         self.scene_ctlr = scene.get_controller()
-        self.scene_ctlr.bind_on_press(pg.K_p, self.toggle_paused)
+        self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self.toggle_paused)
 
         if self._player is not None:
             self.scene_ctlr.set_player(self._player)
