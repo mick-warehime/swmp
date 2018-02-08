@@ -50,7 +50,7 @@ class DecisionControllerTest(unittest.TestCase):
         options = ['one', 'two', 'three']
         dc = decision_controller.DecisionController(prompt, options)
 
-        text = dc.get_text()
+        text = dc._get_texts()
 
         # ensure the text presents three options with the correct label
         for number in ['1', '2', '3']:
