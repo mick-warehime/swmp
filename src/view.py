@@ -21,8 +21,8 @@ class Camera:
     def __init__(self, width: int, height: int) -> None:
         self.rect = pg.Rect(0, 0, width, height)
 
-    def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
-        return sprite.rect.move(self.rect.topleft)
+    def get_shifted_rect(self, sprite: pg.sprite.Sprite) -> pg.Rect:
+        return self.shift_by_topleft(sprite.rect)
 
     def shift_by_topleft(self, rect: pg.Rect) -> pg.Rect:
         return rect.move(self.rect.topleft)
@@ -76,8 +76,7 @@ class DungeonView(object):
 
         self.camera.update(player)
 
-        map_img = tile_map.img
-        self._screen.blit(map_img, self.camera.apply(tile_map))
+        self._screen.blit(tile_map.img, self.camera.get_shifted_rect(tile_map))
 
         for sprite in self._groups.all_sprites:
             self._draw_sprite(sprite, self.camera)
@@ -118,7 +117,7 @@ class DungeonView(object):
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image
         self._fog.fill(settings.NIGHT_COLOR)
-        self._light_rect.center = camera.apply(player).center
+        self._light_rect.center = camera.get_shifted_rect(player).center
         self._fog.blit(self._light_mask, self._light_rect)
         self._screen.blit(self._fog, (0, 0), special_flags=pg.BLEND_MULT)
 
