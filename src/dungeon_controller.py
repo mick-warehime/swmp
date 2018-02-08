@@ -37,8 +37,6 @@ class Dungeon(object):
         self.map = tilemap.TiledMap(map_file)
         self._init_map_objects()
 
-        self.camera = tilemap.Camera(self.map.width, self.map.height)
-
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
@@ -89,7 +87,7 @@ class Dungeon(object):
 
         # update portion of the game loop
         self.groups.all_sprites.update()
-        self.camera.update(self.player)
+        # self.camera.update(self.player)
 
         self._handle_collisions()
 
@@ -141,6 +139,9 @@ class DungeonController(controller.Controller):
         self._dungeon = Dungeon(map_file)
         self.player = self._dungeon.player
 
+        self.camera = tilemap.Camera(self._dungeon.map.width,
+                                     self._dungeon.map.height)
+
         self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._dungeon.groups)
 
@@ -152,7 +153,7 @@ class DungeonController(controller.Controller):
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
         self._view.draw(self.player, self._dungeon.map,
-                        self._dungeon.camera)
+                        self.camera)
 
         self._view.draw_conflicts(self._dungeon.conflicts)
 
@@ -167,6 +168,7 @@ class DungeonController(controller.Controller):
             self.keyboard.handle_input()
 
         self._dungeon.update()
+        self.camera.update(self.player)
 
         self.keyboard.set_previous_input()
 
@@ -260,7 +262,7 @@ class DungeonController(controller.Controller):
     # most other coordinates are relative to the map
     def _abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
-        camera_pos = self._dungeon.camera.rect
+        camera_pos = self.camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return abs_mouse_x, abs_mouse_y
