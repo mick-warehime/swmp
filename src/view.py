@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import pygame as pg
 from pygame.math import Vector2
+from pygame.rect import Rect
 from pygame.sprite import Sprite
 
 import images
@@ -9,10 +10,33 @@ import settings
 from creatures.players import Player
 from hud import HUD
 from model import Groups, ConflictGroups
-from tilemap import Camera, TiledMap
+from settings import WIDTH, HEIGHT
+from tilemap import TiledMap
 from draw_utils import draw_text
 
 NO_SELECTION = -1
+
+
+class Camera:
+    def __init__(self, width: int, height: int) -> None:
+        self.rect = pg.Rect(0, 0, width, height)
+
+    def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
+        return sprite.rect.move(self.rect.topleft)
+
+    def apply_rect(self, rect: pg.Rect) -> pg.Rect:
+        return rect.move(self.rect.topleft)
+
+    def update(self, target: pg.sprite.Sprite) -> None:
+        x = -target.rect.centerx + int(WIDTH / 2)
+        y = -target.rect.centery + int(HEIGHT / 2)
+
+        # limit scrolling to map size
+        x = min(0, x)  # left
+        y = min(0, y)  # top
+        x = max(-(self.rect.width - WIDTH), x)  # right
+        y = max(-(self.rect.height - HEIGHT), y)  # bottom
+        self.rect = pg.Rect(x, y, self.rect.width, self.rect.height)
 
 
 class DungeonView(object):
@@ -21,6 +45,8 @@ class DungeonView(object):
         self._screen = screen
         dim_screen = pg.Surface(screen.get_size()).convert_alpha()
         dim_screen.fill((0, 0, 0, 180))
+
+        self.camera: Camera = Camera(800, 600)
 
         # HUD size & location
         self._hud = HUD(self._screen)
@@ -39,22 +65,28 @@ class DungeonView(object):
 
         self.title_font = images.get_font(images.ZOMBIE_FONT)
 
+    def set_camera_range(self, width: int, height: int) -> None:
+        x, y = self.camera.rect.x, self.camera.rect.y
+        self.camera.rect = Rect(x, y, width, height)
+
     def set_groups(self, groups: Groups) -> None:
         self._groups = groups
 
-    def draw(self, player: Player, tile_map: TiledMap, camera: Camera) -> None:
+    def draw(self, player: Player, tile_map: TiledMap) -> None:
+
+        self.camera.update(player)
 
         map_img = tile_map.img
-        self._screen.blit(map_img, camera.apply(tile_map))
+        self._screen.blit(map_img, self.camera.apply(tile_map))
 
         for sprite in self._groups.all_sprites:
-            self._draw_sprite(sprite, camera)
+            self._draw_sprite(sprite, self.camera)
 
         if self._draw_debug:
-            self._draw_debug_rects(camera)
+            self._draw_debug_rects(self.camera)
 
         if self._night:
-            self.render_fog(player, camera)
+            self.render_fog(player, self.camera)
 
         # draw hud on top of everything
         self._hud.draw(player)

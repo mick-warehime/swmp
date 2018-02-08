@@ -80,16 +80,14 @@ class Dungeon(object):
         # needs to be called every frame to throttle max framerate
         self._clock.tick(settings.FPS)
 
-        # update portion of the game loop
         self.groups.all_sprites.update()
-        # self.camera.update(self.player)
 
         self._handle_collisions()
 
     def _handle_collisions(self) -> None:
         # player hits items
-        items: List[ItemObject] = spritecollide(self.player,
-                                                self.groups.items, False)
+        items: List[ItemObject] = spritecollide(self.player, self.groups.items,
+                                                False)
         for item in items:
             self.player.inventory.attempt_pickup(item)
 
@@ -132,11 +130,10 @@ class DungeonController(controller.Controller):
         self._dungeon = Dungeon(map_file)
         self.player = self._dungeon.player
 
-        self.camera = tilemap.Camera(self._dungeon.map.width,
-                                     self._dungeon.map.height)
-
         self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._dungeon.groups)
+        self._view.set_camera_range(self._dungeon.map.width,
+                                    self._dungeon.map.height)
 
         self._init_controls()
 
@@ -145,9 +142,7 @@ class DungeonController(controller.Controller):
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
-        self._view.draw(self.player, self._dungeon.map,
-                        self.camera)
-
+        self._view.draw(self.player, self._dungeon.map)
         self._view.draw_conflicts(self._dungeon.conflicts)
 
         pg.display.flip()
@@ -161,7 +156,6 @@ class DungeonController(controller.Controller):
             self.keyboard.handle_input()
 
         self._dungeon.update()
-        self.camera.update(self.player)
 
         self.keyboard.set_previous_input()
 
@@ -227,7 +221,7 @@ class DungeonController(controller.Controller):
         self._unequip_mod()
 
     def _equip_mod_in_backpack(self) -> None:
-        """equip amod if the user selects it in the backpack and hits the
+        """equip a mod if the user selects it in the backpack and hits the
         'equip' button binding."""
         idx = self._view.selected_item()
         if idx == view.NO_SELECTION:
@@ -255,7 +249,7 @@ class DungeonController(controller.Controller):
     # most other coordinates are relative to the map
     def _abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
-        camera_pos = self.camera.rect
+        camera_pos = self._view.camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return abs_mouse_x, abs_mouse_y

@@ -5,8 +5,6 @@ from typing import Any, List
 import pygame as pg
 import pytmx
 
-from settings import WIDTH, HEIGHT
-
 CONFLICT = 'conflict'
 NOT_CONFLICT = 'not_conflict'
 
@@ -101,23 +99,3 @@ class TiledMap:
         return temp_surface
 
 
-class Camera:
-    def __init__(self, width: int, height: int) -> None:
-        self.rect = pg.Rect(0, 0, width, height)
-
-    def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
-        return sprite.rect.move(self.rect.topleft)
-
-    def apply_rect(self, rect: pg.Rect) -> pg.Rect:
-        return rect.move(self.rect.topleft)
-
-    def update(self, target: pg.sprite.Sprite) -> None:
-        x = -target.rect.centerx + int(WIDTH / 2)
-        y = -target.rect.centery + int(HEIGHT / 2)
-
-        # limit scrolling to map size
-        x = min(0, x)  # left
-        y = min(0, y)  # top
-        x = max(-(self.rect.width - WIDTH), x)  # right
-        y = max(-(self.rect.height - HEIGHT), y)  # bottom
-        self.rect = pg.Rect(x, y, self.rect.width, self.rect.height)
