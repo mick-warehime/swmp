@@ -151,13 +151,21 @@ class DungeonController(controller.Controller):
 
         self._pass_mouse_pos_to_player()
 
-        clicked_hud = self._try_handle_hud()
-        if not clicked_hud:
+        if self._hud_just_clicked():
+            self._handle_hud()
+        else:
             self.keyboard.handle_input()
 
         self._dungeon.update()
 
         self.keyboard.set_previous_input()
+
+    def _hud_just_clicked(self) -> bool:
+        hud_clicked = self.keyboard.mouse_just_clicked
+        if hud_clicked:
+            hud_clicked &= self._view.hud_collide_point(
+                self.keyboard.mouse_pos)
+        return hud_clicked
 
     def get_fps(self) -> float:
         return self._dungeon.get_fps()
@@ -206,15 +214,9 @@ class DungeonController(controller.Controller):
 
         self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
-    def _try_handle_hud(self) -> bool:
-        if not self.keyboard.mouse_just_clicked:
-            return False
-        pos = self.keyboard.mouse_pos
-
-        self._view.try_click_mod(pos)
-        self._view.try_click_item(pos)
-
-        return self._view.clicked_hud(pos)
+    def _handle_hud(self) -> None:
+        self._view.try_click_mod(self.keyboard.mouse_pos)
+        self._view.try_click_item(self.keyboard.mouse_pos)
 
     def _try_equip(self) -> None:
         self._equip_mod_in_backpack()

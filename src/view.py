@@ -48,7 +48,6 @@ class DungeonView(object):
 
         self.camera: Camera = Camera(800, 600)
 
-        # HUD size & location
         self._hud = HUD(self._screen)
 
         self._draw_debug = False
@@ -97,7 +96,13 @@ class DungeonView(object):
         new_center.x += self.camera.rect.topleft[0]
         new_center.y += self.camera.rect.topleft[1]
         rect.center = new_center
-        self._screen.blit(image, rect)
+
+        if self._rect_on_screen(rect):
+            self._screen.blit(image, rect)
+
+    def _rect_on_screen(self, rect):
+        colliderect = self._screen.get_rect().colliderect(rect)
+        return colliderect
 
     def _draw_debug_rects(self) -> None:
         for sprite in self._groups.all_sprites:
@@ -106,12 +111,12 @@ class DungeonView(object):
             else:
                 rect = sprite.rect
             shifted_rect = self.camera.shift_by_topleft(rect)
-            if self._screen.get_rect().colliderect(shifted_rect):
+            if self._rect_on_screen(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
         for obstacle in self._groups.walls:
             assert obstacle not in self._groups.all_sprites
             shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
-            if self._screen.get_rect().colliderect(shifted_rect):
+            if self._rect_on_screen(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
 
     def render_fog(self, player: Player) -> None:
@@ -151,8 +156,8 @@ class DungeonView(object):
                 return idx
         return NO_SELECTION
 
-    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
-        return self._hud.clicked_hud(pos)
+    def hud_collide_point(self, pos: Tuple[int, int]) -> bool:
+        return self._hud.collide_point(pos)
 
     def selected_item(self) -> int:
         return self._hud.selected_item

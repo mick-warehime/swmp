@@ -56,8 +56,8 @@ class ViewTest(unittest.TestCase):
         r = self.view._hud.backpack_rects[0]
         x = r.centerx
         y = r.centery
-        self.assertFalse(self.view.clicked_hud((x, y)))
+        self.assertFalse(self.view.hud_collide_point((x, y)))
 
         self.view.toggle_hide_backpack()
 
-        self.assertTrue(self.view.clicked_hud((x, y)))
+        self.assertTrue(self.view.hud_collide_point((x, y)))
