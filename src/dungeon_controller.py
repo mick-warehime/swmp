@@ -215,8 +215,7 @@ class DungeonController(controller.Controller):
         self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
     def _handle_hud(self) -> None:
-        self._view.try_click_mod(self.keyboard.mouse_pos)
-        self._view.try_click_item(self.keyboard.mouse_pos)
+        self._view.try_click_hud(self.keyboard.mouse_pos)
 
     def _try_equip(self) -> None:
         self._equip_mod_in_backpack()

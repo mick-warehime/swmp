@@ -132,7 +132,11 @@ class DungeonView(object):
     def toggle_night(self) -> None:
         self._night = not self._night
 
-    def try_click_mod(self, pos: Tuple[int, int]) -> None:
+    def try_click_hud(self, pos: Tuple[int, int]) -> None:
+        self._try_click_mod(pos)
+        self._try_click_item(pos)
+
+    def _try_click_mod(self, pos: Tuple[int, int]) -> None:
         rects = [self._hud.mod_rects[l] for l in mods.ModLocation]
         index = self.clicked_rect_index(rects, pos)
         if index == self.selected_mod:
@@ -140,7 +144,7 @@ class DungeonView(object):
         else:
             self._hud.selected_mod = index
 
-    def try_click_item(self, pos: Tuple[int, int]) -> None:
+    def _try_click_item(self, pos: Tuple[int, int]) -> None:
         index = self.clicked_rect_index(self._hud.backpack_rects, pos)
         if index == self._hud.selected_item:
             self._hud.selected_item = NO_SELECTION
