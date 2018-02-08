@@ -79,45 +79,45 @@ class DungeonView(object):
         self._screen.blit(tile_map.img, self.camera.get_shifted_rect(tile_map))
 
         for sprite in self._groups.all_sprites:
-            self._draw_sprite(sprite, self.camera)
+            self._draw_sprite(sprite)
 
         if self._draw_debug:
-            self._draw_debug_rects(self.camera)
+            self._draw_debug_rects()
 
         if self._night:
-            self.render_fog(player, self.camera)
+            self.render_fog(player)
 
         # draw hud on top of everything
         self._hud.draw(player)
 
-    def _draw_sprite(self, sprite: Sprite, camera: Camera) -> None:
+    def _draw_sprite(self, sprite: Sprite) -> None:
         image = sprite.image
         rect = image.get_rect().copy()
         new_center = Vector2(sprite.pos)
-        new_center.x += camera.rect.topleft[0]
-        new_center.y += camera.rect.topleft[1]
+        new_center.x += self.camera.rect.topleft[0]
+        new_center.y += self.camera.rect.topleft[1]
         rect.center = new_center
         self._screen.blit(image, rect)
 
-    def _draw_debug_rects(self, camera: Camera) -> None:
+    def _draw_debug_rects(self) -> None:
         for sprite in self._groups.all_sprites:
             if hasattr(sprite, 'motion'):
                 rect = sprite.motion.hit_rect
             else:
                 rect = sprite.rect
-            shifted_rect = camera.shift_by_topleft(rect)
+            shifted_rect = self.camera.shift_by_topleft(rect)
             if self._screen.get_rect().colliderect(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
         for obstacle in self._groups.walls:
             assert obstacle not in self._groups.all_sprites
-            shifted_rect = camera.shift_by_topleft(obstacle.rect)
+            shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
             if self._screen.get_rect().colliderect(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
 
-    def render_fog(self, player: Player, camera: Camera) -> None:
+    def render_fog(self, player: Player) -> None:
         # draw the light mask (gradient) onto fog image
         self._fog.fill(settings.NIGHT_COLOR)
-        self._light_rect.center = camera.get_shifted_rect(player).center
+        self._light_rect.center = self.camera.get_shifted_rect(player).center
         self._fog.blit(self._light_mask, self._light_rect)
         self._screen.blit(self._fog, (0, 0), special_flags=pg.BLEND_MULT)
 
