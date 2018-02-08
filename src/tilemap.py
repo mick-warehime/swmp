@@ -104,8 +104,6 @@ class TiledMap:
 class Camera:
     def __init__(self, width: int, height: int) -> None:
         self.rect = pg.Rect(0, 0, width, height)
-        self.width = width
-        self.height = height
 
     def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
         return sprite.rect.move(self.rect.topleft)
@@ -120,6 +118,6 @@ class Camera:
         # limit scrolling to map size
         x = min(0, x)  # left
         y = min(0, y)  # top
-        x = max(-(self.width - WIDTH), x)  # right
-        y = max(-(self.height - HEIGHT), y)  # bottom
-        self.rect = pg.Rect(x, y, self.width, self.height)
+        x = max(-(self.rect.width - WIDTH), x)  # right
+        y = max(-(self.rect.height - HEIGHT), y)  # bottom
+        self.rect = pg.Rect(x, y, self.rect.width, self.rect.height)
