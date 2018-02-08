@@ -30,6 +30,7 @@ class Dungeon(object):
 
         # initialize all variables and do all the setup for a new game
         self.groups = Groups()
+        self.conflicts: ConflictGroups = None
 
         self._clock = pg.time.Clock()
 
@@ -79,19 +80,11 @@ class Dungeon(object):
         # needs to be called every frame to throttle max framerate
         self._clock.tick(settings.FPS)
 
-        # self._pass_mouse_pos_to_player()
-
-        # clicked_hud = self._try_handle_hud()
-        # if not clicked_hud:
-        #     self.keyboard.handle_input()
-
         # update portion of the game loop
         self.groups.all_sprites.update()
         # self.camera.update(self.player)
 
         self._handle_collisions()
-
-        # self.keyboard.set_previous_input()
 
     def _handle_collisions(self) -> None:
         # player hits items
