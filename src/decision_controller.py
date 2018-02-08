@@ -3,7 +3,7 @@ from typing import Dict, Callable, List
 import pygame as pg
 import images
 import settings
-from draw_utils import draw_text
+import draw_utils
 
 
 class DecisionController(controller.Controller):
@@ -25,25 +25,7 @@ class DecisionController(controller.Controller):
         self.keys_to_handle = self.options_keys + [pg.K_ESCAPE]
 
         for idx, option in enumerate(options, 1):
-            self.set_option(idx, option)
-
-    def set_option(self, idx: int, option: str) -> None:
-
-        assert idx < 10, 'decision must have less than 10 options'
-        assert idx >= 0, 'decision must be a >= 0'
-
-        key = self.options_keys[idx]
-        self.keyboard.bind(key, self.get_choice_function(idx))
-        self.options[idx] = option
-
-    def get_choice_function(self, key_idx: int) -> Callable[..., None]:
-        def choice_func() -> None:
-            self.choice = key_idx - 1
-
-        return choice_func
-
-    def set_choice(self, choice: int) -> None:
-        self.choice = choice
+            self._set_option(idx, option)
 
     def update(self) -> None:
         self.keyboard.handle_input(allowed_keys=self.keys_to_handle)
@@ -51,21 +33,36 @@ class DecisionController(controller.Controller):
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)
 
-        texts = self.get_text()
+        texts = self._get_texts()
         title_font = images.get_font(images.ZOMBIE_FONT)
 
         n_texts = len(texts) + 1
         for idx, text in enumerate(texts, 0):
-            draw_text(self._screen, text, title_font,
-                      40, settings.WHITE, settings.WIDTH / 2,
-                      settings.HEIGHT * (idx + 1) / n_texts, align="center")
+            draw_utils.draw_text(self._screen, text, title_font,
+                                 40, settings.WHITE, settings.WIDTH / 2,
+                                 settings.HEIGHT * (idx + 1) / n_texts,
+                                 align="center")
         pg.display.flip()
 
-    def get_text(self) -> List[str]:
+    def _set_option(self, idx: int, option: str) -> None:
+
+        assert idx < 10, 'decision must have less than 10 options'
+        assert idx >= 0, 'decision must be a >= 0'
+
+        key = self.options_keys[idx]
+        self.keyboard.bind(key, self._get_choice_function(idx))
+        self.options[idx] = option
+
+    def _get_choice_function(self, key_idx: int) -> Callable[..., None]:
+        def choice_func() -> None:
+            self.choice = key_idx - 1
+
+        return choice_func
+
+    def _get_texts(self) -> List[str]:
 
         option_texts = [self._prompt, '', '']
-        for idx in self.options:
-            option = self.options[idx]
+        for idx, option in self.options.items():
             option_texts.append('{} - {}'.format(idx, option))
 
         return option_texts
@@ -88,6 +85,6 @@ class DecisionController(controller.Controller):
     def should_exit(self) -> bool:
         return self.choice != -1
 
-    # decision controllers should take the option dict
-    # dungeon controllers should take the next scene name as a param
-    # all controllers should implement a function called next scene name
+        # decision controllers should take the option dict
+        # dungeon controllers should take the next scene name as a param
+        # all controllers should implement a function called next scene name

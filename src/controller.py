@@ -121,3 +121,9 @@ class Controller(object):
 
     def should_exit(self) -> bool:
         raise NotImplementedError()
+
+    def draw(self) -> None:
+        raise NotImplementedError
+
+    def update(self) -> None:
+        raise NotImplementedError

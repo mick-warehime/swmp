@@ -42,13 +42,10 @@ class DungeonView(object):
     def set_groups(self, groups: Groups) -> None:
         self._groups = groups
 
-    def draw(self,
-             player: Player,
-             map: TiledMap,
-             map_img: pg.Surface,
-             camera: Camera) -> None:
+    def draw(self, player: Player, tile_map: TiledMap, camera: Camera) -> None:
 
-        self._screen.blit(map_img, camera.apply(map))
+        map_img = tile_map.img
+        self._screen.blit(map_img, camera.apply(tile_map))
 
         for sprite in self._groups.all_sprites:
             self._draw_sprite(sprite, camera)
@@ -62,7 +59,7 @@ class DungeonView(object):
         # draw hud on top of everything
         self._hud.draw(player)
 
-    def _draw_sprite(self, sprite: Sprite, camera: Camera)->None:
+    def _draw_sprite(self, sprite: Sprite, camera: Camera) -> None:
         image = sprite.image
         rect = image.get_rect().copy()
         new_center = Vector2(sprite.pos)

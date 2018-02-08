@@ -65,28 +65,28 @@ class DungeonControllerTest(unittest.TestCase):
         self.assertIs(inventory.backpack[1], shotgun_2.mod)
 
     def test_game_over(self) -> None:
-        dungeon = make_dungeon_controller()
-        player = dungeon.player
-        dungeon.player.status.increment_health(- 2 * player.status.max_health)
+        ctrl = make_dungeon_controller()
+        player = ctrl.player
+        ctrl.player.status.increment_health(- 2 * player.status.max_health)
 
-        self.assertTrue(dungeon.game_over())
+        self.assertTrue(ctrl.game_over())
 
     def test_should_exit(self) -> None:
-        dungeon = make_dungeon_controller()
-        # dungeon isn't over when we start
-        self.assertFalse(dungeon.should_exit())
+        ctrl = make_dungeon_controller()
+        # ctrl isn't over when we start
+        self.assertFalse(ctrl.should_exit())
 
-        for conflict_name in dungeon._conflicts.conflicts:
-            dungeon._conflicts.conflicts[conflict_name].group.empty()
+        for conflict_name in ctrl._dungeon.conflicts.conflicts:
+            ctrl._dungeon.conflicts.conflicts[conflict_name].group.empty()
 
         # can't exit until teleport
-        self.assertFalse(dungeon.should_exit())
+        self.assertFalse(ctrl.should_exit())
 
         # assume the player asks to teleport
-        dungeon.teleported = True
+        ctrl._teleported = True
 
-        # ensure the dungeon is now over
-        self.assertTrue(dungeon.should_exit())
+        # ensure the ctrl is now over
+        self.assertTrue(ctrl.should_exit())
 
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()

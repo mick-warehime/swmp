@@ -22,41 +22,34 @@ from model import Obstacle, Groups, GameObject, Timer, DynamicObject, Group, \
 from projectiles import Projectile
 
 
-class DungeonController(controller.Controller):
+class Dungeon(object):
+    """Stores and updates GameObjects in a dungeon map."""
+
     def __init__(self, map_file: str) -> None:
         super().__init__()
 
         # initialize all variables and do all the setup for a new game
-        self._groups = Groups()
+        self.groups = Groups()
 
         self._clock = pg.time.Clock()
 
         # init_map
-        self._map = tilemap.TiledMap(map_file)
+        self.map = tilemap.TiledMap(map_file)
         self._init_map_objects()
-
-        self._camera = tilemap.Camera(self._map.width, self._map.height)
-
-        self._view = view.DungeonView(self._screen)
-        self._view.set_groups(self._groups)
-
-        self._init_controls()
-
-        self.teleported = False
 
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
-        self._conflicts = ConflictGroups()
+        self.conflicts = ConflictGroups()
 
         # initialize the player on the map before anything else
-        for obj in self._map.objects:
+        for obj in self.map.objects:
             if obj.type == tilemap.ObjectType.PLAYER:
                 self.player = Player(obj.center)
 
         assert self.player is not None, 'no player found in map'
 
-        for obj in self._map.objects:
+        for obj in self.map.objects:
             conflict_group = self._get_conflict(obj.conflict)
 
             if obj.type == tilemap.ObjectType.PLAYER:
@@ -72,52 +65,43 @@ class DungeonController(controller.Controller):
     def _get_conflict(self, conflict_name: str) -> Group:
         if conflict_name == tilemap.NOT_CONFLICT:
             return None
-        return self._conflicts.get_group(conflict_name)
+        return self.conflicts.get_group(conflict_name)
 
     def _init_gameobjects(self) -> None:
-        GameObject.initialize_gameobjects(self._groups)
+        GameObject.initialize_gameobjects(self.groups)
         timer = Timer(self._clock)
         DynamicObject.initialize_dynamic_objects(timer)
         abilities.initialize_classes(timer)
-        Enemy.init_class(self._map.img)
-
-    def draw(self) -> None:
-        pg.display.set_caption("{:.2f}".format(self.get_fps()))
-
-        self._view.draw(self.player, self._map, self._map.img, self._camera)
-
-        self._view.draw_conflicts(self._conflicts)
-
-        pg.display.flip()
+        Enemy.init_class(self.map.img)
 
     def update(self) -> None:
 
         # needs to be called every frame to throttle max framerate
         self._clock.tick(settings.FPS)
 
-        self._pass_mouse_pos_to_player()
+        # self._pass_mouse_pos_to_player()
 
-        clicked_hud = self._try_handle_hud()
-        if not clicked_hud:
-            self.keyboard.handle_input()
+        # clicked_hud = self._try_handle_hud()
+        # if not clicked_hud:
+        #     self.keyboard.handle_input()
 
         # update portion of the game loop
-        self._groups.all_sprites.update()
-        self._camera.update(self.player)
+        self.groups.all_sprites.update()
+        # self.camera.update(self.player)
 
         self._handle_collisions()
 
-        self.keyboard.set_previous_input()
+        # self.keyboard.set_previous_input()
 
     def _handle_collisions(self) -> None:
         # player hits items
         items: List[ItemObject] = spritecollide(self.player,
-                                                self._groups.items, False)
+                                                self.groups.items, False)
         for item in items:
             self.player.inventory.attempt_pickup(item)
 
         # obs hit player
-        hitters: List[Enemy] = spritecollide(self.player, self._groups.enemies,
+        hitters: List[Enemy] = spritecollide(self.player, self.groups.enemies,
                                              False, collide_hit_rect_with_rect)
         for zombie in hitters:
             if random() < 0.7:
@@ -131,14 +115,14 @@ class DungeonController(controller.Controller):
 
         # enemy projectiles hit player
         projectiles: List[Projectile] = spritecollide(
-            self.player, self._groups.enemy_projectiles, True,
+            self.player, self.groups.enemy_projectiles, True,
             collide_hit_rect_with_rect)
         for projectile in projectiles:
             self.player.status.increment_health(-projectile.damage)
 
         # bullets hit hitting_mobs
         hits: Dict[Enemy, List[Projectile]] = groupcollide(
-            self._groups.enemies, self._groups.bullets, False, True)
+            self.groups.enemies, self.groups.bullets, False, True)
         for mob, bullets in hits.items():
             mob.status.increment_health(
                 -sum(bullet.damage for bullet in bullets))
@@ -147,16 +131,60 @@ class DungeonController(controller.Controller):
     def get_fps(self) -> float:
         return self._clock.get_fps()
 
+
+class DungeonController(controller.Controller):
+    def __init__(self, map_file: str) -> None:
+        super().__init__()
+
+        self._dungeon = Dungeon(map_file)
+        self.player = self._dungeon.player
+
+        self.camera = tilemap.Camera(self._dungeon.map.width,
+                                     self._dungeon.map.height)
+
+        self._view = view.DungeonView(self._screen)
+        self._view.set_groups(self._dungeon.groups)
+
+        self._init_controls()
+
+        self._teleported = False
+
+    def draw(self) -> None:
+        pg.display.set_caption("{:.2f}".format(self.get_fps()))
+
+        self._view.draw(self.player, self._dungeon.map,
+                        self.camera)
+
+        self._view.draw_conflicts(self._dungeon.conflicts)
+
+        pg.display.flip()
+
+    def update(self) -> None:
+
+        self._pass_mouse_pos_to_player()
+
+        clicked_hud = self._try_handle_hud()
+        if not clicked_hud:
+            self.keyboard.handle_input()
+
+        self._dungeon.update()
+        self.camera.update(self.player)
+
+        self.keyboard.set_previous_input()
+
+    def get_fps(self) -> float:
+        return self._dungeon.get_fps()
+
     # the owning object needs to know this
     def should_exit(self) -> bool:
-        conflict_resolved = self._conflicts.any_resolved_conflict()
-        return conflict_resolved and self.teleported
+        conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
+        return conflict_resolved and self._teleported
 
     def game_over(self) -> bool:
         return self.player.status.is_dead
 
     def resolved_conflict_index(self) -> int:
-        return self._conflicts.resolved_conflict()
+        return self._dungeon.conflicts.resolved_conflict()
 
     def _init_controls(self) -> None:
 
@@ -164,23 +192,24 @@ class DungeonController(controller.Controller):
         self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        self.keyboard.bind(pg.K_LEFT, self.player.translate_left)
-        self.keyboard.bind(pg.K_a, self.player.translate_left)
+        player = self.player
+        self.keyboard.bind(pg.K_LEFT, player.translate_left)
+        self.keyboard.bind(pg.K_a, player.translate_left)
 
-        self.keyboard.bind(pg.K_RIGHT, self.player.translate_right)
-        self.keyboard.bind(pg.K_d, self.player.translate_right)
+        self.keyboard.bind(pg.K_RIGHT, player.translate_right)
+        self.keyboard.bind(pg.K_d, player.translate_right)
 
-        self.keyboard.bind(pg.K_UP, self.player.translate_up)
-        self.keyboard.bind(pg.K_w, self.player.translate_up)
+        self.keyboard.bind(pg.K_UP, player.translate_up)
+        self.keyboard.bind(pg.K_w, player.translate_up)
 
-        self.keyboard.bind(pg.K_DOWN, self.player.translate_down)
-        self.keyboard.bind(pg.K_s, self.player.translate_down)
+        self.keyboard.bind(pg.K_DOWN, player.translate_down)
+        self.keyboard.bind(pg.K_s, player.translate_down)
 
-        arms_ability = self.player.ability_caller(mods.ModLocation.ARMS)
+        arms_ability = player.ability_caller(mods.ModLocation.ARMS)
         self.keyboard.bind(pg.K_SPACE, arms_ability)
         self.keyboard.bind_mouse(controller.MOUSE_LEFT, arms_ability)
 
-        chest_ability = self.player.ability_caller(mods.ModLocation.CHEST)
+        chest_ability = player.ability_caller(mods.ModLocation.CHEST)
         self.keyboard.bind_on_press(pg.K_r, chest_ability)
 
         self.keyboard.bind_on_press(pg.K_b, self._toggle_hide_backpack)
@@ -217,8 +246,8 @@ class DungeonController(controller.Controller):
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
-        """unequip amod if the user selects it in the hud and hits the
-                'equip' button binding."""
+        """unequip a mod if the user selects it in the hud and hits the 'equip'
+         button binding."""
         location = self._view.selected_mod()
         if location == view.NO_SELECTION:
             return
@@ -233,7 +262,7 @@ class DungeonController(controller.Controller):
     # most other coordinates are relative to the map
     def _abs_mouse_pos(self) -> Tuple[int, int]:
         mouse_pos = pg.mouse.get_pos()
-        camera_pos = self._camera.rect
+        camera_pos = self.camera.rect
         abs_mouse_x = mouse_pos[0] - camera_pos[0]
         abs_mouse_y = mouse_pos[1] - camera_pos[1]
         return abs_mouse_x, abs_mouse_y
@@ -242,4 +271,4 @@ class DungeonController(controller.Controller):
         self._view.toggle_hide_backpack()
 
     def _teleport(self) -> None:
-        self.teleported = True
+        self._teleported = True

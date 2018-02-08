@@ -24,10 +24,10 @@ class Scene(object):
 
 
 class Quest(object):
-    '''An object used to organize a sequence of dungeons which create a
+    """An object used to organize a sequence of dungeons which create a
     quest. A quest is represented as a directed graph (DiGraph). Clients
     should only ask a quest for the next dungeon and the quest object will
-    keep track of the internal state of the quest.'''
+    keep track of the internal state of the quest."""
 
     def __init__(self, quest_graph: nx.Graph = None) -> None:
         if not quest_graph:
