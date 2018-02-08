@@ -24,7 +24,7 @@ class Camera:
     def apply(self, sprite: pg.sprite.Sprite) -> pg.Rect:
         return sprite.rect.move(self.rect.topleft)
 
-    def apply_rect(self, rect: pg.Rect) -> pg.Rect:
+    def shift_by_topleft(self, rect: pg.Rect) -> pg.Rect:
         return rect.move(self.rect.topleft)
 
     def update(self, target: pg.sprite.Sprite) -> None:
@@ -106,12 +106,14 @@ class DungeonView(object):
                 rect = sprite.motion.hit_rect
             else:
                 rect = sprite.rect
-            sprite_camera = camera.apply_rect(rect)
-            pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
+            shifted_rect = camera.shift_by_topleft(rect)
+            if self._screen.get_rect().colliderect(shifted_rect):
+                pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
         for obstacle in self._groups.walls:
             assert obstacle not in self._groups.all_sprites
-            sprite_camera = camera.apply_rect(obstacle.rect)
-            pg.draw.rect(self._screen, settings.CYAN, sprite_camera, 1)
+            shifted_rect = camera.shift_by_topleft(obstacle.rect)
+            if self._screen.get_rect().colliderect(shifted_rect):
+                pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
 
     def render_fog(self, player: Player, camera: Camera) -> None:
         # draw the light mask (gradient) onto fog image
