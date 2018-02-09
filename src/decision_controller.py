@@ -9,9 +9,15 @@ import draw_utils
 class DecisionView(object):
     """Draws text for decision scenes"""
 
-    def __init__(self, screen: pg.Surface, text_lines: List[str]) -> None:
+    def __init__(self, screen: pg.Surface, prompt: str,
+                 options: List[str]) -> None:
         self._screen = screen
-        self._text_lines = text_lines
+
+        style = '{} - {}'
+        enumerated_options = [style.format(k + 1, opt) for k, opt in
+                              enumerate(options)]
+
+        self._text_lines = [prompt, '', ''] + enumerated_options
 
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)
@@ -37,25 +43,11 @@ class DecisionController(controller.Controller):
 
         super().__init__()
 
-        self._prompt = prompt
+        self._view = DecisionView(self._screen, prompt, options)
         self.choice = None
-
-        self.options_keys = [pg.K_0, pg.K_1, pg.K_2,
-                             pg.K_3, pg.K_4, pg.K_5,
-                             pg.K_6, pg.K_7, pg.K_8,
-                             pg.K_9]
-
         self._allowed_keys = _key_labels + [pg.K_ESCAPE]
-
         for choice, key in enumerate(_key_labels):
-            self.keyboard.bind(key, self._get_choice_function(choice))
-
-        format = '{} - {}'
-        enumerated_options = [format.format(k + 1, opt) for k, opt in
-                              enumerate(options)]
-
-        view_texts = [prompt, '', ''] + enumerated_options
-        self._view = DecisionView(self._screen, view_texts)
+            self.keyboard.bind(key, self._choice_function(choice))
 
     def update(self) -> None:
 
@@ -64,7 +56,7 @@ class DecisionController(controller.Controller):
     def draw(self) -> None:
         self._view.draw()
 
-    def _get_choice_function(self, choice: int) -> Callable[..., None]:
+    def _choice_function(self, choice: int) -> Callable[[], None]:
         def choice_func() -> None:
             self.choice = choice
 
