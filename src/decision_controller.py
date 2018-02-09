@@ -22,7 +22,6 @@ class DecisionController(controller.Controller):
             self.keyboard.bind(key, self._choice_function(choice))
 
     def update(self) -> None:
-
         self.keyboard.handle_input(allowed_keys=self._allowed_keys)
 
     def draw(self) -> None:
