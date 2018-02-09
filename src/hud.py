@@ -51,10 +51,9 @@ class HUD(object):
         self.selected_item = NO_SELECTION
         self._backpack_hidden = not self._backpack_hidden
 
-    def clicked_hud(self, pos: Tuple[int, int]) -> bool:
+    def collide_point(self, pos: Tuple[int, int]) -> bool:
         x, y = pos
-        in_hud = self.rect.collidepoint(x, y)
-        if in_hud:
+        if self.rect.collidepoint(x, y):
             return True
 
         in_backpack = self.backpack_base.collidepoint(x, y)
