@@ -39,21 +39,6 @@ class Game(object):
         self._next_scene()
         sounds.play(sounds.LEVEL_START)
 
-    def _next_scene(self) -> None:
-        scene = self.quest.next_scene()
-        if self.quest.is_complete:
-            return
-
-        self.scene_ctlr = scene.get_controller()
-        self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self._toggle_paused)
-
-        if self._player is not None:
-            self.scene_ctlr.set_player(self._player)
-        else:
-            self._player = self.scene_ctlr.player
-
-        scene.show_intro()
-
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
@@ -73,6 +58,25 @@ class Game(object):
             if self.scene_ctlr.should_exit():
                 self._next_scene()
 
+    def show_go_screen(self) -> None:
+        self._game_over()
+        self._wait_for_key()
+
+    def _next_scene(self) -> None:
+        scene = self.quest.next_scene()
+        if self.quest.is_complete:
+            return
+
+        self.scene_ctlr = scene.get_controller()
+        self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self._toggle_paused)
+
+        if self._player is not None:
+            self.scene_ctlr.set_player(self._player)
+        else:
+            self._player = self.scene_ctlr.player
+
+        scene.show_intro()
+
     def _quit(self) -> None:
         pg.quit()
         sys.exit()
@@ -90,10 +94,6 @@ class Game(object):
 
     def _toggle_paused(self) -> None:
         self._paused = not self._paused
-
-    def show_go_screen(self) -> None:
-        self._game_over()
-        self._wait_for_key()
 
     def _wait_for_key(self) -> None:
         pg.event.wait()
