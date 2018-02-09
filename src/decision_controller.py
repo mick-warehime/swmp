@@ -1,37 +1,9 @@
-import controller
-from typing import Dict, Callable, List
+from typing import Callable, List
+
 import pygame as pg
-import images
-import settings
-import draw_utils
 
-
-class DecisionView(object):
-    """Draws text for decision scenes"""
-
-    def __init__(self, screen: pg.Surface, prompt: str,
-                 options: List[str]) -> None:
-        self._screen = screen
-
-        style = '{} - {}'
-        enumerated_options = [style.format(k + 1, opt) for k, opt in
-                              enumerate(options)]
-
-        self._text_lines = [prompt, '', ''] + enumerated_options
-
-    def draw(self) -> None:
-        self._screen.fill(settings.BLACK)
-
-        title_font = images.get_font(images.ZOMBIE_FONT)
-
-        n_texts = len(self._text_lines) + 1
-        for idx, text in enumerate(self._text_lines, 0):
-            draw_utils.draw_text(self._screen, text, title_font,
-                                 40, settings.WHITE, settings.WIDTH / 2,
-                                 settings.HEIGHT * (idx + 1) / n_texts,
-                                 align="center")
-        pg.display.flip()
-
+import controller
+from view import DecisionView
 
 _key_labels = [pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8,
                pg.K_9, pg.K_0]
