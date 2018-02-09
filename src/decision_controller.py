@@ -27,6 +27,10 @@ class DecisionView(object):
         pg.display.flip()
 
 
+_key_labels = [pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8,
+               pg.K_9, pg.K_0]
+
+
 class DecisionController(controller.Controller):
     # takes a list of strings of the form [Prompt, option 1, ..., option n]
     def __init__(self, prompt: str, options: List[str]) -> None:
@@ -41,43 +45,30 @@ class DecisionController(controller.Controller):
                              pg.K_6, pg.K_7, pg.K_8,
                              pg.K_9]
 
-        self.option_texts: Dict[int, str] = {}
+        self._allowed_keys = _key_labels + [pg.K_ESCAPE]
 
-        self.keys_to_handle = self.options_keys + [pg.K_ESCAPE]
+        for choice, key in enumerate(_key_labels):
+            self.keyboard.bind(key, self._get_choice_function(choice))
 
-        for idx, option in enumerate(options, 1):
-            self._bind_option_key(idx, option)
+        format = '{} - {}'
+        enumerated_options = [format.format(k + 1, opt) for k, opt in
+                              enumerate(options)]
 
-        self._view = DecisionView(self._screen, self._get_texts())
+        view_texts = [prompt, '', ''] + enumerated_options
+        self._view = DecisionView(self._screen, view_texts)
 
     def update(self) -> None:
-        self.keyboard.handle_input(allowed_keys=self.keys_to_handle)
+
+        self.keyboard.handle_input(allowed_keys=self._allowed_keys)
 
     def draw(self) -> None:
         self._view.draw()
 
-    def _bind_option_key(self, idx: int, option: str) -> None:
-
-        assert idx < 10, 'decision must have less than 10 options'
-        assert idx >= 0, 'decision must be a >= 0'
-
-        key = self.options_keys[idx]
-        self.keyboard.bind(key, self._get_choice_function(idx))
-        self.option_texts[idx] = option
-
-    def _get_choice_function(self, key_idx: int) -> Callable[..., None]:
+    def _get_choice_function(self, choice: int) -> Callable[..., None]:
         def choice_func() -> None:
-            self.choice = key_idx - 1
+            self.choice = choice
 
         return choice_func
-
-    def _get_texts(self) -> List[str]:
-
-        option_texts = [self._prompt, '', '']
-        for idx, option in self.option_texts.items():
-            option_texts.append('{} - {}'.format(idx, option))
-
-        return option_texts
 
     def wait_for_decision(self) -> None:
         self.draw()
