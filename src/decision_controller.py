@@ -16,7 +16,7 @@ class DecisionController(controller.Controller):
         super().__init__()
 
         self._view = DecisionView(self._screen, prompt, options)
-        self.choice = None
+        self.choice: int = None
         self._allowed_keys = _key_labels + [pg.K_ESCAPE]
         for choice, key in enumerate(_key_labels):
             self.keyboard.bind(key, self._choice_function(choice))
@@ -48,7 +48,3 @@ class DecisionController(controller.Controller):
 
     def should_exit(self) -> bool:
         return self.choice is not None
-
-        # decision controllers should take the option dict
-        # dungeon controllers should take the next scene name as a param
-        # all controllers should implement a function called next scene name

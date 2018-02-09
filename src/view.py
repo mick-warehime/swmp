@@ -101,9 +101,8 @@ class DungeonView(object):
         if self._rect_on_screen(rect):
             self._screen.blit(image, rect)
 
-    def _rect_on_screen(self, rect):
-        colliderect = self._screen.get_rect().colliderect(rect)
-        return colliderect
+    def _rect_on_screen(self, rect: Rect) -> bool:
+        return self._screen.get_rect().colliderect(rect)
 
     def _draw_debug_rects(self) -> None:
         for sprite in self._groups.all_sprites:
