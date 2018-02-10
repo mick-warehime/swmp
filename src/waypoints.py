@@ -12,19 +12,16 @@ from settings import TILESIZE
 class Waypoint(DynamicObject):
     _image = None
 
-    def __init__(self, pos: Vector2, player: Any,
-                 conflict_group: Group) -> None:
+    def __init__(self, pos: Vector2, player: Any) -> None:
         super().__init__(pos)
         self._rect = self.image.get_rect().copy()
         self._rect.center = pos
         self.player = player
 
-        if conflict_group is None:
-            raise ValueError('missing conflict for waypoint at %s', str(pos))
+        # if conflict_group is None:
+        #     raise ValueError('missing conflict for waypoint at %s', str(pos))
 
-        waypoint_groups = [self._groups.all_sprites,
-                           self._groups.items,
-                           conflict_group]
+        waypoint_groups = [self._groups.all_sprites, self._groups.items]
 
         pg.sprite.Sprite.__init__(self, waypoint_groups)
 

@@ -27,28 +27,25 @@ class BaseEnemyData(NamedTuple):
     image_file: str
     damage: int
     knockback: int
-    conflict_group: Group
     behavior_dict: BehaviorData
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
-                behavior: BehaviorData, knockback: int = 0,
-                conflict_group: Group = None) -> BaseEnemyData:
+                behavior: BehaviorData, knockback: int = 0) -> BaseEnemyData:
 
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
-                               damage, knockback, conflict_group,
-                               behavior)
+                               damage, knockback, behavior)
 
-    def add_quest_group(self, group: Group) -> BaseEnemyData:
-        """Generate a new EnemyData with a given conflict group."""
-        kwargs = self._asdict()
-        kwargs['conflict_group'] = group
-        return super().__new__(EnemyData, **kwargs)
+    # def add_quest_group(self, group: Group) -> BaseEnemyData:
+    #     """Generate a new EnemyData with a given conflict group."""
+    #     kwargs = self._asdict()
+    #     kwargs['conflict_group'] = group
+    #     return super().__new__(EnemyData, **kwargs)
 
     def replace(self, **kwargs: Any) -> BaseEnemyData:
         """Make a new EnemyData with specific parameters replaced.
@@ -235,8 +232,8 @@ class Enemy(Humanoid):
         self.knockback = data.knockback
 
         my_groups = [self._groups.all_sprites, self._groups.enemies]
-        if data.conflict_group is not None:
-            my_groups.append(data.conflict_group)
+        # if data.conflict_group is not None:
+        #     my_groups.append(data.conflict_group)
 
         pg.sprite.Sprite.__init__(self, my_groups)
 

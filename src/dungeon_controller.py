@@ -17,8 +17,7 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, DynamicObject, Group, \
-    ConflictGroups
+from model import Obstacle, Groups, GameObject, Timer, DynamicObject
 from projectiles import Projectile
 
 
@@ -30,7 +29,6 @@ class Dungeon(object):
 
         # initialize all variables and do all the setup for a new game
         self.groups = Groups()
-        self.conflicts: ConflictGroups = None
 
         self._clock = pg.time.Clock()
 
@@ -41,7 +39,6 @@ class Dungeon(object):
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
-        self.conflicts = ConflictGroups()
 
         # initialize the player on the map before anything else
         for obj in self.map.objects:
@@ -51,7 +48,6 @@ class Dungeon(object):
         assert self.player is not None, 'no player found in map'
 
         for obj in self.map.objects:
-            conflict_group = self._get_conflict(obj.conflict)
 
             if obj.type == tilemap.ObjectType.PLAYER:
                 continue
@@ -60,13 +56,7 @@ class Dungeon(object):
                 Obstacle(pos, obj.width, obj.height)
                 continue
 
-            constructors.build_map_object(obj.type, obj.center, self.player,
-                                          conflict_group)
-
-    def _get_conflict(self, conflict_name: str) -> Group:
-        if conflict_name == tilemap.NOT_CONFLICT:
-            return None
-        return self.conflicts.get_group(conflict_name)
+            constructors.build_map_object(obj.type, obj.center, self.player)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self.groups)
@@ -124,6 +114,9 @@ class Dungeon(object):
 
 
 class DungeonController(controller.Controller):
+    def resolved_conflict_index(self) -> int:
+        return 0
+
     def __init__(self, map_file: str) -> None:
         super().__init__()
 
@@ -143,7 +136,7 @@ class DungeonController(controller.Controller):
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
         self._view.draw(self.player, self._dungeon.map)
-        self._view.draw_conflicts(self._dungeon.conflicts)
+        # self._view.draw_conflicts(self._dungeon.conflicts)
 
         pg.display.flip()
 
@@ -172,14 +165,12 @@ class DungeonController(controller.Controller):
 
     # the owning object needs to know this
     def should_exit(self) -> bool:
-        conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
-        return conflict_resolved and self._teleported
+        return self._teleported
+        # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
+        # return conflict_resolved and self._teleported
 
     def game_over(self) -> bool:
         return self.player.status.is_dead
-
-    def resolved_conflict_index(self) -> int:
-        return self._dungeon.conflicts.resolved_conflict()
 
     def _init_controls(self) -> None:
 

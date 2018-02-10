@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" nextobjectid="195">
- <tileset firstgid="1" name="spritesheet_tiles" tilewidth="64" tileheight="64" spacing="10" tilecount="540">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" nextobjectid="195">
+ <tileset firstgid="1" name="spritesheet_tiles" tilewidth="64" tileheight="64" spacing="10" tilecount="540" columns="27">
   <image source="../img/spritesheet_tiles.png" width="1988" height="1470"/>
  </tileset>
  <layer name="ground" width="50" height="30">
@@ -241,11 +241,7 @@
   <object id="181" name="zombie" x="928" y="1472" width="32" height="32"/>
   <object id="182" name="zombie" x="576" y="1424" width="32" height="32"/>
   <object id="183" name="pistol" x="1124" y="737" width="22" height="20"/>
-  <object id="184" name="waypoint" x="906" y="212" width="46" height="23">
-   <properties>
-    <property name="conflict" value="2"/>
-   </properties>
-  </object>
+  <object id="184" name="waypoint" x="906" y="212" width="46" height="23"/>
   <object id="186" name="rock" x="451" y="222" width="22" height="20"/>
   <object id="187" name="zombie" x="1855" y="649" width="32" height="32">
    <properties>
