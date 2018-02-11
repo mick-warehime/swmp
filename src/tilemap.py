@@ -30,25 +30,14 @@ class MapObject(object):
         self.width = tile_object.width
         self.height = tile_object.height
         self.type = self._parse_type(tile_object.name)
-        # self.conflict = self._parse_conflict(tile_object)
         if hasattr(tile_object, 'labels'):
             labels_str = getattr(tile_object, 'labels')
             self.labels = set(labels_str.split(' '))
         else:
             self.labels: Set[str] = None
 
-    # def _parse_conflict(self, tile_object: Any) -> str:
-    #     return getattr(tile_object, CONFLICT, NOT_CONFLICT)
-
     def _parse_type(self, type_name: str) -> ObjectType:
         return type_name
-        # for obj_type in ObjectType:
-        #     if type_name == obj_type:
-        #         return obj_type
-        #
-        # raise ValueError('invalid object type %s @ %d',
-        #                  type_name,
-        #                  self.center)
 
 
 class TiledMap:

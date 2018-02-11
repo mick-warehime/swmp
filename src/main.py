@@ -7,7 +7,6 @@ import controller
 from creatures.players import Player
 from draw_utils import draw_text
 from dungeon_controller import DungeonController, Dungeon
-from quests import quest
 from quests.resolutions import KillGroup
 
 
@@ -41,13 +40,14 @@ class Game(object):
         dungeon = Dungeon('level1.tmx')
         res_data = dungeon.labeled_sprites
 
-        kill_quest = KillGroup('quest')
+        resolutions = [KillGroup('quest'), KillGroup('player')]
 
         for game_obj, labels in res_data.items():
-            if 'quest' in labels:
-                kill_quest.add_to_group(game_obj)
+            for resolution in resolutions:
+                if resolution.group_label in labels:
+                    resolution.add_to_group(game_obj)
 
-        self.scene_ctlr = DungeonController(dungeon, [kill_quest])
+        self.scene_ctlr = DungeonController(dungeon, resolutions)
         # self.quest = quest.Quest()
         # self._next_scene()
         sounds.play(sounds.LEVEL_START)
@@ -67,7 +67,7 @@ class Game(object):
 
             resolutions = self.scene_ctlr.resolved_resolutions()
             if resolutions:
-                print('YAY!')
+                break
 
             if self.scene_ctlr.game_over():
                 break

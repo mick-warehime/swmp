@@ -52,14 +52,14 @@ class Dungeon(object):
         for obj in self.map.objects:
 
             if obj.type == tilemap.ObjectType.PLAYER:
-                continue
-            if obj.type == tilemap.ObjectType.WALL:
+                game_obj = self.player
+            elif obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
                 continue
-
-            game_obj = constructors.build_map_object(obj.type, obj.center,
-                                                     self.player)
+            else:
+                game_obj = constructors.build_map_object(obj.type, obj.center,
+                                                         self.player)
             # TODO(dvirk): Ideally this should be handled outside the scope of
             # Dungeon. Perhaps this whole method should be handled outside.
             if obj.labels is not None:
@@ -176,7 +176,7 @@ class DungeonController(controller.Controller):
         # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
         # return conflict_resolved and self._teleported
 
-    def resolved_resolutions(self)->List[Resolution]:
+    def resolved_resolutions(self) -> List[Resolution]:
         return [res for res in self._resolutions if res.is_resolved]
 
     def game_over(self) -> bool:

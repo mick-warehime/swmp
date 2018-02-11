@@ -140,7 +140,11 @@
 </data>
  </layer>
  <objectgroup name="Obstacles">
-  <object id="1" name="player" x="336" y="208" width="32" height="32"/>
+  <object id="1" name="player" x="336" y="208" width="32" height="32">
+   <properties>
+    <property name="labels" value="player"/>
+   </properties>
+  </object>
   <object id="2" name="wall" x="448" y="320" width="320" height="64"/>
   <object id="3" name="wall" x="448" y="960" width="960" height="64"/>
   <object id="4" name="wall" x="960" y="640" width="384" height="64"/>
