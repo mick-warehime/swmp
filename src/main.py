@@ -38,7 +38,6 @@ class Game(object):
         dungeon = Dungeon('level1.tmx')
         res_data = dungeon.labeled_sprites
 
-
         resolutions = [KillGroup('quest'),
                        ConditionSatisfied('player', IsDead()),
                        EnterZone('exit', 'player')]
@@ -68,8 +67,7 @@ class Game(object):
             if resolutions:
                 break
 
-            if self.scene_ctlr.game_over():
-                break
+
 
                 # if self.scene_ctlr.should_exit():
                 #     self._next_scene()

@@ -63,13 +63,6 @@ class DungeonControllerTest(unittest.TestCase):
         inventory.equip(shotgun.mod)
         self.assertIs(inventory.backpack[1], shotgun_2.mod)
 
-    def test_game_over(self) -> None:
-        ctrl = make_dungeon_controller()
-        player = ctrl.player
-        ctrl.player.status.increment_health(- 2 * player.status.max_health)
-
-        self.assertTrue(ctrl.game_over())
-
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()
 

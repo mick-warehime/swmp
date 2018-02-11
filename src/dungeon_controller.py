@@ -128,9 +128,6 @@ class DungeonController(controller.Controller):
      user.
      """
 
-    # def resolved_conflict_index(self) -> int:
-    #     return 0
-
     def __init__(self, dungeon: Dungeon, resolutions: List[Resolution]) \
             -> None:
         super().__init__()
@@ -181,9 +178,6 @@ class DungeonController(controller.Controller):
 
     def resolved_resolutions(self) -> List[Resolution]:
         return [res for res in self._resolutions if res.is_resolved]
-
-    def game_over(self) -> bool:
-        return self.player.status.is_dead
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked

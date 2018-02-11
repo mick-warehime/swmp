@@ -11,6 +11,8 @@ from model import GameObject
 
 class ResolutionType(Enum):
     KILL = 'kill'
+    ENTER_ZONE = 'enter zone'
+    CONDITION = 'condition'
 
 
 class Resolution(abc.ABC):
