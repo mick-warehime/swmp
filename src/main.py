@@ -4,9 +4,10 @@ import settings
 import sounds
 import images
 import controller
+from conditions import IsDead
 from draw_utils import draw_text
 from dungeon_controller import DungeonController, Dungeon
-from quests.resolutions import KillGroup, EnterZone
+from quests.resolutions import KillGroup, EnterZone, ConditionSatisfied
 
 
 class Game(object):
@@ -37,7 +38,9 @@ class Game(object):
         dungeon = Dungeon('level1.tmx')
         res_data = dungeon.labeled_sprites
 
-        resolutions = [KillGroup('quest'), KillGroup('player'),
+
+        resolutions = [KillGroup('quest'),
+                       ConditionSatisfied('player', IsDead()),
                        EnterZone('exit', 'player')]
 
         for resolution in resolutions:

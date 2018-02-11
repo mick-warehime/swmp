@@ -27,8 +27,6 @@ class SceneData(BaseSceneData):
         return super().__new__(cls, scene_type, description, map_file)
 
 
-#
-#     def __init__(self, data: SceneData):
 class Scene(object):
     def __init__(self, data: SceneData) -> None:
         self.description = data.description
@@ -38,4 +36,3 @@ class Scene(object):
 
     def start(self, player: Player):
         self.controller.set_player(player)
-
