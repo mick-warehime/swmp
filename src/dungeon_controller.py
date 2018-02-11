@@ -144,8 +144,6 @@ class DungeonController(controller.Controller):
 
         self._init_controls()
 
-        # self._teleported = False
-
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 

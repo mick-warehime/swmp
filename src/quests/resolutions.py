@@ -78,3 +78,19 @@ class ConditionSatisfied(Resolution):
     @property
     def is_resolved(self) -> bool:
         return self._condition.check(self._tested)
+
+
+class MakeDecision(Resolution):
+    def __init__(self, description: str):
+        self.description = description
+        self._decision_chosen = False
+
+    def choose_choice(self)->None:
+        self._decision_chosen = True
+
+    @property
+    def is_resolved(self) -> bool:
+        return self._decision_chosen
+
+    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+        pass

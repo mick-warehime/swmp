@@ -5,9 +5,11 @@ import sounds
 import images
 import controller
 from conditions import IsDead
+from decision_controller import DecisionController
 from draw_utils import draw_text
 from dungeon_controller import DungeonController, Dungeon
-from quests.resolutions import KillGroup, EnterZone, ConditionSatisfied
+from quests.resolutions import KillGroup, EnterZone, ConditionSatisfied, \
+    MakeDecision
 
 
 class Game(object):
@@ -35,17 +37,22 @@ class Game(object):
 
     def new(self) -> None:
 
-        dungeon = Dungeon('level1.tmx')
-        res_data = dungeon.labeled_sprites
+        prompt = 'Do you go in the swamp?'
+        decisions = [MakeDecision('yes'), MakeDecision('no')]
 
-        resolutions = [KillGroup('quest'),
-                       ConditionSatisfied('player', IsDead()),
-                       EnterZone('exit', 'player')]
+        self.scene_ctlr = DecisionController(prompt, decisions)
 
-        for resolution in resolutions:
-            resolution.load_data(res_data)
-
-        self.scene_ctlr = DungeonController(dungeon, resolutions)
+        # dungeon = Dungeon('level1.tmx')
+        # res_data = dungeon.labeled_sprites
+        #
+        # resolutions = [KillGroup('quest'),
+        #                ConditionSatisfied('player', IsDead()),
+        #                EnterZone('exit', 'player')]
+        #
+        # for resolution in resolutions:
+        #     resolution.load_data(res_data)
+        #
+        # self.scene_ctlr = DungeonController(dungeon, resolutions)
         # self.quest = quest.Quest()
         # self._next_scene()
         sounds.play(sounds.LEVEL_START)
@@ -54,8 +61,6 @@ class Game(object):
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            # if self.quest.is_complete:
-            #     break
 
             self._handle_events()
             self._update()
@@ -66,11 +71,6 @@ class Game(object):
             resolutions = self.scene_ctlr.resolved_resolutions()
             if resolutions:
                 break
-
-
-
-                # if self.scene_ctlr.should_exit():
-                #     self._next_scene()
 
     def show_go_screen(self) -> None:
         self._game_over()
