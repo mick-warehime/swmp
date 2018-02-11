@@ -1,4 +1,5 @@
 """Possible resolutions to dramatic questions."""
+import abc
 from enum import Enum
 
 from pygame.sprite import Group, Sprite
@@ -8,7 +9,10 @@ class ResolutionType(Enum):
     KILL = 'kill'
 
 
-class Resolution(object):
+class Resolution(abc.ABC):
+    def __init__(self, group_label: str):
+        self.group_label = group_label
+
     @property
     def is_resolved(self) -> bool:
         raise NotImplementedError
@@ -20,8 +24,8 @@ class Resolution(object):
 
 class KillGroup(Resolution):
     def __init__(self, group_label: str, resolve_immediately=False):
+        super().__init__(group_label)
         self._group_to_kill = Group()
-        self.group_label = group_label
         self._resolve_immediately = resolve_immediately
 
     def add_to_group(self, *sprites: Sprite) -> None:
