@@ -6,7 +6,7 @@ from pygame.surface import Surface
 import model
 from creatures.enemies import Behavior, Enemy, EnemyData
 from data.input_output import load_npc_data_kwargs
-from effects import TargetClose
+from conditions import TargetClose
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer

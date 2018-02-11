@@ -3,9 +3,10 @@ from collections import namedtuple
 from typing import Any, List, Union
 
 from data.input_output import load_projectile_data_kwargs
-from effects import Condition, Effect, CooldownCondition, EnergyAvailable, \
-    IsDamaged, EnergyNotFull, UpdateLastUse, Heal, Recharge, ExpendEnergy, \
+from effects import Effect, UpdateLastUse, Heal, Recharge, ExpendEnergy, \
     PlaySound, Kickback, MakeProjectile, MuzzleFlashEffect
+from conditions import Condition, CooldownCondition, EnergyAvailable, \
+    IsDamaged, EnergyNotFull
 from model import Timer
 from projectiles import ProjectileData
 

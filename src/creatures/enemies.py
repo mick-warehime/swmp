@@ -4,13 +4,15 @@ import pygame as pg
 from pygame.math import Vector2, Vector3
 from pygame.sprite import Group
 
+import conditions
 import images
 import settings
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 import effects
-from effects import Conditions, Effects, Condition, Effect
+from effects import Effects, Effect
+from conditions import Conditions, Condition
 from model import Timer
 from mods import Mod, ModData
 
@@ -130,7 +132,7 @@ class Behavior(object):
                         else:
                             condition &= new_cond
                 else:
-                    condition = effects.AlwaysTrue()
+                    condition = conditions.AlwaysTrue()
 
                 state_behavior[effect] = condition
             self._state_effects_conditions[state] = state_behavior
@@ -201,16 +203,16 @@ class Behavior(object):
         condition_data = condition_data[label_str]
         if condition_label == Conditions.RANDOM_RATE:
             rate = condition_data['rate']
-            condition = effects.RandomEventAtRate(timer, rate)
+            condition = conditions.RandomEventAtRate(timer, rate)
         elif condition_label == Conditions.TARGET_CLOSE:
             threshold = condition_data['threshold']
-            condition = effects.TargetClose(player, threshold)
+            condition = conditions.TargetClose(player, threshold)
         elif condition_label == Conditions.DEAD:
-            condition = effects.IsDead()
+            condition = conditions.IsDead()
         elif condition_label == Conditions.ALWAYS:
-            condition = effects.AlwaysTrue()
+            condition = conditions.AlwaysTrue()
         elif condition_label == Conditions.DAMAGED:
-            condition = effects.IsDamaged()
+            condition = conditions.IsDamaged()
         else:
             raise NotImplementedError(
                 'Unrecognized condition label %s' % (condition_label,))
