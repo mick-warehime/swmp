@@ -4,10 +4,9 @@ import settings
 import sounds
 import images
 import controller
-from creatures.players import Player
 from draw_utils import draw_text
 from dungeon_controller import DungeonController, Dungeon
-from quests.resolutions import KillGroup
+from quests.resolutions import KillGroup, EnterZone
 
 
 class Game(object):
@@ -32,20 +31,17 @@ class Game(object):
         sounds.initialize_sounds()
 
         self._paused = False
-        self._player: Player = None
 
     def new(self) -> None:
-        self._player = None
 
         dungeon = Dungeon('level1.tmx')
         res_data = dungeon.labeled_sprites
 
-        resolutions = [KillGroup('quest'), KillGroup('player')]
+        resolutions = [KillGroup('quest'), KillGroup('player'),
+                       EnterZone('exit', 'player')]
 
-        for game_obj, labels in res_data.items():
-            for resolution in resolutions:
-                if resolution.group_label in labels:
-                    resolution.add_to_group(game_obj)
+        for resolution in resolutions:
+            resolution.load_data(res_data)
 
         self.scene_ctlr = DungeonController(dungeon, resolutions)
         # self.quest = quest.Quest()
@@ -79,20 +75,20 @@ class Game(object):
         self._game_over()
         self._wait_for_key()
 
-    def _next_scene(self) -> None:
-        scene = self.quest.next_scene()
-        if self.quest.is_complete:
-            return
-
-        self.scene_ctlr = scene.get_controller()
-        self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self._toggle_paused)
-
-        if self._player is not None:
-            self.scene_ctlr.set_player(self._player)
-        else:
-            self._player = self.scene_ctlr.player
-
-        scene.show_intro()
+    # def _next_scene(self) -> None:
+    #     scene = self.quest.next_scene()
+    #     if self.quest.is_complete:
+    #         return
+    #
+    #     self.scene_ctlr = scene.get_controller()
+    #     self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self._toggle_paused)
+    #
+    #     if self._player is not None:
+    #         self.scene_ctlr.set_player(self._player)
+    #     else:
+    #         self._player = self.scene_ctlr.player
+    #
+    #     scene.show_intro()
 
     def _quit(self) -> None:
         pg.quit()

@@ -34,7 +34,7 @@ class MapObject(object):
             labels_str = getattr(tile_object, 'labels')
             self.labels = set(labels_str.split(' '))
         else:
-            self.labels: Set[str] = None
+            self.labels: Set[str] = set()
 
     def _parse_type(self, type_name: str) -> ObjectType:
         return type_name

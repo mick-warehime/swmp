@@ -35,7 +35,7 @@ class Dungeon(object):
 
         # init_map
         self.map = tilemap.TiledMap(map_file)
-        self.labeled_sprites: Dict[GameObject, Set[str]] = {}
+        self.labeled_sprites: Dict[str, Set[GameObject]] = {}
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
@@ -62,8 +62,11 @@ class Dungeon(object):
                                                          self.player)
             # TODO(dvirk): Ideally this should be handled outside the scope of
             # Dungeon. Perhaps this whole method should be handled outside.
-            if obj.labels is not None:
-                self.labeled_sprites[game_obj] = obj.labels
+            for label in obj.labels:
+                if label not in self.labeled_sprites:
+                    self.labeled_sprites[label] = {game_obj}
+                else:
+                    self.labeled_sprites[label].add(game_obj)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self.groups)
