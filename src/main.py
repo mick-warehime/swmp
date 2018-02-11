@@ -6,7 +6,9 @@ import images
 import controller
 from creatures.players import Player
 from draw_utils import draw_text
+from dungeon_controller import DungeonController, Dungeon
 from quests import quest
+from quests.resolutions import KillGroup
 
 
 class Game(object):
@@ -35,16 +37,27 @@ class Game(object):
 
     def new(self) -> None:
         self._player = None
-        self.quest = quest.Quest()
-        self._next_scene()
+
+        dungeon = Dungeon('level1.tmx')
+        res_data = dungeon.labeled_sprites
+
+        kill_quest = KillGroup('quest')
+
+        for game_obj, labels in res_data.items():
+            if 'quest' in labels:
+                kill_quest.add_to_group(game_obj)
+
+        self.scene_ctlr = DungeonController(dungeon, [kill_quest])
+        # self.quest = quest.Quest()
+        # self._next_scene()
         sounds.play(sounds.LEVEL_START)
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            if self.quest.is_complete:
-                break
+            # if self.quest.is_complete:
+            #     break
 
             self._handle_events()
             self._update()
@@ -52,11 +65,15 @@ class Game(object):
             if self._paused:
                 self._pause_game()
 
+            resolutions = self.scene_ctlr.resolved_resolutions()
+            if resolutions:
+                print('YAY!')
+
             if self.scene_ctlr.game_over():
                 break
 
-            if self.scene_ctlr.should_exit():
-                self._next_scene()
+                # if self.scene_ctlr.should_exit():
+                #     self._next_scene()
 
     def show_go_screen(self) -> None:
         self._game_over()

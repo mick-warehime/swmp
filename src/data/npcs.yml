@@ -83,7 +83,7 @@ zombie:
         draw image on map:
           image_file: *splat_image
 
-quest_zombie:
+red_zombie:
   max_speed: 400
   max_health: 250
   damage: 20

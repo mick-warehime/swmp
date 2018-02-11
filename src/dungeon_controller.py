@@ -1,5 +1,5 @@
 from random import random
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 import pygame as pg
 from pygame.math import Vector2
@@ -19,6 +19,7 @@ from data import constructors
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, DynamicObject
 from projectiles import Projectile
+from quests.resolutions import Resolution
 
 
 class Dungeon(object):
@@ -34,6 +35,7 @@ class Dungeon(object):
 
         # init_map
         self.map = tilemap.TiledMap(map_file)
+        self.labeled_sprites: Dict[GameObject, Set[str]] = {}
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
@@ -56,7 +58,12 @@ class Dungeon(object):
                 Obstacle(pos, obj.width, obj.height)
                 continue
 
-            constructors.build_map_object(obj.type, obj.center, self.player)
+            game_obj = constructors.build_map_object(obj.type, obj.center,
+                                                     self.player)
+            # TODO(dvirk): Ideally this should be handled outside the scope of
+            # Dungeon. Perhaps this whole method should be handled outside.
+            if obj.labels is not None:
+                self.labeled_sprites[game_obj] = obj.labels
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self.groups)
@@ -114,13 +121,20 @@ class Dungeon(object):
 
 
 class DungeonController(controller.Controller):
-    def resolved_conflict_index(self) -> int:
-        return 0
+    """Manages interactions between a Dungeon, DungeonView, Resolutions, and
+     user.
+     """
 
-    def __init__(self, map_file: str) -> None:
+    # def resolved_conflict_index(self) -> int:
+    #     return 0
+
+    def __init__(self, dungeon: Dungeon, resolutions: List[Resolution]) \
+            -> None:
         super().__init__()
 
-        self._dungeon = Dungeon(map_file)
+        self._dungeon = dungeon
+        self._resolutions = resolutions
+
         self.player = self._dungeon.player
 
         self._view = view.DungeonView(self._screen)
@@ -130,7 +144,7 @@ class DungeonController(controller.Controller):
 
         self._init_controls()
 
-        self._teleported = False
+        # self._teleported = False
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
@@ -153,24 +167,27 @@ class DungeonController(controller.Controller):
 
         self.keyboard.set_previous_input()
 
+    def get_fps(self) -> float:
+        return self._dungeon.get_fps()
+
+        # # the owning object needs to know this
+        # def should_exit(self) -> bool:
+        #     return self._teleported
+        # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
+        # return conflict_resolved and self._teleported
+
+    def resolved_resolutions(self)->List[Resolution]:
+        return [res for res in self._resolutions if res.is_resolved]
+
+    def game_over(self) -> bool:
+        return self.player.status.is_dead
+
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked
         if hud_clicked:
             hud_clicked &= self._view.hud_collide_point(
                 self.keyboard.mouse_pos)
         return hud_clicked
-
-    def get_fps(self) -> float:
-        return self._dungeon.get_fps()
-
-    # the owning object needs to know this
-    def should_exit(self) -> bool:
-        return self._teleported
-        # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
-        # return conflict_resolved and self._teleported
-
-    def game_over(self) -> bool:
-        return self.player.status.is_dead
 
     def _init_controls(self) -> None:
 
@@ -203,7 +220,7 @@ class DungeonController(controller.Controller):
         # equip / use
         self.keyboard.bind_on_press(pg.K_e, self._try_equip)
 
-        self.keyboard.bind_on_press(pg.K_t, self._teleport)
+        # self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
     def _handle_hud(self) -> None:
         self._view.try_click_hud(self.keyboard.mouse_pos)
@@ -249,5 +266,5 @@ class DungeonController(controller.Controller):
     def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
 
-    def _teleport(self) -> None:
-        self._teleported = True
+        # def _teleport(self) -> None:
+        #     self._teleported = True

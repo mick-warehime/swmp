@@ -1,7 +1,10 @@
-from typing import Dict, Any
-import yaml
 from enum import Enum
+from typing import Dict, Any
+
+import yaml
+
 from quests.quest import Dungeon, Decision
+from quests.scenes import SceneType
 
 
 class SceneData(Enum):
@@ -15,16 +18,6 @@ class SceneData(Enum):
     FAIL = 'fail'
     NONE = 'none'
     ROOT = 'root'
-
-
-class SceneType(Enum):
-    DUNGEON = 'dungeon'
-    DECISION = 'decision'
-
-
-# TODO - move this to its own module imported by player and quest loader
-class Skills(Enum):
-    SNEAK = 'sneak'
 
 
 def load_quest_from_dict(quest: Dict) -> Any:

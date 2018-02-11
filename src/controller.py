@@ -113,14 +113,14 @@ class Controller(object):
         self.player.inventory = new_player.inventory
         self.player.status = new_player.status
 
-    def resolved_conflict_index(self) -> int:
-        raise NotImplementedError()
+    # def resolved_conflict_index(self) -> int:
+    #     raise NotImplementedError()
 
     def game_over(self) -> bool:
         raise NotImplementedError()
 
-    def should_exit(self) -> bool:
-        raise NotImplementedError()
+    # def should_exit(self) -> bool:
+    #     raise NotImplementedError()
 
     def draw(self) -> None:
         raise NotImplementedError
