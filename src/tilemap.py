@@ -14,18 +14,8 @@ NOT_CONFLICT = 'not_conflict'
 @unique
 class ObjectType(Enum):
     PLAYER = 'player'
-    ZOMBIE = 'zombie'
-    QUEST_ZOMBIE = 'quest_zombie'
     WALL = 'wall'
-    PISTOL = 'pistol'
-    HEALTHPACK = 'healthpack'
-    ROCK = 'rock'
-    SHOTGUN = 'shotgun'
-    CONFLICT = 'conflict'
     WAYPOINT = 'waypoint'
-    LASER_GUN = 'laser'
-    BATTERY = 'battery'
-    TURRET = 'turret'
 
 
 class MapObject(object):
