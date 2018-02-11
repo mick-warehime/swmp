@@ -8,7 +8,7 @@ import creatures.enemies
 import creatures.players
 import items
 from data.constructors import build_map_object
-from dungeon_controller import DungeonController
+from dungeon_controller import DungeonController, Dungeon
 from tilemap import ObjectType
 
 
@@ -26,7 +26,7 @@ def make_zombie(player: Union[
     return build_map_object('zombie', pos, player)
 
 
-def make_item(label: ObjectType) -> items.ItemObject:
+def make_item(label: str) -> items.ItemObject:
     pos = Vector2(0, 0)
     return build_map_object(label, pos)
 
@@ -34,8 +34,10 @@ def make_item(label: ObjectType) -> items.ItemObject:
 def make_dungeon_controller() -> DungeonController:
     blank_screen = pygame.Surface((800, 600))
     controller.initialize_controller(blank_screen, None)
-    level = 'test_level.tmx'
-    return DungeonController(level)
+
+    dungeon = Dungeon('test_level.tmx')
+
+    return DungeonController(dungeon, [])
 
 
 class TiledmapObject(object):

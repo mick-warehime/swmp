@@ -14,7 +14,6 @@ from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
 from src.test.testing_utilities import make_player, make_zombie
 from test import dummy_audio_video
-from tilemap import ObjectType
 from data.constructors import build_map_object
 
 
@@ -204,12 +203,12 @@ class HumanoidsTest(unittest.TestCase):
         player = make_player()
 
         player.inventory.attempt_pickup(
-            build_map_object(ObjectType.ROCK, player.pos))
+            build_map_object('rock', player.pos))
 
         self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
         player.inventory.attempt_pickup(
-            build_map_object(ObjectType.ROCK, player.pos))
+            build_map_object('rock', player.pos))
         self.assertFalse(player.inventory.backpack.slot_occupied(0))
 
     def test_use_ability_at_empty_slot_no_effect(self) -> None:

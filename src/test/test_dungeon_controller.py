@@ -7,7 +7,6 @@ from pygame.math import Vector2
 import mods
 from src.test.pygame_mock import initialize_pygame
 from src.test.testing_utilities import make_dungeon_controller, make_player
-from tilemap import ObjectType
 from data.constructors import build_map_object
 from view import DungeonView
 
@@ -22,16 +21,16 @@ class DungeonControllerTest(unittest.TestCase):
         player = dng_ctrl.player
 
         pos = Vector2(0, 0)
-        pistol = build_map_object(ObjectType.PISTOL, pos)
-        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
+        pistol = build_map_object('pistol', pos)
+        shotgun = build_map_object('shotgun', pos)
 
         player.inventory.attempt_pickup(pistol)
         player.inventory.attempt_pickup(
             shotgun)  # shotgun mod goes to slot 0 in backpack
         player.inventory.attempt_pickup(
-            build_map_object(ObjectType.HEALTHPACK, pos))
+            build_map_object('healthpack', pos))
         player.inventory.attempt_pickup(
-            build_map_object(ObjectType.HEALTHPACK, pos))
+            build_map_object('healthpack', pos))
 
         mock_view = Mock(spec=DungeonView)
 
@@ -49,15 +48,15 @@ class DungeonControllerTest(unittest.TestCase):
         player = make_player()
 
         pos = Vector2(0, 0)
-        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
+        shotgun = build_map_object('shotgun', pos)
 
         inventory = player.inventory
-        inventory.attempt_pickup(build_map_object(ObjectType.PISTOL, pos))
+        inventory.attempt_pickup(build_map_object('pistol', pos))
         inventory.attempt_pickup(
             shotgun)  # shotgun mod goes to slot 0 in backpack
 
-        inventory.attempt_pickup(build_map_object(ObjectType.HEALTHPACK, pos))
-        shotgun_2 = build_map_object(ObjectType.SHOTGUN, pos)
+        inventory.attempt_pickup(build_map_object('healthpack', pos))
+        shotgun_2 = build_map_object('shotgun', pos)
         inventory.attempt_pickup(shotgun_2)
 
         self.assertIs(inventory.backpack[1], shotgun_2.mod)
@@ -70,23 +69,6 @@ class DungeonControllerTest(unittest.TestCase):
         ctrl.player.status.increment_health(- 2 * player.status.max_health)
 
         self.assertTrue(ctrl.game_over())
-
-    def test_should_exit(self) -> None:
-        ctrl = make_dungeon_controller()
-        # ctrl isn't over when we start
-        self.assertFalse(ctrl.should_exit())
-
-        for conflict_name in ctrl._dungeon.conflicts.conflicts:
-            ctrl._dungeon.conflicts.conflicts[conflict_name].group.empty()
-
-        # can't exit until teleport
-        self.assertFalse(ctrl.should_exit())
-
-        # assume the player asks to teleport
-        ctrl._teleported = True
-
-        # ensure the ctrl is now over
-        self.assertTrue(ctrl.should_exit())
 
     def test_equip_nothing_from_backpack(self) -> None:
         dungeon = make_dungeon_controller()
@@ -115,8 +97,8 @@ class DungeonControllerTest(unittest.TestCase):
         dungeon = make_dungeon_controller()
         player = make_player()
         pos = Vector2(0, 0)
-        pistol = build_map_object(ObjectType.PISTOL, pos)
-        shotgun = build_map_object(ObjectType.SHOTGUN, pos)
+        pistol = build_map_object('pistol', pos)
+        shotgun = build_map_object('shotgun', pos)
 
         player.inventory.attempt_pickup(pistol)
         player.inventory.attempt_pickup(
@@ -138,7 +120,7 @@ class DungeonControllerTest(unittest.TestCase):
         player = dng_ctrl.player
 
         pos = Vector2(0, 0)
-        pistol = build_map_object(ObjectType.PISTOL, pos)
+        pistol = build_map_object('pistol', pos)
         player.inventory.attempt_pickup(pistol)
 
         # ensure nothing in backpack
