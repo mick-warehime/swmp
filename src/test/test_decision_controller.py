@@ -2,9 +2,14 @@ import unittest
 
 from parameterized import parameterized
 
+import controller
 import decision_controller
 from quests.resolutions import MakeDecision
 from test import pygame_mock
+
+
+def setUpModule():
+    controller.initialize_controller(None, lambda x: x)
 
 
 class DecisionControllerTest(unittest.TestCase):
@@ -16,6 +21,9 @@ class DecisionControllerTest(unittest.TestCase):
                              decision_controller.pg.K_2,
                              decision_controller.pg.K_3]
 
+    def tearDown(self):
+        controller.Controller.keyboard.handle_input()
+
     @parameterized.expand([(0,), (1,), (2,)])
     def test_set_option_0(self, choice: int) -> None:
         prompt = 'Do you go into the swamp?'
@@ -23,14 +31,16 @@ class DecisionControllerTest(unittest.TestCase):
         decisions = [MakeDecision(opt) for opt in options]
         dc = decision_controller.DecisionController(prompt, decisions)
 
-        self.assertEqual(len(dc.resolved_resolutions()), 0)
+        resolved_resolutions = [dec for dec in decisions if dec.is_resolved]
+        self.assertEqual(len(resolved_resolutions), 0)
         key = self.pressed_keys[choice]
         decision_controller.pg.key.pressed[key] = 1
 
         dc.update()
 
-        self.assertEqual(len(dc.resolved_resolutions()), 1)
-        self.assertIs(dc.resolved_resolutions()[0], decisions[choice])
+        resolved_resolutions = [dec for dec in decisions if dec.is_resolved]
+        self.assertEqual(len(resolved_resolutions), 1)
+        self.assertIs(resolved_resolutions[0], decisions[choice])
 
 
 if __name__ == '__main__':

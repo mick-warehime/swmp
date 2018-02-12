@@ -64,7 +64,7 @@ class Keyboard(object):
         for key_id in self._just_pressed_keys():
             self._call_binding(key_id, self._bindings_on_press, allowed_keys)
 
-        self.set_previous_input()
+        self._set_previous_input()
 
     @staticmethod
     def _call_binding(key_id: int, funcs: Dict[int, Callable[..., None]],
@@ -83,7 +83,7 @@ class Keyboard(object):
     def mouse_pos(self) -> Tuple[int, int]:
         return pg.mouse.get_pos()
 
-    def set_previous_input(self) -> None:
+    def _set_previous_input(self) -> None:
         self._prev_keys = list(pg.key.get_pressed())
         self._prev_mouse = list(pg.mouse.get_pressed())
 
