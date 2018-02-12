@@ -24,16 +24,10 @@ class DecisionController(controller.Controller):
         self._allowed_keys = _key_labels + [pg.K_ESCAPE]
 
         for decision, key in zip(self._decisions, _key_labels):
-            self.keyboard.bind(key, decision.choose_choice)
+            self.keyboard.bind_on_press(key, decision.choose)
 
     def update(self) -> None:
         self.keyboard.handle_input(allowed_keys=self._allowed_keys)
 
     def draw(self) -> None:
         self._view.draw()
-
-    def resolved_resolutions(self) -> List[Resolution]:
-        decisions_made = [dec for dec in self._decisions if dec.is_resolved]
-        assert len(decisions_made) in (0, 1), 'Cannot choose more than one ' \
-                                              'decision!'
-        return decisions_made

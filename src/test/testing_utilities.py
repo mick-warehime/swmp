@@ -37,7 +37,7 @@ def make_dungeon_controller() -> DungeonController:
 
     dungeon = Dungeon('test_level.tmx')
 
-    return DungeonController(dungeon, [])
+    return DungeonController(dungeon)
 
 
 class TiledmapObject(object):

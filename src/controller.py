@@ -1,7 +1,6 @@
 from typing import Callable, Dict, List, Tuple, Any
 import pygame as pg
 from creatures.players import Player
-from quests.resolutions import Resolution
 
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
@@ -11,6 +10,7 @@ MOUSE_RIGHT = 2
 def initialize_controller(screen: pg.Surface,
                           quit_func: Any) -> None:
     Controller._screen = screen
+    Controller.keyboard = Keyboard()
     Keyboard.quit_func = quit_func
 
 
@@ -30,6 +30,14 @@ class Keyboard(object):
         self._mouse_bindings: Dict[int, Callable[..., None]] = {}
 
         # default bindings for every controller (currently only escape)
+        self._bind_quit()
+
+    def reset_bindings(self):
+        """Clear all bindings except quit"""
+
+        self._bindings: Dict[int, Callable[..., None]] = {}
+        self._bindings_on_press: Dict[int, Callable[..., None]] = {}
+        self._mouse_bindings: Dict[int, Callable[..., None]] = {}
         self._bind_quit()
 
     # calls this function every frame when the key is held down
@@ -55,6 +63,8 @@ class Keyboard(object):
             self._call_binding(mouse_id, self._mouse_bindings, allowed_keys)
         for key_id in self._just_pressed_keys():
             self._call_binding(key_id, self._bindings_on_press, allowed_keys)
+
+        self.set_previous_input()
 
     @staticmethod
     def _call_binding(key_id: int, funcs: Dict[int, Callable[..., None]],
@@ -104,9 +114,10 @@ class Keyboard(object):
 
 class Controller(object):
     _screen = None
+    keyboard: Keyboard = None
 
     def __init__(self) -> None:
-        self.keyboard = Keyboard()
+        self.keyboard.reset_bindings()
 
         self.player: Player = None
 
@@ -118,7 +129,4 @@ class Controller(object):
         raise NotImplementedError
 
     def update(self) -> None:
-        raise NotImplementedError
-
-    def resolved_resolutions(self) -> List[Resolution]:
         raise NotImplementedError

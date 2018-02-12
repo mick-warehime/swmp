@@ -85,7 +85,7 @@ class MakeDecision(Resolution):
         self.description = description
         self._decision_chosen = False
 
-    def choose_choice(self)->None:
+    def choose(self) -> None:
         self._decision_chosen = True
 
     @property
@@ -94,3 +94,6 @@ class MakeDecision(Resolution):
 
     def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         pass
+
+    def __str__(self) -> str:
+        return 'MakeDecision {}'.format(self.description)

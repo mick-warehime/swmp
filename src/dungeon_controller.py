@@ -128,12 +128,10 @@ class DungeonController(controller.Controller):
      user.
      """
 
-    def __init__(self, dungeon: Dungeon, resolutions: List[Resolution]) \
-            -> None:
+    def __init__(self, dungeon: Dungeon) -> None:
         super().__init__()
 
         self._dungeon = dungeon
-        self._resolutions = resolutions
 
         self.player = self._dungeon.player
 
@@ -163,7 +161,7 @@ class DungeonController(controller.Controller):
 
         self._dungeon.update()
 
-        self.keyboard.set_previous_input()
+        # self.keyboard.set_previous_input()
 
     def get_fps(self) -> float:
         return self._dungeon.get_fps()
@@ -173,9 +171,6 @@ class DungeonController(controller.Controller):
         #     return self._teleported
         # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
         # return conflict_resolved and self._teleported
-
-    def resolved_resolutions(self) -> List[Resolution]:
-        return [res for res in self._resolutions if res.is_resolved]
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked

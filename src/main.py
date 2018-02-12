@@ -1,15 +1,109 @@
+from typing import List, Union
+
+import networkx
 import pygame as pg
 import sys
+
 import settings
 import sounds
 import images
 import controller
-from conditions import IsDead
-from decision_controller import DecisionController
+from creatures.players import Player
 from draw_utils import draw_text
-from dungeon_controller import DungeonController, Dungeon
-from quests.resolutions import KillGroup, EnterZone, ConditionSatisfied, \
-    MakeDecision
+from quests.resolutions import Resolution
+from quests.scenes import DecisionScene, DungeonScene, Scene
+
+
+class Quest2(object):
+    """Handles transitions between different Controllers (scenes)"""
+
+    def __init__(self):
+
+        self._player: Player = None
+        self._graph = networkx.MultiDiGraph()
+
+        root = DecisionScene('Lasers or rocks?', ['lasers please', 'rocks!'])
+        self._graph.add_node(root)
+
+        laser_scene = DungeonScene('level1.tmx')
+        self._graph.add_node(laser_scene)
+        self._graph.add_edge(root, laser_scene, key=0)
+
+        rock_scene = DungeonScene('goto.tmx')
+        self._graph.add_node(rock_scene)
+        self._graph.add_edge(root, rock_scene, key=1)
+
+        game_over_lose = DecisionScene('You lose!', ['play again'])
+        self._graph.add_node(game_over_lose)
+        self._graph.add_edge(game_over_lose, root, key=0)
+
+        # DungeonScenes are currently constructed so the player death is the
+        #  second resolution, and the win conditions are first and third.
+        self._graph.add_edge(rock_scene, game_over_lose, key=1)
+        self._graph.add_edge(laser_scene, game_over_lose, key=1)
+
+        game_over_win = DecisionScene('You win!', ['play again'])
+        self._graph.add_edge(game_over_win, root, key=0)
+        self._graph.add_node(game_over_win)
+        self._graph.add_edge(rock_scene, game_over_lose, key=0)
+        self._graph.add_edge(laser_scene, game_over_lose, key=0)
+        self._graph.add_edge(rock_scene, game_over_lose, key=2)
+        self._graph.add_edge(laser_scene, game_over_lose, key=2)
+
+        self._set_current_scene(root)
+
+    def _set_current_scene(self, scene: Scene) -> None:
+        self.current_scene = scene
+        ctrl, resolutions = self.current_scene.make_controller_and_resolutions()
+        self.current_controller = ctrl
+
+        # if self._player is None and ctrl.player is not None:
+        #     self._player = ctrl.player
+        # else:
+        #     self.current_controller.set_player(self._player)
+
+
+
+        # Output of out_edges is a list of tuples of the form
+        # (source (Scene), sink(Scene), key (int))
+        next_scenes = [(edge[2], edge[1]) for edge in
+                       self._graph.out_edges(scene, keys=True)]
+        next_scenes = sorted(next_scenes, key=lambda x: x[0])
+        self.resolutions_to_scenes = {res: scene_tup[1] for res, scene_tup in
+                                      zip(resolutions, next_scenes)}
+
+    def update_and_draw(self):
+        self.current_controller.update()
+        self.current_controller.draw()
+
+        resolution = self.resolved_resolution()
+        if resolution is not None:
+            next_scene = self.resolutions_to_scenes[resolution]
+            self._set_current_scene(next_scene)
+
+    def resolved_resolution(self) -> Union[Resolution, None]:
+        resolved = [res for res in self.resolutions_to_scenes if
+                    res.is_resolved]
+
+        if len(resolved) not in (0, 1):
+            raise Warning('More than one resolved resolutions: {}. '
+                          'Choosing first in list.'.format(resolved))
+
+        if resolved:
+            return resolved[0]
+        else:
+            return None
+
+            # resolutions = self.current_node.resolved_resolutions()
+            # if resolutions:
+            #     resolution = resolutions[0]
+            #     edges_out = self._graph.out_edges([self.current_node], data=True)
+            #
+            #     valid_edges = [edge for edge in edges_out if
+            #                    edge[2]['resolution'] is resolution]
+            #     assert len(valid_edges) == 1, 'Resolved resolution must ' \
+            #                                   'correspond to exactly one edge.'
+            #     self.current_node = valid_edges[0][1]
 
 
 class Game(object):
@@ -19,9 +113,11 @@ class Game(object):
 
         pg.init()
 
-        self._screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
+        self._screen = pg.display.set_mode(
+            (settings.WIDTH, settings.HEIGHT))
 
-        self._dim_screen = pg.Surface(self._screen.get_size()).convert_alpha()
+        self._dim_screen = pg.Surface(
+            self._screen.get_size()).convert_alpha()
         self._dim_screen.fill((0, 0, 0, 180))
 
         # needs to happen before we make any controller
@@ -37,24 +133,8 @@ class Game(object):
 
     def new(self) -> None:
 
-        prompt = 'Do you go in the swamp?'
-        decisions = [MakeDecision('yes'), MakeDecision('no')]
+        self.quest_graph = Quest2()
 
-        self.scene_ctlr = DecisionController(prompt, decisions)
-
-        # dungeon = Dungeon('level1.tmx')
-        # res_data = dungeon.labeled_sprites
-        #
-        # resolutions = [KillGroup('quest'),
-        #                ConditionSatisfied('player', IsDead()),
-        #                EnterZone('exit', 'player')]
-        #
-        # for resolution in resolutions:
-        #     resolution.load_data(res_data)
-        #
-        # self.scene_ctlr = DungeonController(dungeon, resolutions)
-        # self.quest = quest.Quest()
-        # self._next_scene()
         sounds.play(sounds.LEVEL_START)
 
     def run(self) -> None:
@@ -63,14 +143,11 @@ class Game(object):
         while True:
 
             self._handle_events()
-            self._update()
+
+            self.quest_graph.update_and_draw()
 
             if self._paused:
                 self._pause_game()
-
-            resolutions = self.scene_ctlr.resolved_resolutions()
-            if resolutions:
-                break
 
     def show_go_screen(self) -> None:
         self._game_over()
@@ -94,11 +171,6 @@ class Game(object):
     def _quit(self) -> None:
         pg.quit()
         sys.exit()
-
-    def _update(self) -> None:
-        # always update the controller
-        self.scene_ctlr.update()
-        self.scene_ctlr.draw()
 
     def _handle_events(self) -> None:
         # catch all events here
