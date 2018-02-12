@@ -1,5 +1,7 @@
 from typing import Callable, Dict, List, Tuple, Any
 import pygame as pg
+
+from creatures.humanoids import HumanoidData
 from creatures.players import Player
 
 MOUSE_LEFT = 0
@@ -121,9 +123,8 @@ class Controller(object):
 
         self.player: Player = None
 
-    def set_player(self, new_player: Player) -> None:
-        self.player.inventory = new_player.inventory
-        self.player.status = new_player.status
+    def set_player_data(self, data: HumanoidData) -> None:
+        self.player.data = data
 
     def draw(self) -> None:
         raise NotImplementedError

@@ -98,7 +98,7 @@ class DungeonControllerTest(unittest.TestCase):
             shotgun)  # shotgun mod goes to slot 0 in backpack
         player.status.increment_health(-10)
 
-        dungeon.set_player(player)
+        dungeon.set_player_data(player.data)
 
         # make sure the player in the dungeon has 10 less health and the pistol
         # equiped and the shotgun in the backpack
