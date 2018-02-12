@@ -19,7 +19,6 @@ class Quest2(object):
 
     def __init__(self):
 
-        self._player: Player = None
         self._graph = networkx.MultiDiGraph()
 
         root = DecisionScene('Lasers or rocks?', ['lasers please', 'rocks!'])
@@ -45,10 +44,11 @@ class Quest2(object):
         game_over_win = DecisionScene('You win!', ['play again'])
         self._graph.add_edge(game_over_win, root, key=0)
         self._graph.add_node(game_over_win)
-        self._graph.add_edge(rock_scene, game_over_lose, key=0)
-        self._graph.add_edge(laser_scene, game_over_lose, key=0)
-        self._graph.add_edge(rock_scene, game_over_lose, key=2)
-        self._graph.add_edge(laser_scene, game_over_lose, key=2)
+
+        self._graph.add_edge(rock_scene, laser_scene, key=0)
+        self._graph.add_edge(rock_scene, laser_scene, key=2)
+        self._graph.add_edge(laser_scene, game_over_win, key=0)
+        self._graph.add_edge(laser_scene, game_over_win, key=2)
 
         self._set_current_scene(root)
 
@@ -56,13 +56,6 @@ class Quest2(object):
         self.current_scene = scene
         ctrl, resolutions = self.current_scene.make_controller_and_resolutions()
         self.current_controller = ctrl
-
-        # if self._player is None and ctrl.player is not None:
-        #     self._player = ctrl.player
-        # else:
-        #     self.current_controller.set_player(self._player)
-
-
 
         # Output of out_edges is a list of tuples of the form
         # (source (Scene), sink(Scene), key (int))
