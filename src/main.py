@@ -22,6 +22,7 @@ class Quest2(object):
 
         self._player_data: HumanoidData = None
         self._graph = networkx.MultiDiGraph()
+
         root = DecisionScene('Lasers or rocks?', ['lasers please', 'rocks!'])
         self._graph.add_node(root)
         self._root_scene = root
@@ -55,37 +56,37 @@ class Quest2(object):
         self._set_current_scene(root)
 
     def _set_current_scene(self, scene: Scene) -> None:
-        self.current_scene = scene
-        ctrl, resolutions = self.current_scene.make_controller_and_resolutions()
-        self.current_controller = ctrl
+        self._current_scene = scene
+        ctrl, resolutions = self._current_scene.make_controller_and_resolutions()
+        self._current_ctrl = ctrl
 
-        if self.current_scene is self._root_scene:
+        if self._current_scene is self._root_scene:
             self._player_data = HumanoidData(Status(players.PLAYER_HEALTH),
                                              Inventory())
         # TODO(dvirk): The initial DecisionScene has no Player, meaning that
         #  we cant use its inventory.
-        if self.current_controller.player is not None:
-            self.current_controller.set_player_data(self._player_data)
+        if self._current_ctrl.player is not None:
+            self._current_ctrl.set_player_data(self._player_data)
 
         # Output of out_edges is a list of tuples of the form
         # (source (Scene), sink(Scene), key (int))
         next_scenes = [(edge[2], edge[1]) for edge in
                        self._graph.out_edges(scene, keys=True)]
         next_scenes = sorted(next_scenes, key=lambda x: x[0])
-        self.resolutions_to_scenes = {res: scene_tup[1] for res, scene_tup in
-                                      zip(resolutions, next_scenes)}
+        self._resolutions_to_scenes = {res: scene_tup[1] for res, scene_tup in
+                                       zip(resolutions, next_scenes)}
 
     def update_and_draw(self):
-        self.current_controller.update()
-        self.current_controller.draw()
+        self._current_ctrl.update()
+        self._current_ctrl.draw()
 
-        resolution = self.resolved_resolution()
+        resolution = self._resolved_resolution()
         if resolution is not None:
-            next_scene = self.resolutions_to_scenes[resolution]
+            next_scene = self._resolutions_to_scenes[resolution]
             self._set_current_scene(next_scene)
 
-    def resolved_resolution(self) -> Union[Resolution, None]:
-        resolved = [res for res in self.resolutions_to_scenes if
+    def _resolved_resolution(self) -> Union[Resolution, None]:
+        resolved = [res for res in self._resolutions_to_scenes if
                     res.is_resolved]
 
         if len(resolved) not in (0, 1):
