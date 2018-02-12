@@ -1,14 +1,15 @@
-from typing import List, Union
+import sys
+from typing import Union
 
 import networkx
 import pygame as pg
-import sys
 
+import controller
+import images
 import settings
 import sounds
-import images
-import controller
-from creatures.players import Player
+from creatures import players
+from creatures.humanoids import Inventory, Status, HumanoidData
 from draw_utils import draw_text
 from quests.resolutions import Resolution
 from quests.scenes import DecisionScene, DungeonScene, Scene
@@ -19,10 +20,11 @@ class Quest2(object):
 
     def __init__(self):
 
+        self._player_data: HumanoidData = None
         self._graph = networkx.MultiDiGraph()
-
         root = DecisionScene('Lasers or rocks?', ['lasers please', 'rocks!'])
         self._graph.add_node(root)
+        self._root_scene = root
 
         laser_scene = DungeonScene('level1.tmx')
         self._graph.add_node(laser_scene)
@@ -56,6 +58,14 @@ class Quest2(object):
         self.current_scene = scene
         ctrl, resolutions = self.current_scene.make_controller_and_resolutions()
         self.current_controller = ctrl
+
+        if self.current_scene is self._root_scene:
+            self._player_data = HumanoidData(Status(players.PLAYER_HEALTH),
+                                             Inventory())
+        # TODO(dvirk): The initial DecisionScene has no Player, meaning that
+        #  we cant use its inventory.
+        if self.current_controller.player is not None:
+            self.current_controller.set_player_data(self._player_data)
 
         # Output of out_edges is a list of tuples of the form
         # (source (Scene), sink(Scene), key (int))
