@@ -12,7 +12,7 @@ import settings
 import sounds
 import tilemap
 import view
-from creatures.humanoids import collide_hit_rect_with_rect
+from creatures.humanoids import collide_hit_rect_with_rect, HumanoidData
 from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
@@ -140,12 +140,15 @@ class DungeonController(controller.Controller):
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
-        self._init_controls()
+        self._init_controls(self._dungeon.player)
+
+    def set_player_data(self, data: HumanoidData) -> None:
+        self._dungeon.player.data = data
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
-        self._view.draw(self.player, self._dungeon.map)
+        self._view.draw(self._dungeon.player, self._dungeon.map)
         # self._view.draw_conflicts(self._dungeon.conflicts)
 
         pg.display.flip()
@@ -179,13 +182,12 @@ class DungeonController(controller.Controller):
                 self.keyboard.mouse_pos)
         return hud_clicked
 
-    def _init_controls(self) -> None:
+    def _init_controls(self, player: Player) -> None:
 
         self.keyboard.bind_on_press(pg.K_n, self._view.toggle_night)
         self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        player = self.player
         self.keyboard.bind(pg.K_LEFT, player.translate_left)
         self.keyboard.bind(pg.K_a, player.translate_left)
 

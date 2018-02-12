@@ -3,6 +3,7 @@ from typing import List
 import pygame as pg
 
 import controller
+from creatures.humanoids import HumanoidData
 from quests.resolutions import MakeDecision, Resolution
 from view import DecisionView
 
@@ -21,6 +22,8 @@ class DecisionController(controller.Controller):
         options = [decision.description for decision in decisions]
         self._view = DecisionView(self._screen, prompt, options)
 
+        self._player_data: HumanoidData = None
+
         self._allowed_keys = _key_labels + [pg.K_ESCAPE]
 
         for decision, key in zip(self._decisions, _key_labels):
@@ -31,3 +34,6 @@ class DecisionController(controller.Controller):
 
     def draw(self) -> None:
         self._view.draw()
+
+    def set_player_data(self, data: HumanoidData) -> None:
+        self._player_data = data

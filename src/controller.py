@@ -121,10 +121,8 @@ class Controller(object):
     def __init__(self) -> None:
         self.keyboard.reset_bindings()
 
-        self.player: Player = None
-
     def set_player_data(self, data: HumanoidData) -> None:
-        self.player.data = data
+        raise NotImplementedError
 
     def draw(self) -> None:
         raise NotImplementedError

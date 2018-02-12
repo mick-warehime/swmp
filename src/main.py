@@ -63,10 +63,7 @@ class Quest2(object):
         if self._current_scene is self._root_scene:
             self._player_data = HumanoidData(Status(players.PLAYER_HEALTH),
                                              Inventory())
-        # TODO(dvirk): The initial DecisionScene has no Player, meaning that
-        #  we cant use its inventory.
-        if self._current_ctrl.player is not None:
-            self._current_ctrl.set_player_data(self._player_data)
+        self._current_ctrl.set_player_data(self._player_data)
 
         # Output of out_edges is a list of tuples of the form
         # (source (Scene), sink(Scene), key (int))
