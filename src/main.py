@@ -26,9 +26,6 @@ class Quest2(object):
         start_scene_data = {'type': 'decision',
                             'prompt': 'Lasers or rocks?',
                             'choices': ['lasers please', 'rocks!']}
-        root = make_scene(start_scene_data)
-        self._graph.add_node(root)
-        self._root_scene = root
 
         resolution_data = [{'kill group': {'group label': 'quest'}},
                            {'condition': {'condition data': {'dead': None},
@@ -43,6 +40,17 @@ class Quest2(object):
                            'map file': 'goto.tmx',
                            'resolutions': resolution_data}
 
+        lose_data = {'type': 'decision',
+                     'prompt': 'You lose!',
+                     'choices': ['play again?']}
+
+        win_data = lose_data.copy()
+        win_data['prompt'] = 'you win!'
+
+        root = make_scene(start_scene_data)
+        self._graph.add_node(root)
+        self._root_scene = root
+
         laser_scene = make_scene(laser_scene_data)
         self._graph.add_node(laser_scene)
         self._graph.add_edge(root, laser_scene, key=0)
@@ -50,10 +58,6 @@ class Quest2(object):
         rock_scene = make_scene(rock_scene_data)
         self._graph.add_node(rock_scene)
         self._graph.add_edge(root, rock_scene, key=1)
-
-        lose_data = {'type': 'decision',
-                     'prompt': 'You lose!',
-                     'choices': ['play again?']}
 
         game_over_lose = make_scene(lose_data)
         self._graph.add_node(game_over_lose)
@@ -63,9 +67,6 @@ class Quest2(object):
         #  second resolution, and the win conditions are first and third.
         self._graph.add_edge(rock_scene, game_over_lose, key=1)
         self._graph.add_edge(laser_scene, game_over_lose, key=1)
-
-        win_data = lose_data.copy()
-        win_data['prompt'] = 'you win!'
 
         game_over_win = make_scene(win_data)
         self._graph.add_edge(game_over_win, root, key=0)
