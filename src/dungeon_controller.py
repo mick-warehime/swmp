@@ -133,8 +133,6 @@ class DungeonController(controller.Controller):
 
         self._dungeon = dungeon
 
-        self.player = self._dungeon.player
-
         self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._dungeon.groups)
         self._view.set_camera_range(self._dungeon.map.width,
@@ -228,9 +226,9 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        backpack = self.player.inventory.backpack
-        if backpack.slot_occupied(idx):
-            self.player.inventory.equip(backpack[idx])
+        inventory = self._dungeon.player.inventory
+        if inventory.backpack.slot_occupied(idx):
+            inventory.equip(inventory.backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
@@ -240,11 +238,11 @@ class DungeonController(controller.Controller):
         if location == view.NO_SELECTION:
             return
 
-        self.player.inventory.unequip(location)
+        self._dungeon.player.inventory.unequip(location)
 
     def _pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self._abs_mouse_pos()
-        self.player.set_mouse_pos(mouse_pos)
+        self._dungeon.player.set_mouse_pos(mouse_pos)
 
     # mouse coordinates are relative to the camera
     # most other coordinates are relative to the map
