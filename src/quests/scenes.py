@@ -1,13 +1,10 @@
 from enum import Enum
-from typing import NamedTuple, List, Iterable, Tuple, Dict
+from typing import NamedTuple, List, Tuple, Dict, Any
 
-from conditions import IsDead
 from controller import Controller
-from creatures.players import Player
 from decision_controller import DecisionController
 from dungeon_controller import DungeonController, Dungeon
-from quests.resolutions import Resolution, MakeDecision, KillGroup, \
-    ConditionSatisfied, EnterZone, ResolutionType, resolution_from_data
+from quests.resolutions import Resolution, MakeDecision, resolution_from_data
 
 
 class SceneType(Enum):
@@ -43,13 +40,6 @@ class Scene(object):
         raise NotImplementedError
 
 
-# def __init__(self, data: SceneData) -> None:
-#     self.description = data.description
-#     if data.scene_type == SceneType.DUNGEON:
-#         assert data.map_file is not None
-#         self.controller = DungeonController(data.map_file)
-
-
 class DecisionScene(Scene):
     def __init__(self, prompt: str, decisions: List[str]) -> None:
         self._prompt = prompt
@@ -78,3 +68,13 @@ class DungeonScene(Scene):
             resolution.load_sprite_data(sprite_labels)
 
         return DungeonController(dungeon), resolutions
+
+
+def make_scene(scene_data: Dict[str, Any]) -> Scene:
+    scene_type = SceneType(scene_data['type'])
+
+    if scene_type == SceneType.DUNGEON:
+        return DungeonScene(scene_data['map file'], scene_data['resolutions'])
+    else:
+        assert scene_type == SceneType.DECISION
+        return DecisionScene(scene_data['prompt'], scene_data['choices'])

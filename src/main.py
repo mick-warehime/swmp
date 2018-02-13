@@ -12,7 +12,7 @@ from creatures import players
 from creatures.humanoids import Inventory, Status, HumanoidData
 from draw_utils import draw_text
 from quests.resolutions import Resolution
-from quests.scenes import DecisionScene, DungeonScene, Scene
+from quests.scenes import Scene, make_scene
 
 
 class Quest2(object):
@@ -23,7 +23,10 @@ class Quest2(object):
         self._player_data: HumanoidData = None
         self._graph = networkx.MultiDiGraph()
 
-        root = DecisionScene('Lasers or rocks?', ['lasers please', 'rocks!'])
+        start_scene_data = {'type': 'decision',
+                            'prompt': 'Lasers or rocks?',
+                            'choices': ['lasers please', 'rocks!']}
+        root = make_scene(start_scene_data)
         self._graph.add_node(root)
         self._root_scene = root
 
@@ -33,15 +36,26 @@ class Quest2(object):
                            {'enter zone': {'zone label': 'exit',
                                            'entering label': 'player'}}]
 
-        laser_scene = DungeonScene('level1.tmx', resolution_data)
+        laser_scene_data = {'type': 'dungeon',
+                            'map file': 'level1.tmx',
+                            'resolutions': resolution_data}
+        rock_scene_data = {'type': 'dungeon',
+                           'map file': 'goto.tmx',
+                           'resolutions': resolution_data}
+
+        laser_scene = make_scene(laser_scene_data)
         self._graph.add_node(laser_scene)
         self._graph.add_edge(root, laser_scene, key=0)
 
-        rock_scene = DungeonScene('goto.tmx', resolution_data)
+        rock_scene = make_scene(rock_scene_data)
         self._graph.add_node(rock_scene)
         self._graph.add_edge(root, rock_scene, key=1)
 
-        game_over_lose = DecisionScene('You lose!', ['play again'])
+        lose_data = {'type': 'decision',
+                     'prompt': 'You lose!',
+                     'choices': ['play again?']}
+
+        game_over_lose = make_scene(lose_data)
         self._graph.add_node(game_over_lose)
         self._graph.add_edge(game_over_lose, root, key=0)
 
@@ -50,7 +64,10 @@ class Quest2(object):
         self._graph.add_edge(rock_scene, game_over_lose, key=1)
         self._graph.add_edge(laser_scene, game_over_lose, key=1)
 
-        game_over_win = DecisionScene('You win!', ['play again'])
+        win_data = lose_data.copy()
+        win_data['prompt'] = 'you win!'
+
+        game_over_win = make_scene(win_data)
         self._graph.add_edge(game_over_win, root, key=0)
         self._graph.add_node(game_over_win)
 

@@ -13,6 +13,7 @@ class ResolutionType(Enum):
     KILL_GROUP = 'kill group'
     ENTER_ZONE = 'enter zone'
     CONDITION = 'condition'
+    DECISION_CHOICE = 'decision choice'
 
 
 class Resolution(abc.ABC):
@@ -118,3 +119,8 @@ def resolution_from_data(res_data: Dict[str, Union[str, Dict]]) -> Resolution:
         condition = condition_from_data(condition_data, None, None)
         tested_label = res_data['tested label']
         return ConditionSatisfied(tested_label, condition)
+    elif res_type == ResolutionType.DECISION_CHOICE:
+        return MakeDecision(res_data['description'])
+    else:
+        raise NotImplementedError('Definition of resolution type {} not yet '
+                                  'implemented'.format(res_type))
