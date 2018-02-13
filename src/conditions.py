@@ -1,6 +1,6 @@
 from enum import Enum
 from random import random
-from typing import Any
+from typing import Any, Dict
 
 from model import GameObject, Timer
 
@@ -134,3 +134,29 @@ class IsDead(Condition):
 class AlwaysTrue(Condition):
     def check(self, humanoid: Any) -> bool:
         return True
+
+
+def condition_from_data(condition_data: Dict, player: Any,
+                        timer: Timer) -> Condition:
+    assert len(condition_data.keys()) == 1
+    label_str = next(iter(condition_data.keys()))
+    condition_label = Conditions(label_str)
+    condition_data = condition_data[label_str]
+    if condition_label == Conditions.RANDOM_RATE:
+        rate = condition_data['rate']
+        condition = RandomEventAtRate(timer, rate)
+    elif condition_label == Conditions.TARGET_CLOSE:
+        threshold = condition_data['threshold']
+        condition = TargetClose(player, threshold)
+    elif condition_label == Conditions.DEAD:
+        condition = IsDead()
+    elif condition_label == Conditions.ALWAYS:
+        condition = AlwaysTrue()
+    elif condition_label == Conditions.DAMAGED:
+        condition = IsDamaged()
+    else:
+        raise NotImplementedError(
+            'Unrecognized condition label %s' % (condition_label,))
+    if condition_data is not None and 'logical_not' in condition_data:
+        condition = ~ condition
+    return condition
