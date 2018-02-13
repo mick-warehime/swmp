@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, List, Iterable, Tuple
+from typing import NamedTuple, List, Iterable, Tuple, Dict
 
 from conditions import IsDead
 from controller import Controller
@@ -7,7 +7,7 @@ from creatures.players import Player
 from decision_controller import DecisionController
 from dungeon_controller import DungeonController, Dungeon
 from quests.resolutions import Resolution, MakeDecision, KillGroup, \
-    ConditionSatisfied, EnterZone
+    ConditionSatisfied, EnterZone, ResolutionType, resolution_from_data
 
 
 class SceneType(Enum):
@@ -62,21 +62,19 @@ class DecisionScene(Scene):
 
 
 class DungeonScene(Scene):
-    def __init__(self, map_file: str):
+    def __init__(self, map_file: str, resolution_data: List[Dict] = None):
         self._map_file = map_file
+
+        self._resolution_datas = resolution_data
 
     def make_controller_and_resolutions(self) -> ControllerAndResolutions:
         dungeon = Dungeon(self._map_file)
         sprite_labels = dungeon.labeled_sprites
 
-        # For now these are fixed and not defined from data.
-        kill_quest = KillGroup('quest')
-        player_dead = ConditionSatisfied('player', IsDead())
-        enter_waypoint = EnterZone('exit', 'player')
-
-        resolutions = [kill_quest, player_dead, enter_waypoint]
+        resolutions = [resolution_from_data(data) for data in
+                       self._resolution_datas]
 
         for resolution in resolutions:
-            resolution.load_data(sprite_labels)
+            resolution.load_sprite_data(sprite_labels)
 
         return DungeonController(dungeon), resolutions

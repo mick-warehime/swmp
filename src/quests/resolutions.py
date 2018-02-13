@@ -1,16 +1,16 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Set
+from typing import Dict, Set, Union
 
 from pygame.sprite import Group, Sprite, spritecollide
 
-from conditions import Condition
+from conditions import Condition, condition_from_data
 from model import GameObject
 
 
 class ResolutionType(Enum):
-    KILL = 'kill'
+    KILL_GROUP = 'kill group'
     ENTER_ZONE = 'enter zone'
     CONDITION = 'condition'
 
@@ -21,7 +21,7 @@ class Resolution(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         pass
 
 
@@ -39,7 +39,7 @@ class KillGroup(Resolution):
     def is_resolved(self) -> bool:
         return len(self._group_to_kill) == 0
 
-    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         add_sprites_of_label(self._group_label, res_data, self._group_to_kill)
 
 
@@ -55,7 +55,7 @@ class EnterZone(Resolution):
         return any(spritecollide(sprite, self._zone_group, False) for
                    sprite in self._entering_group)
 
-    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         add_sprites_of_label(self._zone_label, res_data, self._zone_group)
         add_sprites_of_label(self._entering_label, res_data,
                              self._entering_group)
@@ -67,7 +67,7 @@ class ConditionSatisfied(Resolution):
         self._condition = condition
         self._tested: GameObject = None
 
-    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         labeled_sprites = res_data[self._label]
         if len(labeled_sprites) != 1:
             raise ValueError(
@@ -92,8 +92,29 @@ class MakeDecision(Resolution):
     def is_resolved(self) -> bool:
         return self._decision_chosen
 
-    def load_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
         pass
 
     def __str__(self) -> str:
         return 'MakeDecision {}'.format(self.description)
+
+
+def resolution_from_data(res_data: Dict[str, Union[str, Dict]]) -> Resolution:
+    assert len(res_data.keys()) == 1, 'root keys must be the length one, ' \
+                                      'matching the resolution label.'
+    res_label = list(res_data.keys())[0]
+    res_data = res_data[res_label]
+    res_type = ResolutionType(res_label)
+
+    if res_type == ResolutionType.KILL_GROUP:
+        group_label = res_data['group label']
+        return KillGroup(group_label)
+    elif res_type == ResolutionType.ENTER_ZONE:
+        zone_label = res_data['zone label']
+        entering_label = res_data['entering label']
+        return EnterZone(zone_label, entering_label)
+    elif res_type == ResolutionType.CONDITION:
+        condition_data = res_data['condition data']
+        condition = condition_from_data(condition_data, None, None)
+        tested_label = res_data['tested label']
+        return ConditionSatisfied(tested_label, condition)

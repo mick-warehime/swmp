@@ -27,11 +27,17 @@ class Quest2(object):
         self._graph.add_node(root)
         self._root_scene = root
 
-        laser_scene = DungeonScene('level1.tmx')
+        resolution_data = [{'kill group': {'group label': 'quest'}},
+                           {'condition': {'condition data': {'dead': None},
+                                          'tested label': 'player'}},
+                           {'enter zone': {'zone label': 'exit',
+                                           'entering label': 'player'}}]
+
+        laser_scene = DungeonScene('level1.tmx', resolution_data)
         self._graph.add_node(laser_scene)
         self._graph.add_edge(root, laser_scene, key=0)
 
-        rock_scene = DungeonScene('goto.tmx')
+        rock_scene = DungeonScene('goto.tmx', resolution_data)
         self._graph.add_node(rock_scene)
         self._graph.add_edge(root, rock_scene, key=1)
 
