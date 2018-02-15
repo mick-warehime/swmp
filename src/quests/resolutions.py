@@ -22,7 +22,8 @@ class Resolution(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self,
+                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
         pass
 
 
@@ -40,8 +41,10 @@ class KillGroup(Resolution):
     def is_resolved(self) -> bool:
         return len(self._group_to_kill) == 0
 
-    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
-        add_sprites_of_label(self._group_label, res_data, self._group_to_kill)
+    def load_sprite_data(self,
+                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+        add_sprites_of_label(self._group_label, sprite_categories,
+                             self._group_to_kill)
 
 
 class EnterZone(Resolution):
@@ -56,9 +59,11 @@ class EnterZone(Resolution):
         return any(spritecollide(sprite, self._zone_group, False) for
                    sprite in self._entering_group)
 
-    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
-        add_sprites_of_label(self._zone_label, res_data, self._zone_group)
-        add_sprites_of_label(self._entering_label, res_data,
+    def load_sprite_data(self,
+                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+        add_sprites_of_label(self._zone_label, sprite_categories,
+                             self._zone_group)
+        add_sprites_of_label(self._entering_label, sprite_categories,
                              self._entering_group)
 
 
@@ -68,8 +73,9 @@ class ConditionSatisfied(Resolution):
         self._condition = condition
         self._tested: GameObject = None
 
-    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
-        labeled_sprites = res_data[self._label]
+    def load_sprite_data(self,
+                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+        labeled_sprites = sprite_categories[self._label]
         if len(labeled_sprites) != 1:
             raise ValueError(
                 'Condition resolution %s requires exactly one GameObject with '
@@ -93,7 +99,8 @@ class MakeDecision(Resolution):
     def is_resolved(self) -> bool:
         return self._decision_chosen
 
-    def load_sprite_data(self, res_data: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self,
+                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
         pass
 
     def __str__(self) -> str:
