@@ -1,7 +1,6 @@
 from typing import Union, Any
 
 from pygame.math import Vector2
-from pygame.sprite import Group
 
 from creatures.enemies import EnemyData, Enemy
 from data.input_output import load_item_data_kwargs, load_npc_data_kwargs, \
@@ -17,8 +16,6 @@ def build_map_object(label: Union[ObjectType, str], pos: Vector2,
     label_str = label if isinstance(label, str) else label.value
     if is_npc_type(label_str):
         data = EnemyData(**load_npc_data_kwargs(label_str))
-        # if conflict_group is not None:
-        #     data = data.add_quest_group(conflict_group)
         return Enemy(pos, player, data)
     elif is_item_type(label_str):
         data = ItemData(**load_item_data_kwargs(label_str))

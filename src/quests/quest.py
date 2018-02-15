@@ -1,150 +1,107 @@
-from typing import Any, List
+from typing import Dict, Union
 
-import networkx as nx
+import networkx
 
-from controller import Controller
-from decision_controller import DecisionController
-from dungeon_controller import DungeonController
-from model import NO_RESOLUTIONS
-from quests.scenes import Scene
+from creatures import players
+from creatures.humanoids import HumanoidData, Status, Inventory
+from quests.resolutions import Resolution
+from quests.scenes import make_scene, Scene
 
 
 class Quest(object):
-    """An object used to organize a sequence of dungeons which create a
-    quest. A quest is represented as a directed graph (DiGraph). Clients
-    should only ask a quest for the next dungeon and the quest object will
-    keep track of the internal state of the quest."""
+    """Handles transitions between different Controllers (scenes)"""
 
-    def __init__(self, quest_graph: nx.Graph = None) -> None:
-        if not quest_graph:
-            self._quest_graph = self._create_quest()
+    def __init__(self, quest_data: Dict[str, Dict]):
+
+        self._player_data: HumanoidData = None
+        self._graph = self._make_quest_graph(quest_data)
+
+        self._root_scene = self._get_scene('root')
+        self._set_current_scene(self._root_scene)
+
+    def _get_scene(self, label: str):
+        nodes = [node for node, info in self._graph.nodes.data() if info[
+            'label'] == label]
+        error_msg = 'Expected exactly one scene to be labeled {}, but ' \
+                    'instead got {}'.format(label, len(nodes))
+        assert len(nodes) == 1, error_msg
+
+        return nodes[0]
+
+    def _make_quest_graph(
+            self, quest_data: Dict[str, Dict]) -> networkx.MultiDiGraph:
+        graph = networkx.MultiDiGraph()
+        scene_from_label = {}
+        for label, scene_data in quest_data.items():
+            scene = make_scene(scene_data)
+            graph.add_node(scene, label=label)
+            scene_from_label[label] = scene
+
+        for scene_label, scene in scene_from_label.items():
+            scene_data = quest_data[scene_label]
+
+            if scene_data['type'] == 'decision':
+                for index, choice in enumerate(scene_data['choices']):
+                    assert len(choice.values()) == 1
+                    next_scene_label = list(choice.values())[0]
+                    next_scene = scene_from_label[next_scene_label]
+                    graph.add_edge(scene, next_scene, key=index)
+
+            else:
+                assert scene_data['type'] == 'dungeon'
+                for index, resolution in enumerate(scene_data['resolutions']):
+                    assert len(resolution.values()) == 1
+                    res_data = list(resolution.values())[0]
+                    next_scene_label = res_data['next scene']
+                    next_scene = scene_from_label[next_scene_label]
+                    graph.add_edge(scene, next_scene, key=index)
+        return graph
+
+    def _set_current_scene(self, scene: Scene) -> None:
+        self._current_scene = scene
+        ctrl, resolutions = self._current_scene.make_controller_and_resolutions()
+        self._current_ctrl = ctrl
+
+        if self._current_scene is self._root_scene:
+            self._player_data = HumanoidData(Status(players.PLAYER_HEALTH),
+                                             Inventory())
+        self._current_ctrl.set_player_data(self._player_data)
+
+        resols = self._resolution_to_next_scene_map(scene, resolutions)
+        self._resolutions_to_scenes = resols
+
+    def _resolution_to_next_scene_map(self, current_scene, resolutions):
+        """ The Scene object outputs resolutions in a specific order. We match
+        that order to the key assigned to each edge, which tells us what scene
+        each resolution points to."""
+
+        # Output of out_edges is a list of tuples of the form
+        # (source :Scene, sink : Scene, key : int)
+        next_scenes = [(edge[2], edge[1]) for edge in
+                       self._graph.out_edges(current_scene, keys=True)]
+        next_scenes = sorted(next_scenes, key=lambda x: x[0])
+        resols = {res: scene_tup[1] for res, scene_tup in
+                  zip(resolutions, next_scenes)}
+        return resols
+
+    def update_and_draw(self):
+        self._current_ctrl.update()
+        self._current_ctrl.draw()
+
+        resolution = self._resolved_resolution()
+        if resolution is not None:
+            next_scene = self._resolutions_to_scenes[resolution]
+            self._set_current_scene(next_scene)
+
+    def _resolved_resolution(self) -> Union[Resolution, None]:
+        resolved = [res for res in self._resolutions_to_scenes if
+                    res.is_resolved]
+
+        if len(resolved) not in (0, 1):
+            raise Warning('More than one resolved resolutions: {}. '
+                          'Choosing first in list.'.format(resolved))
+
+        if resolved:
+            return resolved[0]
         else:
-            self._quest_graph = quest_graph
-
-        self._current_scene = self._root_scene()
-        self._previous_scene = None
-        self._is_complete = False
-
-    # temporary function for creating quests - just description + filename
-    def _create_quest(self) -> nx.DiGraph:
-        g = nx.DiGraph()
-        root = Decision('Kill one or two zombies?', ['one', 'two'])
-        one_zombo = Dungeon('', 'level1.tmx')
-        two_zombo_0 = Dungeon('', 'goto.tmx')
-        g.add_edges_from([(root, one_zombo)])
-        g.add_edges_from([(root, two_zombo_0)])
-        two_zombo_00 = Dungeon('You kill the farther two red zombies.',
-                               'level1.tmx')
-        two_zombo_01 = Dungeon('You kill the closer two red zombies.',
-                               'level1.tmx')
-        two_zombo_02 = Dungeon('You go through the waypoint.', 'level1.tmx')
-        g.add_edges_from([(two_zombo_0, two_zombo_00),
-                          (two_zombo_0, two_zombo_01),
-                          (two_zombo_0, two_zombo_02)])
-        return g
-
-    # find the root of the graph (first scene)
-    def _root_scene(self) -> Any:
-        g = self._quest_graph
-        root = [n for n in g.nodes() if g.in_degree(n) == 0]
-
-        error_message = 'graph should only have 1 root, found %d'
-        assert len(root) == 1, error_message % len(root)
-
-        return root[0]
-
-    def next_scene(self) -> Scene:
-
-        if self.is_complete:
-            raise ValueError('Cannot get next scene of a completed quest.')
-
-        # Initial scene
-        if self._previous_scene is None:
-            self._previous_scene = self._current_scene
-            return self._current_scene
-
-        # use the result of the previous scene to determine
-        # the next scene
-        next_index = self._current_scene.resolved_conflict_index()
-        self._previous_scene = self._current_scene
-        self._update_current_scene(next_index)
-
-        if not self._current_scene:
-            assert self.is_complete
-
-        return self._current_scene
-
-    @property
-    def is_complete(self) -> bool:
-        return self._is_complete
-
-    # determine the next scene to run and set that scene as current
-    # temporary - for now just grab the first neighbor of the current node
-    def _update_current_scene(self, index: int) -> None:
-        """Update the current scene given a resolution index.
-
-        If NO_RESOLUTIONS is passed, the scene is unchanged.
-
-        If the current scene does not point to other scenes,
-        then self._is_complete is set to True and self._current_scene is
-        cleared.
-
-        Args:
-            index: Index specifying which scene to update to.
-        """
-        assert self._current_scene is not None
-        # quest is not over yet
-        if index == NO_RESOLUTIONS:
-            return
-
-        neighbors = list(self._quest_graph.neighbors(self._current_scene))
-
-        # quest is complete
-        if len(neighbors) == 0:
-            self._is_complete = True
-            self._current_scene = None
-            return
-
-        self._current_scene = neighbors[index]
-
-
-class Dungeon(Scene):
-    def __init__(self, description: str, map_file: str) -> None:
-        super().__init__(description)
-        self.map_file = map_file
-        self.controller: Controller = None
-
-    def get_controller(self) -> Controller:
-        if self.controller is None:
-            self.controller = DungeonController(self.map_file)
-        return self.controller
-
-    # show the scene description - temporary - for now we just hardcode
-    # a description but eventually we should use this to describe all the
-    # hooks of the scene / dramatic question
-    def show_intro(self) -> None:
-        if not self.description:
-            return
-        options = ['continue']
-        dc = DecisionController(self.description, options)
-        dc.wait_for_decision()
-
-
-class Decision(Scene):
-    def __init__(self, description: str, options: List[str]) -> None:
-        super().__init__(description)
-        self.options = options
-
-    def get_controller(self) -> Controller:
-        if self.controller is None:
-            self.controller = DecisionController(self.description,
-                                                 self.options)
-        return self.controller
-
-    def show_intro(self) -> None:
-        if self.controller:
-            self.controller.wait_for_decision()
-        else:
-            raise Exception('call get_controller() first')
-
-
+            return None
