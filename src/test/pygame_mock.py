@@ -7,7 +7,6 @@ import creatures.enemies
 import images
 import model
 import sounds
-from creatures import humanoids as hmn
 
 
 class Key(object):

@@ -19,6 +19,15 @@ class Quest(object):
         self._root_scene = self._get_scene('root')
         self._set_current_scene(self._root_scene)
 
+    def update_and_draw(self):
+        self._current_ctrl.update()
+        self._current_ctrl.draw()
+
+        resolution = self._resolved_resolution()
+        if resolution is not None:
+            next_scene = self._resolutions_to_scenes[resolution]
+            self._set_current_scene(next_scene)
+
     def _get_scene(self, label: str):
         nodes = [node for node, info in self._graph.nodes.data() if info[
             'label'] == label]
@@ -83,15 +92,6 @@ class Quest(object):
         resols = {res: scene_tup[1] for res, scene_tup in
                   zip(resolutions, next_scenes)}
         return resols
-
-    def update_and_draw(self):
-        self._current_ctrl.update()
-        self._current_ctrl.draw()
-
-        resolution = self._resolved_resolution()
-        if resolution is not None:
-            next_scene = self._resolutions_to_scenes[resolution]
-            self._set_current_scene(next_scene)
 
     def _resolved_resolution(self) -> Union[Resolution, None]:
         resolved = [res for res in self._resolutions_to_scenes if
