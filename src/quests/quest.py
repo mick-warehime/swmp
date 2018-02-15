@@ -31,10 +31,10 @@ class Quest(object):
     def _get_scene(self, label: str):
         nodes = [node for node, info in self._graph.nodes.data() if info[
             'label'] == label]
-        error_msg = 'Expected exactly one scene to be labeled {}, but ' \
-                    'instead got {}'.format(label, len(nodes))
-        assert len(nodes) == 1, error_msg
 
+        if len(nodes) != 1:
+            raise KeyError('Expected exactly one scene to be labeled `{}`, but'
+                           ' instead got {}'.format(label, len(nodes)))
         return nodes[0]
 
     def _make_quest_graph(
