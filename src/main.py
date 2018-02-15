@@ -97,38 +97,6 @@ class Quest2(object):
         self._root_scene = root
         self._set_current_scene(root)
 
-        # root = make_scene(start_scene_data)
-        # self._graph.add_node(root)
-        # self._root_scene = root
-        #
-        # laser_scene = make_scene(laser_scene_data)
-        # self._graph.add_node(laser_scene)
-        # self._graph.add_edge(root, laser_scene, key=0)
-        #
-        # rock_scene = make_scene(rock_scene_data)
-        # self._graph.add_node(rock_scene)
-        # self._graph.add_edge(root, rock_scene, key=1)
-        #
-        # game_over_lose = make_scene(lose_data)
-        # self._graph.add_node(game_over_lose)
-        # self._graph.add_edge(game_over_lose, root, key=0)
-        #
-        # # DungeonScenes are currently constructed so the player death is the
-        # #  second resolution, and the win conditions are first and third.
-        # self._graph.add_edge(rock_scene, game_over_lose, key=1)
-        # self._graph.add_edge(laser_scene, game_over_lose, key=1)
-        #
-        # game_over_win = make_scene(win_data)
-        # self._graph.add_edge(game_over_win, root, key=0)
-        # self._graph.add_node(game_over_win)
-        #
-        # self._graph.add_edge(rock_scene, laser_scene, key=0)
-        # self._graph.add_edge(rock_scene, laser_scene, key=2)
-        # self._graph.add_edge(laser_scene, game_over_win, key=0)
-        # self._graph.add_edge(laser_scene, game_over_win, key=2)
-
-        # self._set_current_scene(root)
-
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene
         ctrl, resolutions = self._current_scene.make_controller_and_resolutions()
@@ -139,13 +107,22 @@ class Quest2(object):
                                              Inventory())
         self._current_ctrl.set_player_data(self._player_data)
 
+        resols = self._resolution_to_next_scene_map(scene, resolutions)
+        self._resolutions_to_scenes = resols
+
+    def _resolution_to_next_scene_map(self, current_scene, resolutions):
+        """ The Scene object outputs resolutions in a specific order. We match
+        that order to the key assigned to each edge, which tells us what scene
+        each resolution points to."""
+
         # Output of out_edges is a list of tuples of the form
-        # (source (Scene), sink(Scene), key (int))
+        # (source :Scene, sink : Scene, key : int)
         next_scenes = [(edge[2], edge[1]) for edge in
-                       self._graph.out_edges(scene, keys=True)]
+                       self._graph.out_edges(current_scene, keys=True)]
         next_scenes = sorted(next_scenes, key=lambda x: x[0])
-        self._resolutions_to_scenes = {res: scene_tup[1] for res, scene_tup in
-                                       zip(resolutions, next_scenes)}
+        resols = {res: scene_tup[1] for res, scene_tup in
+                  zip(resolutions, next_scenes)}
+        return resols
 
     def update_and_draw(self):
         self._current_ctrl.update()
@@ -168,17 +145,6 @@ class Quest2(object):
             return resolved[0]
         else:
             return None
-
-            # resolutions = self.current_node.resolved_resolutions()
-            # if resolutions:
-            #     resolution = resolutions[0]
-            #     edges_out = self._graph.out_edges([self.current_node], data=True)
-            #
-            #     valid_edges = [edge for edge in edges_out if
-            #                    edge[2]['resolution'] is resolution]
-            #     assert len(valid_edges) == 1, 'Resolved resolution must ' \
-            #                                   'correspond to exactly one edge.'
-            #     self.current_node = valid_edges[0][1]
 
 
 class Game(object):
