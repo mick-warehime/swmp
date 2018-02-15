@@ -23,61 +23,111 @@ class Quest2(object):
         self._player_data: HumanoidData = None
         self._graph = networkx.MultiDiGraph()
 
-        start_scene_data = {'type': 'decision',
-                            'prompt': 'Lasers or rocks?',
-                            'choices': ['lasers please', 'rocks!']}
-
-        resolution_data = [{'kill group': {'group label': 'quest'}},
-                           {'condition': {'condition data': {'dead': None},
-                                          'tested label': 'player'}},
-                           {'enter zone': {'zone label': 'exit',
-                                           'entering label': 'player'}}]
-
-        laser_scene_data = {'type': 'dungeon',
-                            'map file': 'level1.tmx',
-                            'resolutions': resolution_data}
-        rock_scene_data = {'type': 'dungeon',
-                           'map file': 'goto.tmx',
-                           'resolutions': resolution_data}
-
         lose_data = {'type': 'decision',
                      'prompt': 'You lose!',
-                     'choices': ['play again?']}
+                     'choices': [{'play again': 'root'}]}
 
         win_data = lose_data.copy()
         win_data['prompt'] = 'you win!'
 
-        root = make_scene(start_scene_data)
-        self._graph.add_node(root)
+        rock_resolutions = [{'kill group': {'group label': 'quest',
+                                            'next scene': 'game over win'}},
+                            {'condition': {'condition data': {'dead': None},
+                                           'tested label': 'player',
+                                           'next scene': 'game over lose'}},
+                            {'enter zone': {'zone label': 'exit',
+                                            'entering label': 'player',
+                                            'next scene': 'game over win'}}]
+
+        laser_resolutions = [{'kill group': {'group label': 'quest',
+                                             'next scene': 'rock scene'}},
+                             {'condition': {'condition data': {'dead': None},
+                                            'tested label': 'player',
+                                            'next scene': 'game over lose'}},
+                             {'enter zone': {'zone label': 'exit',
+                                             'entering label': 'player',
+                                             'next scene': 'rock scene'}}]
+
+        laser_scene_data = {'type': 'dungeon',
+                            'map file': 'level1.tmx',
+                            'resolutions': laser_resolutions}
+        rock_scene_data = {'type': 'dungeon',
+                           'map file': 'goto.tmx',
+                           'resolutions': rock_resolutions}
+
+        start_scene_data = {'type': 'decision',
+                            'prompt': 'Lasers or rocks?',
+                            'choices': [{'lasers please': 'laser scene'},
+                                        {'rocks!': 'rock scene'}]}
+
+        quest_data = {'root': start_scene_data,
+                      'laser scene': laser_scene_data,
+                      'rock scene': rock_scene_data,
+                      'game over win': win_data,
+                      'game over lose': lose_data}
+
+        g2 = networkx.MultiDiGraph()
+        for label, scene_data in quest_data.items():
+            g2.add_node(make_scene(scene_data), label=label)
+
+        scene_from_label = {info['label']: node
+                            for node, info in g2.nodes.data()}
+
+        for scene_label, scene in scene_from_label.items():
+            scene_data = quest_data[scene_label]
+
+            if scene_data['type'] == 'decision':
+                for index, choice in enumerate(scene_data['choices']):
+                    assert len(choice.values()) == 1
+                    next_scene_label = list(choice.values())[0]
+                    next_scene = scene_from_label[next_scene_label]
+                    g2.add_edge(scene, next_scene, key=index)
+
+            else:
+                assert scene_data['type'] == 'dungeon'
+                for index, resolution in enumerate(scene_data['resolutions']):
+                    assert len(resolution.values()) == 1
+                    res_data = list(resolution.values())[0]
+                    next_scene_label = res_data['next scene']
+                    next_scene = scene_from_label[next_scene_label]
+                    g2.add_edge(scene, next_scene, key=index)
+
+        root = scene_from_label['root']
+        self._graph = g2
         self._root_scene = root
-
-        laser_scene = make_scene(laser_scene_data)
-        self._graph.add_node(laser_scene)
-        self._graph.add_edge(root, laser_scene, key=0)
-
-        rock_scene = make_scene(rock_scene_data)
-        self._graph.add_node(rock_scene)
-        self._graph.add_edge(root, rock_scene, key=1)
-
-        game_over_lose = make_scene(lose_data)
-        self._graph.add_node(game_over_lose)
-        self._graph.add_edge(game_over_lose, root, key=0)
-
-        # DungeonScenes are currently constructed so the player death is the
-        #  second resolution, and the win conditions are first and third.
-        self._graph.add_edge(rock_scene, game_over_lose, key=1)
-        self._graph.add_edge(laser_scene, game_over_lose, key=1)
-
-        game_over_win = make_scene(win_data)
-        self._graph.add_edge(game_over_win, root, key=0)
-        self._graph.add_node(game_over_win)
-
-        self._graph.add_edge(rock_scene, laser_scene, key=0)
-        self._graph.add_edge(rock_scene, laser_scene, key=2)
-        self._graph.add_edge(laser_scene, game_over_win, key=0)
-        self._graph.add_edge(laser_scene, game_over_win, key=2)
-
         self._set_current_scene(root)
+
+        # root = make_scene(start_scene_data)
+        # self._graph.add_node(root)
+        # self._root_scene = root
+        #
+        # laser_scene = make_scene(laser_scene_data)
+        # self._graph.add_node(laser_scene)
+        # self._graph.add_edge(root, laser_scene, key=0)
+        #
+        # rock_scene = make_scene(rock_scene_data)
+        # self._graph.add_node(rock_scene)
+        # self._graph.add_edge(root, rock_scene, key=1)
+        #
+        # game_over_lose = make_scene(lose_data)
+        # self._graph.add_node(game_over_lose)
+        # self._graph.add_edge(game_over_lose, root, key=0)
+        #
+        # # DungeonScenes are currently constructed so the player death is the
+        # #  second resolution, and the win conditions are first and third.
+        # self._graph.add_edge(rock_scene, game_over_lose, key=1)
+        # self._graph.add_edge(laser_scene, game_over_lose, key=1)
+        #
+        # game_over_win = make_scene(win_data)
+        # self._graph.add_edge(game_over_win, root, key=0)
+        # self._graph.add_node(game_over_win)
+        #
+        # self._graph.add_edge(rock_scene, laser_scene, key=0)
+        # self._graph.add_edge(rock_scene, laser_scene, key=2)
+        # self._graph.add_edge(laser_scene, game_over_win, key=0)
+        # self._graph.add_edge(laser_scene, game_over_win, key=2)
+
+        # self._set_current_scene(root)
 
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene

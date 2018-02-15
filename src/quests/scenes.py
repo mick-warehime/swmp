@@ -52,10 +52,10 @@ class DecisionScene(Scene):
 
 
 class DungeonScene(Scene):
-    def __init__(self, map_file: str, resolution_data: List[Dict] = None):
+    def __init__(self, map_file: str, resolution_datas: List[Dict]):
         self._map_file = map_file
 
-        self._resolution_datas = resolution_data
+        self._resolution_datas = resolution_datas
 
     def make_controller_and_resolutions(self) -> ControllerAndResolutions:
         dungeon = Dungeon(self._map_file)
@@ -77,4 +77,5 @@ def make_scene(scene_data: Dict[str, Any]) -> Scene:
         return DungeonScene(scene_data['map file'], scene_data['resolutions'])
     else:
         assert scene_type == SceneType.DECISION
-        return DecisionScene(scene_data['prompt'], scene_data['choices'])
+        choices = [list(dct.keys())[0] for dct in scene_data['choices']]
+        return DecisionScene(scene_data['prompt'], choices)
