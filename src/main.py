@@ -10,8 +10,6 @@ from data.input_output import load_quest_data
 from draw_utils import draw_text
 from quests.quest import Quest
 
-quest_data_dict = load_quest_data('test_quest')
-
 
 class Game(object):
     def __init__(self) -> None:
@@ -40,7 +38,7 @@ class Game(object):
 
     def new(self) -> None:
 
-        self.quest_graph = Quest(quest_data_dict)
+        self.quest_graph = Quest(load_quest_data('test_quest'))
 
         sounds.play(sounds.LEVEL_START)
 
@@ -59,21 +57,6 @@ class Game(object):
     def show_go_screen(self) -> None:
         self._game_over()
         self._wait_for_key()
-
-    # def _next_scene(self) -> None:
-    #     scene = self.quest.next_scene()
-    #     if self.quest.is_complete:
-    #         return
-    #
-    #     self.scene_ctlr = scene.get_controller()
-    #     self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self._toggle_paused)
-    #
-    #     if self._player is not None:
-    #         self.scene_ctlr.set_player(self._player)
-    #     else:
-    #         self._player = self.scene_ctlr.player
-    #
-    #     scene.show_intro()
 
     def _quit(self) -> None:
         pg.quit()
