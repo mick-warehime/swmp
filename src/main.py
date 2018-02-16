@@ -6,51 +6,11 @@ import controller
 import images
 import settings
 import sounds
+from data.input_output import load_quest_data
 from draw_utils import draw_text
 from quests.quest import Quest
 
-lose_data = {'type': 'decision',
-             'prompt': 'You lose!',
-             'choices': [{'play again': 'root'}]}
-
-win_data = lose_data.copy()
-win_data['prompt'] = 'you win!'
-
-rock_resolutions = [{'kill group': {'group label': 'quest',
-                                    'next scene': 'game over win'}},
-                    {'condition': {'condition data': {'dead': None},
-                                   'tested label': 'player',
-                                   'next scene': 'game over lose'}},
-                    {'enter zone': {'zone label': 'exit',
-                                    'entering label': 'player',
-                                    'next scene': 'game over win'}}]
-
-laser_resolutions = [{'kill group': {'group label': 'quest',
-                                     'next scene': 'rock scene'}},
-                     {'condition': {'condition data': {'dead': None},
-                                    'tested label': 'player',
-                                    'next scene': 'game over lose'}},
-                     {'enter zone': {'zone label': 'exit',
-                                     'entering label': 'player',
-                                     'next scene': 'rock scene'}}]
-
-laser_scene_data = {'type': 'dungeon',
-                    'map file': 'level1.tmx',
-                    'resolutions': laser_resolutions}
-rock_scene_data = {'type': 'dungeon',
-                   'map file': 'goto.tmx',
-                   'resolutions': rock_resolutions}
-
-start_scene_data = {'type': 'decision',
-                    'prompt': 'Lasers or rocks?',
-                    'choices': [{'lasers please': 'laser scene'},
-                                {'rocks!': 'rock scene'}]}
-
-quest_data_dict = {'root': start_scene_data,
-                   'laser scene': laser_scene_data,
-                   'rock scene': rock_scene_data,
-                   'game over win': win_data,
-                   'game over lose': lose_data}
+quest_data_dict = load_quest_data('test_quest')
 
 
 class Game(object):
