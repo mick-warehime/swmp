@@ -8,7 +8,7 @@ from quests.resolutions import MakeDecision
 from test import pygame_mock
 
 
-def setUpModule():
+def setUpModule() -> None:
     controller.initialize_controller(None, lambda x: x)
 
 
@@ -21,7 +21,7 @@ class DecisionControllerTest(unittest.TestCase):
                              decision_controller.pg.K_2,
                              decision_controller.pg.K_3]
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         controller.Controller.keyboard.handle_input()
 
     @parameterized.expand([(0,), (1,), (2,)])

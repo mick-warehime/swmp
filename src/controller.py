@@ -33,7 +33,7 @@ class Keyboard(object):
         # default bindings for every controller (currently only escape)
         self._bind_quit()
 
-    def reset_bindings(self):
+    def reset_bindings(self) -> None:
         """Clear all bindings except quit"""
 
         self._bindings: Dict[int, Callable[..., None]] = {}

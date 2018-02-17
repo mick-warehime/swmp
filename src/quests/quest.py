@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Sequence
 
 import networkx
 
@@ -11,7 +11,7 @@ from quests.scenes import make_scene, Scene
 class Quest(object):
     """Handles transitions between different Controllers (scenes)"""
 
-    def __init__(self, quest_data: Dict[str, Dict]):
+    def __init__(self, quest_data: Dict[str, Dict]) -> None:
 
         self._player_data: HumanoidData = None
         self._graph = self._make_quest_graph(quest_data)
@@ -19,7 +19,7 @@ class Quest(object):
         self._root_scene = self._get_scene('root')
         self._set_current_scene(self._root_scene)
 
-    def update_and_draw(self):
+    def update_and_draw(self) -> None:
         self._current_ctrl.update()
         self._current_ctrl.draw()
 
@@ -28,7 +28,7 @@ class Quest(object):
             next_scene = self._resolutions_to_scenes[resolution]
             self._set_current_scene(next_scene)
 
-    def _get_scene(self, label: str):
+    def _get_scene(self, label: str) -> Scene:
         nodes = [node for node, info in self._graph.nodes.data() if info[
             'label'] == label]
 
@@ -79,7 +79,9 @@ class Quest(object):
         resols = self._resolution_to_next_scene_map(scene, resltns)
         self._resolutions_to_scenes = resols
 
-    def _resolution_to_next_scene_map(self, current_scene, resolutions):
+    def _resolution_to_next_scene_map(
+            self, current_scene: Scene,
+            resolutions: Sequence[Resolution]) -> Dict[Resolution, Scene]:
         """ The Scene object outputs resolutions in a specific order. We match
         that order to the key assigned to each edge, which tells us what scene
         each resolution points to."""

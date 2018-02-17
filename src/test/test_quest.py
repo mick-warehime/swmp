@@ -31,10 +31,10 @@ def setUpModule() -> None:
 class QuestTest(unittest.TestCase):
     simple_quest_data: Dict[str, Any] = None
 
-    def test_init_simple_quest(self):
+    def test_init_simple_quest(self) -> None:
         quest = Quest(self.simple_quest_data)
 
-    def test_init_no_root_error(self):
+    def test_init_no_root_error(self) -> None:
         bad_quest_data = self.simple_quest_data.copy()
         bad_quest_data.pop('root')
         bad_quest_data['lose'] = {'type': 'decision',

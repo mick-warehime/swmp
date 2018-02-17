@@ -29,15 +29,12 @@ class MapObject(object):
         self.center = pg.math.Vector2(center_x, center_y)
         self.width = tile_object.width
         self.height = tile_object.height
-        self.type = self._parse_type(tile_object.name)
+        self.type = tile_object.name
         if hasattr(tile_object, 'labels'):
             labels_str = getattr(tile_object, 'labels')
             self.labels = set(labels_str.split(' '))
         else:
             self.labels: Set[str] = set()
-
-    def _parse_type(self, type_name: str) -> ObjectType:
-        return type_name
 
 
 class TiledMap:

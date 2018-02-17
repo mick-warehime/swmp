@@ -22,15 +22,15 @@ class Condition(object):
     def check(self, humanoid: Any) -> bool:
         raise NotImplementedError
 
-    def __or__(self, other: Any) -> object:
+    def __or__(self, other: Any) -> 'Condition':
         assert isinstance(other, Condition)
         return _Or(self, other)
 
-    def __and__(self, other: Any) -> object:
+    def __and__(self, other: Any) -> 'Condition':
         assert isinstance(other, Condition)
         return _And(self, other)
 
-    def __invert__(self) -> object:
+    def __invert__(self) -> 'Condition':
         return _Not(self)
 
 
@@ -144,7 +144,7 @@ def condition_from_data(condition_data: Dict, player: Any,
     condition_data = condition_data[label_str]
     if condition_label == Conditions.RANDOM_RATE:
         rate = condition_data['rate']
-        condition = RandomEventAtRate(timer, rate)
+        condition: Condition = RandomEventAtRate(timer, rate)
     elif condition_label == Conditions.TARGET_CLOSE:
         threshold = condition_data['threshold']
         condition = TargetClose(player, threshold)

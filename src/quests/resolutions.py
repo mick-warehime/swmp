@@ -1,7 +1,7 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, Any
 
 from pygame.sprite import Group, Sprite, spritecollide
 
@@ -33,7 +33,7 @@ def add_sprites_of_label(label: str, res_data: Dict[str, Set[Sprite]],
 
 
 class KillGroup(Resolution):
-    def __init__(self, group_label: str):
+    def __init__(self, group_label: str) -> None:
         self._group_label = group_label
         self._group_to_kill = Group()
 
@@ -48,7 +48,7 @@ class KillGroup(Resolution):
 
 
 class EnterZone(Resolution):
-    def __init__(self, zone_label: str, entering_label: str):
+    def __init__(self, zone_label: str, entering_label: str) -> None:
         self._zone_label = zone_label
         self._entering_label = entering_label
         self._zone_group = Group()
@@ -68,7 +68,7 @@ class EnterZone(Resolution):
 
 
 class ConditionSatisfied(Resolution):
-    def __init__(self, tested_label: str, condition: Condition):
+    def __init__(self, tested_label: str, condition: Condition) -> None:
         self._label = tested_label
         self._condition = condition
         self._tested: GameObject = None
@@ -88,7 +88,7 @@ class ConditionSatisfied(Resolution):
 
 
 class MakeDecision(Resolution):
-    def __init__(self, description: str):
+    def __init__(self, description: str) -> None:
         self.description = description
         self._decision_chosen = False
 
@@ -107,27 +107,27 @@ class MakeDecision(Resolution):
         return 'MakeDecision {}'.format(self.description)
 
 
-def resolution_from_data(res_data: Dict[str, Union[str, Dict]]) -> Resolution:
+def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
     assert len(res_data.keys()) == 1, 'root keys must be the length one, ' \
                                       'matching the resolution label.'
     res_label = list(res_data.keys())[0]
-    res_data = res_data[res_label]
+    data = res_data[res_label]
     res_type = ResolutionType(res_label)
 
     if res_type == ResolutionType.KILL_GROUP:
-        group_label = res_data['group label']
+        group_label = data['group label']
         return KillGroup(group_label)
     elif res_type == ResolutionType.ENTER_ZONE:
-        zone_label = res_data['zone label']
-        entering_label = res_data['entering label']
+        zone_label = data['zone label']
+        entering_label = data['entering label']
         return EnterZone(zone_label, entering_label)
     elif res_type == ResolutionType.CONDITION:
-        condition_data = res_data['condition data']
+        condition_data = data['condition data']
         condition = condition_from_data(condition_data, None, None)
-        tested_label = res_data['tested label']
+        tested_label = data['tested label']
         return ConditionSatisfied(tested_label, condition)
     elif res_type == ResolutionType.DECISION_CHOICE:
-        return MakeDecision(res_data['description'])
+        return MakeDecision(data['description'])
     else:
         raise NotImplementedError('Definition of resolution type {} not yet '
                                   'implemented'.format(res_type))

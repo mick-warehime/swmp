@@ -24,7 +24,8 @@ class SceneData(BaseSceneData):
                 map_file: str = None) -> BaseSceneData:
         scene_type = SceneType(type_str)
 
-        return super().__new__(cls, scene_type, description, map_file)
+        return super().__new__(cls, scene_type, # type: ignore
+                               description, map_file)
 
 
 ControllerAndResolutions = Tuple[Controller, List[Resolution]]
@@ -52,7 +53,7 @@ class DecisionScene(Scene):
 
 
 class DungeonScene(Scene):
-    def __init__(self, map_file: str, resolution_datas: List[Dict]):
+    def __init__(self, map_file: str, resolution_datas: List[Dict]) -> None:
         self._map_file = map_file
 
         self._resolution_datas = resolution_datas
