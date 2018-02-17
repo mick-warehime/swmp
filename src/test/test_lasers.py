@@ -7,7 +7,6 @@ from abilities import GenericAbility, AbilityData
 from creatures.players import Player
 from data.input_output import load_ability_data_kwargs
 from src.test.testing_utilities import make_player, make_item
-from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
 
@@ -18,7 +17,6 @@ def setUpModule() -> None:
 
     ability_data = AbilityData(**load_ability_data_kwargs('laser'))
     LaserTest.laser_ability = GenericAbility(ability_data)
-    dummy_audio_video
 
 
 class LaserTest(unittest.TestCase):

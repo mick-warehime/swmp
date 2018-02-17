@@ -1,5 +1,5 @@
 import unittest
-from typing import Any
+
 from unittest.mock import Mock
 
 from pygame.math import Vector2
