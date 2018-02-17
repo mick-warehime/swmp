@@ -10,16 +10,25 @@ laser scene:
   resolutions:
     - kill group:
         group label: 'quest'
-        next scene: rock scene
+        next scene: killed the zombies
     - enter zone:
         zone label: 'exit'
         entering label: 'player'
-        next scene: rock scene
+        next scene: entered waypoint
     - condition:
         tested label: 'player'
         condition data:
           dead:
         next scene: game over lose
+killed the zombies:
+  type: transition
+  description: 'You killed the zombies. YAY!'
+  next scene: rock scene
+entered waypoint:
+  type: transition
+  description: 'You bravely flee.'
+  next scene: rock scene
+
 rock scene:
   type: dungeon
   map file: goto.tmx

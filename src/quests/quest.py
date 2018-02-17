@@ -5,7 +5,7 @@ import networkx
 from creatures import players
 from creatures.humanoids import HumanoidData, Status, Inventory
 from quests.resolutions import Resolution
-from quests.scenes import make_scene, Scene
+from quests.scenes import make_scene, Scene, SceneType
 
 
 class Quest(object):
@@ -49,15 +49,18 @@ class Quest(object):
         for scene_label, scene in scene_from_label.items():
             scene_data = quest_data[scene_label]
 
-            if scene_data['type'] == 'decision':
+            scene_type = SceneType(scene_data['type'])
+            if scene_type == SceneType.DECISION:
                 for index, choice in enumerate(scene_data['choices']):
                     assert len(choice.values()) == 1
                     next_scene_label = list(choice.values())[0]
                     next_scene = scene_from_label[next_scene_label]
                     graph.add_edge(scene, next_scene, key=index)
-
+            elif scene_type == SceneType.TRANSITION:
+                next_scene = scene_from_label[scene_data['next scene']]
+                graph.add_edge(scene, next_scene, key=0)
             else:
-                assert scene_data['type'] == 'dungeon'
+                assert scene_type == SceneType.DUNGEON
                 for index, resolution in enumerate(scene_data['resolutions']):
                     assert len(resolution.values()) == 1
                     res_data = list(resolution.values())[0]

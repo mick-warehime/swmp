@@ -183,14 +183,16 @@ class DecisionView(object):
     """Draws text for decision scenes."""
 
     def __init__(self, screen: pg.Surface, prompt: str,
-                 options: List[str]) -> None:
+                 options: List[str], enumerate_options: bool = True) -> None:
         self._screen = screen
 
-        style = '{} - {}'
-        enumerated_options = [style.format(k + 1, opt) for k, opt in
-                              enumerate(options)]
-
-        self._text_lines = [prompt, '', ''] + enumerated_options
+        if enumerate_options:
+            style = '{} - {}'
+            enumerated_options = [style.format(k + 1, opt) for k, opt in
+                                  enumerate(options)]
+            self._text_lines = [prompt, '', ''] + enumerated_options
+        else:
+            self._text_lines = [prompt, '', ''] + options
 
     def draw(self) -> None:
         self._screen.fill(settings.BLACK)

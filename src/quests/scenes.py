@@ -2,7 +2,7 @@ from enum import Enum
 from typing import NamedTuple, List, Tuple, Dict, Any
 
 from controller import Controller
-from decision_controller import DecisionController
+from decision_controller import DecisionController, TransitionController
 from dungeon_controller import DungeonController, Dungeon
 from quests.resolutions import Resolution, MakeDecision, resolution_from_data
 
@@ -10,22 +10,7 @@ from quests.resolutions import Resolution, MakeDecision, resolution_from_data
 class SceneType(Enum):
     DUNGEON = 'dungeon'
     DECISION = 'decision'
-
-
-class BaseSceneData(NamedTuple):
-    type: SceneType
-    description: str
-    # resolutions: List[Resolution]
-    map_file: str
-
-
-class SceneData(BaseSceneData):
-    def __new__(cls, type_str: str, description: str,
-                map_file: str = None) -> BaseSceneData:
-        scene_type = SceneType(type_str)
-
-        return super().__new__(cls, scene_type,  # type: ignore
-                               description, map_file)
+    TRANSITION = 'transition'
 
 
 ControllerAndResolutions = Tuple[Controller, List[Resolution]]
@@ -52,6 +37,16 @@ class DecisionScene(Scene):
         return ctrl, resolutions
 
 
+class TransitionScene(Scene):
+    def __init__(self, description: str):
+        self._description = description
+
+    def make_controller_and_resolutions(self) -> ControllerAndResolutions:
+        continue_decision = MakeDecision('continue')
+        ctrl = TransitionController(self._description, continue_decision)
+        return ctrl, [continue_decision]
+
+
 class DungeonScene(Scene):
     def __init__(self, map_file: str, resolution_datas: List[Dict]) -> None:
         self._map_file = map_file
@@ -76,6 +71,8 @@ def make_scene(scene_data: Dict[str, Any]) -> Scene:
 
     if scene_type == SceneType.DUNGEON:
         return DungeonScene(scene_data['map file'], scene_data['resolutions'])
+    elif scene_type == SceneType.TRANSITION:
+        return TransitionScene(scene_data['description'])
     else:
         assert scene_type == SceneType.DECISION
         choices = [list(dct.keys())[0] for dct in scene_data['choices']]
