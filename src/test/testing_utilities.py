@@ -1,5 +1,6 @@
 from typing import Union
 
+import os
 import pygame
 from pygame.math import Vector2
 
@@ -9,7 +10,6 @@ import creatures.players
 import items
 from data.constructors import build_map_object
 from dungeon_controller import DungeonController, Dungeon
-from tilemap import ObjectType
 
 
 def make_player() -> creatures.players.Player:
@@ -40,14 +40,8 @@ def make_dungeon_controller() -> DungeonController:
     return DungeonController(dungeon)
 
 
-class TiledmapObject(object):
-    def __init__(self,
-                 object_name: str,
-                 conflict_name: str = None) -> None:
-        self.name = object_name
-        self.x = 0
-        self.y = 0
-        self.width = 10
-        self.height = 10
-        if conflict_name is not None:
-            self.conflict = conflict_name
+def dummy_audio_video() -> None:
+    # This allows for running tests without actually generating a screen
+    # display or audio output.
+    os.environ['SDL_VIDEODRIVER'] = 'dummy'
+    os.environ['SDL_AUDIODRIVER'] = 'dummy'

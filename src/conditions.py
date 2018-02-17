@@ -88,7 +88,6 @@ class RandomEventAtRate(Condition):
 class CooldownCondition(Condition):
     def __init__(self, timer: Timer, cool_down_time: int) -> None:
         self._timer = timer
-        assert cool_down_time is not None
         self._cool_down_time = cool_down_time
         self._last_use = self._timer.current_time
 

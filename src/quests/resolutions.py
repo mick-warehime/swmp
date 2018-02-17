@@ -1,7 +1,7 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Set, Any
+from typing import Dict, Any, Iterable
 
 from pygame.sprite import Group, Sprite, spritecollide
 
@@ -16,18 +16,20 @@ class ResolutionType(Enum):
     DECISION_CHOICE = 'decision choice'
 
 
+SpriteLabels = Dict[str, Iterable[Sprite]]
+
+
 class Resolution(abc.ABC):
     @property
     def is_resolved(self) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_sprite_data(self,
-                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
-        pass
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
+        """Called after sprites have been created and categorized from map."""
 
 
-def add_sprites_of_label(label: str, res_data: Dict[str, Set[Sprite]],
+def add_sprites_of_label(label: str, res_data: SpriteLabels,
                          group: Group) -> None:
     group.add(*res_data[label])
 
@@ -41,8 +43,7 @@ class KillGroup(Resolution):
     def is_resolved(self) -> bool:
         return len(self._group_to_kill) == 0
 
-    def load_sprite_data(self,
-                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         add_sprites_of_label(self._group_label, sprite_categories,
                              self._group_to_kill)
 
@@ -59,8 +60,7 @@ class EnterZone(Resolution):
         return any(spritecollide(sprite, self._zone_group, False) for
                    sprite in self._entering_group)
 
-    def load_sprite_data(self,
-                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         add_sprites_of_label(self._zone_label, sprite_categories,
                              self._zone_group)
         add_sprites_of_label(self._entering_label, sprite_categories,
@@ -73,8 +73,7 @@ class ConditionSatisfied(Resolution):
         self._condition = condition
         self._tested: GameObject = None
 
-    def load_sprite_data(self,
-                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         labeled_sprites = sprite_categories[self._label]
         if len(labeled_sprites) != 1:
             raise ValueError(
@@ -99,8 +98,7 @@ class MakeDecision(Resolution):
     def is_resolved(self) -> bool:
         return self._decision_chosen
 
-    def load_sprite_data(self,
-                         sprite_categories: Dict[str, Set[Sprite]]) -> None:
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         pass
 
     def __str__(self) -> str:
