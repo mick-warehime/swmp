@@ -1,5 +1,5 @@
 from random import random
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 import pygame as pg
 from pygame.math import Vector2
@@ -12,13 +12,12 @@ import settings
 import sounds
 import tilemap
 import view
-from creatures.humanoids import collide_hit_rect_with_rect
+from creatures.humanoids import collide_hit_rect_with_rect, HumanoidData
 from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, DynamicObject, Group, \
-    ConflictGroups
+from model import Obstacle, Groups, GameObject, Timer, DynamicObject
 from projectiles import Projectile
 
 
@@ -30,18 +29,17 @@ class Dungeon(object):
 
         # initialize all variables and do all the setup for a new game
         self.groups = Groups()
-        self.conflicts: ConflictGroups = None
 
         self._clock = pg.time.Clock()
 
         # init_map
         self.map = tilemap.TiledMap(map_file)
+        self.labeled_sprites: Dict[str, Set[GameObject]] = {}
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
         # provide the group containers for the map objects
         self._init_gameobjects()
-        self.conflicts = ConflictGroups()
 
         # initialize the player on the map before anything else
         for obj in self.map.objects:
@@ -51,22 +49,23 @@ class Dungeon(object):
         assert self.player is not None, 'no player found in map'
 
         for obj in self.map.objects:
-            conflict_group = self._get_conflict(obj.conflict)
 
             if obj.type == tilemap.ObjectType.PLAYER:
-                continue
-            if obj.type == tilemap.ObjectType.WALL:
+                game_obj = self.player
+            elif obj.type == tilemap.ObjectType.WALL:
                 pos = Vector2(obj.x, obj.y)
                 Obstacle(pos, obj.width, obj.height)
                 continue
-
-            constructors.build_map_object(obj.type, obj.center, self.player,
-                                          conflict_group)
-
-    def _get_conflict(self, conflict_name: str) -> Group:
-        if conflict_name == tilemap.NOT_CONFLICT:
-            return None
-        return self.conflicts.get_group(conflict_name)
+            else:
+                game_obj = constructors.build_map_object(obj.type, obj.center,
+                                                         self.player)
+            # TODO(dvirk): Ideally this should be handled outside the scope of
+            # Dungeon. Perhaps this whole method should be handled outside.
+            for label in obj.labels:
+                if label not in self.labeled_sprites:
+                    self.labeled_sprites[label] = {game_obj}
+                else:
+                    self.labeled_sprites[label].add(game_obj)
 
     def _init_gameobjects(self) -> None:
         GameObject.initialize_gameobjects(self.groups)
@@ -124,26 +123,30 @@ class Dungeon(object):
 
 
 class DungeonController(controller.Controller):
-    def __init__(self, map_file: str) -> None:
+    """Manages interactions between a Dungeon, DungeonView, Resolutions, and
+     user.
+     """
+
+    def __init__(self, dungeon: Dungeon) -> None:
         super().__init__()
 
-        self._dungeon = Dungeon(map_file)
-        self.player = self._dungeon.player
+        self._dungeon = dungeon
 
         self._view = view.DungeonView(self._screen)
         self._view.set_groups(self._dungeon.groups)
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
-        self._init_controls()
+        self._init_controls(self._dungeon.player)
 
-        self._teleported = False
+    def set_player_data(self, data: HumanoidData) -> None:
+        self._dungeon.player.data = data
 
     def draw(self) -> None:
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
-        self._view.draw(self.player, self._dungeon.map)
-        self._view.draw_conflicts(self._dungeon.conflicts)
+        self._view.draw(self._dungeon.player, self._dungeon.map)
+        # self._view.draw_conflicts(self._dungeon.conflicts)
 
         pg.display.flip()
 
@@ -158,7 +161,16 @@ class DungeonController(controller.Controller):
 
         self._dungeon.update()
 
-        self.keyboard.set_previous_input()
+        # self.keyboard.set_previous_input()
+
+    def get_fps(self) -> float:
+        return self._dungeon.get_fps()
+
+        # # the owning object needs to know this
+        # def should_exit(self) -> bool:
+        #     return self._teleported
+        # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
+        # return conflict_resolved and self._teleported
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked
@@ -167,27 +179,12 @@ class DungeonController(controller.Controller):
                 self.keyboard.mouse_pos)
         return hud_clicked
 
-    def get_fps(self) -> float:
-        return self._dungeon.get_fps()
-
-    # the owning object needs to know this
-    def should_exit(self) -> bool:
-        conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
-        return conflict_resolved and self._teleported
-
-    def game_over(self) -> bool:
-        return self.player.status.is_dead
-
-    def resolved_conflict_index(self) -> int:
-        return self._dungeon.conflicts.resolved_conflict()
-
-    def _init_controls(self) -> None:
+    def _init_controls(self, player: Player) -> None:
 
         self.keyboard.bind_on_press(pg.K_n, self._view.toggle_night)
         self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
 
         # players controls
-        player = self.player
         self.keyboard.bind(pg.K_LEFT, player.translate_left)
         self.keyboard.bind(pg.K_a, player.translate_left)
 
@@ -212,7 +209,7 @@ class DungeonController(controller.Controller):
         # equip / use
         self.keyboard.bind_on_press(pg.K_e, self._try_equip)
 
-        self.keyboard.bind_on_press(pg.K_t, self._teleport)
+        # self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
     def _handle_hud(self) -> None:
         self._view.try_click_hud(self.keyboard.mouse_pos)
@@ -228,9 +225,9 @@ class DungeonController(controller.Controller):
         if idx == view.NO_SELECTION:
             return
 
-        backpack = self.player.inventory.backpack
-        if backpack.slot_occupied(idx):
-            self.player.inventory.equip(backpack[idx])
+        inventory = self._dungeon.player.inventory
+        if inventory.backpack.slot_occupied(idx):
+            inventory.equip(inventory.backpack[idx])
             self._view.set_selected_item(view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
@@ -240,11 +237,11 @@ class DungeonController(controller.Controller):
         if location == view.NO_SELECTION:
             return
 
-        self.player.inventory.unequip(location)
+        self._dungeon.player.inventory.unequip(location)
 
     def _pass_mouse_pos_to_player(self) -> None:
         mouse_pos = self._abs_mouse_pos()
-        self.player.set_mouse_pos(mouse_pos)
+        self._dungeon.player.set_mouse_pos(mouse_pos)
 
     # mouse coordinates are relative to the camera
     # most other coordinates are relative to the map
@@ -258,5 +255,5 @@ class DungeonController(controller.Controller):
     def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
 
-    def _teleport(self) -> None:
-        self._teleported = True
+        # def _teleport(self) -> None:
+        #     self._teleported = True

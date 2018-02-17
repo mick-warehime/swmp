@@ -10,7 +10,6 @@ from src.test.testing_utilities import make_player, make_item
 from test import dummy_audio_video
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
-from tilemap import ObjectType
 
 
 def setUpModule() -> None:
@@ -33,7 +32,7 @@ class LaserTest(unittest.TestCase):
 
     def test_player_fire_laser_available_after_cooldown_time(self) -> None:
         player = make_player()
-        laser_gun = make_item(ObjectType.LASER_GUN)
+        laser_gun = make_item('laser')
         player.inventory.attempt_pickup(laser_gun)
         fire_ability = laser_gun.mod.ability
 
@@ -81,7 +80,7 @@ class LaserTest(unittest.TestCase):
 
     def _player_with_ready_laser(self) -> Tuple[items.ItemObject, Player]:
         player = make_player()
-        laser_gun = make_item(ObjectType.LASER_GUN)
+        laser_gun = make_item('laser')
         player.inventory.attempt_pickup(laser_gun)
         fire_ability = laser_gun.mod.ability
         while fire_ability.cooldown_fraction < 1:

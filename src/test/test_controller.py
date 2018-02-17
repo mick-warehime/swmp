@@ -62,7 +62,6 @@ class KeyboardTest(unittest.TestCase):
         # function is called when you press the key
         controller.pg.key.pressed[self.a_key] = 1
         keyboard.handle_input()
-        keyboard.set_previous_input()
         self.assertEqual(self.a, test_string)
 
         # reset to detect future calls
@@ -71,19 +70,16 @@ class KeyboardTest(unittest.TestCase):
         # nothing happens if you keep it help down
         controller.pg.key.pressed[self.a_key] = 1
         keyboard.handle_input()
-        keyboard.set_previous_input()
         self.assertEqual(self.a, '')
 
         # nothing happens when you release
         controller.pg.key.pressed[self.a_key] = 0
         keyboard.handle_input()
-        keyboard.set_previous_input()
         self.assertEqual(self.a, '')
 
         # function called again when you press down
         controller.pg.key.pressed[self.a_key] = 1
         keyboard.handle_input()
-        keyboard.set_previous_input()
         self.assertEqual(self.a, test_string)
 
     def test_mouse(self) -> None:
@@ -139,6 +135,14 @@ class KeyboardTest(unittest.TestCase):
                 self.assertEqual(self.d, test_mouse_1)
             if mouse_2:
                 self.assertEqual(self.e, test_mouse_2)
+
+            controller.pg.key.pressed[0] = 0
+            controller.pg.key.pressed[1] = 0
+            controller.pg.key.pressed[2] = 0
+            controller.pg.mouse.pressed[0] = 0
+            controller.pg.mouse.pressed[1] = 0
+
+            keyboard.handle_input()
 
             # reset to register the next clicks
             self.a = ''

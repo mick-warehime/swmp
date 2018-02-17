@@ -1,4 +1,4 @@
-from typing import Callable, List, Union
+from typing import Callable, List, Union, NamedTuple
 from typing import Dict
 
 import pygame as pg
@@ -96,6 +96,42 @@ class Inventory(object):
         self.active_mods[item_mod.loc] = item_mod
 
 
+class Status(object):
+    """Represents the current state of a Humanoid."""
+
+    def __init__(self, max_health: int) -> None:
+        self._max_health = max_health
+        self._health = max_health
+        self.state = None
+
+    def increment_health(self, amount: int) -> None:
+        new_health = self._health + amount
+        new_health = min(new_health, self.max_health)
+        new_health = max(new_health, 0)
+        self._health = new_health
+
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @property
+    def max_health(self) -> int:
+        return self._max_health
+
+    @property
+    def damaged(self) -> bool:
+        return self.health < self._max_health
+
+    @property
+    def is_dead(self) -> bool:
+        return self.health <= 0
+
+
+class HumanoidData(NamedTuple):
+    status: Status
+    inventory: Inventory
+
+
 class Humanoid(mdl.DynamicObject):
     """DynamicObject with health, inventory, and motion. We will add more to
     this later."""
@@ -146,36 +182,14 @@ class Humanoid(mdl.DynamicObject):
     def update(self) -> None:
         raise NotImplementedError
 
-
-class Status(object):
-    """Represents the current state of a Humanoid."""
-
-    def __init__(self, max_health: int) -> None:
-        self._max_health = max_health
-        self._health = max_health
-        self.state = None
-
-    def increment_health(self, amount: int) -> None:
-        new_health = self._health + amount
-        new_health = min(new_health, self.max_health)
-        new_health = max(new_health, 0)
-        self._health = new_health
-
     @property
-    def health(self) -> int:
-        return self._health
+    def data(self) -> HumanoidData:
+        return HumanoidData(self.status, self.inventory)
 
-    @property
-    def max_health(self) -> int:
-        return self._max_health
-
-    @property
-    def damaged(self) -> bool:
-        return self.health < self._max_health
-
-    @property
-    def is_dead(self) -> bool:
-        return self.health <= 0
+    @data.setter
+    def data(self, other: HumanoidData) -> None:
+        self.status = other.status
+        self.inventory = other.inventory
 
 
 class Motion(object):

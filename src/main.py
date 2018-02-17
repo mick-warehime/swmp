@@ -1,12 +1,14 @@
-import pygame as pg
 import sys
+
+import pygame as pg
+
+import controller
+import images
 import settings
 import sounds
-import images
-import controller
-from creatures.players import Player
+from data.input_output import load_quest_data
 from draw_utils import draw_text
-from quests import quest
+from quests.quest import Quest
 
 
 class Game(object):
@@ -16,13 +18,15 @@ class Game(object):
 
         pg.init()
 
-        self.screen = pg.display.set_mode((settings.WIDTH, settings.HEIGHT))
+        self._screen = pg.display.set_mode(
+            (settings.WIDTH, settings.HEIGHT))
 
-        self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
-        self.dim_screen.fill((0, 0, 0, 180))
+        self._dim_screen = pg.Surface(
+            self._screen.get_size()).convert_alpha()
+        self._dim_screen.fill((0, 0, 0, 180))
 
         # needs to happen before we make any controller
-        controller.initialize_controller(self.screen, self.quit)
+        controller.initialize_controller(self._screen, self._quit)
 
         # needs to happen after the video mode has been set
         images.initialize_images()
@@ -30,103 +34,75 @@ class Game(object):
         # needs to happen after a valid mixer is available
         sounds.initialize_sounds()
 
-        self.paused = False
-        self._player: Player = None
+        self._paused = False
 
     def new(self) -> None:
-        self._player = None
-        self.quest = quest.Quest()
-        self.next_scene()
+
+        self.quest_graph = Quest(load_quest_data('test_quest'))
+
         sounds.play(sounds.LEVEL_START)
-
-    def next_scene(self) -> None:
-        scene = self.quest.next_scene()
-        if self.quest.is_complete:
-            return
-
-        self.scene_ctlr = scene.get_controller()
-        self.scene_ctlr.keyboard.bind_on_press(pg.K_p, self.toggle_paused)
-
-        if self._player is not None:
-            self.scene_ctlr.set_player(self._player)
-        else:
-            self._player = self.scene_ctlr.player
-
-        scene.show_intro()
 
     def run(self) -> None:
         # game loop - set self.playing = False to end the game
         pg.mixer.music.play(loops=-1)
         while True:
-            if self.quest.is_complete:
-                break
 
-            self.events()
-            self.update()
+            self._handle_events()
 
-            if self.paused:
-                self.pause_game()
+            self.quest_graph.update_and_draw()
 
-            if self.scene_ctlr.game_over():
-                break
+            if self._paused:
+                self._pause_game()
 
-            if self.scene_ctlr.should_exit():
-                self.next_scene()
+    def show_go_screen(self) -> None:
+        self._game_over()
+        self._wait_for_key()
 
-    def quit(self) -> None:
+    def _quit(self) -> None:
         pg.quit()
         sys.exit()
 
-    def update(self) -> None:
-        # always update the controller
-        self.scene_ctlr.update()
-        self.scene_ctlr.draw()
-
-    def events(self) -> None:
+    def _handle_events(self) -> None:
         # catch all events here
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.quit()
+                self._quit()
 
-    def toggle_paused(self) -> None:
-        self.paused = not self.paused
+    def _toggle_paused(self) -> None:
+        self._paused = not self._paused
 
-    def show_go_screen(self) -> None:
-        self.game_over()
-        self.wait_for_key()
-
-    def wait_for_key(self) -> None:
+    def _wait_for_key(self) -> None:
         pg.event.wait()
         waiting = True
         while waiting:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     waiting = False
-                    self.quit()
+                    self._quit()
                 if event.type == pg.KEYDOWN:
                     waiting = False
 
-    def game_over(self) -> None:
-        self.screen.fill(settings.BLACK)
+    def _game_over(self) -> None:
+        self._screen.fill(settings.BLACK)
         title_font = images.get_font(images.ZOMBIE_FONT)
-        draw_text(self.screen, "GAME OVER", title_font,
+        draw_text(self._screen, "GAME OVER", title_font,
                   100, settings.RED, settings.WIDTH / 2,
                   settings.HEIGHT / 2, align="center")
-        draw_text(self.screen, "Press a key to start", title_font,
+        draw_text(self._screen, "Press a key to start", title_font,
                   75, settings.WHITE, settings.WIDTH / 2,
                   settings.HEIGHT * 3 / 4, align="center")
         pg.display.flip()
 
-    def pause_game(self) -> None:
+    def _pause_game(self) -> None:
         title_font = images.get_font(images.ZOMBIE_FONT)
-        self.screen.blit(self.dim_screen, (0, 0))
-        draw_text(self.screen, "Paused", title_font, 105,
+        self._screen.blit(self._dim_screen, (0, 0))
+        draw_text(self._screen, "Paused", title_font, 105,
                   settings.RED, settings.WIDTH / 2,
                   settings.HEIGHT / 2, align="center")
 
         pg.display.flip()
-        self.wait_for_key()
-        self.paused = False
+        self._wait_for_key()
+        self._paused = False
 
 
 g = Game()

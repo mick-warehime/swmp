@@ -2,15 +2,16 @@ from typing import NamedTuple, Dict, Any
 
 import pygame as pg
 from pygame.math import Vector2, Vector3
-from pygame.sprite import Group
 
+import conditions
 import images
 import settings
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 import effects
-from effects import Conditions, Effects, Condition, Effect
+from effects import Effects, Effect
+from conditions import Condition, condition_from_data
 from model import Timer
 from mods import Mod, ModData
 
@@ -27,28 +28,18 @@ class BaseEnemyData(NamedTuple):
     image_file: str
     damage: int
     knockback: int
-    conflict_group: Group
     behavior_dict: BehaviorData
 
 
 class EnemyData(BaseEnemyData):
     def __new__(cls, max_speed: float, max_health: int, hit_rect_width: int,
                 hit_rect_height: int, image_file: str, damage: int,
-                behavior: BehaviorData, knockback: int = 0,
-                conflict_group: Group = None) -> BaseEnemyData:
-
+                behavior: BehaviorData, knockback: int = 0) -> BaseEnemyData:
         hit_rect = pg.Rect(0, 0, hit_rect_width, hit_rect_height)
 
         return super().__new__(cls,  # type:ignore
                                max_speed, max_health, hit_rect, image_file,
-                               damage, knockback, conflict_group,
-                               behavior)
-
-    def add_quest_group(self, group: Group) -> BaseEnemyData:
-        """Generate a new EnemyData with a given conflict group."""
-        kwargs = self._asdict()
-        kwargs['conflict_group'] = group
-        return super().__new__(EnemyData, **kwargs)
+                               damage, knockback, behavior)
 
     def replace(self, **kwargs: Any) -> BaseEnemyData:
         """Make a new EnemyData with specific parameters replaced.
@@ -126,14 +117,14 @@ class Behavior(object):
                 if effect_data is not None and 'conditions' in effect_data:
                     condition = None
                     for cond_data in effect_data['conditions']:
-                        new_cond = self._condition_from_data(cond_data, player,
-                                                             timer)
+                        new_cond = condition_from_data(cond_data, player,
+                                                       timer)
                         if condition is None:
                             condition = new_cond
                         else:
                             condition &= new_cond
                 else:
-                    condition = effects.AlwaysTrue()
+                    condition = conditions.AlwaysTrue()
 
                 state_behavior[effect] = condition
             self._state_effects_conditions[state] = state_behavior
@@ -152,8 +143,7 @@ class Behavior(object):
             else:
                 condition_values = {}
                 for cond_data in conditions_list:
-                    condition = self._condition_from_data(cond_data, player,
-                                                          timer)
+                    condition = condition_from_data(cond_data, player, timer)
                     value = self._condition_value_from_data(cond_data)
                     condition_values[condition] = value
                 self._state_conditions_values[state] = condition_values
@@ -196,31 +186,6 @@ class Behavior(object):
         label_str = next(iter(condition_data.keys()))
         return condition_data[label_str]['value']
 
-    def _condition_from_data(self, condition_data: Dict, player: Player,
-                             timer: Timer) -> Condition:
-        assert len(condition_data.keys()) == 1
-        label_str = next(iter(condition_data.keys()))
-        condition_label = Conditions(label_str)
-        condition_data = condition_data[label_str]
-        if condition_label == Conditions.RANDOM_RATE:
-            rate = condition_data['rate']
-            condition = effects.RandomEventAtRate(timer, rate)
-        elif condition_label == Conditions.TARGET_CLOSE:
-            threshold = condition_data['threshold']
-            condition = effects.TargetClose(player, threshold)
-        elif condition_label == Conditions.DEAD:
-            condition = effects.IsDead()
-        elif condition_label == Conditions.ALWAYS:
-            condition = effects.AlwaysTrue()
-        elif condition_label == Conditions.DAMAGED:
-            condition = effects.IsDamaged()
-        else:
-            raise NotImplementedError(
-                'Unrecognized condition label %s' % (condition_label,))
-        if condition_data is not None and 'logical_not' in condition_data:
-            condition = ~ condition
-        return condition
-
 
 class Enemy(Humanoid):
     class_initialized = False
@@ -235,8 +200,8 @@ class Enemy(Humanoid):
         self.knockback = data.knockback
 
         my_groups = [self._groups.all_sprites, self._groups.enemies]
-        if data.conflict_group is not None:
-            my_groups.append(data.conflict_group)
+        # if data.conflict_group is not None:
+        #     my_groups.append(data.conflict_group)
 
         pg.sprite.Sprite.__init__(self, my_groups)
 

@@ -1,6 +1,15 @@
 import unittest
+
+from parameterized import parameterized
+
+import controller
 import decision_controller
+from quests.resolutions import MakeDecision
 from test import pygame_mock
+
+
+def setUpModule() -> None:
+    controller.initialize_controller(None, lambda x: x)
 
 
 class DecisionControllerTest(unittest.TestCase):
@@ -8,42 +17,30 @@ class DecisionControllerTest(unittest.TestCase):
         pg = pygame_mock.Pygame()
         decision_controller.pg.mouse = pg.mouse
         decision_controller.pg.key = pg.key
+        self.pressed_keys = [decision_controller.pg.K_1,
+                             decision_controller.pg.K_2,
+                             decision_controller.pg.K_3]
 
-    def test_set_option_0(self) -> None:
+    def tearDown(self) -> None:
+        controller.Controller.keyboard.handle_input()
+
+    @parameterized.expand([(0,), (1,), (2,)])
+    def test_set_option_0(self, choice: int) -> None:
         prompt = 'Do you go into the swamp?'
         options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(prompt, options)
+        decisions = [MakeDecision(opt) for opt in options]
+        dc = decision_controller.DecisionController(prompt, decisions)
 
-        key0 = decision_controller.pg.K_1
-        decision_controller.pg.key.pressed[key0] = 1
+        resolved_resolutions = [dec for dec in decisions if dec.is_resolved]
+        self.assertEqual(len(resolved_resolutions), 0)
+        key = self.pressed_keys[choice]
+        decision_controller.pg.key.pressed[key] = 1
 
         dc.update()
 
-        self.assertEqual(dc.choice, 0)
-
-    def test_set_option_1(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(prompt, options)
-
-        key1 = decision_controller.controller.pg.K_2
-        decision_controller.pg.key.pressed[key1] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 1)
-
-    def test_set_option_2(self) -> None:
-        prompt = 'Do you go into the swamp?'
-        options = ['one', 'two', 'three']
-        dc = decision_controller.DecisionController(prompt, options)
-
-        key2 = decision_controller.controller.pg.K_3
-        decision_controller.pg.key.pressed[key2] = 1
-
-        dc.update()
-
-        self.assertEqual(dc.choice, 2)
+        resolved_resolutions = [dec for dec in decisions if dec.is_resolved]
+        self.assertEqual(len(resolved_resolutions), 1)
+        self.assertIs(resolved_resolutions[0], decisions[choice])
 
 
 if __name__ == '__main__':

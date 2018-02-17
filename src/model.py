@@ -1,5 +1,5 @@
-from collections import namedtuple, Counter
-from typing import Union, Dict
+from collections import namedtuple
+from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2
@@ -30,82 +30,54 @@ class Groups(_GroupsBase):
         self.enemy_projectiles.empty()
 
 
-class ConflictGroups(object):
-    def __init__(self) -> None:
-        self.conflicts: Dict[str, Conflict] = {}
-
-    def number_of_conflicts(self) -> int:
-        return len(self.conflicts.keys())
-
-    def get_group(self, conflict_name: str) -> Group:
-        if conflict_name not in self.conflicts:
-            self.conflicts[conflict_name] = Conflict()
-        conflict = self.conflicts[conflict_name]
-        return conflict.group
-
-    def any_resolved_conflict(self) -> bool:
-        for conflict_name in self.conflicts:
-            conflict = self.conflicts[conflict_name]
-            if conflict.is_resolved():
-                return True
-        return False
-
-    def resolved_conflict(self) -> int:
-        for conflict_name in self.conflicts:
-            conflict = self.conflicts[conflict_name]
-            if conflict.is_resolved():
-                return int(conflict_name)
-        return NO_RESOLUTIONS
-
-
-class Conflict(object):
-    def __init__(self) -> None:
-        self.group = Group()
-        self.initial_counts: Dict[type, int] = {}
-        self.resolved = False
-
-    def set_initial_counts(self) -> None:
-        classes = map(type, list(self.group))
-        c = Counter(classes)
-
-        for key in c:
-            count = c[key]
-            self.initial_counts[key] = count
-
-    def is_resolved(self) -> bool:
-        return len(self.group) == 0
-
-    def text_rep(self) -> str:
-        if not self.initial_counts:
-            self.set_initial_counts()
-
-        classes = list(map(type, list(self.group)))
-        c = Counter(classes)
-
-        rep = ''
-        resolved = True
-        for key in self.initial_counts:
-            obj_name = self.class_name_short(key)
-            initial_count = self.initial_counts[key]
-            remaining_count = initial_count - c[key]
-            rep += obj_name % (remaining_count, initial_count)
-            if initial_count != remaining_count:
-                resolved = False
-
-        if resolved:
-            self.resolved = True
-
-        return rep
-
-    def class_name_short(self, obj_type: type) -> str:
-        obj_type_str = str(obj_type)
-        if 'enemy' in obj_type_str.lower():
-            return 'killed %d/%d enemies'
-        elif 'waypoint' in obj_type_str.lower():
-            return 'find %d/%d waypoints'
-        else:
-            msg = 'unknown conflict class %s' % obj_type_str
-            raise Exception(msg)
+# class Conflict(object):
+#     def __init__(self) -> None:
+#         self.group = Group()
+#         self.initial_counts: Dict[type, int] = {}
+#         self.resolved = False
+#
+#     def set_initial_counts(self) -> None:
+#         classes = map(type, list(self.group))
+#         c = Counter(classes)
+#
+#         for key in c:
+#             count = c[key]
+#             self.initial_counts[key] = count
+#
+#     def is_resolved(self) -> bool:
+#         return len(self.group) == 0
+#
+#     def text_rep(self) -> str:
+#         if not self.initial_counts:
+#             self.set_initial_counts()
+#
+#         classes = list(map(type, list(self.group)))
+#         c = Counter(classes)
+#
+#         rep = ''
+#         resolved = True
+#         for key in self.initial_counts:
+#             obj_name = self.class_name_short(key)
+#             initial_count = self.initial_counts[key]
+#             remaining_count = initial_count - c[key]
+#             rep += obj_name % (remaining_count, initial_count)
+#             if initial_count != remaining_count:
+#                 resolved = False
+#
+#         if resolved:
+#             self.resolved = True
+#
+#         return rep
+#
+#     def class_name_short(self, obj_type: type) -> str:
+#         obj_type_str = str(obj_type)
+#         if 'enemy' in obj_type_str.lower():
+#             return 'killed %d/%d enemies'
+#         elif 'waypoint' in obj_type_str.lower():
+#             return 'find %d/%d waypoints'
+#         else:
+#             msg = 'unknown conflict class %s' % obj_type_str
+#             raise Exception(msg)
 
 
 class Timer(object):

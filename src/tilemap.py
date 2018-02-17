@@ -1,9 +1,11 @@
 from enum import unique, Enum
 from os import path
-from typing import Any, List
+from typing import Any, List, Set
 
 import pygame as pg
 import pytmx
+
+from data.input_output import is_npc_type, is_item_type
 
 CONFLICT = 'conflict'
 NOT_CONFLICT = 'not_conflict'
@@ -12,18 +14,8 @@ NOT_CONFLICT = 'not_conflict'
 @unique
 class ObjectType(Enum):
     PLAYER = 'player'
-    ZOMBIE = 'zombie'
-    QUEST_ZOMBIE = 'quest_zombie'
     WALL = 'wall'
-    PISTOL = 'pistol'
-    HEALTHPACK = 'healthpack'
-    ROCK = 'rock'
-    SHOTGUN = 'shotgun'
-    CONFLICT = 'conflict'
     WAYPOINT = 'waypoint'
-    LASER_GUN = 'laser'
-    BATTERY = 'battery'
-    TURRET = 'turret'
 
 
 class MapObject(object):
@@ -37,20 +29,12 @@ class MapObject(object):
         self.center = pg.math.Vector2(center_x, center_y)
         self.width = tile_object.width
         self.height = tile_object.height
-        self.type = self._parse_type(tile_object.name)
-        self.conflict = self._parse_conflict(tile_object)
-
-    def _parse_conflict(self, tile_object: Any) -> str:
-        return getattr(tile_object, CONFLICT, NOT_CONFLICT)
-
-    def _parse_type(self, type_name: str) -> ObjectType:
-        for obj_type in ObjectType:
-            if type_name == obj_type:
-                return obj_type
-
-        raise ValueError('invalid object type %s @ %d',
-                         type_name,
-                         self.center)
+        self.type = tile_object.name
+        if hasattr(tile_object, 'labels'):
+            labels_str = getattr(tile_object, 'labels')
+            self.labels = set(labels_str.split(' '))
+        else:
+            self.labels: Set[str] = set()
 
 
 class TiledMap:
@@ -73,12 +57,19 @@ class TiledMap:
 
     def _format_tileobject_names(self) -> None:
         for tile_object in self.tmxdata.objects:
-            tile_object.name = ObjectType(tile_object.name)
+            try:
+                # Eventually we will not need the ObjectType Enum
+                tile_object.name = ObjectType(tile_object.name)
+            except ValueError:
+                pass
 
     def _validate_tmxdata(self) -> None:
         expected_names = {tile.value for tile in ObjectType}
         names = {obj.name for obj in self.tmxdata.objects}
         bad_names = names - expected_names
+        # TODO(dvirk): make is_gameobject_type function
+        bad_names = {nm for nm in bad_names if not is_npc_type(nm)}
+        bad_names = {nm for nm in bad_names if not is_item_type(nm)}
         if bad_names:
             raise ValueError(
                 'Tile names %s not recognized.' % (list(bad_names)))

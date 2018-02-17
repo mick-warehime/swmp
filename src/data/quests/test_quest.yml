@@ -1,0 +1,50 @@
+root:
+  type: decision
+  prompt: 'lasers or rocks?'
+  choices:
+    - lasers please: laser scene
+    - rocks!: rock scene
+laser scene:
+  type: dungeon
+  map file: level1.tmx
+  resolutions:
+    - kill group:
+        group label: 'quest'
+        next scene: rock scene
+    - enter zone:
+        zone label: 'exit'
+        entering label: 'player'
+        next scene: rock scene
+    - condition:
+        tested label: 'player'
+        condition data:
+          dead:
+        next scene: game over lose
+rock scene:
+  type: dungeon
+  map file: goto.tmx
+  resolutions:
+    - kill group:
+        group label: 'quest'
+        next scene: game over win
+    - enter zone:
+        zone label: 'exit'
+        entering label: 'player'
+        next scene: game over win
+    - condition:
+        tested label: 'player'
+        condition data:
+          dead:
+        next scene: game over lose
+game over win:
+  type: decision
+  prompt: 'you win!'
+  choices:
+    - play again: root
+game over lose:
+  type: decision
+  prompt: 'you lose!'
+  choices:
+    - play again: root
+
+
