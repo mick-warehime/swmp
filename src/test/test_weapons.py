@@ -6,14 +6,13 @@ from abilities import GenericAbility, AbilityData
 from data.input_output import load_ability_data_kwargs
 from src.test.pygame_mock import MockTimer, initialize_pygame, \
     initialize_gameobjects
-from src.test.testing_utilities import make_player
-
-import src.test.dummy_audio_video
+from src.test.testing_utilities import make_player, dummy_audio_video
 
 
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(WeaponsTest.groups, WeaponsTest.timer)
+    dummy_audio_video()
 
 
 class WeaponsTest(unittest.TestCase):
@@ -63,9 +62,9 @@ class WeaponsTest(unittest.TestCase):
 
         self.assertLess(0.5 * many_disp, one_disp)
 
-    # def test_projectile_data_eq(self) -> None:
-    #     bullet_data = ProjectileData(**load_projectile_data_kwargs('bullet'))
-    #     other_data = ProjectileData(**load_projectile_data_kwargs('bullet'))
-    #
-    #     self.assertEqual(bullet_data, other_data)
-    #     self.assertIsNot(bullet_data, other_data)
+        # def test_projectile_data_eq(self) -> None:
+        #     bullet_data = ProjectileData(**load_projectile_data_kwargs('bullet'))
+        #     other_data = ProjectileData(**load_projectile_data_kwargs('bullet'))
+        #
+        #     self.assertEqual(bullet_data, other_data)
+        #     self.assertIsNot(bullet_data, other_data)
