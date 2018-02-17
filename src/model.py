@@ -1,5 +1,5 @@
-from collections import namedtuple, Counter
-from typing import Union, Dict
+from collections import namedtuple
+from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2

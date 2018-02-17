@@ -4,7 +4,7 @@ import pygame as pg
 
 import controller
 from creatures.humanoids import HumanoidData
-from quests.resolutions import MakeDecision, Resolution
+from quests.resolutions import MakeDecision
 from view import DecisionView
 
 _key_labels = [pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8,

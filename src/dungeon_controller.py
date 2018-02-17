@@ -19,7 +19,6 @@ from data import constructors
 from items import ItemObject
 from model import Obstacle, Groups, GameObject, Timer, DynamicObject
 from projectiles import Projectile
-from quests.resolutions import Resolution
 
 
 class Dungeon(object):

@@ -68,7 +68,7 @@ class Quest(object):
 
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene
-        ctrl, resolutions = self._current_scene.make_controller_and_resolutions()
+        ctrl, resltns = self._current_scene.make_controller_and_resolutions()
         self._current_ctrl = ctrl
 
         if self._current_scene is self._root_scene:
@@ -76,7 +76,7 @@ class Quest(object):
                                              Inventory())
         self._current_ctrl.set_player_data(self._player_data)
 
-        resols = self._resolution_to_next_scene_map(scene, resolutions)
+        resols = self._resolution_to_next_scene_map(scene, resltns)
         self._resolutions_to_scenes = resols
 
     def _resolution_to_next_scene_map(self, current_scene, resolutions):

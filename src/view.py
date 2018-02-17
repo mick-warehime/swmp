@@ -13,7 +13,6 @@ from hud import HUD
 from model import Groups
 from settings import WIDTH, HEIGHT
 from tilemap import TiledMap
-from draw_utils import draw_text
 
 NO_SELECTION = -1
 
@@ -178,17 +177,6 @@ class DungeonView(object):
 
     def toggle_hide_backpack(self) -> None:
         self._hud.toggle_hide_backpack()
-
-    # def draw_conflicts(self, conflictgroups: ConflictGroups) -> None:
-    #     conflicts = conflictgroups.conflicts
-    #     for idx, conflict_name in enumerate(conflicts.keys()):
-    #         conflict = conflicts[conflict_name]
-    #         conflict_str = '%d- %s' % (idx + 1, conflict.text_rep())
-    #         color = settings.RED
-    #         if conflict.resolved:
-    #             color = settings.GREEN
-    #         draw_text(self._screen, conflict_str, self.title_font,
-    #                   16, color, 10, 10 + 16 * idx)
 
 
 class DecisionView(object):

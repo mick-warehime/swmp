@@ -2,7 +2,6 @@ from typing import Callable, Dict, List, Tuple, Any
 import pygame as pg
 
 from creatures.humanoids import HumanoidData
-from creatures.players import Player
 
 MOUSE_LEFT = 0
 MOUSE_CENTER = 1
