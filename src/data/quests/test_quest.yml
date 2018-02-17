@@ -22,11 +22,15 @@ rock scene:
         next scene: game over lose
 killed the zombies:
   type: transition
-  description: 'You killed the zombies. YAY!'
+  description: 'You killed the zombie. YAY! Continuing ahead, you see
+  another waypoint leading to the exit. It is guarded by two zombies and a
+  turret, but you see a laser gun nearby.'
   next scene: laser scene
 entered waypoint:
   type: transition
-  description: 'You bravely flee.'
+  description: 'You bravely flee. Continuing ahead, you see another waypoint
+  leading to the exit. It is guarded by two zombies and a turret, but you see a
+  laser gun nearby.'
   next scene: laser scene
 
 
