@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any
 
 from controller import Controller
 from decision_controller import DecisionController, TransitionController
@@ -38,7 +38,7 @@ class DecisionScene(Scene):
 
 
 class TransitionScene(Scene):
-    def __init__(self, description: str):
+    def __init__(self, description: str) -> None:
         self._description = description
 
     def make_controller_and_resolutions(self) -> ControllerAndResolutions:
