@@ -1,7 +1,7 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Any, Iterable
+from typing import Dict, Any, Collection
 
 from pygame.sprite import Group, Sprite, spritecollide
 
@@ -16,7 +16,7 @@ class ResolutionType(Enum):
     DECISION_CHOICE = 'decision choice'
 
 
-SpriteLabels = Dict[str, Iterable[Sprite]]
+SpriteLabels = Dict[str, Collection[Sprite]]
 
 
 class Resolution(abc.ABC):
@@ -102,7 +102,7 @@ class MakeDecision(Resolution):
         pass
 
     def __str__(self) -> str:
-        return 'MakeDecision {}'.format(self.description)
+        return 'MakeDecision: {}'.format(self.description)
 
 
 def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
