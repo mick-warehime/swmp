@@ -1,12 +1,12 @@
 root:
-  type: decision
-  prompt: 'lasers or rocks?'
-  choices:
-    - lasers please: laser scene
-    - rocks!: rock scene
-laser scene:
+  type: transition
+  description: 'There is a zombie ahead of you, near a waypoint. It charges!'
+  next scene: rock scene
+
+
+rock scene:
   type: dungeon
-  map file: level1.tmx
+  map file: goto.tmx
   resolutions:
     - kill group:
         group label: 'quest'
@@ -23,15 +23,17 @@ laser scene:
 killed the zombies:
   type: transition
   description: 'You killed the zombies. YAY!'
-  next scene: rock scene
+  next scene: laser scene
 entered waypoint:
   type: transition
   description: 'You bravely flee.'
-  next scene: rock scene
+  next scene: laser scene
 
-rock scene:
+
+
+laser scene:
   type: dungeon
-  map file: goto.tmx
+  map file: level1.tmx
   resolutions:
     - kill group:
         group label: 'quest'
@@ -45,6 +47,7 @@ rock scene:
         condition data:
           dead:
         next scene: game over lose
+
 game over win:
   type: decision
   prompt: 'you win!'
