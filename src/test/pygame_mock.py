@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import pygame
@@ -44,11 +45,21 @@ class MockTimer(model.Timer):
 
 
 def initialize_pygame() -> None:
-    pygame.display.set_mode((600, 400))
-    pygame.mixer.pre_init(44100, -16, 4, 2048)
-    pygame.init()
+    try:
+        pygame.display.set_mode((600, 400))
+        pygame.mixer.pre_init(44100, -16, 4, 2048)
+        pygame.init()
+
+    except pygame.error:
+        os.environ['SDL_VIDEODRIVER'] = 'dummy'
+        os.environ['SDL_AUDIODRIVER'] = 'dummy'
+        pygame.display.set_mode((600, 400))
+        pygame.mixer.pre_init(44100, -16, 4, 2048)
+        pygame.init()
+
     images.initialize_images()
     sounds.initialize_sounds()
+
 
 
 def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:

@@ -5,8 +5,6 @@ from quests import resolutions
 from quests.resolutions import MakeDecision
 from test import pygame_mock, testing_utilities
 
-import test.dummy_audio_video
-
 
 def setUpModule() -> None:
     pygame_mock.initialize_pygame()
