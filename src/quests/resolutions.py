@@ -1,7 +1,7 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Set, Union, Any
+from typing import Dict, Set, Any
 
 from pygame.sprite import Group, Sprite, spritecollide
 

@@ -24,7 +24,7 @@ class SceneData(BaseSceneData):
                 map_file: str = None) -> BaseSceneData:
         scene_type = SceneType(type_str)
 
-        return super().__new__(cls, scene_type, # type: ignore
+        return super().__new__(cls, scene_type,  # type: ignore
                                description, map_file)
 
 
