@@ -9,13 +9,12 @@ from data.input_output import load_npc_data_kwargs
 from conditions import TargetClose
 from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
     MockTimer
-from test.testing_utilities import make_player, dummy_audio_video
+from test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
     initialize_pygame()
     initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
-    dummy_audio_video()
 
 
 class HumanoidsTest(unittest.TestCase):

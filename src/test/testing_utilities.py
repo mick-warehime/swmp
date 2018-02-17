@@ -38,10 +38,3 @@ def make_dungeon_controller() -> DungeonController:
     dungeon = Dungeon('test_level.tmx')
 
     return DungeonController(dungeon)
-
-
-def dummy_audio_video() -> None:
-    # This allows for running tests without actually generating a screen
-    # display or audio output.
-    os.environ['SDL_VIDEODRIVER'] = 'dummy'
-    os.environ['SDL_AUDIODRIVER'] = 'dummy'
