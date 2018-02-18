@@ -5,7 +5,7 @@ import networkx
 from creatures import players
 from creatures.humanoids import HumanoidData, Status, Inventory
 from quests.resolutions import Resolution
-from quests.scenes import make_scene, Scene
+from quests.scenes import make_scene, Scene, SceneType
 
 
 class Quest(object):
@@ -14,7 +14,7 @@ class Quest(object):
     def __init__(self, quest_data: Dict[str, Dict]) -> None:
 
         self._player_data: HumanoidData = None
-        self._graph = self._make_quest_graph(quest_data)
+        self._scene_graph = self._make_quest_graph(quest_data)
 
         self._root_scene = self._get_scene('root')
         self._set_current_scene(self._root_scene)
@@ -29,7 +29,7 @@ class Quest(object):
             self._set_current_scene(next_scene)
 
     def _get_scene(self, label: str) -> Scene:
-        nodes = [node for node, info in self._graph.nodes.data() if info[
+        nodes = [node for node, info in self._scene_graph.nodes.data() if info[
             'label'] == label]
 
         if len(nodes) != 1:
@@ -40,31 +40,40 @@ class Quest(object):
     def _make_quest_graph(
             self, quest_data: Dict[str, Dict]) -> networkx.MultiDiGraph:
         graph = networkx.MultiDiGraph()
-        scene_from_label = {}
+        label_scene_map = {}
         for label, scene_data in quest_data.items():
             scene = make_scene(scene_data)
             graph.add_node(scene, label=label)
-            scene_from_label[label] = scene
+            label_scene_map[label] = scene
 
-        for scene_label, scene in scene_from_label.items():
-            scene_data = quest_data[scene_label]
+        self._add_edges_to_graph(graph, quest_data, label_scene_map)
+        return graph
 
-            if scene_data['type'] == 'decision':
+    def _add_edges_to_graph(
+            self, graph: networkx.MultiDiGraph, quest_data: Dict[str, Dict],
+            label_scene_map: Dict[str, Scene]) -> None:
+
+        for label, scene in label_scene_map.items():
+            scene_data = quest_data[label]
+
+            scene_type = SceneType(scene_data['type'])
+            if scene_type == SceneType.DECISION:
                 for index, choice in enumerate(scene_data['choices']):
                     assert len(choice.values()) == 1
                     next_scene_label = list(choice.values())[0]
-                    next_scene = scene_from_label[next_scene_label]
+                    next_scene = label_scene_map[next_scene_label]
                     graph.add_edge(scene, next_scene, key=index)
-
+            elif scene_type == SceneType.TRANSITION:
+                next_scene = label_scene_map[scene_data['next scene']]
+                graph.add_edge(scene, next_scene, key=0)
             else:
-                assert scene_data['type'] == 'dungeon'
+                assert scene_type == SceneType.DUNGEON
                 for index, resolution in enumerate(scene_data['resolutions']):
                     assert len(resolution.values()) == 1
                     res_data = list(resolution.values())[0]
                     next_scene_label = res_data['next scene']
-                    next_scene = scene_from_label[next_scene_label]
+                    next_scene = label_scene_map[next_scene_label]
                     graph.add_edge(scene, next_scene, key=index)
-        return graph
 
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene
@@ -87,10 +96,10 @@ class Quest(object):
         each resolution points to."""
 
         # Output of out_edges is a list of tuples of the form
-        # (source :Scene, sink : Scene, key : int)
-        next_scenes = [(edge[2], edge[1]) for edge in
-                       self._graph.out_edges(current_scene, keys=True)]
-        next_scenes = sorted(next_scenes, key=lambda x: x[0])
+        # (source : Scene, sink : Scene, key : int)
+        # The key is the resolution index, as stored in resolutions.
+        next_scenes = self._scene_graph.out_edges(current_scene, keys=True)
+        next_scenes = sorted(next_scenes, key=lambda x: x[2])
         resols = {res: scene_tup[1] for res, scene_tup in
                   zip(resolutions, next_scenes)}
         return resols
