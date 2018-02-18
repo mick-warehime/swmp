@@ -77,8 +77,9 @@ class Keyboard(object):
 
     @property
     def mouse_just_clicked(self) -> bool:
-        mouse = pg.mouse.get_pressed()
-        return mouse[MOUSE_LEFT] and not self._prev_mouse[MOUSE_LEFT]
+        if self._prev_mouse[MOUSE_LEFT]:
+            return False
+        return pg.mouse.get_pressed()[MOUSE_LEFT]
 
     @property
     def mouse_pos(self) -> Tuple[int, int]:

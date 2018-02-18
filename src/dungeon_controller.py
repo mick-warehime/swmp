@@ -156,6 +156,7 @@ class DungeonController(controller.Controller):
 
         if self._hud_just_clicked():
             self._handle_hud()
+            self.keyboard.handle_input(['none allowed'])
         else:
             self.keyboard.handle_input()
 
