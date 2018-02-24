@@ -2,14 +2,14 @@ import unittest
 
 from parameterized import parameterized
 
-import controller
-import decision_controller
+import controllers.base
+from controllers import decision_controller
 from quests.resolutions import MakeDecision
 from test import pygame_mock
 
 
 def setUpModule() -> None:
-    controller.initialize_controller(None, lambda x: x)
+    controllers.base.initialize_controller(None, lambda x: x)
 
 
 class DecisionControllerTest(unittest.TestCase):
@@ -22,7 +22,7 @@ class DecisionControllerTest(unittest.TestCase):
                              decision_controller.pg.K_3]
 
     def tearDown(self) -> None:
-        controller.Controller.keyboard.handle_input()
+        controllers.base.Controller.keyboard.handle_input()
 
     @parameterized.expand([(0,), (1,), (2,)])
     def test_set_option_0(self, choice: int) -> None:

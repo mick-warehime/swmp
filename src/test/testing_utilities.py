@@ -1,15 +1,14 @@
 from typing import Union
 
-import os
 import pygame
 from pygame.math import Vector2
 
-import controller
 import creatures.enemies
 import creatures.players
 import items
+from controllers.base import initialize_controller
+from controllers.dungeon_controller import DungeonController, Dungeon
 from data.constructors import build_map_object
-from dungeon_controller import DungeonController, Dungeon
 
 
 def make_player() -> creatures.players.Player:
@@ -33,7 +32,7 @@ def make_item(label: str) -> items.ItemObject:
 
 def make_dungeon_controller() -> DungeonController:
     blank_screen = pygame.Surface((800, 600))
-    controller.initialize_controller(blank_screen, None)
+    initialize_controller(blank_screen, None)
 
     dungeon = Dungeon('test_level.tmx')
 

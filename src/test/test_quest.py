@@ -1,7 +1,7 @@
 import unittest
 from typing import Dict, Any
 
-from controller import initialize_controller
+from controllers.base import initialize_controller
 from quests.quest import Quest
 from test.pygame_mock import initialize_pygame
 
@@ -11,23 +11,34 @@ def setUpModule() -> None:
     initialize_controller(None, None)
 
     root_data = {'type': 'decision',
-                 'prompt': 'Lasers or rocks?',
-                 'choices': [{'lasers please': 'lose'},
-                             {'rocks!': 'rock'}]}
+                 'description': 'Lasers or rocks?',
+                 'choices': [
+                     {'one': {'description': 'rocks',
+                              'next scene': 'rock'}},
+                     {'two': {'description': 'lose?',
+                              'next scene': 'lose'}}
+                 ]}
     rock_data = {'type': 'decision',
-                 'prompt': 'One or two?',
-                 'choices': [{'One please': 'rock'},
-                             {'two!': 'lose'}]}
+                 'description': 'One or two?',
+                 'choices': [
+                     {'one': {'description': 'One please',
+                              'next scene':'rock' }},
+                     {'two': {'description': 'two!',
+                              'next scene': 'lose'}}]}
     lose_data = {'type': 'decision',
-                 'prompt': 'You lose',
-                 'choices': [{'play again?': 'root'}]}
+                 'description': 'You lose',
+                 'choices': [
+                     {'one': {'description': 'play again?',
+                              'next scene': 'root'}}]}
 
     QuestTest.simple_quest_data = {'root': root_data,
                                    'rock': rock_data,
                                    'lose': lose_data}
 
 
-# TODO(dvirk): Add tests.
+    # TODO(dvirk): Add tests.
+
+
 class QuestTest(unittest.TestCase):
     simple_quest_data: Dict[str, Any] = None
 
@@ -38,7 +49,9 @@ class QuestTest(unittest.TestCase):
         bad_quest_data = self.simple_quest_data.copy()
         bad_quest_data.pop('root')
         bad_quest_data['lose'] = {'type': 'decision',
-                                  'prompt': 'You lose',
-                                  'choices': [{'play again?': 'rock'}]}
+                                  'description': 'You lose',
+                                  'choices': [
+                                      {'again': {'description': 'play again',
+                                                 'next scene': 'rock'}}]}
         with self.assertRaisesRegex(KeyError, 'exactly one scene'):
             Quest(bad_quest_data)

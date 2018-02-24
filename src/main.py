@@ -2,7 +2,8 @@ import sys
 
 import pygame as pg
 
-import controller
+import controllers
+import controllers.base
 import images
 import settings
 import sounds
@@ -25,8 +26,8 @@ class Game(object):
             self._screen.get_size()).convert_alpha()
         self._dim_screen.fill((0, 0, 0, 180))
 
-        # needs to happen before we make any controller
-        controller.initialize_controller(self._screen, self._quit)
+        # needs to happen before we make any controllers
+        controllers.base.initialize_controller(self._screen, self._quit)
 
         # needs to happen after the video mode has been set
         images.initialize_images()
