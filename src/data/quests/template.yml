@@ -1,0 +1,43 @@
+decision scene:
+  type: decision
+  description: 'Prompt for the decision goes here.'
+  choices:
+    - choice 0:
+        description: 'description of choice 0'
+        next scene:  label of next scene
+    - choice 1:
+        description: 'description of choice 1c'
+        next scene:  label of next scene
+
+dungeon scene:
+  type: dungeon
+  map file: 'map_file_name.tmx'
+  resolutions:
+    - kill group: # This is a type of resolution
+        group label: 'label assigned to objects in the tiledmap'
+        next scene: label of next scene
+    - enter zone: # This is a type of resolution
+        zone label: 'label assigned to object(s) which is entered'
+        entering label: 'label assigned to object(s) which do entering'
+        next scene: label of next scene
+    - condition: # This is a type of resolution
+        tested label: 'player'
+        condition data: # See npcs.yml
+          dead:
+        next scene: label of next scene
+
+transition scene:
+  type: transition
+  description: 'Text to be displayed before next scene'
+  next scene: label of next scene
+
+skill check scene:
+  type: skill check
+  success:
+    description: 'Describes what happens on success'
+    next scene: label of success scene
+  failure:
+    description: 'Describes what happens on failure'
+    next scene: label of failure scene
+  difficulty: hard # one of: (trivial, very easy, easy, medium, hard, very
+                          #   hard, impossible)

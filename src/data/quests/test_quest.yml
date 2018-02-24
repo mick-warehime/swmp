@@ -20,18 +20,46 @@ rock scene:
         condition data:
           dead:
         next scene: game over lose
+
 killed the zombies:
   type: transition
-  description: 'You killed the zombie. YAY! Continuing ahead, you see
-  another waypoint leading to the exit. It is guarded by two zombies and a
-  turret, but you see a laser gun nearby.'
-  next scene: laser scene
+  description: 'You killed the zombie. YAY!'
+  next scene: fence0
+
 entered waypoint:
   type: transition
-  description: 'You bravely flee. Continuing ahead, you see another waypoint
-  leading to the exit. It is guarded by two zombies and a turret, but you see a
-  laser gun nearby.'
+  description: 'You bravely flee.'
+  next scene: fence0
+
+fence0:
+  type: decision
+  description: 'Up ahead you see a fence. It is tall but walking around it
+  would take time. What do you do?'
+  choices:
+    - climb it!:
+        description: 'climb it! YOLO.'
+        next scene: fence1
+    - walk around:
+        description: 'walk around the fence.'
+        next scene: continuing
+
+fence1:
+  type: skill check
+  success:
+    description: 'You try to climb the fence. And you get over it easily.'
+    next scene: continuing
+  failure:
+    description: 'You try to climb the fence. But you snag your pants on the
+    wire and they fall off.'
+    next scene: continuing
+  difficulty: hard
+
+continuing:
+  type: transition
+  description: 'Continuing ahead, you see another waypoint leading to the exit.
+   It is guarded by two zombies and a turret, but you see a laser gun nearby.'
   next scene: laser scene
+
 
 
 
@@ -39,9 +67,6 @@ laser scene:
   type: dungeon
   map file: level1.tmx
   resolutions:
-    - kill group:
-        group label: 'quest'
-        next scene: game over win
     - enter zone:
         zone label: 'exit'
         entering label: 'player'
@@ -54,13 +79,15 @@ laser scene:
 
 game over win:
   type: decision
-  prompt: 'you win!'
+  description: 'you win!'
   choices:
-    - play again: root
+    - play again: &play_again
+        description: 'play again?'
+        next scene: root
 game over lose:
   type: decision
-  prompt: 'you lose!'
+  description: 'you lose!'
   choices:
-    - play again: root
+    - play again: *play_again
 
 
