@@ -147,7 +147,6 @@ class DungeonController(controllers.base.Controller):
         pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
         self._view.draw(self._dungeon.player, self._dungeon.map)
-        # self._view.draw_conflicts(self._dungeon.conflicts)
 
         pg.display.flip()
 
@@ -163,16 +162,8 @@ class DungeonController(controllers.base.Controller):
 
         self._dungeon.update()
 
-        # self.keyboard.set_previous_input()
-
     def get_fps(self) -> float:
         return self._dungeon.get_fps()
-
-        # # the owning object needs to know this
-        # def should_exit(self) -> bool:
-        #     return self._teleported
-        # conflict_resolved = self._dungeon.conflicts.any_resolved_conflict()
-        # return conflict_resolved and self._teleported
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked
