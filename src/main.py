@@ -39,7 +39,7 @@ class Game(object):
 
     def new(self) -> None:
 
-        self.quest_graph = Quest(load_quest_data('test_quest'))
+        self.quest_graph = Quest(load_quest_data('zombie_quest'))
 
         sounds.play(sounds.LEVEL_START)
 

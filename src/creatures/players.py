@@ -5,8 +5,7 @@ import pygame as pg
 from pygame.math import Vector2
 
 import images
-from creatures.humanoids import Humanoid
-from model import EnergySource
+from creatures.humanoids import Humanoid, EnergySource
 
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280

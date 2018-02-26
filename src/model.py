@@ -9,14 +9,14 @@ NO_RESOLUTIONS = -69
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
-                          'items', 'enemies', 'all_sprites'))
+                          'items', 'enemies', 'zones', 'all_sprites'))
 
 
 class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
     def __new__(cls) -> _GroupsBase:
-        args = [Group() for _ in range(5)]
+        args = [Group() for _ in range(6)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
@@ -27,57 +27,8 @@ class Groups(_GroupsBase):
         self.bullets.empty()
         self.all_sprites.empty()
         self.items.empty()
+        self.zones.empty()
         self.enemy_projectiles.empty()
-
-
-# class Conflict(object):
-#     def __init__(self) -> None:
-#         self.group = Group()
-#         self.initial_counts: Dict[type, int] = {}
-#         self.resolved = False
-#
-#     def set_initial_counts(self) -> None:
-#         classes = map(type, list(self.group))
-#         c = Counter(classes)
-#
-#         for key in c:
-#             count = c[key]
-#             self.initial_counts[key] = count
-#
-#     def is_resolved(self) -> bool:
-#         return len(self.group) == 0
-#
-#     def text_rep(self) -> str:
-#         if not self.initial_counts:
-#             self.set_initial_counts()
-#
-#         classes = list(map(type, list(self.group)))
-#         c = Counter(classes)
-#
-#         rep = ''
-#         resolved = True
-#         for key in self.initial_counts:
-#             obj_name = self.class_name_short(key)
-#             initial_count = self.initial_counts[key]
-#             remaining_count = initial_count - c[key]
-#             rep += obj_name % (remaining_count, initial_count)
-#             if initial_count != remaining_count:
-#                 resolved = False
-#
-#         if resolved:
-#             self.resolved = True
-#
-#         return rep
-#
-#     def class_name_short(self, obj_type: type) -> str:
-#         obj_type_str = str(obj_type)
-#         if 'enemy' in obj_type_str.lower():
-#             return 'killed %d/%d enemies'
-#         elif 'waypoint' in obj_type_str.lower():
-#             return 'find %d/%d waypoints'
-#         else:
-#             msg = 'unknown conflict class %s' % obj_type_str
-#             raise Exception(msg)
 
 
 class Timer(object):
@@ -168,6 +119,28 @@ class Obstacle(GameObject):
         raise RuntimeError('Obstacle is not meant to be updated.')
 
 
+class Zone(GameObject):
+    """A region with collisions."""
+
+    def __init__(self, top_left: Vector2, w: int, h: int) -> None:
+        self._check_class_initialized()
+        pg.sprite.Sprite.__init__(self, self._groups.zones)
+
+        self._rect = pg.Rect(top_left.x, top_left.y, w, h)
+
+    @property
+    def image(self) -> pg.Surface:
+        raise RuntimeError(
+            'Zone image is meant to be drawn in the background.')
+
+    @property
+    def rect(self) -> pg.Rect:
+        return self._rect
+
+    def update(self) -> None:
+        raise RuntimeError('Zone object is not meant to be updated.')
+
+
 class DynamicObject(GameObject):
     """A time-changing GameObject with access to current time information.
 
@@ -199,38 +172,6 @@ class DynamicObject(GameObject):
     def image(self) -> pg.Surface:
         raise NotImplementedError
 
-
 # waypoint objects appear as blue spirals on the map (for now).
 # when the player runs into one of these objects they dissappear from the game
 # they can serve as the end of a dungeon or as an area that must be explored
-
-
-class EnergySource(object):
-    def __init__(self, max_energy: float, recharge_rate: float) -> None:
-        self._max_energy = max_energy
-        self._recharge_rate = recharge_rate
-        self._current_energy = max_energy
-
-    @property
-    def fraction_remaining(self) -> float:
-        return self._current_energy / self._max_energy
-
-    @property
-    def energy_available(self) -> float:
-        return self._current_energy
-
-    @property
-    def max_energy(self) -> float:
-        return self._max_energy
-
-    def increment_energy(self, amount: float) -> None:
-        self._current_energy += amount
-        self._current_energy = max(self._current_energy, 0)
-        self._current_energy = min(self._current_energy, self.max_energy)
-
-    def expend_energy(self, amount: float) -> None:
-        assert amount <= self.energy_available
-        self._current_energy -= amount
-
-    def passive_recharge(self, dt: float) -> None:
-        self.increment_energy(dt * self._recharge_rate)

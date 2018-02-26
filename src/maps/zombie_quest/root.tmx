@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="20" height="12" tilewidth="64" tileheight="64" nextobjectid="11">
+ <tileset firstgid="1" source="red rocks.tsx"/>
+ <tileset firstgid="257" source="grey rocks.tsx"/>
+ <layer name="Tile Layer 1" width="20" height="12">
+  <data encoding="csv">
+410,411,412,413,414,415,504,106,107,108,109,110,510,511,512,442,443,444,445,446,
+426,427,428,429,430,431,432,93,25,101,22,71,378,456,457,458,459,460,461,462,
+442,443,444,445,446,447,448,162,127,95,57,84,335,472,473,474,475,476,477,478,
+458,459,460,461,462,463,464,111,105,137,150,181,487,488,489,490,491,492,493,494,
+474,475,476,477,478,479,480,163,185,184,32,67,348,504,505,506,507,508,509,510,
+490,491,492,493,494,495,496,34,60,93,146,48,317,408,409,410,411,412,413,414,
+410,411,412,413,414,415,416,91,15,151,105,19,266,424,425,426,427,428,429,430,
+426,427,428,429,430,431,432,13,9,10,142,40,392,440,441,442,443,444,445,446,
+442,443,444,445,446,447,448,132,54,40,6,126,280,456,457,458,459,460,461,462,
+458,459,460,461,462,463,464,408,409,410,411,412,413,472,473,474,475,476,477,478,
+474,475,476,477,478,479,480,424,425,426,427,428,429,488,489,490,491,492,493,494,
+490,491,492,493,494,495,496,440,441,442,443,444,445,504,505,506,507,508,509,510
+</data>
+ </layer>
+ <objectgroup name="walls">
+  <object id="1" name="wall" x="384" y="0" width="64" height="639"/>
+  <object id="2" name="wall" x="768" y="0" width="64" height="639"/>
+  <object id="3" name="wall" x="450" y="575.5" width="320" height="64"/>
+ </objectgroup>
+ <objectgroup name="gameObjects">
+  <object id="6" name="player" x="589" y="478" width="32" height="32">
+   <properties>
+    <property name="labels" value="player"/>
+   </properties>
+  </object>
+  <object id="7" name="rock" x="660" y="374" width="22" height="20"/>
+  <object id="8" name="rock" x="566" y="255" width="22" height="20"/>
+  <object id="9" name="rock" x="599" y="306" width="22" height="20"/>
+  <object id="10" name="zone" x="459" y="14.5" width="300" height="23">
+   <properties>
+    <property name="labels" value="exit"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
