@@ -30,7 +30,7 @@ class Groups(_GroupsBase):
 
 
 def initialize_groups(groups: Groups) -> None:
-    GameObject.initialize_gameobjects(groups)
+    # GameObject.initialize_gameobjects(groups)
     GroupsAccess.initialize_groups(groups)
 
 
@@ -68,48 +68,14 @@ class GroupsAccess(object):
         return cls._groups is not None
 
 
-class GameObject(pg.sprite.Sprite):
+class GameObject(GroupsAccess, pg.sprite.Sprite):
     """In-game object with a rect for collisions and an image.
 
-    Added functionality derived from Sprite:
-    Can be added/removed to Group objects --> add(*groups), remove(*groups).
-    kill() removes from all groups.
-    update() method that is referenced when a group is updated.
-    alive() : True iff sprite belongs to any group.
 
-    Instructions for subclassing GameObject:
-
-    In the __init__:
-      Make sure to call `self._check_class_initialized()'
-      Before calling super().__init__(pos), make sure that all attributes
-      necessary to access the image property are initialized.
-
-    Implement the abstact property image.
-
-    Note:
-      By default, the rect attribute will be a copy of the image's original
-      rect.
-
-    GameObject.initialize_gameobjects() must be called before instantiating any
-    subclasses.
     """
-    gameobjects_initialized = False
-    _groups: Groups = None
 
     def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-
         self.pos = Vector2(pos.x, pos.y)
-
-    def _check_class_initialized(self) -> None:
-        if not self.gameobjects_initialized:
-            raise RuntimeError('GameObject class must be initialized before '
-                               'instantiating a GameObject.')
-
-    @classmethod
-    def initialize_gameobjects(cls, groups: Groups) -> None:
-        cls._groups = groups
-        cls.gameobjects_initialized = True
 
     @property
     def image(self) -> pg.Surface:
@@ -167,7 +133,3 @@ class DynamicObject(GameObject):
     @property
     def image(self) -> pg.Surface:
         raise NotImplementedError
-
-# waypoint objects appear as blue spirals on the map (for now).
-# when the player runs into one of these objects they dissappear from the game
-# they can serve as the end of a dungeon or as an area that must be explored
