@@ -125,7 +125,7 @@ class Obstacle(GroupsAccess, Sprite):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
         pg.sprite.Sprite.__init__(self, self.groups.walls)
 
-        self._rect = pg.Rect(top_left.x, top_left.y, w, h)
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
 
 class Zone(GroupsAccess, Sprite):
@@ -134,7 +134,7 @@ class Zone(GroupsAccess, Sprite):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
         pg.sprite.Sprite.__init__(self, self.groups.zones)
 
-        self._rect = pg.Rect(top_left.x, top_left.y, w, h)
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
 
 class DynamicObject(GameObject):
