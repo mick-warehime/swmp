@@ -63,7 +63,7 @@ def initialize_pygame() -> None:
 
 
 def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
-    model.GameObject.initialize_gameobjects(groups)
+    model.initialize_groups(groups)
     model.DynamicObject.initialize_dynamic_objects(timer)
     blank_screen = pygame.Surface((800, 600))
     creatures.enemies.Enemy.init_class(blank_screen)

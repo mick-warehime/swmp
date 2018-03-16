@@ -1,6 +1,7 @@
 from typing import Union, Any, Tuple
 
 from pygame.math import Vector2
+from pygame.sprite import Sprite
 
 from creatures.enemies import EnemyData, Enemy
 from data.input_output import load_item_data_kwargs, load_npc_data_kwargs, \
@@ -13,7 +14,7 @@ from waypoints import Waypoint
 
 def build_map_object(label: Union[ObjectType, str], pos: Vector2,
                      player: Any = None,
-                     dimensions: Tuple[int, int] = None) -> GameObject:
+                     dimensions: Tuple[int, int] = None) -> Sprite:
     label_str = label if isinstance(label, str) else label.value
     if is_npc_type(label_str):
         data = EnemyData(**load_npc_data_kwargs(label_str))

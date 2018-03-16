@@ -19,7 +19,7 @@ def _initialization_tests() -> None:
     # Normally I would be running unit tests, but it is not possible to check
     #  exceptions once the classes are initialized.
     _assert_runtime_exception_raised(make_player)
-    model.GameObject.initialize_gameobjects(InitsTest.groups)
+    model.initialize_groups(InitsTest.groups)
     _assert_runtime_exception_raised(make_player)
     model.DynamicObject.initialize_dynamic_objects(InitsTest.timer)
     _assert_runtime_exception_raised(make_zombie)

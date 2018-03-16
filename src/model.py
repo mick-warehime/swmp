@@ -3,9 +3,7 @@ from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2
-from pygame.sprite import Group, LayeredUpdates
-
-NO_RESOLUTIONS = -69
+from pygame.sprite import Group, LayeredUpdates, Sprite
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
@@ -31,6 +29,11 @@ class Groups(_GroupsBase):
         self.enemy_projectiles.empty()
 
 
+def initialize_groups(groups: Groups) -> None:
+    GameObject.initialize_gameobjects(groups)
+    GroupsAccess.initialize_groups(groups)
+
+
 class Timer(object):
     """Keeps track of game time."""
 
@@ -44,6 +47,25 @@ class Timer(object):
     @property
     def current_time(self) -> int:
         return pg.time.get_ticks()
+
+
+class GroupsAccess(object):
+    """An object with access to a `groups' class variable."""
+
+    _groups: Groups = None
+
+    @property
+    def groups(self) -> Groups:
+        assert self._check_class_initialized(), 'GroupsAccess not initialized.'
+        return self._groups
+
+    @classmethod
+    def initialize_groups(cls, groups: Groups):
+        cls._groups = groups
+
+    @classmethod
+    def _check_class_initialized(cls) -> None:
+        return cls._groups is not None
 
 
 class GameObject(pg.sprite.Sprite):
@@ -99,46 +121,20 @@ class GameObject(pg.sprite.Sprite):
         raise NotImplementedError
 
 
-class Obstacle(GameObject):
+class Obstacle(GroupsAccess, Sprite):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
-        self._check_class_initialized()
-        pg.sprite.Sprite.__init__(self, self._groups.walls)
+        pg.sprite.Sprite.__init__(self, self.groups.walls)
 
         self._rect = pg.Rect(top_left.x, top_left.y, w, h)
 
-    @property
-    def image(self) -> pg.Surface:
-        raise RuntimeError('Obstacle image is meant to be drawn in the '
-                           'background.')
 
-    @property
-    def rect(self) -> pg.Rect:
-        return self._rect
-
-    def update(self) -> None:
-        raise RuntimeError('Obstacle is not meant to be updated.')
-
-
-class Zone(GameObject):
+class Zone(GroupsAccess, Sprite):
     """A region with collisions."""
 
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
-        self._check_class_initialized()
-        pg.sprite.Sprite.__init__(self, self._groups.zones)
+        pg.sprite.Sprite.__init__(self, self.groups.zones)
 
         self._rect = pg.Rect(top_left.x, top_left.y, w, h)
-
-    @property
-    def image(self) -> pg.Surface:
-        raise RuntimeError(
-            'Zone image is meant to be drawn in the background.')
-
-    @property
-    def rect(self) -> pg.Rect:
-        return self._rect
-
-    def update(self) -> None:
-        raise RuntimeError('Zone object is not meant to be updated.')
 
 
 class DynamicObject(GameObject):
