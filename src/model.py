@@ -61,7 +61,7 @@ class GroupsAccess(object):
         return self._groups
 
     @classmethod
-    def initialize_groups(cls, groups: Groups):
+    def initialize_groups(cls, groups: Groups) -> None:
         cls._groups = groups
 
     @classmethod

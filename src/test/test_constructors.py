@@ -16,17 +16,17 @@ def setUpModule() -> None:
 
 
 class ConstructorTest(unittest.TestCase):
-    groups = None
+    groups: model.Groups = None
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.groups.empty()
 
-    def test_build_obstacle(self):
+    def test_build_obstacle(self) -> None:
         self.assertEqual(len(self.groups.walls), 0)
         build_map_object(ObjectType.WALL, Vector2(0, 0), None, (30, 30))
         self.assertEqual(len(self.groups.walls), 1)
 
-    def test_build_zone(self):
+    def test_build_zone(self) -> None:
         self.assertEqual(len(self.groups.zones), 0)
         build_map_object(ObjectType.ZONE, Vector2(0, 0), None, (30, 30))
         self.assertEqual(len(self.groups.zones), 1)

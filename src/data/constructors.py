@@ -7,7 +7,7 @@ from creatures.enemies import EnemyData, Enemy
 from data.input_output import load_item_data_kwargs, load_npc_data_kwargs, \
     is_npc_type, is_item_type
 from items import ItemFromData, ItemData
-from model import GameObject, Zone, Obstacle
+from model import Zone, Obstacle
 from tilemap import ObjectType
 from waypoints import Waypoint
 

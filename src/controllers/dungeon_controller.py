@@ -17,7 +17,7 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Groups, GameObject, Timer, TimeAccess, initialize
+from model import Groups, GameObject, Timer, initialize
 from projectiles import Projectile
 
 
