@@ -132,16 +132,15 @@ class HumanoidData(NamedTuple):
     inventory: Inventory
 
 
-class Humanoid(mdl.DynamicObject):
-    """DynamicObject with health, inventory, and motion. We will add more to
+class Humanoid(mdl.GameObject, mdl.TimeAccess):
+    """TimeAccess with health, inventory, and motion. We will add more to
     this later."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
-        self._check_class_initialized()
         hit_rect = hit_rect.copy()
         hit_rect.center = pos
-        self.motion: Motion = Motion(self, self._timer, self._groups.walls,
+        self.motion: Motion = Motion(self, self.timer, self.groups.walls,
                                      hit_rect)
 
         self.status = Status(max_health)

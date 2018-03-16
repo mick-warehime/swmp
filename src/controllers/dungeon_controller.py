@@ -17,7 +17,7 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Groups, GameObject, Timer, DynamicObject, initialize_groups
+from model import Groups, GameObject, Timer, TimeAccess, initialize
 from projectiles import Projectile
 
 
@@ -65,9 +65,9 @@ class Dungeon(object):
                     self.labeled_sprites[label].add(game_obj)
 
     def _init_gameobjects(self) -> None:
-        initialize_groups(self.groups)
         timer = Timer(self._clock)
-        DynamicObject.initialize_dynamic_objects(timer)
+        initialize(self.groups, timer)
+
         abilities.initialize_classes(timer)
         Enemy.init_class(self.map.img)
 

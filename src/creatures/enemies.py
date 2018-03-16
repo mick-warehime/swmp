@@ -200,12 +200,10 @@ class Enemy(Humanoid):
         self.knockback = data.knockback
 
         my_groups = [self._groups.all_sprites, self._groups.enemies]
-        # if data.conflict_group is not None:
-        #     my_groups.append(data.conflict_group)
 
         pg.sprite.Sprite.__init__(self, my_groups)
 
-        self.behavior = Behavior(data.behavior_dict, player, self._timer,
+        self.behavior = Behavior(data.behavior_dict, player, self.timer,
                                  self._map_img)
         self.status.state = self.behavior.default_state
 
@@ -239,7 +237,6 @@ class Enemy(Humanoid):
         self.motion.update()
 
     def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
         if not self.class_initialized:
             raise RuntimeError(
                 'Enemy class must be initialized before an object'

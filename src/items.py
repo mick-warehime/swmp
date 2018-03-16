@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 import images
 from data.input_output import load_mod_data_kwargs
-from model import DynamicObject
+from model import TimeAccess, GameObject
 from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED, ModData
 
 BaseItemData = namedtuple('BaseItemData', ('mod_data', 'image_file'))
@@ -19,11 +19,11 @@ class ItemData(BaseItemData):
         return super().__new__(cls, mod_data, image_file)
 
 
-class ItemObject(DynamicObject):
+class ItemObject(GameObject, TimeAccess):
     """A bobbing in-game object that can be picked up."""
 
     def __init__(self, mod: Mod, pos: Vector2) -> None:
-        self._check_class_initialized()
+        self._class_initialized()
         super().__init__(pos)
 
         my_groups = [self._groups.all_sprites, self._groups.items]

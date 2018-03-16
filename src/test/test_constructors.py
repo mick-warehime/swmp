@@ -4,7 +4,7 @@ from pygame.math import Vector2
 
 import model
 
-from src.test.pygame_mock import initialize_pygame
+from src.test.pygame_mock import initialize_pygame, MockTimer
 from data.constructors import build_map_object
 from tilemap import ObjectType
 
@@ -12,7 +12,7 @@ from tilemap import ObjectType
 def setUpModule() -> None:
     initialize_pygame()
     ConstructorTest.groups = model.Groups()
-    model.initialize_groups(ConstructorTest.groups)
+    model.initialize(ConstructorTest.groups, MockTimer())
 
 
 class ConstructorTest(unittest.TestCase):

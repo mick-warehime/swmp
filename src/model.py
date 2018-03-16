@@ -29,11 +29,6 @@ class Groups(_GroupsBase):
         self.enemy_projectiles.empty()
 
 
-def initialize_groups(groups: Groups) -> None:
-    # GameObject.initialize_gameobjects(groups)
-    GroupsAccess.initialize_groups(groups)
-
-
 class Timer(object):
     """Keeps track of game time."""
 
@@ -49,6 +44,11 @@ class Timer(object):
         return pg.time.get_ticks()
 
 
+def initialize(groups: Groups, timer: 'Timer') -> None:
+    GroupsAccess.initialize_groups(groups)
+    TimeAccess.initialize(timer)
+
+
 class GroupsAccess(object):
     """An object with access to a `groups' class variable."""
 
@@ -56,7 +56,8 @@ class GroupsAccess(object):
 
     @property
     def groups(self) -> Groups:
-        assert self._check_class_initialized(), 'GroupsAccess not initialized.'
+        if not self._class_initialized():
+            raise RuntimeError('GroupsAccess not initialized.')
         return self._groups
 
     @classmethod
@@ -64,15 +65,12 @@ class GroupsAccess(object):
         cls._groups = groups
 
     @classmethod
-    def _check_class_initialized(cls) -> None:
+    def _class_initialized(cls) -> bool:
         return cls._groups is not None
 
 
 class GameObject(GroupsAccess, pg.sprite.Sprite):
-    """In-game object with a rect for collisions and an image.
-
-
-    """
+    """In-game object with a rect for collisions and an image. """
 
     def __init__(self, pos: Vector2) -> None:
         self.pos = Vector2(pos.x, pos.y)
@@ -103,33 +101,24 @@ class Zone(GroupsAccess, Sprite):
         self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
 
-class DynamicObject(GameObject):
+class TimeAccess(object):
     """A time-changing GameObject with access to current time information.
 
     Instructions for subclassing:
     Follow instructions for GameObject.
 
-    DynamicObject.initialize_dynamic_objects() must be called before
+    TimeAccess.initialize_dynamic_objects() must be called before
     instantiating any subclasses.
     """
-    dynamic_initialized = False
-    _timer: Union[Timer, None] = None
+
+    _timer2: Union[Timer, None] = None
 
     @classmethod
-    def initialize_dynamic_objects(cls, timer: Timer) -> None:
-        cls._timer = timer
-        cls.dynamic_initialized = True
-
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.dynamic_initialized:
-            raise RuntimeError('DynamicObject class must be initialized before'
-                               ' instantiating a DynamicObject.')
+    def initialize(cls, timer: Timer) -> None:
+        cls._timer2 = timer
 
     @property
-    def rect(self) -> pg.Rect:
-        raise NotImplementedError
-
-    @property
-    def image(self) -> pg.Surface:
-        raise NotImplementedError
+    def timer(self) -> Timer:
+        if self._timer2 is None:
+            raise RuntimeError('TimeAccess not initialized.')
+        return self._timer2

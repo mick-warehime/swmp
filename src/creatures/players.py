@@ -19,8 +19,6 @@ DAMAGE_ALPHA = list(range(0, 255, 55))
 
 class Player(Humanoid):
     def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
         pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
 
@@ -65,7 +63,7 @@ class Player(Humanoid):
         self._rotate_towards_cursor()
 
         self.motion.update()
-        self.energy_source.passive_recharge(self._timer.dt)
+        self.energy_source.passive_recharge(self.timer.dt)
 
         # reset the movement after each update
         self.motion.vel = Vector2(0, 0)
