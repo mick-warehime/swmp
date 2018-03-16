@@ -26,8 +26,8 @@ class ItemObject(GameObject, TimeAccess):
         self._class_initialized()
         super().__init__(pos)
 
-        my_groups = [self._groups.all_sprites, self._groups.items]
-        pg.sprite.Sprite.__init__(self, my_groups)
+        mygroups = [self.groups.all_sprites, self.groups.items]
+        pg.sprite.Sprite.__init__(self, mygroups)
 
         self._base_rect = self.image.get_rect().copy()
 

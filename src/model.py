@@ -111,14 +111,14 @@ class TimeAccess(object):
     instantiating any subclasses.
     """
 
-    _timer2: Union[Timer, None] = None
+    _timer: Union[Timer, None] = None
 
     @classmethod
     def initialize(cls, timer: Timer) -> None:
-        cls._timer2 = timer
+        cls._timer = timer
 
     @property
     def timer(self) -> Timer:
-        if self._timer2 is None:
+        if self._timer is None:
             raise RuntimeError('TimeAccess not initialized.')
-        return self._timer2
+        return self._timer

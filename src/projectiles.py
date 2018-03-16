@@ -20,10 +20,10 @@ class Projectile(GameObject, TimeAccess):
                  hits_player: bool = False) -> None:
         super().__init__(pos)
         if hits_player:
-            groups_list = [self._groups.all_sprites,
-                           self._groups.enemy_projectiles]
+            groups_list = [self.groups.all_sprites,
+                           self.groups.enemy_projectiles]
         else:
-            groups_list = [self._groups.all_sprites, self._groups.bullets]
+            groups_list = [self.groups.all_sprites, self.groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
         self._base_rect = self.image.get_rect().copy()
@@ -34,7 +34,7 @@ class Projectile(GameObject, TimeAccess):
 
     def update(self) -> None:
         self.pos += self.velocity * self.timer.dt
-        if pg.sprite.spritecollideany(self, self._groups.walls):
+        if pg.sprite.spritecollideany(self, self.groups.walls):
             self.kill()
         if self._lifetime_exceeded:
             self.kill()
@@ -156,7 +156,7 @@ class ProjectileFactory(object):
 
 class MuzzleFlash(GameObject, TimeAccess):
     def __init__(self, pos: Vector2) -> None:
-        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
+        pg.sprite.Sprite.__init__(self, self.groups.all_sprites)
         super().__init__(pos)
         self._rect = self.image.get_rect().copy()
         self._rect.center = self.pos

@@ -20,7 +20,7 @@ DAMAGE_ALPHA = list(range(0, 255, 55))
 class Player(Humanoid):
     def __init__(self, pos: Vector2) -> None:
         super().__init__(PLAYER_HIT_RECT, pos, PLAYER_HEALTH)
-        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
+        pg.sprite.Sprite.__init__(self, self.groups.all_sprites)
 
         self._mouse_pos = (0, 0)
 

@@ -199,9 +199,9 @@ class Enemy(Humanoid):
         self.damage = data.damage
         self.knockback = data.knockback
 
-        my_groups = [self._groups.all_sprites, self._groups.enemies]
+        mygroups = [self.groups.all_sprites, self.groups.enemies]
 
-        pg.sprite.Sprite.__init__(self, my_groups)
+        pg.sprite.Sprite.__init__(self, mygroups)
 
         self.behavior = Behavior(data.behavior_dict, player, self.timer,
                                  self._map_img)
@@ -243,7 +243,7 @@ class Enemy(Humanoid):
                 ' can be instantiated.')
 
     def _avoid_mobs(self) -> None:
-        for mob in self._groups.enemies:
+        for mob in self.groups.enemies:
             if mob is self:
                 continue
             dist = self.pos - mob.pos

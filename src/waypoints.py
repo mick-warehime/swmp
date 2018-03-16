@@ -17,9 +17,9 @@ class Waypoint(GameObject):
         self._rect.center = pos
         self.player = player
 
-        waypoint_groups = [self._groups.all_sprites]
+        waypointgroups = [self.groups.all_sprites]
 
-        pg.sprite.Sprite.__init__(self, waypoint_groups)
+        pg.sprite.Sprite.__init__(self, waypointgroups)
 
     @property
     def image(self) -> pg.Surface:
