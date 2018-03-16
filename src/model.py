@@ -3,20 +3,18 @@ from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2
-from pygame.sprite import Group, LayeredUpdates
-
-NO_RESOLUTIONS = -69
+from pygame.sprite import Group, LayeredUpdates, Sprite
 
 _GroupsBase = namedtuple('_GroupsBase',
                          ('walls', 'bullets', 'enemy_projectiles',
-                          'items', 'enemies', 'all_sprites'))
+                          'items', 'enemies', 'zones', 'all_sprites'))
 
 
 class Groups(_GroupsBase):
     """Immutable container object for groups in the game."""
 
     def __new__(cls) -> _GroupsBase:
-        args = [Group() for _ in range(5)]
+        args = [Group() for _ in range(6)]
         args += [LayeredUpdates()]
         return super(Groups, cls).__new__(cls, *args)  # type: ignore
 
@@ -27,57 +25,8 @@ class Groups(_GroupsBase):
         self.bullets.empty()
         self.all_sprites.empty()
         self.items.empty()
+        self.zones.empty()
         self.enemy_projectiles.empty()
-
-
-# class Conflict(object):
-#     def __init__(self) -> None:
-#         self.group = Group()
-#         self.initial_counts: Dict[type, int] = {}
-#         self.resolved = False
-#
-#     def set_initial_counts(self) -> None:
-#         classes = map(type, list(self.group))
-#         c = Counter(classes)
-#
-#         for key in c:
-#             count = c[key]
-#             self.initial_counts[key] = count
-#
-#     def is_resolved(self) -> bool:
-#         return len(self.group) == 0
-#
-#     def text_rep(self) -> str:
-#         if not self.initial_counts:
-#             self.set_initial_counts()
-#
-#         classes = list(map(type, list(self.group)))
-#         c = Counter(classes)
-#
-#         rep = ''
-#         resolved = True
-#         for key in self.initial_counts:
-#             obj_name = self.class_name_short(key)
-#             initial_count = self.initial_counts[key]
-#             remaining_count = initial_count - c[key]
-#             rep += obj_name % (remaining_count, initial_count)
-#             if initial_count != remaining_count:
-#                 resolved = False
-#
-#         if resolved:
-#             self.resolved = True
-#
-#         return rep
-#
-#     def class_name_short(self, obj_type: type) -> str:
-#         obj_type_str = str(obj_type)
-#         if 'enemy' in obj_type_str.lower():
-#             return 'killed %d/%d enemies'
-#         elif 'waypoint' in obj_type_str.lower():
-#             return 'find %d/%d waypoints'
-#         else:
-#             msg = 'unknown conflict class %s' % obj_type_str
-#             raise Exception(msg)
 
 
 class Timer(object):
@@ -95,48 +44,36 @@ class Timer(object):
         return pg.time.get_ticks()
 
 
-class GameObject(pg.sprite.Sprite):
-    """In-game object with a rect for collisions and an image.
+def initialize(groups: Groups, timer: 'Timer') -> None:
+    GroupsAccess.initialize_groups(groups)
+    TimeAccess.initialize(timer)
 
-    Added functionality derived from Sprite:
-    Can be added/removed to Group objects --> add(*groups), remove(*groups).
-    kill() removes from all groups.
-    update() method that is referenced when a group is updated.
-    alive() : True iff sprite belongs to any group.
 
-    Instructions for subclassing GameObject:
+class GroupsAccess(object):
+    """An object with access to a `groups' class variable."""
 
-    In the __init__:
-      Make sure to call `self._check_class_initialized()'
-      Before calling super().__init__(pos), make sure that all attributes
-      necessary to access the image property are initialized.
-
-    Implement the abstact property image.
-
-    Note:
-      By default, the rect attribute will be a copy of the image's original
-      rect.
-
-    GameObject.initialize_gameobjects() must be called before instantiating any
-    subclasses.
-    """
-    gameobjects_initialized = False
     _groups: Groups = None
 
-    def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-
-        self.pos = Vector2(pos.x, pos.y)
-
-    def _check_class_initialized(self) -> None:
-        if not self.gameobjects_initialized:
-            raise RuntimeError('GameObject class must be initialized before '
-                               'instantiating a GameObject.')
+    @property
+    def groups(self) -> Groups:
+        if not self._class_initialized():
+            raise RuntimeError('GroupsAccess not initialized.')
+        return self._groups
 
     @classmethod
-    def initialize_gameobjects(cls, groups: Groups) -> None:
+    def initialize_groups(cls, groups: Groups) -> None:
         cls._groups = groups
-        cls.gameobjects_initialized = True
+
+    @classmethod
+    def _class_initialized(cls) -> bool:
+        return cls._groups is not None
+
+
+class GameObject(GroupsAccess, pg.sprite.Sprite):
+    """In-game object with a rect for collisions and an image. """
+
+    def __init__(self, pos: Vector2) -> None:
+        self.pos = Vector2(pos.x, pos.y)
 
     @property
     def image(self) -> pg.Surface:
@@ -148,89 +85,40 @@ class GameObject(pg.sprite.Sprite):
         raise NotImplementedError
 
 
-class Obstacle(GameObject):
+class Obstacle(GroupsAccess, Sprite):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
-        self._check_class_initialized()
-        pg.sprite.Sprite.__init__(self, self._groups.walls)
+        pg.sprite.Sprite.__init__(self, self.groups.walls)
 
-        self._rect = pg.Rect(top_left.x, top_left.y, w, h)
-
-    @property
-    def image(self) -> pg.Surface:
-        raise RuntimeError('Obstacle image is meant to be drawn in the '
-                           'background.')
-
-    @property
-    def rect(self) -> pg.Rect:
-        return self._rect
-
-    def update(self) -> None:
-        raise RuntimeError('Obstacle is not meant to be updated.')
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
 
 
-class DynamicObject(GameObject):
+class Zone(GroupsAccess, Sprite):
+    """A region with collisions."""
+
+    def __init__(self, top_left: Vector2, w: int, h: int) -> None:
+        pg.sprite.Sprite.__init__(self, self.groups.zones)
+
+        self.rect = pg.Rect(top_left.x, top_left.y, w, h)
+
+
+class TimeAccess(object):
     """A time-changing GameObject with access to current time information.
 
     Instructions for subclassing:
     Follow instructions for GameObject.
 
-    DynamicObject.initialize_dynamic_objects() must be called before
+    TimeAccess.initialize_dynamic_objects() must be called before
     instantiating any subclasses.
     """
-    dynamic_initialized = False
+
     _timer: Union[Timer, None] = None
 
     @classmethod
-    def initialize_dynamic_objects(cls, timer: Timer) -> None:
+    def initialize(cls, timer: Timer) -> None:
         cls._timer = timer
-        cls.dynamic_initialized = True
-
-    def _check_class_initialized(self) -> None:
-        super()._check_class_initialized()
-        if not self.dynamic_initialized:
-            raise RuntimeError('DynamicObject class must be initialized before'
-                               ' instantiating a DynamicObject.')
 
     @property
-    def rect(self) -> pg.Rect:
-        raise NotImplementedError
-
-    @property
-    def image(self) -> pg.Surface:
-        raise NotImplementedError
-
-
-# waypoint objects appear as blue spirals on the map (for now).
-# when the player runs into one of these objects they dissappear from the game
-# they can serve as the end of a dungeon or as an area that must be explored
-
-
-class EnergySource(object):
-    def __init__(self, max_energy: float, recharge_rate: float) -> None:
-        self._max_energy = max_energy
-        self._recharge_rate = recharge_rate
-        self._current_energy = max_energy
-
-    @property
-    def fraction_remaining(self) -> float:
-        return self._current_energy / self._max_energy
-
-    @property
-    def energy_available(self) -> float:
-        return self._current_energy
-
-    @property
-    def max_energy(self) -> float:
-        return self._max_energy
-
-    def increment_energy(self, amount: float) -> None:
-        self._current_energy += amount
-        self._current_energy = max(self._current_energy, 0)
-        self._current_energy = min(self._current_energy, self.max_energy)
-
-    def expend_energy(self, amount: float) -> None:
-        assert amount <= self.energy_available
-        self._current_energy -= amount
-
-    def passive_recharge(self, dt: float) -> None:
-        self.increment_energy(dt * self._recharge_rate)
+    def timer(self) -> Timer:
+        if self._timer is None:
+            raise RuntimeError('TimeAccess not initialized.')
+        return self._timer

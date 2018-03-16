@@ -132,16 +132,15 @@ class HumanoidData(NamedTuple):
     inventory: Inventory
 
 
-class Humanoid(mdl.DynamicObject):
-    """DynamicObject with health, inventory, and motion. We will add more to
+class Humanoid(mdl.GameObject, mdl.TimeAccess):
+    """TimeAccess with health, inventory, and motion. We will add more to
     this later."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
-        self._check_class_initialized()
         hit_rect = hit_rect.copy()
         hit_rect.center = pos
-        self.motion: Motion = Motion(self, self._timer, self._groups.walls,
+        self.motion: Motion = Motion(self, self.timer, self.groups.walls,
                                      hit_rect)
 
         self.status = Status(max_health)
@@ -285,3 +284,34 @@ def collide_hit_rect_with_rect(humanoid: Humanoid,
                                sprite: pg.sprite.Sprite) -> bool:
     """Collide the hit_rect of a Humanoid with the rect of a Sprite. """
     return humanoid.motion.hit_rect.colliderect(sprite.rect)
+
+
+class EnergySource(object):
+    def __init__(self, max_energy: float, recharge_rate: float) -> None:
+        self._max_energy = max_energy
+        self._recharge_rate = recharge_rate
+        self._current_energy = max_energy
+
+    @property
+    def fraction_remaining(self) -> float:
+        return self._current_energy / self._max_energy
+
+    @property
+    def energy_available(self) -> float:
+        return self._current_energy
+
+    @property
+    def max_energy(self) -> float:
+        return self._max_energy
+
+    def increment_energy(self, amount: float) -> None:
+        self._current_energy += amount
+        self._current_energy = max(self._current_energy, 0)
+        self._current_energy = min(self._current_energy, self.max_energy)
+
+    def expend_energy(self, amount: float) -> None:
+        assert amount <= self.energy_available
+        self._current_energy -= amount
+
+    def passive_recharge(self, dt: float) -> None:
+        self.increment_energy(dt * self._recharge_rate)

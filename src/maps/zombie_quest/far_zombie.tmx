@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="15" height="13" tilewidth="64" tileheight="64" nextobjectid="8">
+ <tileset firstgid="1" source="red rocks.tsx"/>
+ <tileset firstgid="257" source="grey rocks.tsx"/>
+ <layer name="Tile Layer 1" width="15" height="13">
+  <data encoding="csv">
+412,413,414,415,488,126,107,90,142,155,494,495,496,411,412,
+428,429,430,431,504,94,127,92,171,92,510,511,512,427,428,
+444,445,446,447,448,156,128,142,143,109,440,441,442,443,444,
+460,461,462,463,464,128,157,137,158,141,456,457,458,459,460,
+476,477,478,479,480,122,105,142,95,106,472,473,474,475,476,
+492,493,494,495,496,157,92,154,128,144,488,489,490,491,492,
+508,509,510,511,512,126,155,137,90,143,504,505,506,507,508,
+412,413,414,415,416,138,105,142,174,106,408,409,410,411,412,
+428,429,430,431,432,125,175,93,126,105,424,425,426,427,428,
+444,445,446,447,448,105,93,153,169,155,440,441,442,443,444,
+460,461,462,463,464,408,409,410,411,412,456,457,458,459,460,
+476,477,478,479,480,424,425,426,427,428,472,473,474,475,476,
+492,493,494,495,496,440,441,442,443,444,488,489,490,491,492
+</data>
+ </layer>
+ <objectgroup name="walls">
+  <object id="1" name="wall" x="256" y="0" width="64" height="703"/>
+  <object id="2" name="wall" x="640" y="0" width="64" height="703"/>
+  <object id="3" name="wall" x="322" y="639.5" width="320" height="64"/>
+ </objectgroup>
+ <objectgroup name="gameObjects">
+  <object id="5" name="red_zombie" x="462" y="256" width="32" height="32">
+   <properties>
+    <property name="labels" value="quest"/>
+   </properties>
+  </object>
+  <object id="6" name="player" x="467" y="537" width="32" height="32">
+   <properties>
+    <property name="labels" value="player"/>
+   </properties>
+  </object>
+  <object id="7" name="zone" x="332" y="10.5" width="300" height="23">
+   <properties>
+    <property name="labels" value="exit"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

@@ -9,33 +9,32 @@ from pygame.transform import rotate
 import images
 import settings
 
-from model import DynamicObject
+from model import TimeAccess, GameObject
 
 
-class Projectile(DynamicObject):
+class Projectile(GameObject, TimeAccess):
     """A projectile fired from weapon. Projectile size is subclass dependent.
     """
 
     def __init__(self, pos: Vector2, direction: Vector2,
                  hits_player: bool = False) -> None:
-        self._check_class_initialized()
         super().__init__(pos)
         if hits_player:
-            groups_list = [self._groups.all_sprites,
-                           self._groups.enemy_projectiles]
+            groups_list = [self.groups.all_sprites,
+                           self.groups.enemy_projectiles]
         else:
-            groups_list = [self._groups.all_sprites, self._groups.bullets]
+            groups_list = [self.groups.all_sprites, self.groups.bullets]
         pg.sprite.Sprite.__init__(self, groups_list)
 
         self._base_rect = self.image.get_rect().copy()
 
         assert direction.is_normalized()
         self.velocity = direction * self.speed * uniform(0.9, 1.1)
-        self.spawn_time = self._timer.current_time
+        self.spawn_time = self.timer.current_time
 
     def update(self) -> None:
-        self.pos += self.velocity * self._timer.dt
-        if pg.sprite.spritecollideany(self, self._groups.walls):
+        self.pos += self.velocity * self.timer.dt
+        if pg.sprite.spritecollideany(self, self.groups.walls):
             self.kill()
         if self._lifetime_exceeded:
             self.kill()
@@ -47,7 +46,7 @@ class Projectile(DynamicObject):
 
     @property
     def _lifetime_exceeded(self) -> bool:
-        lifetime = self._timer.current_time - self.spawn_time
+        lifetime = self.timer.current_time - self.spawn_time
         return lifetime > self.max_lifetime
 
     @property
@@ -130,7 +129,7 @@ class FancyProjectile(SimpleProjectile):
             self._process_image = lambda x: x
 
     def _rotate_image(self, image: pg.Surface) -> pg.Surface:
-        angle = self._timer.current_time // 2 % 360
+        angle = self.timer.current_time // 2 % 360
         return pg.transform.rotate(image, angle)
 
     @property
@@ -155,14 +154,13 @@ class ProjectileFactory(object):
         return projectile
 
 
-class MuzzleFlash(DynamicObject):
+class MuzzleFlash(GameObject, TimeAccess):
     def __init__(self, pos: Vector2) -> None:
-        self._check_class_initialized()
-        pg.sprite.Sprite.__init__(self, self._groups.all_sprites)
+        pg.sprite.Sprite.__init__(self, self.groups.all_sprites)
         super().__init__(pos)
         self._rect = self.image.get_rect().copy()
         self._rect.center = self.pos
-        self._spawn_time = self._timer.current_time
+        self._spawn_time = self.timer.current_time
 
     def update(self) -> None:
         if self._fade_out():
@@ -175,7 +173,7 @@ class MuzzleFlash(DynamicObject):
         return pg.transform.scale(flash_img, (size, size))
 
     def _fade_out(self) -> bool:
-        time_elapsed = self._timer.current_time - self._spawn_time
+        time_elapsed = self.timer.current_time - self._spawn_time
         return time_elapsed > settings.FLASH_DURATION
 
     @property

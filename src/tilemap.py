@@ -16,10 +16,11 @@ class ObjectType(Enum):
     PLAYER = 'player'
     WALL = 'wall'
     WAYPOINT = 'waypoint'
+    ZONE = 'zone'
 
 
 class MapObject(object):
-    '''simple wrapper class for objects in the tiled map'''
+    """Simple wrapper class for objects in the tiled map"""
 
     def __init__(self, tile_object: Any) -> None:
         self.x = tile_object.x

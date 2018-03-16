@@ -39,8 +39,7 @@ class Quest(object):
                            ' instead got {}'.format(label, len(nodes)))
         return nodes[0]
 
-    def _make_quest_graph(
-            self, quest_data: Dict[str, Dict]) -> networkx.MultiDiGraph:
+    def _make_quest_graph(self, quest_data: Dict[str, Dict]) -> None:
         self._scene_graph = networkx.MultiDiGraph()
         label_scene_map = {}
         for label, scene_data in quest_data.items():

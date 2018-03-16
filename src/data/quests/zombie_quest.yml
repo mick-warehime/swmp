@@ -1,0 +1,86 @@
+root:
+  type: transition
+  description: "You wake up in a dark cave. The last thing you remember was
+  passing out in the hospital as news of a world-wide emergency blared on
+  the screens. You decide to explore your surroundings."
+  next scene: start cave
+
+start cave:
+  type: dungeon
+  map file: 'zombie_quest/root.tmx'
+  resolutions:
+    - enter zone: &player_exits
+        zone label: 'exit'
+        entering label: 'player'
+        next scene: first encounter
+    - condition: &player_death
+        tested label: 'player'
+        condition data:
+          dead:
+        next scene: game over lose
+
+first encounter:
+  type: decision
+  description: "Walking farther in the cave you come upon the exit ahead.
+  Between you and the exit you notice a man in rags. From a distance he
+  appears to be listless and wandering aimlessly."
+  choices:
+    - approach:
+        description: "Approach the man to see if he is okay."
+        next scene: man or zombie
+    - avoid:
+        description: "Walk quietly around him. Too creepy."
+        next scene: avoid zombie
+
+
+man or zombie:
+  type: skill check
+  success:
+    description: "'Boy, am I glad to see you!' says the man. 'I'm blind and
+    have been lost in this cave for days.' You direct the man to the exit,
+    and in gratitude he gives you a healthpack. (Implement)."
+    next scene: game over win
+  failure:
+    description: "It turns out the man is a walking dead type. He charges you!"
+    next scene: near zombie
+  difficulty: medium
+
+near zombie: &near_zombie
+  type: dungeon
+  map file: 'zombie_quest/near_zombie.tmx'
+  resolutions:
+    - enter zone:
+        <<: *player_exits
+        next scene: game over win
+    - condition: *player_death
+
+avoid zombie:
+  type: skill check
+  success:
+    description: "You successfully walk around the creepy man, but feel a
+    pang of guilt for not helping."
+    next scene: game over win
+  failure:
+    description: "It turns out the man is a walking dead type. He notices
+    you from a distance and charges!"
+    next scene: far zombie
+  difficulty: easy
+
+far zombie:
+  <<: *near_zombie
+  map file: 'zombie_quest/far_zombie.tmx'
+
+game over lose:
+  type: decision
+  description: 'you lose!'
+  choices:
+    - play again: &play_again
+        description: 'play again?'
+        next scene: root
+
+game over win:
+  type: decision
+  description: 'you win!'
+  choices:
+    - play again: *play_again
+

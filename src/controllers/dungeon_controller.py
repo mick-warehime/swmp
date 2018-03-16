@@ -2,7 +2,6 @@ from random import random
 from typing import Dict, List, Tuple, Set
 
 import pygame as pg
-from pygame.math import Vector2
 from pygame.sprite import spritecollide, groupcollide
 
 import abilities
@@ -18,7 +17,7 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Obstacle, Groups, GameObject, Timer, DynamicObject
+from model import Groups, GameObject, Timer, initialize
 from projectiles import Projectile
 
 
@@ -49,17 +48,14 @@ class Dungeon(object):
 
         assert self.player is not None, 'no player found in map'
 
+        builder = constructors.build_map_object
         for obj in self.map.objects:
 
             if obj.type == tilemap.ObjectType.PLAYER:
                 game_obj = self.player
-            elif obj.type == tilemap.ObjectType.WALL:
-                pos = Vector2(obj.x, obj.y)
-                Obstacle(pos, obj.width, obj.height)
-                continue
             else:
-                game_obj = constructors.build_map_object(obj.type, obj.center,
-                                                         self.player)
+                dims = (obj.width, obj.height)
+                game_obj = builder(obj.type, obj.center, self.player, dims)
             # TODO(dvirk): Ideally this should be handled outside the scope of
             # Dungeon. Perhaps this whole method should be handled outside.
             for label in obj.labels:
@@ -69,9 +65,9 @@ class Dungeon(object):
                     self.labeled_sprites[label].add(game_obj)
 
     def _init_gameobjects(self) -> None:
-        GameObject.initialize_gameobjects(self.groups)
         timer = Timer(self._clock)
-        DynamicObject.initialize_dynamic_objects(timer)
+        initialize(self.groups, timer)
+
         abilities.initialize_classes(timer)
         Enemy.init_class(self.map.img)
 
