@@ -1,37 +1,23 @@
 """Module for defining Humanoid abilities."""
 from collections import namedtuple
-from typing import Any, List, Union
+from typing import Any, List
 
 from data.input_output import load_projectile_data_kwargs
 from effects import Effect, UpdateLastUse, Heal, Recharge, ExpendEnergy, \
     PlaySound, Kickback, MakeProjectile, MuzzleFlashEffect
 from conditions import Condition, CooldownCondition, EnergyAvailable, \
     IsDamaged, EnergyNotFull
-from model import Timer
+from model import TimeAccess
 from projectiles import ProjectileData
 
 
-def initialize_classes(timer: Timer) -> None:
-    Ability.initialize_class(timer)
-    # AbilityFromData.initialize_class(timer)
-
-
-class Ability(object):
-    _timer: Union[None, Timer] = None
-    class_initialized = False
-
+class Ability(TimeAccess):
     def __init__(self) -> None:
-        self._check_class_initialized()
 
         self._use_effects: List[Effect] = []
         self._use_conditions: List[Condition] = []
 
         self.uses_left = 0
-
-    @classmethod
-    def initialize_class(cls, timer: Timer) -> None:
-        cls._timer = timer
-        cls.class_initialized = True
 
     def can_use(self, humanoid: Any) -> bool:
         for condition in self._use_conditions:
@@ -52,12 +38,6 @@ class Ability(object):
 
     def add_use_effect(self, effect: Effect) -> None:
         self._use_effects.append(effect)
-
-    @classmethod
-    def _check_class_initialized(cls) -> None:
-        if not cls.class_initialized:
-            raise RuntimeError('Class %s must be initialized before '
-                               'instantiating an object.' % (cls,))
 
 
 BaseAbilityData = namedtuple('BaseAbilityData',
@@ -102,7 +82,7 @@ class GenericAbility(Ability):
     def __init__(self, data: AbilityData) -> None:
         super().__init__()
 
-        cool_down = CooldownCondition(self._timer, data.cool_down_time)
+        cool_down = CooldownCondition(self.timer, data.cool_down_time)
         update_use = UpdateLastUse(cool_down)
         self.add_use_condition(cool_down)
         self.add_use_effect(update_use)

@@ -6,11 +6,11 @@ from pygame.sprite import Sprite
 
 import draw_utils
 import images
+import model
 import mods
 import settings
 from creatures.players import Player
 from hud import HUD
-from model import Groups
 from settings import WIDTH, HEIGHT
 from tilemap import TiledMap
 
@@ -39,7 +39,7 @@ class Camera:
         self.rect = pg.Rect(x, y, self.rect.width, self.rect.height)
 
 
-class DungeonView(object):
+class DungeonView(model.GroupsAccess):
     def __init__(self, screen: pg.Surface) -> None:
 
         self._screen = screen
@@ -60,16 +60,11 @@ class DungeonView(object):
         self._light_mask = images.get_image(images.LIGHT_MASK)
         self._light_rect = self._light_mask.get_rect()
 
-        self._groups: Groups = None
-
         self.title_font = images.get_font(images.ZOMBIE_FONT)
 
     def set_camera_range(self, width: int, height: int) -> None:
         x, y = self.camera.rect.x, self.camera.rect.y
         self.camera.rect = Rect(x, y, width, height)
-
-    def set_groups(self, groups: Groups) -> None:
-        self._groups = groups
 
     def draw(self, player: Player, tile_map: TiledMap) -> None:
 
@@ -77,7 +72,7 @@ class DungeonView(object):
 
         self._screen.blit(tile_map.img, self.camera.get_shifted_rect(tile_map))
 
-        for sprite in self._groups.all_sprites:
+        for sprite in self.groups.all_sprites:
             self._draw_sprite(sprite)
 
         if self._draw_debug:
@@ -104,7 +99,7 @@ class DungeonView(object):
         return self._screen.get_rect().colliderect(rect)
 
     def _draw_debug_rects(self) -> None:
-        for sprite in self._groups.all_sprites:
+        for sprite in self.groups.all_sprites:
             if hasattr(sprite, 'motion'):
                 rect = sprite.motion.hit_rect
             else:
@@ -112,8 +107,8 @@ class DungeonView(object):
             shifted_rect = self.camera.shift_by_topleft(rect)
             if self._rect_on_screen(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
-        for obstacle in self._groups.walls:
-            assert obstacle not in self._groups.all_sprites
+        for obstacle in self.groups.walls:
+            assert obstacle not in self.groups.all_sprites
             shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
             if self._rect_on_screen(shifted_rect):
                 pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)

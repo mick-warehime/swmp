@@ -2,6 +2,7 @@ import pygame as pg
 
 import controllers.base
 from creatures.humanoids import HumanoidData
+from items import ItemObject
 from quests.resolutions import MakeDecision
 from view import DecisionView
 
@@ -10,12 +11,15 @@ class TransitionController(controllers.base.Controller):
     """Handles transitions, which involves basic user input and text drawing.
     """
 
-    def __init__(self, description: str, continue_dec: MakeDecision) -> None:
+    def __init__(self, description: str, continue_dec: MakeDecision,
+                 gained_item: ItemObject = None) -> None:
         super().__init__()
 
         self._view = DecisionView(self._screen, description,
                                   ['press space to continue'],
                                   enumerate_options=False)
+
+        self._gained_item = gained_item
 
         self._player_data: HumanoidData = None
 
@@ -31,3 +35,9 @@ class TransitionController(controllers.base.Controller):
 
     def set_player_data(self, data: HumanoidData) -> None:
         self._player_data = data
+        if self._gained_item is not None:
+            self._player_data.inventory.attempt_pickup(self._gained_item)
+            # Even if the gained item is not picked up, it should be removed
+            #  from Groups.
+            self._gained_item.kill()
+            self._gained_item = None

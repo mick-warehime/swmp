@@ -133,8 +133,7 @@ class HumanoidData(NamedTuple):
 
 
 class Humanoid(mdl.GameObject, mdl.TimeAccess):
-    """TimeAccess with health, inventory, and motion. We will add more to
-    this later."""
+    """GameObject with health, inventory, and motion."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:

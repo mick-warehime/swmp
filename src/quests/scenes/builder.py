@@ -23,7 +23,7 @@ class SceneType(Enum):
 
 _arg_labels = {SceneType.DUNGEON: ['map file', 'resolutions'],
                SceneType.DECISION: ['description', 'choices'],
-               SceneType.TRANSITION: ['description'],
+               SceneType.TRANSITION: ['description', 'gained item label'],
                SceneType.SKILL_CHECK: ['success', 'failure', 'difficulty']}
 _scene_map = {SceneType.DUNGEON: DungeonScene,
               SceneType.DECISION: DecisionScene,

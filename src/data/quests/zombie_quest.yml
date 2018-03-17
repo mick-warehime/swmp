@@ -2,7 +2,9 @@ root:
   type: transition
   description: "You wake up in a dark cave. The last thing you remember was
   passing out in the hospital as news of a world-wide emergency blared on
-  the screens. You decide to explore your surroundings."
+  the screens. You pick up a rock and decide to explore your surroundings
+  further."
+  gained item label: "rock"
   next scene: start cave
 
 start cave:
@@ -38,12 +40,18 @@ man or zombie:
   success:
     description: "'Boy, am I glad to see you!' says the man. 'I'm blind and
     have been lost in this cave for days.' You direct the man to the exit,
-    and in gratitude he gives you a healthpack. (Implement)."
-    next scene: game over win
+    and in gratitude he gives you a healthpack."
+    next scene: gain healthpack
   failure:
     description: "It turns out the man is a walking dead type. He charges you!"
     next scene: near zombie
   difficulty: medium
+
+gain healthpack:
+  type: transition
+  description: "You add the healthpack to your inventory."
+  gained item label: "healthpack"
+  next scene: game over win
 
 near zombie: &near_zombie
   type: dungeon
