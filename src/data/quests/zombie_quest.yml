@@ -15,6 +15,7 @@ start cave:
         zone label: 'exit'
         entering label: 'player'
         next scene: first encounter
+        requires teleport:
     - condition: &player_death
         tested label: 'player'
         condition data:

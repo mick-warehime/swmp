@@ -20,8 +20,16 @@ class ResolutionType(Enum):
         return _resolution_args[self]
 
     @property
-    def constructor(self) -> Callable[Any, Resolution]:
+    def constructor(self) -> Callable[[Any], 'Resolution']:
         return _resolution_map[self]
+
+
+class ResolutionModifiers(Enum):
+    REQUIRES_TELEPORT = 'requires teleport'
+
+    @classmethod
+    def has_value(cls, value) -> bool:
+        return any(value == item.value for item in cls)
 
 
 SpriteLabels = Dict[str, Collection[Sprite]]
@@ -38,6 +46,29 @@ class Resolution(abc.ABC):
     @abc.abstractmethod
     def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         """Called after sprites have been created and categorized from map."""
+
+
+class RequiresTeleport(Resolution):
+    """Decorator pattern for a Resolution requiring player to press `teleport'.
+    """
+
+    def __init__(self, base_resolution: Resolution) -> None:
+        self._base_resolution = base_resolution
+        self._teleport_on = False
+
+    @property
+    def is_resolved(self) -> bool:
+        # teleport_on is set to False so that is_resolved is True at the
+        # instant that teleport_on is set to True.
+        teleport_on = self._teleport_on
+        self._teleport_on = False
+        return self._base_resolution.is_resolved and teleport_on
+
+    def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
+        self._base_resolution.load_sprite_data(sprite_categories)
+
+    def toggle_teleport(self) -> None:
+        self._teleport_on = True
 
 
 def _add_sprites_of_label(label: str, res_data: SpriteLabels,
@@ -137,6 +168,8 @@ _resolution_map = {ResolutionType.DECISION_CHOICE: MakeDecision,
                    ResolutionType.ENTER_ZONE: EnterZone,
                    ResolutionType.KILL_GROUP: KillGroup}
 
+_modifiers_map = {ResolutionModifiers.REQUIRES_TELEPORT: RequiresTeleport}
+
 
 def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
     """Constructs a Resolution from a data dictionary."""
@@ -147,4 +180,11 @@ def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
     res_type = ResolutionType(res_label)
 
     args = [data[key] for key in res_type.arg_labels]
-    return res_type.constructor(*args)
+    resolution = res_type.constructor(*args)
+
+    for key in data.keys():
+        if ResolutionModifiers.has_value(key):
+            modifier = _modifiers_map[ResolutionModifiers(key)]
+            resolution = modifier(resolution)
+
+    return resolution
