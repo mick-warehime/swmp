@@ -23,8 +23,6 @@ def _initialization_tests() -> None:
     _assert_runtime_exception_raised(make_zombie)
     blank_screen = pygame.Surface((800, 600))
     creatures.enemies.Enemy.init_class(blank_screen)
-    _assert_runtime_exception_raised(Ability)
-    Ability.initialize_class(InitsTest.timer)
 
     InitsTest.groups.empty()
     InitsTest.timer.reset()

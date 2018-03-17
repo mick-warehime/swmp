@@ -4,11 +4,10 @@ from typing import Dict, List, Tuple, Set
 import pygame as pg
 from pygame.sprite import spritecollide, groupcollide
 
-import abilities
 import controllers.base
 from controllers import keyboards
+import model
 import mods
-import settings
 import sounds
 import tilemap
 import view
@@ -17,24 +16,18 @@ from creatures.enemies import Enemy
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-from model import Groups, GameObject, Timer, initialize
+
 from projectiles import Projectile
 
 
-class Dungeon(object):
+class Dungeon(model.GroupsAccess):
     """Stores and updates GameObjects in a dungeon map."""
 
     def __init__(self, map_file: str) -> None:
-        super().__init__()
-
-        # initialize all variables and do all the setup for a new game
-        self.groups = Groups()
-
-        self._clock = pg.time.Clock()
 
         # init_map
         self.map = tilemap.TiledMap(map_file)
-        self.labeled_sprites: Dict[str, Set[GameObject]] = {}
+        self.labeled_sprites: Dict[str, Set[model.GameObject]] = {}
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
@@ -65,16 +58,10 @@ class Dungeon(object):
                     self.labeled_sprites[label].add(game_obj)
 
     def _init_gameobjects(self) -> None:
-        timer = Timer(self._clock)
-        initialize(self.groups, timer)
 
-        abilities.initialize_classes(timer)
         Enemy.init_class(self.map.img)
 
     def update(self) -> None:
-
-        # needs to be called every frame to throttle max framerate
-        self._clock.tick(settings.FPS)
 
         self.groups.all_sprites.update()
 
@@ -115,8 +102,8 @@ class Dungeon(object):
                 -sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
 
-    def get_fps(self) -> float:
-        return self._clock.get_fps()
+            # def get_fps(self) -> float:
+            #     return self._clock.get_fps()
 
 
 class DungeonController(controllers.base.Controller):
@@ -130,7 +117,6 @@ class DungeonController(controllers.base.Controller):
         self._dungeon = dungeon
 
         self._view = view.DungeonView(self._screen)
-        self._view.set_groups(self._dungeon.groups)
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
@@ -140,7 +126,6 @@ class DungeonController(controllers.base.Controller):
         self._dungeon.player.data = data
 
     def draw(self) -> None:
-        pg.display.set_caption("{:.2f}".format(self.get_fps()))
 
         self._view.draw(self._dungeon.player, self._dungeon.map)
 
@@ -158,8 +143,8 @@ class DungeonController(controllers.base.Controller):
 
         self._dungeon.update()
 
-    def get_fps(self) -> float:
-        return self._dungeon.get_fps()
+    # def get_fps(self) -> float:
+    #     return self._dungeon.get_fps()
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked
@@ -243,6 +228,12 @@ class DungeonController(controllers.base.Controller):
 
     def _toggle_hide_backpack(self) -> None:
         self._view.toggle_hide_backpack()
+
+    # Ensures that gameobjects are removed from Groups once the controller
+    # is no longer used.
+    def __del__(self) -> None:
+        self._dungeon.groups.empty()
+        del self
 
         # def _teleport(self) -> None:
         #     self._teleported = True

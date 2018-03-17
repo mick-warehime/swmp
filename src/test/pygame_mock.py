@@ -8,6 +8,7 @@ import creatures.enemies
 import images
 import model
 import sounds
+from controllers.base import initialize_controller
 
 
 class Key(object):
@@ -61,9 +62,24 @@ def initialize_pygame() -> None:
     sounds.initialize_sounds()
 
 
-def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
+def initialize_everything(groups: model.Groups = None,
+                          timer: model.Timer = None) -> None:
+    initialize_pygame()
+    if groups is None:
+        groups = model.Groups()
+    if timer is None:
+        timer = MockTimer()
     model.initialize(groups, timer)
 
     blank_screen = pygame.Surface((800, 600))
-    creatures.enemies.Enemy.init_class(blank_screen)
-    abilities.initialize_classes(timer)
+    initialize_gameobjects(groups, timer, blank_screen)
+    initialize_controller(blank_screen, None)
+
+
+def initialize_gameobjects(groups: model.Groups, timer: model.Timer,
+                           screen: pygame.Surface = None) -> None:
+    model.initialize(groups, timer)
+
+    if screen is None:
+        screen = pygame.Surface((800, 600))
+    creatures.enemies.Enemy.init_class(screen)

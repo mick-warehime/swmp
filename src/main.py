@@ -5,6 +5,7 @@ import pygame as pg
 import controllers
 import controllers.base
 import images
+import model
 import settings
 import sounds
 from data.input_output import load_quest_data
@@ -35,6 +36,12 @@ class Game(object):
         # needs to happen after a valid mixer is available
         sounds.initialize_sounds()
 
+        self._clock = pg.time.Clock()
+
+        timer = model.Timer(self._clock)
+        groups = model.Groups()
+        model.initialize(groups, timer)
+
         self._paused = False
 
     def new(self) -> None:
@@ -49,6 +56,10 @@ class Game(object):
         while True:
 
             self._handle_events()
+
+            # needs to be called every frame to throttle max framerate
+            self._clock.tick(settings.FPS)
+            pg.display.set_caption("{:.2f}".format(self._clock.get_fps()))
 
             self.quest_graph.update_and_draw()
 

@@ -102,14 +102,7 @@ class Zone(GroupsAccess, Sprite):
 
 
 class TimeAccess(object):
-    """A time-changing GameObject with access to current time information.
-
-    Instructions for subclassing:
-    Follow instructions for GameObject.
-
-    TimeAccess.initialize_dynamic_objects() must be called before
-    instantiating any subclasses.
-    """
+    """An object with access to the game's Timer object. """
 
     _timer: Union[Timer, None] = None
 
