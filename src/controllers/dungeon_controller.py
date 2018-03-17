@@ -102,9 +102,6 @@ class Dungeon(model.GroupsAccess):
                 -sum(bullet.damage for bullet in bullets))
             mob.motion.stop()
 
-            # def get_fps(self) -> float:
-            #     return self._clock.get_fps()
-
 
 class DungeonController(controllers.base.Controller):
     """Manages interactions between a Dungeon, DungeonView, Resolutions, and
@@ -142,9 +139,6 @@ class DungeonController(controllers.base.Controller):
             self.keyboard.handle_input()
 
         self._dungeon.update()
-
-    # def get_fps(self) -> float:
-    #     return self._dungeon.get_fps()
 
     def _hud_just_clicked(self) -> bool:
         hud_clicked = self.keyboard.mouse_just_clicked
