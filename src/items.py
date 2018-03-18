@@ -23,8 +23,8 @@ class ItemObject(GameObject, TimeAccess):
     """A bobbing in-game object that can be picked up."""
 
     def __init__(self, mod: Mod, pos: Vector2) -> None:
-        self._class_initialized()
-        super().__init__(pos)
+        GameObject.__init__(self, pos)
+        TimeAccess.__init__(self)
 
         mygroups = [self.groups.all_sprites, self.groups.items]
         pg.sprite.Sprite.__init__(self, mygroups)

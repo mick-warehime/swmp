@@ -23,7 +23,8 @@ NO_SELECTION = -1
 
 class DungeonView(model.GroupsAccess, ScreenAccess):
     def __init__(self) -> None:
-        super().__init__()
+        model.GroupsAccess.__init__(self)
+        ScreenAccess.__init__(self)
 
         dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         dim_screen.fill((0, 0, 0, 180))

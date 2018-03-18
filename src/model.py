@@ -44,7 +44,7 @@ class Timer(object):
 
 
 def initialize(groups: Groups, timer: 'Timer') -> None:
-    GroupsAccess.initialize_groups(groups)
+    GroupsAccess.initialize(groups)
     TimeAccess.initialize(timer)
 
 
@@ -53,25 +53,24 @@ class GroupsAccess(object):
 
     _groups: Groups = None
 
+    def __init__(self):
+        if self._groups is None:
+            raise RuntimeError('GroupsAccess not initialized.')
+
     @property
     def groups(self) -> Groups:
-        if not self._class_initialized():
-            raise RuntimeError('GroupsAccess not initialized.')
         return self._groups
 
     @classmethod
-    def initialize_groups(cls, groups: Groups) -> None:
+    def initialize(cls, groups: Groups) -> None:
         cls._groups = groups
-
-    @classmethod
-    def _class_initialized(cls) -> bool:
-        return cls._groups is not None
 
 
 class GameObject(GroupsAccess, pg.sprite.Sprite):
     """In-game object with a rect for collisions and an image. """
 
     def __init__(self, pos: Vector2) -> None:
+        super().__init__()
         self.pos = Vector2(pos.x, pos.y)
 
     @property
@@ -86,6 +85,7 @@ class GameObject(GroupsAccess, pg.sprite.Sprite):
 
 class Obstacle(GroupsAccess, Sprite):
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
+        super().__init__()
         pg.sprite.Sprite.__init__(self, self.groups.walls)
 
         self.rect = pg.Rect(top_left.x, top_left.y, w, h)
@@ -95,6 +95,7 @@ class Zone(GroupsAccess, Sprite):
     """A region with collisions."""
 
     def __init__(self, top_left: Vector2, w: int, h: int) -> None:
+        super().__init__()
         pg.sprite.Sprite.__init__(self, self.groups.zones)
 
         self.rect = pg.Rect(top_left.x, top_left.y, w, h)

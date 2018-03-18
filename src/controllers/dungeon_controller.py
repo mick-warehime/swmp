@@ -23,6 +23,7 @@ class Dungeon(model.GroupsAccess):
     """Stores and updates GameObjects in a dungeon map."""
 
     def __init__(self, map_file: str) -> None:
+        super().__init__()
 
         # init_map
         self.map = tilemap.TiledMap(map_file)
