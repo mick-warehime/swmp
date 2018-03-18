@@ -5,15 +5,14 @@ from pygame.math import Vector2
 import model
 from abilities import AbilityData
 from mods import Mod, Proficiencies, Buffs, ModData
-from src.test.pygame_mock import MockTimer, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import MockTimer, initialize_pygame
 # needs to be here to prevent screen from loading
 from data.constructors import build_map_object
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(ModTest.groups, ModTest.timer)
+    model.initialize(ModTest.groups, ModTest.timer)
     ModTest.ability_data = AbilityData(10)
 
 

@@ -10,15 +10,14 @@ from pygame.sprite import Group, LayeredUpdates, Sprite
 import model
 from creatures.humanoids import collide_hit_rect_with_rect
 from mods import ModLocation
-from src.test.pygame_mock import MockTimer, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_zombie
 from data.constructors import build_map_object
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
+    model.initialize(HumanoidsTest.groups, HumanoidsTest.timer)
 
 
 def _dist(pos_0: Vector2, pos_1: Vector2) -> float:

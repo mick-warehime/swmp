@@ -7,6 +7,7 @@ import creatures.enemies
 import model
 from controllers.base import initialize_controller
 from view import images, sounds
+from view.screen import ScreenAccess
 
 
 class Key(object):
@@ -62,16 +63,12 @@ def initialize_pygame() -> None:
 
 def initialize_everything(groups: model.Groups = None,
                           timer: model.Timer = None) -> None:
-    initialize_pygame()
     if groups is None:
         groups = model.Groups()
     if timer is None:
         timer = MockTimer()
-    model.initialize(groups, timer)
 
-    initialize_gameobjects(groups, timer)
+    initialize_pygame()
+    model.initialize(groups, timer)
     initialize_controller(None)
-
-
-def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
-    model.initialize(groups, timer)
+    ScreenAccess.initialize()
