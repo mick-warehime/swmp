@@ -28,7 +28,7 @@ class ResolutionModifiers(Enum):
     REQUIRES_TELEPORT = 'requires teleport'
 
     @classmethod
-    def has_value(cls, value) -> bool:
+    def has_value(cls, value: Any) -> bool:
         return any(value == item.value for item in cls)
 
 

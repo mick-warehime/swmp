@@ -119,7 +119,7 @@ class DungeonController(controllers.base.Controller):
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
-        self._teleport_resolutions: List[RequiresTeleport, ...] = None
+        self._teleport_resolutions: List[RequiresTeleport] = None
         self._teleport_resolutions = [res for res in resolutions if
                                       isinstance(res, RequiresTeleport)]
 
