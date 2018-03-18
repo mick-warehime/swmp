@@ -61,6 +61,10 @@ near zombie: &near_zombie
     - enter zone:
         <<: *player_exits
         next scene: game over win
+    - kill group: &kill_all_quest
+        group label: quest
+        requires teleport:
+        next scene: game over win
     - condition: *player_death
 
 avoid zombie:
