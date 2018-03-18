@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2

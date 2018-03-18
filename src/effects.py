@@ -3,7 +3,6 @@ from random import uniform, choice
 from typing import Any, List
 
 from pygame.math import Vector2
-from pygame.surface import Surface
 from pygame.transform import rotate
 
 from conditions import CooldownCondition

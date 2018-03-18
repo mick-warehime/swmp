@@ -8,7 +8,7 @@ class ScreenAccess(object):
 
     _screen: pg.Surface = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._screen is None:
             raise RuntimeError('ScreenAccess not initialized.')
 

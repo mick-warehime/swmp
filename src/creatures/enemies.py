@@ -11,7 +11,6 @@ from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
 from effects import Effects, Effect
-from model import Timer
 from mods import Mod, ModData
 from view import images
 from view.screen import ScreenAccess
@@ -97,7 +96,8 @@ class Behavior(ScreenAccess):
                 effect.activate(humanoid)
 
     def _set_state_effects_conditions(self, behavior_dict: BehaviorData,
-                                      player: Player, map_image: pg.Surface) -> None:
+                                      player: Player,
+                                      map_image: pg.Surface) -> None:
 
         for state, state_data in behavior_dict.items():
             effect_datas = state_data['effects']
@@ -168,7 +168,7 @@ class Behavior(ScreenAccess):
         elif effect_label == Effects.DRAW_ON_MAP:
             image_file = effect_data['image_file']
             angled = 'angled' in effect_data
-            effect = effects.DrawOnSurface(map_image, image_file, angled)
+            effect = effects.DrawOnScreen(image_file, angled)
         elif effect_label == Effects.FACE:
             effect = effects.FaceTarget(player)
         else:
