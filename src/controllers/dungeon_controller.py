@@ -30,8 +30,6 @@ class Dungeon(model.GroupsAccess):
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
-        # provide the group containers for the map objects
-        self._init_gameobjects()
 
         # initialize the player on the map before anything else
         for obj in self.map.objects:
@@ -55,10 +53,6 @@ class Dungeon(model.GroupsAccess):
                     self.labeled_sprites[label] = {game_obj}
                 else:
                     self.labeled_sprites[label].add(game_obj)
-
-    def _init_gameobjects(self) -> None:
-
-        Enemy.init_class(self.map.img)
 
     def update(self) -> None:
 
@@ -113,7 +107,7 @@ class DungeonController(controllers.base.Controller):
 
         self._dungeon = dungeon
 
-        self._view = dungeon_view.DungeonView(self._screen)
+        self._view = dungeon_view.DungeonView()
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 

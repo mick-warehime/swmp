@@ -12,9 +12,7 @@ from quests.resolutions import MakeDecision
 from quests.scenes.skill_checks import SkillCheckScene
 from test import pygame_mock
 
-
-def setUpModule() -> None:
-    controllers.base.initialize_controller(None, lambda x: x)
+import pygame
 
 
 class SkillCheckControllerTest(unittest.TestCase):
@@ -22,13 +20,13 @@ class SkillCheckControllerTest(unittest.TestCase):
 
     def setUp(self) -> None:
         pg = pygame_mock.Pygame()
-        controllers.base.pg.mouse = pg.mouse
-        controllers.base.pg.key = pg.key
+        pygame.mouse = pg.mouse
+        pygame.key = pg.key
 
     def tearDown(self) -> None:
         controllers.base.Controller.keyboard.handle_input()
 
-    def test_skill_check_controller_starts_unresolved(self)->None:
+    def test_skill_check_controller_starts_unresolved(self) -> None:
         success = MakeDecision('success')
         failure = MakeDecision('failure')
         rating = DifficultyRating.MEDIUM
@@ -37,7 +35,7 @@ class SkillCheckControllerTest(unittest.TestCase):
         self.assertFalse(success.is_resolved)
         self.assertFalse(failure.is_resolved)
 
-    def test_skill_check_controller_unresolved_after_update(self)->None:
+    def test_skill_check_controller_unresolved_after_update(self) -> None:
         success = MakeDecision('success')
         failure = MakeDecision('failure')
         rating = DifficultyRating.MEDIUM
@@ -50,7 +48,7 @@ class SkillCheckControllerTest(unittest.TestCase):
         self.assertFalse(success.is_resolved)
         self.assertFalse(failure.is_resolved)
 
-    def test_skill_check_controller_one_resolves_after_space(self)->None:
+    def test_skill_check_controller_one_resolves_after_space(self) -> None:
         success = MakeDecision('success')
         failure = MakeDecision('failure')
         rating = DifficultyRating.MEDIUM

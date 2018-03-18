@@ -20,7 +20,7 @@ class DecisionController(controllers.base.Controller):
 
         self._decisions = decisions
         options = [decision.description for decision in decisions]
-        self._view = DecisionView(self._screen, prompt, options)
+        self._view = DecisionView(prompt, options)
 
         self._player_data: HumanoidData = None
 

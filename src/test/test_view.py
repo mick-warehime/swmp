@@ -15,7 +15,7 @@ def setUpModule() -> None:
 class ViewTest(unittest.TestCase):
     def setUp(self) -> None:
         screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-        self.view = dungeon_view.DungeonView(screen)
+        self.view = dungeon_view.DungeonView()
 
     def test_click_mod(self) -> None:
         locs = [m for m in mods.ModLocation]

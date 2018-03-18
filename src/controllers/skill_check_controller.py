@@ -56,8 +56,7 @@ class SkillCheckController(base.Controller):
         if not self._resolved:
             resolution = self._skill_check.resolve(self._player_data)
             description = resolution.description
-            self._view = DecisionView(self._screen, description,
-                                      ['press space to continue'],
+            self._view = DecisionView(description, ['press space to continue'],
                                       enumerate_options=False)
             self.keyboard.bind_on_press(pg.K_SPACE, resolution.choose)
             self._resolved = True

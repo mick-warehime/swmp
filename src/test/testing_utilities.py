@@ -32,7 +32,7 @@ def make_item(label: str) -> items.ItemObject:
 
 def make_dungeon_controller() -> DungeonController:
     blank_screen = pygame.Surface((800, 600))
-    initialize_controller(blank_screen, None)
+    initialize_controller(None)
 
     dungeon = Dungeon('test_level.tmx')
 

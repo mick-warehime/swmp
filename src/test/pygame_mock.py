@@ -69,15 +69,9 @@ def initialize_everything(groups: model.Groups = None,
         timer = MockTimer()
     model.initialize(groups, timer)
 
-    blank_screen = pygame.Surface((800, 600))
-    initialize_gameobjects(groups, timer, blank_screen)
-    initialize_controller(blank_screen, None)
+    initialize_gameobjects(groups, timer)
+    initialize_controller(None)
 
 
-def initialize_gameobjects(groups: model.Groups, timer: model.Timer,
-                           screen: pygame.Surface = None) -> None:
+def initialize_gameobjects(groups: model.Groups, timer: model.Timer) -> None:
     model.initialize(groups, timer)
-
-    if screen is None:
-        screen = pygame.Surface((800, 600))
-    creatures.enemies.Enemy.init_class(screen)

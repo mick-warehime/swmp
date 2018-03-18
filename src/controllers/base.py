@@ -1,20 +1,15 @@
 from typing import Any
 
-import pygame as pg
-
 from controllers.keyboards import Keyboard
 from creatures.humanoids import HumanoidData
 
 
-def initialize_controller(screen: pg.Surface,
-                          quit_func: Any) -> None:
-    Controller._screen = screen
+def initialize_controller(quit_func: Any) -> None:
     Controller.keyboard = Keyboard()
     Keyboard.quit_func = quit_func
 
 
 class Controller(object):
-    _screen = None
     keyboard: Keyboard = None
 
     def __init__(self) -> None:

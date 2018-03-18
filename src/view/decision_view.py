@@ -4,6 +4,7 @@ import pygame as pg
 
 import settings
 from view import images, draw_utils
+from view.screen import ScreenAccess
 
 
 def _break_string_into_lines(max_chars_per_line: int,
@@ -25,12 +26,12 @@ def _break_string_into_lines(max_chars_per_line: int,
     return lines
 
 
-class DecisionView(object):
+class DecisionView(ScreenAccess):
     """Draws text for decision and transition scenes."""
 
-    def __init__(self, screen: pg.Surface, prompt: str,
-                 options: List[str], enumerate_options: bool = True) -> None:
-        self._screen = screen
+    def __init__(self, prompt: str, options: List[str],
+                 enumerate_options: bool = True) -> None:
+        super().__init__()
 
         max_chars_per_line = 70
 
@@ -43,13 +44,13 @@ class DecisionView(object):
         self._text_lines = prompt_lines + [''] * 2 + options
 
     def draw(self) -> None:
-        self._screen.fill(settings.BLACK)
+        self.screen.fill(settings.BLACK)
 
         title_font = images.get_font(images.IMPACTED_FONT)
 
         num_lines = len(self._text_lines) + 1
         for idx, text in enumerate(self._text_lines, 0):
-            draw_utils.draw_text(self._screen, text, title_font,
+            draw_utils.draw_text(self.screen, text, title_font,
                                  24, settings.WHITE, settings.WIDTH / 2,
                                  settings.HEIGHT * (idx + 1) / num_lines,
                                  align="center")

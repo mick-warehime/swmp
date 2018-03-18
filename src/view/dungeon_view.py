@@ -9,6 +9,7 @@ import model
 import mods
 import settings
 from creatures.players import Player
+from view.screen import ScreenAccess
 from tilemap import TiledMap
 from view import draw_utils
 from view import images
@@ -18,16 +19,16 @@ from view.hud import HUD
 NO_SELECTION = -1
 
 
-class DungeonView(model.GroupsAccess):
-    def __init__(self, screen: pg.Surface) -> None:
+class DungeonView(model.GroupsAccess, ScreenAccess):
+    def __init__(self) -> None:
+        super().__init__()
 
-        self._screen = screen
-        dim_screen = pg.Surface(screen.get_size()).convert_alpha()
+        dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         dim_screen.fill((0, 0, 0, 180))
 
         self.camera: Camera = Camera(800, 600)
 
-        self._hud = HUD(self._screen)
+        self._hud = HUD()
 
         self._draw_debug = False
         self._night = False
@@ -50,7 +51,7 @@ class DungeonView(model.GroupsAccess):
 
         self.camera.update(player)
 
-        self._screen.blit(tile_map.img, self.camera.get_shifted_rect(tile_map))
+        self.screen.blit(tile_map.img, self.camera.get_shifted_rect(tile_map))
 
         for sprite in self.groups.all_sprites:
             self._draw_sprite(sprite)
@@ -76,16 +77,16 @@ class DungeonView(model.GroupsAccess):
         rect.center = new_center
 
         if self._rect_on_screen(rect):
-            self._screen.blit(image, rect)
+            self.screen.blit(image, rect)
 
     def _draw_teleport_text(self) -> None:
 
         font = images.get_font(images.ZOMBIE_FONT)
-        draw_utils.draw_text(self._screen, 'Press T to continue', font,
+        draw_utils.draw_text(self.screen, 'Press T to continue', font,
                              16, settings.GREEN, 16, 8)
 
     def _rect_on_screen(self, rect: Rect) -> bool:
-        return self._screen.get_rect().colliderect(rect)
+        return self.screen.get_rect().colliderect(rect)
 
     def _draw_debug_rects(self) -> None:
         for sprite in self.groups.all_sprites:
@@ -95,19 +96,19 @@ class DungeonView(model.GroupsAccess):
                 rect = sprite.rect
             shifted_rect = self.camera.shift_by_topleft(rect)
             if self._rect_on_screen(shifted_rect):
-                pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
+                pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
         for obstacle in self.groups.walls:
             assert obstacle not in self.groups.all_sprites
             shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
             if self._rect_on_screen(shifted_rect):
-                pg.draw.rect(self._screen, settings.CYAN, shifted_rect, 1)
+                pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
 
     def render_fog(self, player: Player) -> None:
         # draw the light mask (gradient) onto fog image
         self._fog.fill(settings.NIGHT_COLOR)
         self._light_rect.center = self.camera.get_shifted_rect(player).center
         self._fog.blit(self._light_mask, self._light_rect)
-        self._screen.blit(self._fog, (0, 0), special_flags=pg.BLEND_MULT)
+        self.screen.blit(self._fog, (0, 0), special_flags=pg.BLEND_MULT)
 
     def toggle_debug(self) -> None:
         self._draw_debug = not self._draw_debug
