@@ -13,7 +13,7 @@ from tilemap import TiledMap
 from view import draw_utils
 from view import images
 from view.camera import Camera
-from view.draw_effects import DrawEffect, DrawDebugRects
+from view.draw_effects import DrawEffect, DrawDebugRects, DrawText
 from view.draw_utils import rect_on_screen
 from view.hud import HUD
 from view.screen import ScreenAccess
@@ -32,6 +32,7 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
         DrawEffect.set_camera(self.camera)
 
         self._debug_drawer = DrawDebugRects()
+        self._teleport_text_drawer = DrawText('Press T to continue')
 
         self._hud = HUD()
 
@@ -68,7 +69,7 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
             self.render_fog(player)
 
         if self.draw_teleport_text:
-            self._draw_teleport_text()
+            self._teleport_text_drawer.draw()
 
         # draw hud on top of everything
         self._hud.draw(player)
@@ -83,12 +84,6 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
 
         if rect_on_screen(self.screen, rect):
             self.screen.blit(image, rect)
-
-    def _draw_teleport_text(self) -> None:
-
-        font = images.get_font(images.ZOMBIE_FONT)
-        draw_utils.draw_text(self.screen, 'Press T to continue', font,
-                             16, settings.GREEN, 16, 8)
 
     def render_fog(self, player: Player) -> None:
         # draw the light mask (gradient) onto fog image

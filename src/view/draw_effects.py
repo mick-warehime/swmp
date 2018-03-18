@@ -4,8 +4,9 @@ import pygame as pg
 
 import settings
 from model import GroupsAccess
+from view import images
 from view.camera import Camera
-from view.draw_utils import rect_on_screen
+from view.draw_utils import rect_on_screen, draw_text
 from view.screen import ScreenAccess
 
 
@@ -49,3 +50,19 @@ class DrawDebugRects(DrawEffect):
             shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
             if rect_on_screen(self.screen, shifted_rect):
                 pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
+
+
+class DrawText(DrawEffect):
+    def __init__(self, text: str, font: str = None,
+                 font_size: int = 16) -> None:
+        super().__init__()
+        self._text = text
+        if font is None:
+            font = images.get_font(images.ZOMBIE_FONT)
+
+        self._font = font
+        self._font_size = font_size
+
+    def draw(self):
+        draw_text(self.screen, self._text, self._font, self._font_size,
+                  settings.GREEN, 16, 8)
