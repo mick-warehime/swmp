@@ -2,7 +2,7 @@ from enum import Enum
 from random import random
 from typing import Any, Dict
 
-from model import GameObject, Timer
+from model import GameObject, TimeAccess
 
 
 class Conditions(Enum):
@@ -70,36 +70,34 @@ class TargetClose(Condition):
         return target_disp.length() < self._close_threshold
 
 
-class RandomEventAtRate(Condition):
+class RandomEventAtRate(Condition, TimeAccess):
     """Gives true checks at a given rate.
 
     It is assumed that check is called at every time step.
     """
 
     def check(self, humanoid: Any) -> bool:
-        return random() < self._timer.dt * self._rate
+        return random() < self.timer.dt * self._rate
 
-    def __init__(self, timer: Timer, rate: float) -> None:
-        self._timer = timer
+    def __init__(self, rate: float) -> None:
         assert rate > 0
         self._rate = rate
 
 
-class CooldownCondition(Condition):
-    def __init__(self, timer: Timer, cool_down_time: int) -> None:
-        self._timer = timer
+class CooldownCondition(Condition, TimeAccess):
+    def __init__(self, cool_down_time: int) -> None:
         self._cool_down_time = cool_down_time
-        self._last_use = self._timer.current_time
+        self._last_use = self.timer.current_time
 
     @property
     def _time_since_last_use(self) -> int:
-        return self._timer.current_time - self._last_use
+        return self.timer.current_time - self._last_use
 
     def check(self, humanoid: Any) -> bool:
         return self._time_since_last_use > self._cool_down_time
 
     def update_last_use(self, humanoid: Any) -> None:
-        self._last_use = self._timer.current_time
+        self._last_use = self.timer.current_time
 
     def cooldown_fraction(self) -> float:
         fraction = float(self._time_since_last_use) / self._cool_down_time
@@ -135,15 +133,14 @@ class AlwaysTrue(Condition):
         return True
 
 
-def condition_from_data(condition_data: Dict, player: Any,
-                        timer: Timer) -> Condition:
+def condition_from_data(condition_data: Dict, player: Any) -> Condition:
     assert len(condition_data.keys()) == 1
     label_str = next(iter(condition_data.keys()))
     condition_label = Conditions(label_str)
     condition_data = condition_data[label_str]
     if condition_label == Conditions.RANDOM_RATE:
         rate = condition_data['rate']
-        condition: Condition = RandomEventAtRate(timer, rate)
+        condition: Condition = RandomEventAtRate(rate)
     elif condition_label == Conditions.TARGET_CLOSE:
         threshold = condition_data['threshold']
         condition = TargetClose(player, threshold)

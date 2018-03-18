@@ -5,7 +5,7 @@ from typing import Dict, Any, Collection, List, Callable
 
 from pygame.sprite import Group, Sprite, spritecollide
 
-from conditions import Condition, condition_from_data
+from conditions import condition_from_data
 from model import GameObject
 
 
@@ -119,7 +119,7 @@ class ConditionSatisfied(Resolution):
     def __init__(self, tested_label: str,
                  condition_data: Dict[str, Any]) -> None:
         self._label = tested_label
-        self._condition = condition_from_data(condition_data, None, None)
+        self._condition = condition_from_data(condition_data, None)
         self._tested: GameObject = None
 
     def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
