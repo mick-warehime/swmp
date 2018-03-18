@@ -3,12 +3,10 @@ from typing import List
 
 import pygame
 
-import abilities
 import creatures.enemies
-import images
 import model
-import sounds
 from controllers.base import initialize_controller
+from view import images, sounds
 
 
 class Key(object):

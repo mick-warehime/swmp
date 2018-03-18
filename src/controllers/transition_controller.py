@@ -4,7 +4,7 @@ import controllers.base
 from creatures.humanoids import HumanoidData
 from items import ItemObject
 from quests.resolutions import MakeDecision
-from view import DecisionView
+from view.decision_view import DecisionView
 
 
 class TransitionController(controllers.base.Controller):

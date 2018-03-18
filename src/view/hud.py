@@ -2,11 +2,11 @@ from typing import List, Dict, Tuple
 
 import pygame as pg
 
-import images
 import mods
 import settings
 from creatures.players import Player
-from draw_utils import draw_text
+from view import images
+from view.draw_utils import draw_text
 
 NO_SELECTION = -1
 

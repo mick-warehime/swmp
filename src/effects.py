@@ -6,11 +6,10 @@ from pygame.math import Vector2
 from pygame.surface import Surface
 from pygame.transform import rotate
 
-import images
-import sounds
 from conditions import CooldownCondition
 from model import GameObject
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
+from view import images, sounds
 
 
 class Effects(Enum):

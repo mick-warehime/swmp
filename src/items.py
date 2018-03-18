@@ -4,10 +4,10 @@ import pygame as pg
 import pytweening as tween
 from pygame.math import Vector2
 
-import images
 from data.input_output import load_mod_data_kwargs
 from model import TimeAccess, GameObject
 from mods import Mod, BOB_RANGE, BOB_PERIOD, BOB_SPEED, ModData
+from view import images
 
 BaseItemData = namedtuple('BaseItemData', ('mod_data', 'image_file'))
 

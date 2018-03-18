@@ -4,13 +4,12 @@ import pygame as pg
 
 import controllers
 import controllers.base
-import images
 import model
 import settings
-import sounds
 from data.input_output import load_quest_data
-from draw_utils import draw_text
 from quests.quest import Quest
+from view import images, sounds
+from view.draw_utils import draw_text
 
 
 class Game(object):

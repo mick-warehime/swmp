@@ -4,16 +4,16 @@ import pygame as pg
 from pygame.math import Vector2, Vector3
 
 import conditions
-import images
+import effects
 import settings
+from conditions import Condition, condition_from_data
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
-import effects
 from effects import Effects, Effect
-from conditions import Condition, condition_from_data
 from model import Timer
 from mods import Mod, ModData
+from view import images
 
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400

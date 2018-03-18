@@ -3,13 +3,11 @@ from random import uniform, randint
 
 import pygame as pg
 from pygame.math import Vector2
-
 from pygame.transform import rotate
 
-import images
 import settings
-
 from model import TimeAccess, GameObject
+from view import images
 
 
 class Projectile(GameObject, TimeAccess):

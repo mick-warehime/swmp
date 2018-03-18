@@ -6,7 +6,7 @@ import pygame as pg
 from controllers import base
 from creatures.humanoids import HumanoidData
 from quests.resolutions import MakeDecision
-from view import DecisionView
+from view.decision_view import DecisionView
 
 
 class DifficultyRating(Enum):

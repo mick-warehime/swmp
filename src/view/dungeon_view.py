@@ -1,42 +1,21 @@
 from typing import List, Tuple
+
 import pygame as pg
 from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.sprite import Sprite
 
-import draw_utils
-import images
 import model
 import mods
 import settings
 from creatures.players import Player
-from hud import HUD
-from settings import WIDTH, HEIGHT
 from tilemap import TiledMap
+from view import draw_utils
+from view import images
+from view.camera import Camera
+from view.hud import HUD
 
 NO_SELECTION = -1
-
-
-class Camera:
-    def __init__(self, width: int, height: int) -> None:
-        self.rect = pg.Rect(0, 0, width, height)
-
-    def get_shifted_rect(self, sprite: pg.sprite.Sprite) -> pg.Rect:
-        return self.shift_by_topleft(sprite.rect)
-
-    def shift_by_topleft(self, rect: pg.Rect) -> pg.Rect:
-        return rect.move(self.rect.topleft)
-
-    def update(self, target: pg.sprite.Sprite) -> None:
-        x = -target.rect.centerx + int(WIDTH / 2)
-        y = -target.rect.centery + int(HEIGHT / 2)
-
-        # limit scrolling to map size
-        x = min(0, x)  # left
-        y = min(0, y)  # top
-        x = max(-(self.rect.width - WIDTH), x)  # right
-        y = max(-(self.rect.height - HEIGHT), y)  # bottom
-        self.rect = pg.Rect(x, y, self.rect.width, self.rect.height)
 
 
 class DungeonView(model.GroupsAccess):
@@ -182,53 +161,3 @@ class DungeonView(model.GroupsAccess):
 
     def toggle_hide_backpack(self) -> None:
         self._hud.toggle_hide_backpack()
-
-
-def _break_string_into_lines(max_chars_per_line: int,
-                             string: str) -> List[str]:
-    all_words = string.split(' ')
-    lines = []
-    current_line_length = 0
-    current_line = ''
-    for word in all_words:
-        if len(word) + current_line_length + 1 > max_chars_per_line:
-            lines.append(current_line)
-            current_line = ''
-            current_line_length = 0
-
-        current_line += word + ' '
-        current_line_length += len(word) + 1
-    lines.append(current_line)
-
-    return lines
-
-
-class DecisionView(object):
-    """Draws text for decision and transition scenes."""
-
-    def __init__(self, screen: pg.Surface, prompt: str,
-                 options: List[str], enumerate_options: bool = True) -> None:
-        self._screen = screen
-
-        max_chars_per_line = 70
-
-        prompt_lines = _break_string_into_lines(max_chars_per_line, prompt)
-
-        if enumerate_options:
-            style = '{} - {}'
-            options = [style.format(k + 1, opt) for k, opt in
-                       enumerate(options)]
-        self._text_lines = prompt_lines + [''] * 2 + options
-
-    def draw(self) -> None:
-        self._screen.fill(settings.BLACK)
-
-        title_font = images.get_font(images.IMPACTED_FONT)
-
-        num_lines = len(self._text_lines) + 1
-        for idx, text in enumerate(self._text_lines, 0):
-            draw_utils.draw_text(self._screen, text, title_font,
-                                 24, settings.WHITE, settings.WIDTH / 2,
-                                 settings.HEIGHT * (idx + 1) / num_lines,
-                                 align="center")
-        pg.display.flip()

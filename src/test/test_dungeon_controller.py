@@ -1,15 +1,14 @@
 import unittest
-
 from unittest.mock import Mock
 
 from pygame.math import Vector2
 
 import mods
 from creatures.humanoids import HumanoidData, Status, Inventory
+from data.constructors import build_map_object
 from src.test.pygame_mock import initialize_pygame
 from src.test.testing_utilities import make_dungeon_controller, make_player
-from data.constructors import build_map_object
-from view import DungeonView
+from view.dungeon_view import DungeonView
 
 
 def setUpModule() -> None:
