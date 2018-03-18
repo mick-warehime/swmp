@@ -52,6 +52,7 @@ class DungeonView(model.GroupsAccess):
 
         self._draw_debug = False
         self._night = False
+        self.draw_teleport_text = False
 
         self._fog = pg.Surface((settings.WIDTH, settings.HEIGHT))
         self._fog.fill(settings.NIGHT_COLOR)
@@ -81,6 +82,9 @@ class DungeonView(model.GroupsAccess):
         if self._night:
             self.render_fog(player)
 
+        if self.draw_teleport_text:
+            self._draw_teleport_text()
+
         # draw hud on top of everything
         self._hud.draw(player)
 
@@ -94,6 +98,12 @@ class DungeonView(model.GroupsAccess):
 
         if self._rect_on_screen(rect):
             self._screen.blit(image, rect)
+
+    def _draw_teleport_text(self) -> None:
+
+        font = images.get_font(images.ZOMBIE_FONT)
+        draw_utils.draw_text(self._screen, 'Press T to continue', font,
+                             16, settings.GREEN, 16, 8)
 
     def _rect_on_screen(self, rect: Rect) -> bool:
         return self._screen.get_rect().colliderect(rect)

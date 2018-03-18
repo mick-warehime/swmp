@@ -82,7 +82,7 @@ class GenericAbility(Ability):
     def __init__(self, data: AbilityData) -> None:
         super().__init__()
 
-        cool_down = CooldownCondition(self.timer, data.cool_down_time)
+        cool_down = CooldownCondition(data.cool_down_time)
         update_use = UpdateLastUse(cool_down)
         self.add_use_condition(cool_down)
         self.add_use_effect(update_use)

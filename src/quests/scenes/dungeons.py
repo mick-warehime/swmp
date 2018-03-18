@@ -21,4 +21,5 @@ class DungeonScene(Scene):
         for resolution in resolutions:
             resolution.load_sprite_data(sprite_labels)
 
-        return DungeonController(dungeon), resolutions
+        ctrl = DungeonController(dungeon, resolutions)
+        return ctrl, resolutions

@@ -117,8 +117,7 @@ class Behavior(object):
                 if effect_data is not None and 'conditions' in effect_data:
                     condition = None
                     for cond_data in effect_data['conditions']:
-                        new_cond = condition_from_data(cond_data, player,
-                                                       timer)
+                        new_cond = condition_from_data(cond_data, player)
                         if condition is None:
                             condition = new_cond
                         else:
@@ -143,7 +142,7 @@ class Behavior(object):
             else:
                 condition_values = {}
                 for cond_data in conditions_list:
-                    condition = condition_from_data(cond_data, player, timer)
+                    condition = condition_from_data(cond_data, player)
                     value = self._condition_value_from_data(cond_data)
                     condition_values[condition] = value
                 self._state_conditions_values[state] = condition_values

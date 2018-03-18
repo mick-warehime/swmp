@@ -5,7 +5,6 @@ import pygame
 
 import creatures.enemies
 import model
-from abilities import Ability
 from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player, make_zombie
 

@@ -1,3 +1,4 @@
+import warnings
 from typing import Dict, Union, Sequence
 
 import networkx
@@ -120,8 +121,8 @@ class Quest(object):
                     res.is_resolved]
 
         if len(resolved) not in (0, 1):
-            raise Warning('More than one resolved resolutions: {}. '
-                          'Choosing first in list.'.format(resolved))
+            warnings.warn('More than one resolved resolutions: {}. Choosing '
+                          'first in list.'.format(resolved))
 
         if resolved:
             return resolved[0]

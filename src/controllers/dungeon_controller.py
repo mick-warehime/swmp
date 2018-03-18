@@ -18,6 +18,7 @@ from data import constructors
 from items import ItemObject
 
 from projectiles import Projectile
+from quests.resolutions import Resolution, RequiresTeleport
 
 
 class Dungeon(model.GroupsAccess):
@@ -108,7 +109,8 @@ class DungeonController(controllers.base.Controller):
      user.
      """
 
-    def __init__(self, dungeon: Dungeon) -> None:
+    def __init__(self, dungeon: Dungeon,
+                 resolutions: List[Resolution]) -> None:
         super().__init__()
 
         self._dungeon = dungeon
@@ -117,6 +119,10 @@ class DungeonController(controllers.base.Controller):
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
+        self._teleport_resolutions: List[RequiresTeleport] = None
+        self._teleport_resolutions = [res for res in resolutions if
+                                      isinstance(res, RequiresTeleport)]
+
         self._init_controls(self._dungeon.player)
 
     def set_player_data(self, data: HumanoidData) -> None:
@@ -124,6 +130,8 @@ class DungeonController(controllers.base.Controller):
 
     def draw(self) -> None:
 
+        self._view.draw_teleport_text = any(
+            res.can_resolve for res in self._teleport_resolutions)
         self._view.draw(self._dungeon.player, self._dungeon.map)
 
         pg.display.flip()
@@ -177,7 +185,7 @@ class DungeonController(controllers.base.Controller):
         # equip / use
         self.keyboard.bind_on_press(pg.K_e, self._try_equip)
 
-        # self.keyboard.bind_on_press(pg.K_t, self._teleport)
+        self.keyboard.bind_on_press(pg.K_t, self._teleport)
 
     def _handle_hud(self) -> None:
         self._view.try_click_hud(self.keyboard.mouse_pos)
@@ -229,5 +237,6 @@ class DungeonController(controllers.base.Controller):
         self._dungeon.groups.empty()
         del self
 
-        # def _teleport(self) -> None:
-        #     self._teleported = True
+    def _teleport(self) -> None:
+        for res in self._teleport_resolutions:
+            res.toggle_teleport()
