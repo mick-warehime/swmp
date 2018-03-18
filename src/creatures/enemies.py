@@ -13,7 +13,6 @@ from data.input_output import load_mod_data_kwargs
 from effects import Effects, Effect
 from mods import Mod, ModData
 from view import images
-from view.screen import ScreenAccess
 
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
@@ -52,7 +51,7 @@ class EnemyData(BaseEnemyData):
         return super().__new__(EnemyData, **new_kwargs)
 
 
-class Behavior(ScreenAccess):
+class Behavior(object):
     """Represents the possible behavior of an Enemy.
 
     Behavior is state based. Behavior has a default_state, as well as other
@@ -70,7 +69,7 @@ class Behavior(ScreenAccess):
         self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
 
         self._set_state_condition_values(behavior_dict, player)
-        self._set_state_effects_conditions(behavior_dict, player, self.screen)
+        self._set_state_effects_conditions(behavior_dict, player)
 
     def determine_state(self, humanoid: Humanoid) -> str:
 
@@ -96,8 +95,7 @@ class Behavior(ScreenAccess):
                 effect.activate(humanoid)
 
     def _set_state_effects_conditions(self, behavior_dict: BehaviorData,
-                                      player: Player,
-                                      map_image: pg.Surface) -> None:
+                                      player: Player) -> None:
 
         for state, state_data in behavior_dict.items():
             effect_datas = state_data['effects']
@@ -109,7 +107,7 @@ class Behavior(ScreenAccess):
 
             for effect_label, effect_data in effect_datas.items():
                 effect = self._effect_from_data(effect_data, effect_label,
-                                                player, map_image)
+                                                player)
 
                 if effect_data is not None and 'conditions' in effect_data:
                     condition = None
@@ -145,7 +143,7 @@ class Behavior(ScreenAccess):
                 self._state_conditions_values[state] = condition_values
 
     def _effect_from_data(self, effect_data: Dict, effect_label: str,
-                          player: Player, map_image: pg.Surface) -> Effect:
+                          player: Player) -> Effect:
         effect_label = Effects(effect_label)
         if effect_label == Effects.EQUIP_AND_USE_MOD:
             mod_label = effect_data['mod']
