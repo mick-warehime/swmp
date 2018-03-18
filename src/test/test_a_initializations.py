@@ -1,12 +1,10 @@
 import unittest
 from typing import Callable
 
-import pygame
 
-import creatures.enemies
 import model
 from src.test.pygame_mock import MockTimer, initialize_pygame
-from src.test.testing_utilities import make_player, make_zombie
+from src.test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
@@ -19,9 +17,6 @@ def _initialization_tests() -> None:
     #  exceptions once the classes are initialized.
     _assert_runtime_exception_raised(make_player)
     model.initialize(InitsTest.groups, InitsTest.timer)
-    _assert_runtime_exception_raised(make_zombie)
-    blank_screen = pygame.Surface((800, 600))
-    creatures.enemies.Enemy.init_class(blank_screen)
 
     InitsTest.groups.empty()
     InitsTest.timer.reset()

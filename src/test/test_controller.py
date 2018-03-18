@@ -3,12 +3,14 @@ from itertools import product
 import controllers.base
 from test import pygame_mock
 
+import pygame
+
 
 class KeyboardTest(unittest.TestCase):
     def setUp(self) -> None:
         pg = pygame_mock.Pygame()
-        controllers.base.pg.mouse = pg.mouse
-        controllers.base.pg.key = pg.key
+        pygame.mouse = pg.mouse
+        pygame.key = pg.key
 
         self.a_key: int = 0
         self.b_key: int = 1
@@ -42,7 +44,7 @@ class KeyboardTest(unittest.TestCase):
         test_string = 'set a'
         keyboard.bind(self.a_key, lambda: self.set_a(test_string))
 
-        controllers.base.pg.key.pressed[self.a_key] = 1
+        pygame.key.pressed[self.a_key] = 1
 
         # test we set the key
         self.assertEqual(len(keyboard._bindings), 1 + n_bindings)
@@ -60,7 +62,7 @@ class KeyboardTest(unittest.TestCase):
         keyboard.bind_on_press(self.a_key, lambda: self.set_a(test_string))
 
         # function is called when you press the key
-        controllers.base.pg.key.pressed[self.a_key] = 1
+        pygame.key.pressed[self.a_key] = 1
         keyboard.handle_input()
         self.assertEqual(self.a, test_string)
 
@@ -68,17 +70,17 @@ class KeyboardTest(unittest.TestCase):
         self.a = ''
 
         # nothing happens if you keep it help down
-        controllers.base.pg.key.pressed[self.a_key] = 1
+        pygame.key.pressed[self.a_key] = 1
         keyboard.handle_input()
         self.assertEqual(self.a, '')
 
         # nothing happens when you release
-        controllers.base.pg.key.pressed[self.a_key] = 0
+        pygame.key.pressed[self.a_key] = 0
         keyboard.handle_input()
         self.assertEqual(self.a, '')
 
         # function called again when you press down
-        controllers.base.pg.key.pressed[self.a_key] = 1
+        pygame.key.pressed[self.a_key] = 1
         keyboard.handle_input()
         self.assertEqual(self.a, test_string)
 
@@ -88,7 +90,7 @@ class KeyboardTest(unittest.TestCase):
         test_string = 'set a'
         keyboard.bind_mouse(self.a_key, lambda: self.set_a(test_string))
 
-        controllers.base.pg.mouse.pressed[self.a_key] = 1
+        pygame.mouse.pressed[self.a_key] = 1
 
         keyboard.handle_input()
         self.assertEqual(self.a, test_string)
@@ -116,11 +118,11 @@ class KeyboardTest(unittest.TestCase):
         # every combination of 3 keys and two mouse presses
         for key_1, key_2, key_3, mouse_1, mouse_2 in product(*[[0, 1]] * 5):
             # press the keys
-            controllers.base.pg.key.pressed[0] = key_1
-            controllers.base.pg.key.pressed[1] = key_2
-            controllers.base.pg.key.pressed[2] = key_3
-            controllers.base.pg.mouse.pressed[0] = mouse_1
-            controllers.base.pg.mouse.pressed[1] = mouse_2
+            pygame.key.pressed[0] = key_1
+            pygame.key.pressed[1] = key_2
+            pygame.key.pressed[2] = key_3
+            pygame.mouse.pressed[0] = mouse_1
+            pygame.mouse.pressed[1] = mouse_2
 
             # .handle_input() combinations
             keyboard.handle_input()
@@ -136,11 +138,11 @@ class KeyboardTest(unittest.TestCase):
             if mouse_2:
                 self.assertEqual(self.e, test_mouse_2)
 
-            controllers.base.pg.key.pressed[0] = 0
-            controllers.base.pg.key.pressed[1] = 0
-            controllers.base.pg.key.pressed[2] = 0
-            controllers.base.pg.mouse.pressed[0] = 0
-            controllers.base.pg.mouse.pressed[1] = 0
+            pygame.key.pressed[0] = 0
+            pygame.key.pressed[1] = 0
+            pygame.key.pressed[2] = 0
+            pygame.mouse.pressed[0] = 0
+            pygame.mouse.pressed[1] = 0
 
             keyboard.handle_input()
 
@@ -169,11 +171,11 @@ class KeyboardTest(unittest.TestCase):
         # ensure we haven't changed this yet
         self.assertEqual(self.b, '')
 
-        controllers.base.pg.key.pressed[self.b_key] = 1
+        pygame.key.pressed[self.b_key] = 1
         keyboard.handle_input()
         self.assertEqual(self.b, test_string_b)
 
-        controllers.base.pg.key.pressed[self.c_key] = 1
+        pygame.key.pressed[self.c_key] = 1
         keyboard.handle_input()
         self.assertEqual(self.c, test_string_c)
 
@@ -181,9 +183,9 @@ class KeyboardTest(unittest.TestCase):
         self.b = ''
         self.c = ''
 
-        controllers.base.pg.key.pressed[self.a_key] = 1
-        controllers.base.pg.key.pressed[self.b_key] = 1
-        controllers.base.pg.key.pressed[self.c_key] = 1
+        pygame.key.pressed[self.a_key] = 1
+        pygame.key.pressed[self.b_key] = 1
+        pygame.key.pressed[self.c_key] = 1
         keyboard.handle_input(allowed_keys=[self.a_key])
         self.assertEqual(self.a, test_string_a)
         self.assertEqual(self.b, '')

@@ -3,16 +3,14 @@ import unittest
 import model
 from abilities import GenericAbility, AbilityData
 from data.input_output import load_ability_data_kwargs
-from src.test.pygame_mock import MockTimer, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import MockTimer, initialize_pygame
 from projectiles import Projectile, MuzzleFlash
 from src.test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(AbilitiesTest.groups, AbilitiesTest.timer)
-
+    model.initialize(AbilitiesTest.groups, AbilitiesTest.timer)
     ability_data = AbilityData(**load_ability_data_kwargs('pistol'))
 
     AbilitiesTest.projectile_ability_data = ability_data

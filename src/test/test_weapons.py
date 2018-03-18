@@ -4,14 +4,13 @@ from pygame.math import Vector2
 import model
 from abilities import GenericAbility, AbilityData
 from data.input_output import load_ability_data_kwargs
-from src.test.pygame_mock import MockTimer, initialize_pygame, \
-    initialize_gameobjects
+from src.test.pygame_mock import MockTimer, initialize_pygame
 from src.test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(WeaponsTest.groups, WeaponsTest.timer)
+    model.initialize(WeaponsTest.groups, WeaponsTest.timer)
 
 
 class WeaponsTest(unittest.TestCase):

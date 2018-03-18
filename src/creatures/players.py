@@ -4,8 +4,8 @@ from typing import Tuple
 import pygame as pg
 from pygame.math import Vector2
 
-import images
 from creatures.humanoids import Humanoid, EnergySource
+from view import images
 
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280

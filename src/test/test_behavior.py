@@ -1,25 +1,24 @@
 import unittest
 
 from pygame.math import Vector2
-from pygame.surface import Surface
 
 import model
 from creatures.enemies import Behavior, Enemy, EnemyData
 from data.input_output import load_npc_data_kwargs
 from conditions import TargetClose
-from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
-    MockTimer
+from test.pygame_mock import MockTimer, initialize_everything
 from test.testing_utilities import make_player
 
 
 def setUpModule() -> None:
-    initialize_pygame()
-    initialize_gameobjects(HumanoidsTest.groups, HumanoidsTest.timer)
+    HumanoidsTest.groups = model.Groups()
+    HumanoidsTest.timer = MockTimer()
+    initialize_everything(HumanoidsTest.groups, HumanoidsTest.timer)
 
 
 class HumanoidsTest(unittest.TestCase):
-    groups = model.Groups()
-    timer = MockTimer()
+    groups: model.Groups = None
+    timer: model.Timer = None
 
     def tearDown(self) -> None:
         self.groups.empty()
@@ -27,7 +26,6 @@ class HumanoidsTest(unittest.TestCase):
 
     def test_behavior_load_from_data_correct_state_conditions(self) -> None:
         player = make_player()
-        fake_map = Surface(size=(10, 10))
         cond_val = 1
         behavior_dict = {
             'passive': {
@@ -43,7 +41,7 @@ class HumanoidsTest(unittest.TestCase):
                 'effects': {}}
         }
 
-        behavior = Behavior(behavior_dict, player, self.timer, fake_map)
+        behavior = Behavior(behavior_dict, player)
 
         state_condition_values = behavior._state_conditions_values
 

@@ -2,19 +2,19 @@ from typing import List, Dict, Tuple
 
 import pygame as pg
 
-import images
 import mods
 import settings
 from creatures.players import Player
-from draw_utils import draw_text
+from view import images
+from view.draw_utils import draw_text
+from view.screen import ScreenAccess
 
 NO_SELECTION = -1
 
 
-class HUD(object):
-    def __init__(self, screen: pg.Surface) -> None:
-
-        self._screen = screen
+class HUD(ScreenAccess):
+    def __init__(self) -> None:
+        super().__init__()
 
         # HUD size & location
         self._hud_width = 283
@@ -63,11 +63,11 @@ class HUD(object):
     def _draw_hud_base(self) -> None:
 
         # hud base
-        pg.draw.rect(self._screen, settings.HUDGREY, self.rect)
+        pg.draw.rect(self.screen, settings.HUDGREY, self.rect)
 
     def _draw_backpack_base(self) -> None:
 
-        pg.draw.rect(self._screen, settings.HUDGREY, self.backpack_base)
+        pg.draw.rect(self.screen, settings.HUDGREY, self.backpack_base)
 
     def _draw_bar(self, player: Player, bar_type: str) -> None:
 
@@ -95,9 +95,9 @@ class HUD(object):
         fill_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
         outline_rect = pg.Rect(x, y, self._bar_length, self._bar_height)
 
-        pg.draw.rect(self._screen, back_col, fill_rect)
-        pg.draw.rect(self._screen, col, back_rect)
-        pg.draw.rect(self._screen, settings.HUDDARK, outline_rect, 2)
+        pg.draw.rect(self.screen, back_col, fill_rect)
+        pg.draw.rect(self.screen, col, back_rect)
+        pg.draw.rect(self.screen, settings.HUDDARK, outline_rect, 2)
 
     def _draw_mods(self, player: Player) -> None:
 
@@ -106,7 +106,7 @@ class HUD(object):
             col = settings.HUDDARK
             if self.selected_mod == idx:
                 col = settings.RED
-            pg.draw.rect(self._screen, col, r, 2)
+            pg.draw.rect(self.screen, col, r, 2)
 
         for idx, loc in enumerate(player.inventory.active_mods):
             mod = player.inventory.active_mods[loc]
@@ -118,10 +118,10 @@ class HUD(object):
 
             img_rect = img.get_rect()
             img_rect.center = self.mod_rects[loc].center
-            self._screen.blit(img, img_rect)
+            self.screen.blit(img, img_rect)
 
             title_font = images.get_font(images.ZOMBIE_FONT)
-            draw_text(self._screen, str(idx + 1), title_font,
+            draw_text(self.screen, str(idx + 1), title_font,
                       20, settings.WHITE, img_rect.x, img_rect.y,
                       align="center")
 
@@ -150,7 +150,7 @@ class HUD(object):
 
         x_coord = img_rect.x + img_rect.width
         y_coord = img_rect.y + img_rect.height
-        draw_text(self._screen, str(num_uses), title_font,
+        draw_text(self.screen, str(num_uses), title_font,
                   20, settings.RED, x_coord, y_coord,
                   align="center")
 
@@ -164,7 +164,7 @@ class HUD(object):
             color = settings.HUDDARK
             if self.selected_item == idx:
                 color = settings.RED
-            pg.draw.rect(self._screen, color, rect, 2)
+            pg.draw.rect(self.screen, color, rect, 2)
 
         for idx, item_mod in enumerate(player.inventory.backpack):
             if not player.inventory.backpack.slot_occupied(idx):
@@ -174,7 +174,7 @@ class HUD(object):
             img_rect = img.get_rect()
             img_rect.center = rect.center
 
-            self._screen.blit(img, img_rect)
+            self.screen.blit(img, img_rect)
 
             if item_mod.stackable:
                 self._draw_mod_ammo(img_rect, item_mod,

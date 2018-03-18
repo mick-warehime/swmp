@@ -8,7 +8,7 @@ from test.pygame_mock import initialize_pygame
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_controller(None, None)
+    initialize_controller(None)
 
     root_data = {'type': 'decision',
                  'description': 'Lasers or rocks?',

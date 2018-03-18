@@ -2,18 +2,17 @@ import unittest
 
 from pygame.math import Vector2
 
-import images
 import model
 from data.input_output import load_projectile_data_kwargs
 from projectiles import ProjectileData, SimpleProjectile, ProjectileFactory, \
     FancyProjectile
-from test.pygame_mock import initialize_pygame, initialize_gameobjects, \
-    MockTimer
+from test.pygame_mock import initialize_pygame,  MockTimer
+from view import images
 
 
 def setUpModule() -> None:
     initialize_pygame()
-    initialize_gameobjects(ProjectilesTest.groups, ProjectilesTest.timer)
+    model.initialize(ProjectilesTest.groups, ProjectilesTest.timer)
 
 
 class ProjectilesTest(unittest.TestCase):

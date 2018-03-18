@@ -4,16 +4,15 @@ import pygame as pg
 from pygame.math import Vector2, Vector3
 
 import conditions
-import images
+import effects
 import settings
+from conditions import Condition, condition_from_data
 from creatures.humanoids import Humanoid
 from creatures.players import Player
 from data.input_output import load_mod_data_kwargs
-import effects
 from effects import Effects, Effect
-from conditions import Condition, condition_from_data
-from model import Timer
 from mods import Mod, ModData
+from view import images
 
 AVOID_RADIUS = 50
 DETECT_RADIUS = 400
@@ -63,16 +62,14 @@ class Behavior(object):
 
     """
 
-    def __init__(self, behavior_dict: BehaviorData, player: Humanoid,
-                 timer: Timer, map_image: pg.Surface) -> None:
+    def __init__(self, behavior_dict: BehaviorData, player: Humanoid) -> None:
 
         self.default_state: Condition = None
         self._state_conditions_values: Dict[str, Dict[Condition, int]] = {}
         self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
 
-        self._set_state_condition_values(behavior_dict, player, timer)
-        self._set_state_effects_conditions(behavior_dict, player, timer,
-                                           map_image)
+        self._set_state_condition_values(behavior_dict, player)
+        self._set_state_effects_conditions(behavior_dict, player)
 
     def determine_state(self, humanoid: Humanoid) -> str:
 
@@ -98,9 +95,7 @@ class Behavior(object):
                 effect.activate(humanoid)
 
     def _set_state_effects_conditions(self, behavior_dict: BehaviorData,
-                                      player: Player,
-                                      timer: Timer,
-                                      map_image: pg.Surface) -> None:
+                                      player: Player) -> None:
 
         for state, state_data in behavior_dict.items():
             effect_datas = state_data['effects']
@@ -112,7 +107,7 @@ class Behavior(object):
 
             for effect_label, effect_data in effect_datas.items():
                 effect = self._effect_from_data(effect_data, effect_label,
-                                                player, map_image)
+                                                player)
 
                 if effect_data is not None and 'conditions' in effect_data:
                     condition = None
@@ -129,7 +124,7 @@ class Behavior(object):
             self._state_effects_conditions[state] = state_behavior
 
     def _set_state_condition_values(self, behavior_dict: BehaviorData,
-                                    player: Player, timer: Timer) -> None:
+                                    player: Player) -> None:
         for state, state_data in behavior_dict.items():
 
             assert 'conditions' in state_data
@@ -148,7 +143,7 @@ class Behavior(object):
                 self._state_conditions_values[state] = condition_values
 
     def _effect_from_data(self, effect_data: Dict, effect_label: str,
-                          player: Player, map_image: pg.Surface) -> Effect:
+                          player: Player) -> Effect:
         effect_label = Effects(effect_label)
         if effect_label == Effects.EQUIP_AND_USE_MOD:
             mod_label = effect_data['mod']
@@ -171,7 +166,7 @@ class Behavior(object):
         elif effect_label == Effects.DRAW_ON_MAP:
             image_file = effect_data['image_file']
             angled = 'angled' in effect_data
-            effect = effects.DrawOnSurface(map_image, image_file, angled)
+            effect = effects.DrawOnScreen(image_file, angled)
         elif effect_label == Effects.FACE:
             effect = effects.FaceTarget(player)
         else:
@@ -187,11 +182,8 @@ class Behavior(object):
 
 
 class Enemy(Humanoid):
-    class_initialized = False
-    _map_img: pg.Surface = None
-
     def __init__(self, pos: Vector2, player: Player, data: EnemyData) -> None:
-        self._check_class_initialized()
+
         self._data = data
         super().__init__(data.hit_rect, pos, data.max_health)
 
@@ -202,17 +194,10 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, mygroups)
 
-        self.behavior = Behavior(data.behavior_dict, player, self.timer,
-                                 self._map_img)
+        self.behavior = Behavior(data.behavior_dict, player)
         self.status.state = self.behavior.default_state
 
         self.target = player
-
-    @classmethod
-    def init_class(cls, map_img: pg.Surface) -> None:
-        if not cls.class_initialized:
-            cls._map_img = map_img
-            cls.class_initialized = True
 
     @property
     def image(self) -> pg.Surface:

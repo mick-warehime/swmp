@@ -5,20 +5,18 @@ import pygame as pg
 from pygame.sprite import spritecollide, groupcollide
 
 import controllers.base
-from controllers import keyboards
 import model
 import mods
-import sounds
 import tilemap
-import view
-from creatures.humanoids import collide_hit_rect_with_rect, HumanoidData
+from controllers import keyboards
 from creatures.enemies import Enemy
+from creatures.humanoids import collide_hit_rect_with_rect, HumanoidData
 from creatures.players import Player
 from data import constructors
 from items import ItemObject
-
 from projectiles import Projectile
 from quests.resolutions import Resolution, RequiresTeleport
+from view import dungeon_view, sounds
 
 
 class Dungeon(model.GroupsAccess):
@@ -32,8 +30,6 @@ class Dungeon(model.GroupsAccess):
         self._init_map_objects()
 
     def _init_map_objects(self) -> None:
-        # provide the group containers for the map objects
-        self._init_gameobjects()
 
         # initialize the player on the map before anything else
         for obj in self.map.objects:
@@ -57,10 +53,6 @@ class Dungeon(model.GroupsAccess):
                     self.labeled_sprites[label] = {game_obj}
                 else:
                     self.labeled_sprites[label].add(game_obj)
-
-    def _init_gameobjects(self) -> None:
-
-        Enemy.init_class(self.map.img)
 
     def update(self) -> None:
 
@@ -115,7 +107,7 @@ class DungeonController(controllers.base.Controller):
 
         self._dungeon = dungeon
 
-        self._view = view.DungeonView(self._screen)
+        self._view = dungeon_view.DungeonView()
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
@@ -198,19 +190,19 @@ class DungeonController(controllers.base.Controller):
         """equip a mod if the user selects it in the backpack and hits the
         'equip' button binding."""
         idx = self._view.selected_item()
-        if idx == view.NO_SELECTION:
+        if idx == dungeon_view.NO_SELECTION:
             return
 
         inventory = self._dungeon.player.inventory
         if inventory.backpack.slot_occupied(idx):
             inventory.equip(inventory.backpack[idx])
-            self._view.set_selected_item(view.NO_SELECTION)
+            self._view.set_selected_item(dungeon_view.NO_SELECTION)
 
     def _unequip_mod(self) -> None:
         """unequip a mod if the user selects it in the hud and hits the 'equip'
          button binding."""
         location = self._view.selected_mod()
-        if location == view.NO_SELECTION:
+        if location == dungeon_view.NO_SELECTION:
             return
 
         self._dungeon.player.inventory.unequip(location)

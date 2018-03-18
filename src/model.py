@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import Union
 
 import pygame as pg
 from pygame.math import Vector2
@@ -104,7 +103,7 @@ class Zone(GroupsAccess, Sprite):
 class TimeAccess(object):
     """An object with access to the game's Timer object. """
 
-    _timer: Union[Timer, None] = None
+    _timer: Timer = None
 
     @classmethod
     def initialize(cls, timer: Timer) -> None:

@@ -3,14 +3,13 @@ from random import uniform, choice
 from typing import Any, List
 
 from pygame.math import Vector2
-from pygame.surface import Surface
 from pygame.transform import rotate
 
-import images
-import sounds
 from conditions import CooldownCondition
 from model import GameObject
 from projectiles import ProjectileData, ProjectileFactory, MuzzleFlash
+from view import images, sounds
+from view.screen import ScreenAccess
 
 
 class Effects(Enum):
@@ -87,10 +86,9 @@ class PlaySound(Effect):
         sounds.play(self._sound_file)
 
 
-class DrawOnSurface(Effect):
-    def __init__(self, drawn_on: Surface, to_draw_file: str,
-                 angled: bool = False) -> None:
-        self._drawn_on = drawn_on
+class DrawOnScreen(Effect, ScreenAccess):
+    def __init__(self, to_draw_file: str, angled: bool = False) -> None:
+        super().__init__()
         self._to_draw_file = to_draw_file
         self._angled = angled
 
@@ -101,7 +99,7 @@ class DrawOnSurface(Effect):
             image = rotate(image, humanoid.motion.rot)
         w = image.get_width() / 2
         h = image.get_height() / 2
-        self._drawn_on.blit(image, pos - Vector2(w, h))
+        self.screen.blit(image, pos - Vector2(w, h))
 
 
 class PlayRandomSound(Effect):

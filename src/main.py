@@ -4,31 +4,31 @@ import pygame as pg
 
 import controllers
 import controllers.base
-import images
 import model
 import settings
-import sounds
 from data.input_output import load_quest_data
-from draw_utils import draw_text
 from quests.quest import Quest
+from view import images, sounds
+from view.draw_utils import draw_text
+from view.screen import ScreenAccess
+
+ScreenAccess.initialize()
 
 
-class Game(object):
+class Game(ScreenAccess):
     def __init__(self) -> None:
+        super().__init__()
 
         pg.mixer.pre_init(44100, -16, 4, 2048)
 
         pg.init()
 
-        self._screen = pg.display.set_mode(
-            (settings.WIDTH, settings.HEIGHT))
-
         self._dim_screen = pg.Surface(
-            self._screen.get_size()).convert_alpha()
+            self.screen.get_size()).convert_alpha()
         self._dim_screen.fill((0, 0, 0, 180))
 
         # needs to happen before we make any controllers
-        controllers.base.initialize_controller(self._screen, self._quit)
+        controllers.base.initialize_controller(self._quit)
 
         # needs to happen after the video mode has been set
         images.initialize_images()
@@ -95,20 +95,20 @@ class Game(object):
                     waiting = False
 
     def _game_over(self) -> None:
-        self._screen.fill(settings.BLACK)
+        self.screen.fill(settings.BLACK)
         title_font = images.get_font(images.ZOMBIE_FONT)
-        draw_text(self._screen, "GAME OVER", title_font,
+        draw_text(self.screen, "GAME OVER", title_font,
                   100, settings.RED, settings.WIDTH / 2,
                   settings.HEIGHT / 2, align="center")
-        draw_text(self._screen, "Press a key to start", title_font,
+        draw_text(self.screen, "Press a key to start", title_font,
                   75, settings.WHITE, settings.WIDTH / 2,
                   settings.HEIGHT * 3 / 4, align="center")
         pg.display.flip()
 
     def _pause_game(self) -> None:
         title_font = images.get_font(images.ZOMBIE_FONT)
-        self._screen.blit(self._dim_screen, (0, 0))
-        draw_text(self._screen, "Paused", title_font, 105,
+        self.screen.blit(self._dim_screen, (0, 0))
+        draw_text(self.screen, "Paused", title_font, 105,
                   settings.RED, settings.WIDTH / 2,
                   settings.HEIGHT / 2, align="center")
 

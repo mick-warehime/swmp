@@ -4,9 +4,9 @@ from typing import Set, Any
 
 import pygame as pg
 
-import images
 from abilities import Ability, GenericAbility, AbilityData
 from data.input_output import load_ability_data_kwargs
+from view import images
 
 BOB_RANGE = 1
 BOB_SPEED = 0.3

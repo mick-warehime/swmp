@@ -1,6 +1,7 @@
 import unittest
-import sounds
+
 from test.pygame_mock import initialize_pygame
+from view import sounds
 
 
 def setUpModule() -> None:

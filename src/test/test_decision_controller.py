@@ -6,10 +6,12 @@ import controllers.base
 from controllers import decision_controller
 from quests.resolutions import MakeDecision
 from test import pygame_mock
+from view.screen import ScreenAccess
 
 
 def setUpModule() -> None:
-    controllers.base.initialize_controller(None, lambda x: x)
+    controllers.base.initialize_controller(lambda x: x)
+    ScreenAccess.initialize()
 
 
 class DecisionControllerTest(unittest.TestCase):

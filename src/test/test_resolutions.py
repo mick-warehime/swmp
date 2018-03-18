@@ -1,5 +1,6 @@
 import unittest
 
+import model
 from model import Groups
 from quests import resolutions
 from quests.resolutions import MakeDecision
@@ -11,7 +12,7 @@ def setUpModule() -> None:
 
     groups = Groups()
     timer = pygame_mock.MockTimer()
-    pygame_mock.initialize_gameobjects(groups, timer)
+    model.initialize(groups, timer)
 
 
 class ResolutionsTest(unittest.TestCase):

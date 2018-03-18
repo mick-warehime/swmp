@@ -30,8 +30,9 @@ class Images(object):
         self.fonts: Dict[str, str] = {}
 
         # load all the game files
-        game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'img')
+        img_folder = path.dirname(__file__)
+        img_folder = img_folder[:img_folder.index('/src/')] + '/src/img/'
+
         for img_name in ALL_IMAGES:
             img_path = path.join(img_folder, img_name)
             img = pg.image.load(img_path).convert_alpha()

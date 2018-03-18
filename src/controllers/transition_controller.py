@@ -4,7 +4,7 @@ import controllers.base
 from creatures.humanoids import HumanoidData
 from items import ItemObject
 from quests.resolutions import MakeDecision
-from view import DecisionView
+from view.decision_view import DecisionView
 
 
 class TransitionController(controllers.base.Controller):
@@ -15,8 +15,7 @@ class TransitionController(controllers.base.Controller):
                  gained_item: ItemObject = None) -> None:
         super().__init__()
 
-        self._view = DecisionView(self._screen, description,
-                                  ['press space to continue'],
+        self._view = DecisionView(description, ['press space to continue'],
                                   enumerate_options=False)
 
         self._gained_item = gained_item
