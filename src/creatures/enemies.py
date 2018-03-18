@@ -64,14 +64,13 @@ class Behavior(ScreenAccess):
 
     """
 
-    def __init__(self, behavior_dict: BehaviorData, player: Humanoid,
-                 timer: Timer) -> None:
+    def __init__(self, behavior_dict: BehaviorData, player: Humanoid) -> None:
 
         self.default_state: Condition = None
         self._state_conditions_values: Dict[str, Dict[Condition, int]] = {}
         self._state_effects_conditions: Dict[str, Dict[Effect, Any]] = {}
 
-        self._set_state_condition_values(behavior_dict, player, timer)
+        self._set_state_condition_values(behavior_dict, player)
         self._set_state_effects_conditions(behavior_dict, player, self.screen)
 
     def determine_state(self, humanoid: Humanoid) -> str:
@@ -127,7 +126,7 @@ class Behavior(ScreenAccess):
             self._state_effects_conditions[state] = state_behavior
 
     def _set_state_condition_values(self, behavior_dict: BehaviorData,
-                                    player: Player, timer: Timer) -> None:
+                                    player: Player) -> None:
         for state, state_data in behavior_dict.items():
 
             assert 'conditions' in state_data
@@ -197,7 +196,7 @@ class Enemy(Humanoid):
 
         pg.sprite.Sprite.__init__(self, mygroups)
 
-        self.behavior = Behavior(data.behavior_dict, player, self.timer)
+        self.behavior = Behavior(data.behavior_dict, player)
         self.status.state = self.behavior.default_state
 
         self.target = player

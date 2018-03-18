@@ -43,7 +43,7 @@ class HumanoidsTest(unittest.TestCase):
                 'effects': {}}
         }
 
-        behavior = Behavior(behavior_dict, player, self.timer)
+        behavior = Behavior(behavior_dict, player)
 
         state_condition_values = behavior._state_conditions_values
 
