@@ -9,12 +9,14 @@ import model
 import mods
 import settings
 from creatures.players import Player
-from view.screen import ScreenAccess
 from tilemap import TiledMap
 from view import draw_utils
 from view import images
 from view.camera import Camera
+from view.draw_effects import DrawEffect, DrawDebugRects
+from view.draw_utils import rect_on_screen
 from view.hud import HUD
+from view.screen import ScreenAccess
 
 NO_SELECTION = -1
 
@@ -27,6 +29,9 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
         dim_screen.fill((0, 0, 0, 180))
 
         self.camera: Camera = Camera(800, 600)
+        DrawEffect.set_camera(self.camera)
+
+        self._debug_drawer = DrawDebugRects()
 
         self._hud = HUD()
 
@@ -57,7 +62,7 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
             self._draw_sprite(sprite)
 
         if self._draw_debug:
-            self._draw_debug_rects()
+            self._debug_drawer.draw()
 
         if self._night:
             self.render_fog(player)
@@ -76,7 +81,7 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
         new_center.y += self.camera.rect.topleft[1]
         rect.center = new_center
 
-        if self._rect_on_screen(rect):
+        if rect_on_screen(self.screen, rect):
             self.screen.blit(image, rect)
 
     def _draw_teleport_text(self) -> None:
@@ -84,24 +89,6 @@ class DungeonView(model.GroupsAccess, ScreenAccess):
         font = images.get_font(images.ZOMBIE_FONT)
         draw_utils.draw_text(self.screen, 'Press T to continue', font,
                              16, settings.GREEN, 16, 8)
-
-    def _rect_on_screen(self, rect: Rect) -> bool:
-        return self.screen.get_rect().colliderect(rect)
-
-    def _draw_debug_rects(self) -> None:
-        for sprite in self.groups.all_sprites:
-            if hasattr(sprite, 'motion'):
-                rect = sprite.motion.hit_rect
-            else:
-                rect = sprite.rect
-            shifted_rect = self.camera.shift_by_topleft(rect)
-            if self._rect_on_screen(shifted_rect):
-                pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
-        for obstacle in self.groups.walls:
-            assert obstacle not in self.groups.all_sprites
-            shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
-            if self._rect_on_screen(shifted_rect):
-                pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
 
     def render_fog(self, player: Player) -> None:
         # draw the light mask (gradient) onto fog image
