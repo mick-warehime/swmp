@@ -130,6 +130,8 @@ class DungeonController(controllers.base.Controller):
 
     def draw(self) -> None:
 
+        self._view.draw_teleport_text = any(
+            res.can_resolve for res in self._teleport_resolutions)
         self._view.draw(self._dungeon.player, self._dungeon.map)
 
         pg.display.flip()

@@ -62,7 +62,11 @@ class RequiresTeleport(Resolution):
         # instant that teleport_on is set to True.
         teleport_on = self._teleport_on
         self._teleport_on = False
-        return self._base_resolution.is_resolved and teleport_on
+        return self.can_resolve and teleport_on
+
+    @property
+    def can_resolve(self) -> bool:
+        return self._base_resolution.is_resolved
 
     def load_sprite_data(self, sprite_categories: SpriteLabels) -> None:
         self._base_resolution.load_sprite_data(sprite_categories)
