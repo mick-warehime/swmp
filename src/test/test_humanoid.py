@@ -162,14 +162,14 @@ class HumanoidsTest(unittest.TestCase):
 
         player.translate_down()
         player.translate_left()
-        player.motion.stop_x()
+        player.motion._stop_x()
         player.update()
         expected = Vector2(0, 28)
         self.assertEqual(player.pos, expected)
 
         player.translate_down()
         player.translate_left()
-        player.motion.stop_y()
+        player.motion._stop_y()
         player.update()
         expected = Vector2(-28, 28)
         self.assertEqual(player.pos, expected)

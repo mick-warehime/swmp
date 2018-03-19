@@ -238,17 +238,17 @@ class Motion(mdl.TimeAccess):
         #  below.
         self.rect.center = self.hit_rect.center  # type: ignore
 
-    def stop_x(self) -> None:
+    def _stop_x(self) -> None:
         self.vel.x = 0
         self.acc.x = 0
 
-    def stop_y(self) -> None:
+    def _stop_y(self) -> None:
         self.vel.y = 0
         self.acc.y = 0
 
     def stop(self) -> None:
-        self.stop_x()
-        self.stop_y()
+        self._stop_x()
+        self._stop_y()
 
     def _collide_walls_in_direction(self, x_or_y: str) -> None:
         assert x_or_y == 'x' or x_or_y == 'y'
@@ -263,7 +263,7 @@ class Motion(mdl.TimeAccess):
                 if hits[0].rect.centerx <= self.hit_rect.centerx:
                     self.pos.x = hits[
                                      0].rect.right + self.hit_rect.width / 2
-                self.stop_x()
+                self._stop_x()
                 self.hit_rect.centerx = self.pos.x
         if x_or_y == 'y':
             hits = pg.sprite.spritecollide(self._humanoid, group, False,
@@ -275,7 +275,7 @@ class Motion(mdl.TimeAccess):
                 if hits[0].rect.centery <= self.hit_rect.centery:
                     self.pos.y = hits[
                                      0].rect.bottom + self.hit_rect.height / 2
-                self.stop_y()
+                self._stop_y()
                 self.hit_rect.centery = self.pos.y
 
 
