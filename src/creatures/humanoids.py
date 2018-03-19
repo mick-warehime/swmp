@@ -132,18 +132,18 @@ class HumanoidData(NamedTuple):
     inventory: Inventory
 
 
-class Humanoid(mdl.GameObject, mdl.TimeAccess):
+class Humanoid(mdl.GameObject):
     """GameObject with health, inventory, and motion."""
 
     def __init__(self, hit_rect: pg.Rect, pos: Vector2,
                  max_health: int) -> None:
+        super().__init__(pos)
         hit_rect = hit_rect.copy()
         hit_rect.center = pos
-        self.motion: Motion = Motion(self, self.timer, self.groups.walls,
-                                     hit_rect)
+        self.motion: Motion = Motion(self, self.groups.walls, hit_rect)
 
         self.status = Status(max_health)
-        super().__init__(pos)
+
         self._base_rect = self.image.get_rect().copy()
 
         self.inventory = Inventory()
@@ -190,13 +190,13 @@ class Humanoid(mdl.GameObject, mdl.TimeAccess):
         self.inventory = other.inventory
 
 
-class Motion(object):
+class Motion(mdl.TimeAccess):
     """Handles movement of Humanoids."""
 
-    def __init__(self, humanoid: Humanoid, timer: mdl.Timer,
-                 walls: Group, hit_rect: pg.Rect) -> None:
+    def __init__(self, humanoid: Humanoid, walls: Group,
+                 hit_rect: pg.Rect) -> None:
+        super().__init__()
         self._humanoid = humanoid
-        self._timer = timer
         self._walls = walls
 
         self.vel = Vector2(0, 0)
@@ -225,7 +225,7 @@ class Motion(object):
         self._collide_with_walls()
 
     def _update_trajectory(self) -> None:
-        dt = self._timer.dt
+        dt = self.timer.dt
         self.vel += self.acc * dt
         self.pos += self.vel * dt
 
