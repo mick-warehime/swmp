@@ -285,8 +285,9 @@ def collide_hit_rect_with_rect(humanoid: Humanoid,
     return humanoid.motion.hit_rect.colliderect(sprite.rect)
 
 
-class EnergySource(object):
+class EnergySource(mdl.TimeAccess):
     def __init__(self, max_energy: float, recharge_rate: float) -> None:
+        super().__init__()
         self._max_energy = max_energy
         self._recharge_rate = recharge_rate
         self._current_energy = max_energy
@@ -312,5 +313,5 @@ class EnergySource(object):
         assert amount <= self.energy_available
         self._current_energy -= amount
 
-    def passive_recharge(self, dt: float) -> None:
-        self.increment_energy(dt * self._recharge_rate)
+    def passive_recharge(self) -> None:
+        self.increment_energy(self.timer.dt * self._recharge_rate)

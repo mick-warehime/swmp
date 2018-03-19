@@ -63,7 +63,7 @@ class Player(Humanoid):
         self._rotate_towards_cursor()
 
         self.motion.update()
-        self.energy_source.passive_recharge(self.timer.dt)
+        self.energy_source.passive_recharge()
 
         # reset the movement after each update
         self.motion.vel = Vector2(0, 0)
