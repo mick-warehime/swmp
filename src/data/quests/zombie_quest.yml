@@ -46,7 +46,7 @@ man or zombie:
   failure:
     description: "It turns out the man is a walking dead type. He charges you!"
     next scene: near zombie
-  difficulty: medium
+  difficulty: hard
 
 gain healthpack:
   type: transition
