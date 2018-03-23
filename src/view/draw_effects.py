@@ -10,7 +10,7 @@ from view.draw_utils import rect_on_screen, draw_text
 from view.screen import ScreenAccess
 
 
-class DrawEffect(abc.ABC, ScreenAccess, GroupsAccess):
+class DrawEffect(abc.ABC, ScreenAccess):
     """Interface for an object with a draw method.
     Has access to a Camera, the screen, and Groups."""
 
@@ -20,7 +20,6 @@ class DrawEffect(abc.ABC, ScreenAccess, GroupsAccess):
         if self._camera is None:
             raise RuntimeError('Must first call DrawEffect.set_camera()')
         ScreenAccess.__init__(self)
-        GroupsAccess.__init__(self)
 
     @classmethod
     def set_camera(cls, camera: Camera) -> None:
@@ -35,7 +34,12 @@ class DrawEffect(abc.ABC, ScreenAccess, GroupsAccess):
         """Draw method"""
 
 
-class DrawDebugRects(DrawEffect):
+class DrawDebugRects(DrawEffect, GroupsAccess):
+
+    def __init__(self):
+        super().__init__()
+        GroupsAccess.__init__(self)
+
     def draw(self):
         for sprite in self.groups.all_sprites:
             if hasattr(sprite, 'motion'):
