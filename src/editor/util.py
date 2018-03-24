@@ -17,6 +17,6 @@ def assert_yaml_filename(filename):
 
 
 def draw_circle(x_center: int, y_center: int, rad: int, canvas: tkinter.Canvas,
-                fill="black") -> None:
-    canvas.create_oval(x_center - rad, y_center - rad, x_center + rad,
-                       y_center + rad, fill=fill)
+                fill="black") -> int:
+    return canvas.create_oval(x_center - rad, y_center - rad, x_center + rad,
+                              y_center + rad, fill=fill)
