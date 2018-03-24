@@ -59,10 +59,14 @@ def load_npc_data_kwargs(name: str) -> KwargType:
     return _npc_data[name]
 
 
-def load_quest_data(name: str) -> KwargType:
-    if '.yml' not in name:
-        name += '.yml'
-    with open(_QUEST_FOLDER + name, 'r') as stream:
+def load_quest_data(file_name: str, full_path=False) -> KwargType:
+
+    file_path = file_name if full_path else _QUEST_FOLDER + file_name
+
+    if '.yml' not in file_name:
+        file_name += '.yml'
+
+    with open(file_path, 'r') as stream:
         data = yaml.load(stream)
     return data
 
