@@ -14,6 +14,7 @@ class SceneType(Enum):
     TRANSITION = 'transition'
     SKILL_CHECK = 'skill check'
 
+    @property
     def arg_labels(self) -> List[str]:
         return _arg_labels[self]
 
@@ -33,6 +34,6 @@ _scene_map = {SceneType.DUNGEON: DungeonScene,
 
 def make_scene(scene_data: Dict[str, Any]) -> Scene:
     scene_type = SceneType(scene_data['type'])
-    args = [scene_data[arg_label] for arg_label in scene_type.arg_labels()]
+    args = [scene_data[arg_label] for arg_label in scene_type.arg_labels]
     constructor = scene_type.scene_constructor()
     return constructor(*args)
