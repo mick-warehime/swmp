@@ -23,7 +23,7 @@ def draw_circle(x_center: int, y_center: int, rad: int, canvas: tkinter.Canvas,
 
 
 class CanvasAccess(object):
-    """An object with access to the current graph canvas"""
+    """An object with access to the current graph canvas."""
 
     _canvas: tkinter.Canvas = None
 
@@ -43,6 +43,7 @@ class CanvasAccess(object):
 
 def canvas_coords_to_master_coords(canvas: tkinter.Canvas,
                                    canvas_x: int, canvas_y: int):
+    """Convert canvas coordinates to the coordinates of its master Frame."""
 
     top_left_canvas_x = canvas.canvasx(0)
     top_left_canvas_y = canvas.canvasy(0)

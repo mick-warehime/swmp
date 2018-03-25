@@ -8,6 +8,13 @@ from editor.nodes import node_registry, QuestNode
 from editor.util import assert_yaml_filename, CanvasAccess
 from quests.scenes.builder import next_scene_labels
 
+"""TODO:
+- Enable scrolling within the graph window.
+- Node editor (just display standard fields for each scene type).
+- Saving updated data.
+- Creation of new nodes (this will be done using currently existing nodes?)
+"""
+
 
 def _start_window() -> tkinter.Tk:
     root = tkinter.Tk()
