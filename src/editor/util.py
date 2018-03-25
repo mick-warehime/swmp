@@ -39,3 +39,12 @@ class CanvasAccess(object):
     @property
     def canvas(self) -> tkinter.Canvas:
         return self._canvas
+
+
+def canvas_coords_to_master_coords(canvas: tkinter.Canvas,
+                                   canvas_x: int, canvas_y: int):
+
+    top_left_canvas_x = canvas.canvasx(0)
+    top_left_canvas_y = canvas.canvasy(0)
+
+    return canvas_x - top_left_canvas_x, canvas_y - top_left_canvas_y

@@ -2,7 +2,8 @@ import math
 import tkinter
 from typing import Dict, Any, Iterable
 
-from editor.util import draw_circle, CanvasAccess
+from editor.util import draw_circle, CanvasAccess, \
+    canvas_coords_to_master_coords
 from quests.scenes.builder import SceneType
 
 _scene_type_letter = {SceneType.DECISION: 'D', SceneType.DUNGEON: 'C',
@@ -21,9 +22,10 @@ class QuestNode(CanvasAccess):
         self.radius = radius
         self.x = pos_x
         self.y = pos_y
+        self._editor: tkinter.Tk = None
 
         self._child_edges = {}
-        self._selected_linewidth = 2
+        self._selected_linewidth = 3
         self._unselected_linewidth = 1
         self._circle = draw_circle(pos_x, pos_y, radius, self.canvas,
                                    fill=color, tags=('circle', self.tag))
@@ -33,11 +35,11 @@ class QuestNode(CanvasAccess):
 
         self._texts.append(
             self.canvas.create_text(pos_x, pos_y + radius * 2, text=label,
-                               tags=('label', self.tag)))
+                                    tags=('label', self.tag)))
         letter = _scene_type_letter[SceneType(self._data['type'])]
         self._texts.append(
             self.canvas.create_text(pos_x, pos_y, text=letter,
-                               tags=('type', self.tag))
+                                    tags=('type', self.tag))
         )
 
         node_registry[self.tag] = self
@@ -54,8 +56,23 @@ class QuestNode(CanvasAccess):
         selected_nodes.add(self)
         self.canvas.itemconfig(self._circle, width=self._selected_linewidth)
 
+        self._open_editor_window()
+
+    def _open_editor_window(self):
+        wx, wy = canvas_coords_to_master_coords(self.canvas, self.x, self.y)
+        window_offset_x = self.canvas.master.winfo_x() + 30
+        window_offset_y = self.canvas.master.winfo_y() - 30
+        self._editor = _node_editor_window(str(self), wx + window_offset_x,
+                                           wy + window_offset_y)
+
     def deselect(self):
         self.canvas.itemconfig(self._circle, width=self._unselected_linewidth)
+        self._close_editor_window()
+
+    def _close_editor_window(self):
+        if self._editor is not None:
+            self._editor.destroy()
+            self._editor = None
 
     @property
     def tag(self) -> str:
@@ -89,3 +106,14 @@ class QuestNode(CanvasAccess):
     def __str__(self):
         child_labels = [node.label for node in self._child_edges.keys()]
         return "Node({}), children: {}".format(self.label, child_labels)
+
+
+def _node_editor_window(title: str, pos_x: int = 0,
+                        pos_y: int = 0) -> tkinter.Tk:
+    root = tkinter.Tk()
+
+    # set the dimensions of the screen
+    # and where it is placed
+    root.geometry('%dx%d+%d+%d' % (300, 200, pos_x, pos_y))
+    root.title(title)
+    return root
