@@ -1,5 +1,5 @@
 import tkinter
-from typing import Callable, Any
+from typing import Callable, Any, Tuple
 
 
 def close_window_after_call(fun: Callable[[Any], None],
@@ -17,6 +17,6 @@ def assert_yaml_filename(filename):
 
 
 def draw_circle(x_center: int, y_center: int, rad: int, canvas: tkinter.Canvas,
-                fill="black") -> int:
+                fill="black", tags: Tuple[str, ...] = None) -> int:
     return canvas.create_oval(x_center - rad, y_center - rad, x_center + rad,
-                              y_center + rad, fill=fill)
+                              y_center + rad, fill=fill, tags=tags)
