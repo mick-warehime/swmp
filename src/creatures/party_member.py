@@ -1,7 +1,7 @@
 import pygame as pg
 import model as mdl
 import random
-import view.images
+from view import images
 from pygame.math import Vector2
 
 
