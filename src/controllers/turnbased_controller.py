@@ -11,8 +11,8 @@ from creatures.players import Player
 from data import constructors
 from quests.resolutions import Resolution, RequiresTeleport
 from view import turnbased_view
-from party import Party
-from party_member import PartyMember
+from creatures.party import Party
+from creatures.party_member import PartyMember
 
 
 class TurnBasedDungeon(model.GroupsAccess):

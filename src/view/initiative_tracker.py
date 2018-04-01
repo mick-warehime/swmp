@@ -4,7 +4,7 @@ import settings
 from creatures.party import Party
 from view.screen import ScreenAccess
 from view.draw_utils import draw_text
-import images
+from view import images
 
 NO_SELECTION = -1
 
