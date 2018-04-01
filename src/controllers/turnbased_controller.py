@@ -20,6 +20,7 @@ from view import turnbased_view, sounds
 from party import Party
 from party_member import PartyMember
 
+
 class TurnBasedDungeon(model.GroupsAccess):
     """Stores and updates GameObjects in a dungeon map."""
 
@@ -69,8 +70,12 @@ class TurnBasedController(controllers.base.Controller):
         super().__init__()
 
         self._dungeon = dungeon
+        self._party = Party()
+        for i in range(1, 4):
+            member = PartyMember(pg.math.Vector2(50, 400 + i * 32))
+            self._party.add_member(member)
 
-        self._view = turnbased_view.TurnBasedView()
+        self._view = turnbased_view.TurnBasedView(self._party)
         self._view.set_camera_range(self._dungeon.map.width,
                                     self._dungeon.map.height)
 
@@ -80,25 +85,29 @@ class TurnBasedController(controllers.base.Controller):
 
         self._init_controls()
 
-        self._party = Party()
-        for i in range(1, 4):
-            member = PartyMember(pg.math.Vector2(50, 400 + i * 32))
-            self._party.add_member(member)
-
     def set_player_data(self, data: HumanoidData) -> None:
         self._dungeon.player.data = data
 
     def draw(self) -> None:
-        self._view.draw(self._party, self._dungeon.map)
+        self._view.draw(self._dungeon.map)
 
         pg.display.flip()
 
     def update(self) -> None:
-        self.keyboard.handle_input()
+
+        if self.keyboard.mouse_just_clicked:
+            self._handle_mouse()
+            self.keyboard.handle_input(['none allowed'])
+        else:
+            self.keyboard.handle_input()
+
         self._dungeon.update()
 
+    def _handle_mouse(self) -> None:
+        self._view._try_click_pos(self._abs_mouse_pos())
+
     def _init_controls(self) -> None:
-        pass
+        self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
 
     # mouse coordinates are relative to the camera
     # most other coordinates are relative to the map
