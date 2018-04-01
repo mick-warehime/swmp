@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Callable
 
 from quests.scenes.decisions import DecisionScene
 from quests.scenes.dungeons import DungeonScene
+from quests.scenes.dungeons import TurnBasedScene
 from quests.scenes.interface import Scene
 from quests.scenes.skill_checks import SkillCheckScene
 from quests.scenes.transitions import TransitionScene
@@ -13,6 +14,7 @@ class SceneType(Enum):
     DECISION = 'decision'
     TRANSITION = 'transition'
     SKILL_CHECK = 'skill check'
+    TURNBASED = 'turnbased'
 
     def arg_labels(self) -> List[str]:
         return _arg_labels[self]
@@ -22,10 +24,12 @@ class SceneType(Enum):
 
 
 _arg_labels = {SceneType.DUNGEON: ['map file', 'resolutions'],
+               SceneType.TURNBASED: ['map file', 'resolutions'],
                SceneType.DECISION: ['description', 'choices'],
                SceneType.TRANSITION: ['description', 'gained item label'],
                SceneType.SKILL_CHECK: ['success', 'failure', 'difficulty']}
 _scene_map = {SceneType.DUNGEON: DungeonScene,
+              SceneType.TURNBASED: TurnBasedScene,
               SceneType.DECISION: DecisionScene,
               SceneType.TRANSITION: TransitionScene,
               SceneType.SKILL_CHECK: SkillCheckScene}

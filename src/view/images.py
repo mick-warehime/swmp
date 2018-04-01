@@ -12,10 +12,13 @@ MUZZLE_FLASH1 = 'whitePuff15.png'
 MUZZLE_FLASH2 = 'whitePuff16.png'
 MUZZLE_FLASH3 = 'whitePuff17.png'
 MUZZLE_FLASH4 = 'whitePuff18.png'
+PARTYMEMBER1 = 'partymember1.png'
+PARTYMEMBER2 = 'partymember2.png'
+PARTYMEMBER3 = 'partymember3.png'
 
 ALL_IMAGES = set(
     [PLAYER_IMG, MUZZLE_FLASH1, MUZZLE_FLASH2, MUZZLE_FLASH3, MUZZLE_FLASH4,
-     LIGHT_MASK, LITTLE_BULLET])
+     LIGHT_MASK, LITTLE_BULLET, PARTYMEMBER1, PARTYMEMBER2, PARTYMEMBER3])
 ALL_IMAGES = set(ALL_IMAGES)
 ALL_IMAGES |= input_output.image_filenames()
 
@@ -54,10 +57,14 @@ def initialize_images() -> None:
 
 
 def get_image(image_name: str) -> pg.Surface:
+    if not images:
+        initialize_images()
     return images.images[image_name]
 
 
 def get_font(font_name: str) -> str:
+    if not images:
+        initialize_images()
     return images.fonts[font_name]
 
 
@@ -66,3 +73,7 @@ def get_muzzle_flash() -> pg.Surface:
                    MUZZLE_FLASH3, MUZZLE_FLASH4]
     random_flash = random.choice(all_flashes)
     return get_image(random_flash)
+
+
+def party_member_image(member_number: int) -> pg.Surface:
+    return get_image('partymember%d.png' % member_number)
