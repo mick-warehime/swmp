@@ -1,4 +1,4 @@
-from party_member import PartyMember
+from creatures.party_member import PartyMember
 from typing import List
 
 
