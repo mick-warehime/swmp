@@ -79,7 +79,8 @@ class Quest(object):
                 graph.add_edge(scene, fail_scene)
 
             else:
-                assert scene_type == SceneType.DUNGEON
+                assert scene_type == SceneType.DUNGEON or\
+                       scene_type == SceneType.TURNBASED
                 for index, resolution in enumerate(scene_data['resolutions']):
                     assert len(resolution.values()) == 1
                     res_data = list(resolution.values())[0]
