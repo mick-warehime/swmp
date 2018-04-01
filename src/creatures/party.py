@@ -12,7 +12,8 @@ class Party(object):
     def prepare_for_combat(self) -> None:
         for member in self.party_members:
             member.prepare_combat()
-        self.party_members = sorted(self.party_members, key=lambda m: m.initiative, reverse=True)
+        self.party_members = sorted(self.party_members,
+                                    key=lambda m: m.initiative, reverse=True)
 
     def add_member(self, member: PartyMember) -> None:
         self.party_members.append(member)
@@ -27,18 +28,18 @@ class Party(object):
     def member_is_active(self, idx: int) -> bool:
         return idx == self._active_member_idx
 
-    def next_member(self):
+    def next_member(self)-> None:
         self.active_member_moved = False
         idx = self._active_member_idx
         self._active_member_idx = (idx + 1) % len(self.party_members)
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: int, value: PartyMember) -> None:
         self.party_members[key] = value
 
-    def __getitem__(self, key) -> None:
+    def __getitem__(self, key: int) -> None:
         return self.party_members[key]
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: int) -> None:
         del self.party_members[key]
 
     def __len__(self) -> int:

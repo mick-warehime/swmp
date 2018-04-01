@@ -8,7 +8,7 @@ from pygame.math import Vector2
 class PartyMember(mdl.GameObject):
     COUNT = 1
 
-    def __init__(self, pos: Vector2):
+    def __init__(self, pos: Vector2) -> None:
         super().__init__(pos)
         self.initiative = 0
         self.member_number = PartyMember.COUNT
@@ -32,4 +32,4 @@ class PartyMember(mdl.GameObject):
         return self._base_rect
 
     def can_reach(self, x: int, y: int) -> bool:
-        return (x ** 2 + y ** 2) < (self.speed -1)** 2
+        return (x ** 2 + y ** 2) < (self.speed - 1) ** 2

@@ -1,7 +1,8 @@
 from typing import List, Dict
 
 from controllers.dungeon_controller import Dungeon, DungeonController
-from controllers.turnbased_controller import TurnBasedDungeon, TurnBasedController
+from controllers.turnbased_controller import TurnBasedDungeon
+from controllers.turnbased_controller import TurnBasedController
 from quests.resolutions import resolution_from_data
 from quests.scenes.interface import ControllerAndResolutions, Scene
 

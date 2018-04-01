@@ -65,7 +65,8 @@ class InitiativeTracker(ScreenAccess):
 
             # initiative
             font = images.get_font(images.IMPACTED_FONT)
-            draw_text(self.screen, str(member.initiative), font, 13, (250, 50, 50), r.x + 3, r.y)
+            draw_text(self.screen, str(member.initiative),
+                      font, 13, (250, 50, 50), r.x + 3, r.y)
 
     def _generate_character_rects(self) -> List[pg.Rect]:
         mod_size = 62

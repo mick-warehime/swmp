@@ -41,7 +41,7 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
         self._party = party
         self._initiative_tracker = InitiativeTracker(party)
 
-        self._move_options = None
+        self._move_options: List[pg.Surface] = []
 
     def set_camera_range(self, width: int, height: int) -> None:
         x, y = self.camera.rect.x, self.camera.rect.y
@@ -113,10 +113,13 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
             return
 
         self._move_option_rects()
+        if not self._move_options:
+            return
+
         for rect in self._move_options:
             self._highlight_rect(rect, red=True)
 
-    def _move_option_rects(self) -> List[pg.Surface]:
+    def _move_option_rects(self) -> None:
         if self._move_options:
             return
 
@@ -141,7 +144,8 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
 
         return True
 
-    def _points_between(self, rect1: pg.Surface, rect2: pg.Surface) -> bool:
+    def _points_between(self, rect1: pg.Surface, rect2: pg.Surface)\
+            -> List[Tuple[int, int]]:
 
         p1 = rect1.center
         p2 = rect2.center
