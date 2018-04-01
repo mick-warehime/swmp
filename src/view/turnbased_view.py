@@ -4,7 +4,7 @@ import pygame as pg
 from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.sprite import Sprite
-
+import math
 import model
 import settings
 from creatures.party import Party
@@ -65,8 +65,6 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
         member = self._party.active_member
         self._highlight_rect(member.rect)
 
-
-
         self._initiative_tracker.draw()
 
     def _draw_sprite(self, sprite: Sprite) -> None:
@@ -124,13 +122,41 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
 
         rects: List[pg.Surface] = []
         member = self._party.active_member
-        move_range = range(-member.speed, member.speed+1)
+        move_range = range(-member.speed, member.speed + 1)
         for i in move_range:
             for j in move_range:
-                if self._party.active_member.can_reach(i, j):
-                    r = member.rect.move(i * 32, j * 32)
-                    rects.append(r)
+                dest_rect = member.rect.move(i * 32, j * 32)
+                if self._party.active_member.can_reach(i, j) and \
+                        self._path_is_clear(member.rect, dest_rect):
+                    rects.append(dest_rect)
+
         self._move_options = rects
+
+    def _path_is_clear(self, rect1: pg.Surface, rect2: pg.Surface) -> bool:
+        test_points = self._points_between(rect1, rect2)
+        for point in test_points:
+            for wall in self.groups.walls:
+                if wall.rect.collidepoint(point[0], point[1]):
+                    return False
+
+        return True
+
+    def _points_between(self, rect1: pg.Surface, rect2: pg.Surface) -> bool:
+
+        p1 = rect1.center
+        p2 = rect2.center
+
+        points = [p1, p2]
+        dist = math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+        step_size = 5.0
+        num_steps = int(dist / step_size)
+        for i in range(1, num_steps - 1):
+            s = i / num_steps
+            x = p1[0] * s + p2[0] * (1 - s)
+            y = p1[1] * s + p2[1] * (1 - s)
+            points.append((x, y))
+
+        return points
 
     def toggle_debug(self) -> None:
         self._draw_debug = not self._draw_debug
@@ -144,6 +170,5 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
             if rect.collidepoint(pos[0], pos[1]):
                 self._party.active_member.pos = rect.center
                 self._move_options = None
-
-        self._party.next_member()
-
+                self._party.next_member()
+                return

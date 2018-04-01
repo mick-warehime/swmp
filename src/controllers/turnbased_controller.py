@@ -72,8 +72,10 @@ class TurnBasedController(controllers.base.Controller):
         self._dungeon = dungeon
         self._party = Party()
         for i in range(1, 4):
-            member = PartyMember(pg.math.Vector2(50, 400 + i * 32))
+            member = PartyMember(pg.math.Vector2(82, 400 + i * 32))
             self._party.add_member(member)
+
+        # roll initiative
         self._party.prepare_for_combat()
 
         self._view = turnbased_view.TurnBasedView(self._party)
