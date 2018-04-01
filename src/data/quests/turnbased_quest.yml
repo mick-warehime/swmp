@@ -1,6 +1,6 @@
 root:
   type: turnbased
-  map file: 'hexa_quest/hexquest.tmx'
+  map file: 'turnbased.tmx'
   resolutions:
     - enter zone: &player_exits
         zone label: 'exit'
