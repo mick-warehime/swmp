@@ -1,0 +1,28 @@
+root:
+  type: turnbased
+  map file: 'test_turnbased.tmx'
+  resolutions:
+    - enter zone: &player_exits
+        zone label: 'exit'
+        entering label: 'player'
+        next scene: game over win
+        requires teleport:
+    - condition: &player_death
+        tested label: 'player'
+        condition data:
+          dead:
+        next scene: game over lose
+
+game over lose:
+  type: decision
+  description: 'you lose!'
+  choices:
+    - play again: &play_again
+        description: 'play again?'
+        next scene: root
+
+game over win:
+  type: decision
+  description: 'you win!'
+  choices:
+    - play again: *play_again

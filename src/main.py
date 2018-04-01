@@ -46,7 +46,7 @@ class Game(ScreenAccess):
 
     def new(self) -> None:
 
-        quest_data = load_quest_data('hexa_quest')
+        quest_data = load_quest_data('turnbased_quest')
         self.quest_graph = Quest(quest_data)
 
         sounds.play(sounds.LEVEL_START)

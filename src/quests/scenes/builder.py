@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Callable
 
 from quests.scenes.decisions import DecisionScene
 from quests.scenes.dungeons import DungeonScene
-from quests.scenes.turnbased_dungeon import TurnBasedScene
+from quests.scenes.turnbased import TurnBasedScene
 from quests.scenes.interface import Scene
 from quests.scenes.skill_checks import SkillCheckScene
 from quests.scenes.transitions import TransitionScene

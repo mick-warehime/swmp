@@ -99,14 +99,12 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
 
         for obstacle in self.groups.walls:
             assert obstacle not in self.groups.all_sprites
-            shifted_rect = self.camera.shift_by_topleft(obstacle.rect)
-            if self._rect_on_screen(shifted_rect):
-                self._highlight_rect(shifted_rect)
+            if self._rect_on_screen(obstacle.rect):
+                self._highlight_rect(obstacle.rect)
 
         for member in self._party:
-            shifted_rect = self.camera.shift_by_topleft(member.rect)
-            if self._rect_on_screen(shifted_rect):
-                self._highlight_rect(shifted_rect)
+            if self._rect_on_screen(member.rect):
+                self._highlight_rect(member.rect)
 
     def _draw_move_options(self) -> None:
         if self._party.active_member_moved:

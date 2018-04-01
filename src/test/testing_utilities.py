@@ -8,6 +8,8 @@ import creatures.players
 import items
 from controllers.base import initialize_controller
 from controllers.dungeon_controller import DungeonController, Dungeon
+from controllers.turnbased_controller import TurnBasedDungeon
+from controllers.turnbased_controller import TurnBasedController
 from data.constructors import build_map_object
 
 
@@ -31,9 +33,16 @@ def make_item(label: str) -> items.ItemObject:
 
 
 def make_dungeon_controller() -> DungeonController:
-    blank_screen = pygame.Surface((800, 600))
     initialize_controller(None)
 
     dungeon = Dungeon('test_level.tmx')
 
     return DungeonController(dungeon, [])
+
+
+def make_turnbased_controller() -> DungeonController:
+    initialize_controller(None)
+
+    dungeon = TurnBasedDungeon('test_turnbased.tmx')
+
+    return TurnBasedController(dungeon, [])

@@ -1,4 +1,3 @@
-
 from typing import Dict, List, Tuple, Set
 import pygame as pg
 import controllers.base
@@ -11,8 +10,7 @@ from creatures.players import Player
 from data import constructors
 from quests.resolutions import Resolution, RequiresTeleport
 from view import turnbased_view
-from creatures.party import Party
-from creatures.party_member import PartyMember
+from creatures.party import example_party
 
 
 class TurnBasedDungeon(model.GroupsAccess):
@@ -64,10 +62,7 @@ class TurnBasedController(controllers.base.Controller):
         super().__init__()
 
         self._dungeon = dungeon
-        self._party = Party()
-        for i in range(1, 4):
-            member = PartyMember(pg.math.Vector2(82, 400 + i * 32))
-            self._party.add_member(member)
+        self._party = example_party()
 
         # roll initiative
         self._party.prepare_for_combat()
