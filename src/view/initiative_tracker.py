@@ -14,14 +14,12 @@ class InitiativeTracker(ScreenAccess):
         super().__init__()
 
         # HUD size & location
-        self._tracker_width = 283
+        self._tracker_width = 65 * len(party)
         self._tracker_height = 68
         tracker_x = (settings.WIDTH - self._tracker_width) / 2.0
         tracker_y = settings.HEIGHT - self._tracker_height
         self._tracker_pos = (tracker_x, tracker_y)
-        self._tracker_bar_offset = 0
-        self._bar_length = 20
-        self._bar_height = 75
+
         self.rect = pg.Rect(tracker_x,
                             tracker_y,
                             self._tracker_width,
