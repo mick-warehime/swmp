@@ -12,6 +12,7 @@ from view.screen import ScreenAccess
 from tilemap import TiledMap
 from view import images
 from view.camera import Camera
+from view.initiative_tracker import InitiativeTracker
 
 NO_SELECTION = -1
 
@@ -38,7 +39,9 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
         self.title_font = images.get_font(images.ZOMBIE_FONT)
 
         self._party = party
-        self._selected_party = None
+        self._initiative_tracker = InitiativeTracker(party)
+
+        self._move_options = None
 
     def set_camera_range(self, width: int, height: int) -> None:
         x, y = self.camera.rect.x, self.camera.rect.y
@@ -57,9 +60,14 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
         if self._draw_debug:
             self._draw_debug_rects()
 
-        if self._selected_party is not None:
-            member = self._party[self._selected_party]
-            self._highlight_rect(member.rect)
+        self._draw_move_options()
+
+        member = self._party.active_member
+        self._highlight_rect(member.rect)
+
+
+
+        self._initiative_tracker.draw()
 
     def _draw_sprite(self, sprite: Sprite) -> None:
         image = sprite.image
@@ -75,10 +83,13 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
     def _rect_on_screen(self, rect: Rect) -> bool:
         return self.screen.get_rect().colliderect(rect)
 
-    def _highlight_rect(self, rect) -> None:
+    def _highlight_rect(self, rect: pg.Surface, red: bool = False) -> None:
         shifted_rect = self.camera.shift_by_topleft(rect)
         if self._rect_on_screen(shifted_rect):
-            pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
+            if red:
+                pg.draw.rect(self.screen, settings.RED, shifted_rect, 1)
+            else:
+                pg.draw.rect(self.screen, settings.CYAN, shifted_rect, 1)
 
     def _draw_debug_rects(self) -> None:
         for sprite in self.groups.all_sprites:
@@ -99,13 +110,35 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
             if self._rect_on_screen(shifted_rect):
                 self._highlight_rect(shifted_rect)
 
+    def _draw_move_options(self) -> None:
+        if self._party.active_member_moved:
+            return
+
+        self._move_option_rects()
+        for rect in self._move_options:
+            self._highlight_rect(rect, red=True)
+
+    def _move_option_rects(self) -> List[pg.Surface]:
+        if self._move_options:
+            return
+
+        rects: List[pg.Surface] = []
+        member = self._party.active_member
+        move_range = range(-member.speed, member.speed+1)
+        for i in move_range:
+            for j in move_range:
+                if self._party.active_member.can_reach(i, j):
+                    r = member.rect.move(i * 32, j * 32)
+                    rects.append(r)
+        self._move_options = rects
+
     def toggle_debug(self) -> None:
         self._draw_debug = not self._draw_debug
 
-    def _try_click_pos(self, pos: Tuple[int, int]) -> None:
-        for idx, member in enumerate(self._party):
-            if member.rect.collidepoint(pos[0], pos[1]):
-                self._selected_party = idx
-                return
-
-        self._selected_party = None
+    # def _try_click_pos(self, pos: Tuple[int, int]) -> None:
+    #     for idx, member in enumerate(self._party):
+    #         if member.rect.collidepoint(pos[0], pos[1]):
+    #             self._selected_party = idx
+    #             return
+    #
+    #     self._selected_party = None

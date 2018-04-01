@@ -1,5 +1,4 @@
 import pygame as pg
-from typing import Tuple
 import model as mdl
 import random
 import images
@@ -16,9 +15,11 @@ class PartyMember(mdl.GameObject):
         PartyMember.COUNT += 1
 
         self._base_rect = self.image.get_rect().copy()
+        self.speed = self.member_number + 4
 
     def prepare_combat(self) -> int:
-        return random.randint(0, 20)
+        self.initiative = random.randint(0, 20)
+        return self.initiative
 
     @property
     def image(self) -> pg.Surface:
@@ -29,3 +30,6 @@ class PartyMember(mdl.GameObject):
         """Rect object used in sprite collisions."""
         self._base_rect.center = self.pos
         return self._base_rect
+
+    def can_reach(self, x: int, y: int) -> bool:
+        return (x ** 2 + y ** 2) < (self.speed -1)** 2

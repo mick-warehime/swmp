@@ -74,6 +74,7 @@ class TurnBasedController(controllers.base.Controller):
         for i in range(1, 4):
             member = PartyMember(pg.math.Vector2(50, 400 + i * 32))
             self._party.add_member(member)
+        self._party.prepare_for_combat()
 
         self._view = turnbased_view.TurnBasedView(self._party)
         self._view.set_camera_range(self._dungeon.map.width,
@@ -95,6 +96,11 @@ class TurnBasedController(controllers.base.Controller):
 
     def update(self) -> None:
 
+        # needs a wait until moved loop
+        # wait until choose attack move
+        # wait until clicks end turn move
+        # needs a end turn button
+
         if self.keyboard.mouse_just_clicked:
             self._handle_mouse()
             self.keyboard.handle_input(['none allowed'])
@@ -104,7 +110,8 @@ class TurnBasedController(controllers.base.Controller):
         self._dungeon.update()
 
     def _handle_mouse(self) -> None:
-        self._view._try_click_pos(self._abs_mouse_pos())
+        # self._view._try_click_pos(self._abs_mouse_pos())
+        pass
 
     def _init_controls(self) -> None:
         self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
