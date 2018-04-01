@@ -27,6 +27,9 @@ class Party(object):
     def member_is_active(self, idx: int) -> bool:
         return idx == self._active_member_idx
 
+    def next_member(self):
+        self._active_member_idx = (self._active_member_idx + 1) % len(self.party_members)
+
     def __setitem__(self, key, value) -> None:
         self.party_members[key] = value
 

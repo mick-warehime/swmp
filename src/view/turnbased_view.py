@@ -135,10 +135,15 @@ class TurnBasedView(model.GroupsAccess, ScreenAccess):
     def toggle_debug(self) -> None:
         self._draw_debug = not self._draw_debug
 
-    # def _try_click_pos(self, pos: Tuple[int, int]) -> None:
-    #     for idx, member in enumerate(self._party):
-    #         if member.rect.collidepoint(pos[0], pos[1]):
-    #             self._selected_party = idx
-    #             return
-    #
-    #     self._selected_party = None
+    def _try_move(self, pos: Tuple[int, int]) -> None:
+        if self._party.active_member_moved:
+            return
+
+        for rect in self._move_options:
+            # move to new location
+            if rect.collidepoint(pos[0], pos[1]):
+                self._party.active_member.pos = rect.center
+                self._move_options = None
+
+        self._party.next_member()
+

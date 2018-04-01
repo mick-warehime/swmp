@@ -110,8 +110,7 @@ class TurnBasedController(controllers.base.Controller):
         self._dungeon.update()
 
     def _handle_mouse(self) -> None:
-        # self._view._try_click_pos(self._abs_mouse_pos())
-        pass
+        self._view._try_move(self._abs_mouse_pos())
 
     def _init_controls(self) -> None:
         self.keyboard.bind_on_press(pg.K_h, self._view.toggle_debug)
