@@ -6,7 +6,7 @@ import networkx
 from creatures import players
 from creatures.humanoids import HumanoidData, Status, Inventory
 from quests.resolutions import Resolution
-from quests.scenes.builder import make_scene, SceneType, next_scene_labels
+from quests.scenes.builder import make_scene, next_scene_labels
 from quests.scenes.interface import Scene
 
 
@@ -54,11 +54,12 @@ class Quest(object):
                             label_scene_map: Dict[str, Scene]) -> None:
 
         for label, scene in label_scene_map.items():
+            next_labels = next_scene_labels( quest_data[label])
 
-            next_labels = next_scene_labels(quest_data[label])
-            for index, next_label in enumerate(next_labels):
-                next_scene = label_scene_map[next_label]
-                self._scene_graph.add_edge(scene, next_scene, key=index)
+
+                for index, next_label in enumerate(next_labels):
+                    next_scene = label_scene_map[next_label]
+                    self._scene_graph.add_edge(scene, next_scene, key=index)
 
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene
