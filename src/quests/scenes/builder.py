@@ -57,7 +57,7 @@ def next_scene_labels(scene_data: Dict[str, Any]) -> List[str]:
         scene_labels.append(scene_data['success']['next scene'])
         scene_labels.append(scene_data['failure']['next scene'])
     else:
-        assert scene_type == SceneType.DUNGEON
+        assert scene_type in (SceneType.DUNGEON, SceneType.TURNBASED)
         for index, resolution in enumerate(scene_data['resolutions']):
             assert len(resolution.values()) == 1
             res_data = list(resolution.values())[0]
