@@ -6,7 +6,7 @@ import networkx
 from creatures import players
 from creatures.humanoids import HumanoidData, Status, Inventory
 from quests.resolutions import Resolution
-from quests.scenes.builder import make_scene, SceneType
+from quests.scenes.builder import make_scene, next_scene_labels
 from quests.scenes.interface import Scene
 
 
@@ -52,41 +52,12 @@ class Quest(object):
 
     def _add_edges_to_graph(self, quest_data: Dict[str, Dict],
                             label_scene_map: Dict[str, Scene]) -> None:
-        graph = self._scene_graph
 
         for label, scene in label_scene_map.items():
-            scene_data = quest_data[label]
-
-            # TODO(dvirk): This logic should be handled elsewhere?
-            scene_type = SceneType(scene_data['type'])
-            if scene_type == SceneType.DECISION:
-                for index, choice in enumerate(scene_data['choices']):
-                    assert len(choice.values()) == 1
-                    choice_data = list(choice.values())[0]
-                    next_scene_label = choice_data['next scene']
-                    next_scene = label_scene_map[next_scene_label]
-                    graph.add_edge(scene, next_scene, key=index)
-            elif scene_type == SceneType.TRANSITION:
-                next_scene = label_scene_map[scene_data['next scene']]
-                graph.add_edge(scene, next_scene, key=0)
-            elif scene_type == SceneType.SKILL_CHECK:
-                success_scene_label = scene_data['success']['next scene']
-                success_scene = label_scene_map[success_scene_label]
-                graph.add_edge(scene, success_scene, key=0)
-
-                fail_scene_label = scene_data['failure']['next scene']
-                fail_scene = label_scene_map[fail_scene_label]
-                graph.add_edge(scene, fail_scene)
-
-            else:
-                assert scene_type == SceneType.DUNGEON or\
-                       scene_type == SceneType.TURNBASED
-                for index, resolution in enumerate(scene_data['resolutions']):
-                    assert len(resolution.values()) == 1
-                    res_data = list(resolution.values())[0]
-                    next_scene_label = res_data['next scene']
-                    next_scene = label_scene_map[next_scene_label]
-                    graph.add_edge(scene, next_scene, key=index)
+            next_labels = next_scene_labels(quest_data[label])
+            for index, next_label in enumerate(next_labels):
+                next_scene = label_scene_map[next_label]
+                self._scene_graph.add_edge(scene, next_scene, key=index)
 
     def _set_current_scene(self, scene: Scene) -> None:
         self._current_scene = scene

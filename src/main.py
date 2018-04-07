@@ -47,8 +47,8 @@ class Game(ScreenAccess):
     def new(self) -> None:
 
         # load different initial quests
-        quest_data = load_quest_data('zombie_quest')
-        # quest_data = load_quest_data('turnbased_quest')
+        # quest_data = load_quest_data('zombie_quest')
+        quest_data = load_quest_data('turnbased_quest')
 
         self.quest_graph = Quest(quest_data)
 
