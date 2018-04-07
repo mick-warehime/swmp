@@ -44,13 +44,13 @@ class Game(ScreenAccess):
 
         self._paused = False
 
+        self._quest_graph: Quest = None
+
     def new(self) -> None:
 
         # load different initial quests
-        # quest_data = load_quest_data('zombie_quest')
-        quest_data = load_quest_data('turnbased_quest')
-
-        self.quest_graph = Quest(quest_data)
+        # quest_data = load_quest_data('turnbased_quest')
+        self._quest_graph = Quest(load_quest_data('zombie_quest'))
 
         sounds.play(sounds.LEVEL_START)
 
@@ -65,7 +65,7 @@ class Game(ScreenAccess):
             self._clock.tick(settings.FPS)
             pg.display.set_caption("{:.2f}".format(self._clock.get_fps()))
 
-            self.quest_graph.update_and_draw()
+            self._quest_graph.update_and_draw()
 
             if self._paused:
                 self._pause_game()
