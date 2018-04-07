@@ -3,7 +3,7 @@ import tkinter
 from typing import Dict, Any, Iterable
 
 from editor.util import draw_circle, CanvasAccess, \
-    canvas_coords_to_master_coords
+    canvas_coords_to_master_coords, new_window
 from quests.scenes.builder import SceneType
 
 _scene_type_letter = {SceneType.DECISION: 'D', SceneType.DUNGEON: 'C',
@@ -62,15 +62,15 @@ class QuestNode(CanvasAccess):
         wx, wy = canvas_coords_to_master_coords(self.canvas, self.x, self.y)
         window_offset_x = self.canvas.master.winfo_x() + 30
         window_offset_y = self.canvas.master.winfo_y() - 30
-        self._editor = _node_editor_window(str(self), wx + window_offset_x,
-                                           wy + window_offset_y)
+        dimensions = (300, 200, wx + window_offset_x, wy + window_offset_y)
+        self._editor = new_window(str(self), dimensions)
 
     def deselect(self):
         self.canvas.itemconfig(self._circle, width=self._unselected_linewidth)
         self._close_editor_window()
 
     def _close_editor_window(self):
-        if self._editor is not None:
+        if self._editor:
             self._editor.destroy()
             self._editor = None
 
@@ -108,12 +108,3 @@ class QuestNode(CanvasAccess):
         return "Node({}), children: {}".format(self.label, child_labels)
 
 
-def _node_editor_window(title: str, pos_x: int = 0,
-                        pos_y: int = 0) -> tkinter.Tk:
-    root = tkinter.Tk()
-
-    # set the dimensions of the screen
-    # and where it is placed
-    root.geometry('%dx%d+%d+%d' % (300, 200, pos_x, pos_y))
-    root.title(title)
-    return root

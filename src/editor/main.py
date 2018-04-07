@@ -4,6 +4,7 @@ from tkinter import filedialog
 from typing import Callable
 
 from data.input_output import load_quest_data
+from editor import util
 from editor.nodes import node_registry, QuestNode
 from editor.util import assert_yaml_filename, CanvasAccess
 from quests.scenes.builder import next_scene_labels
@@ -16,18 +17,10 @@ from quests.scenes.builder import next_scene_labels
 """
 
 
-def _start_window() -> tkinter.Tk:
-    root = tkinter.Tk()
-    root.resizable(width=False, height=False)
-    root.title('Quest editor')
-    return root
-
-
 def _quest_editor_window(filename: str, full_path=True) -> tkinter.Tk:
     assert_yaml_filename(filename)
 
-    root = tkinter.Tk()
-    root.title(filename)
+    root = util.new_window(filename)
 
     node_spacing_x = 140
     min_spacing_y = 250
@@ -40,25 +33,21 @@ def _quest_editor_window(filename: str, full_path=True) -> tkinter.Tk:
 
     quest_data = load_quest_data(filename, full_path)
 
-    current_scenes = ['root']
-    quest_levels = [{'root'}]
-    max_num_rows = 1
-
-    while current_scenes:
-
-        all_next_scenes = set()
-        for scene_label in current_scenes:
-            all_next_scenes |= set(next_scene_labels(quest_data[scene_label]))
-        all_next_scenes -= {'root'}
-        max_num_rows = max(max_num_rows, len(all_next_scenes))
-
-        quest_levels.append(all_next_scenes)
-        current_scenes = all_next_scenes
+    quest_levels = _quest_levels(quest_data)
+    max_num_rows = max(len(level) for level in quest_levels)
 
     column_length = (max_num_rows - 1) * min_spacing_y
 
+    _build_nodes(base_offset_x, column_length, node_spacing_x, quest_data,
+                 quest_levels)
+
+    return root
+
+
+def _build_nodes(base_offset_x, column_length, node_spacing_x, quest_data,
+                 quest_levels):
     nodes = []
-    last_level_nodes = []
+    prev_level_nodes = []
     for col, level in enumerate(quest_levels):
 
         scenes_in_level = list(level)
@@ -76,15 +65,28 @@ def _quest_editor_window(filename: str, full_path=True) -> tkinter.Tk:
             current_level_nodes.append(node)
             nodes.append(node)
 
-        for last_node in last_level_nodes:
-            children_labels = next_scene_labels(quest_data[last_node.label])
+        for prev_node in prev_level_nodes:
+            children_labels = next_scene_labels(quest_data[prev_node.label])
             neighbors = [node for node in current_level_nodes
                          if node.label in children_labels]
-            last_node.add_children(neighbors)
+            prev_node.add_children(neighbors)
 
-        last_level_nodes = current_level_nodes
+        prev_level_nodes = current_level_nodes
 
-    return root
+
+def _quest_levels(quest_data):
+    current_scenes = ['root']
+    quest_levels = [{'root'}]
+    while current_scenes:
+
+        all_next_scenes = set()
+        for scene_label in current_scenes:
+            all_next_scenes |= set(next_scene_labels(quest_data[scene_label]))
+        all_next_scenes -= {'root'}
+
+        quest_levels.append(all_next_scenes)
+        current_scenes = all_next_scenes
+    return quest_levels
 
 
 def apply_for_canvas(func: Callable, canvas: tkinter.Canvas) -> Callable:
@@ -117,20 +119,20 @@ def _open_quest() -> None:
 
 
 def main() -> None:
-    # root = _start_window()
-    #
-    # new_fun = close_window_after_call(_new_quest, root)
-    # new_button = tkinter.Button(root, text="New Quest", command=new_fun)
-    # new_button.pack(pady=10)
-    #
-    # open_fun = close_window_after_call(_open_quest, root)
-    # open_button = tkinter.Button(root, text="Open Quest", command=open_fun)
-    # open_button.pack(pady=10)
-    #
-    # quit_button = tkinter.Button(root, text="Quit", command=root.quit)
-    # quit_button.pack(pady=10)
+    root = util.new_window('Quest editor', resizable=False)
 
-    _quest_editor_window('zombie_quest.yml', full_path=False)
+    new_fun = util.close_window_after_call(_new_quest, root)
+    new_button = tkinter.Button(root, text="New Quest", command=new_fun)
+    new_button.pack(pady=10)
+
+    open_fun = util.close_window_after_call(_open_quest, root)
+    open_button = tkinter.Button(root, text="Open Quest", command=open_fun)
+    open_button.pack(pady=10)
+
+    quit_button = tkinter.Button(root, text="Quit", command=root.quit)
+    quit_button.pack(pady=10)
+
+    # _quest_editor_window('zombie_quest.yml', full_path=False)
 
     tkinter.mainloop()
 
