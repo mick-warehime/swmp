@@ -1,7 +1,7 @@
 """Possible resolutions to dramatic questions."""
 import abc
 from enum import Enum
-from typing import Dict, Any, Collection, List, Callable
+from typing import Dict, Any, Collection, List, Callable, Tuple
 
 from pygame.sprite import Group, Sprite, spritecollide
 
@@ -177,11 +177,7 @@ _modifiers_map = {ResolutionModifiers.REQUIRES_TELEPORT: RequiresTeleport}
 
 def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
     """Constructs a Resolution from a data dictionary."""
-    assert len(res_data.keys()) == 1, 'root keys must be the length one, ' \
-                                      'matching the resolution label.'
-    res_label = list(res_data.keys())[0]
-    data = res_data[res_label]
-    res_type = ResolutionType(res_label)
+    data, res_type = resolution_data_and_type(res_data)
 
     args = [data[key] for key in res_type.arg_labels]
     resolution = res_type.constructor(*args)
@@ -192,3 +188,13 @@ def resolution_from_data(res_data: Dict[str, Any]) -> Resolution:
             resolution = modifier(resolution)
 
     return resolution
+
+
+def resolution_data_and_type(
+        res_data: Dict[str, Any]) -> Tuple[Dict[str, Any], ResolutionType]:
+    assert len(res_data.keys()) == 1, 'root keys must be the length one, ' \
+                                      'matching the resolution label.'
+    res_label = list(res_data.keys())[0]
+    data = res_data[res_label]
+    res_type = ResolutionType(res_label)
+    return data, res_type
