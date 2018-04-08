@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Any, List, Callable
+from typing import Dict, Any, List, Callable, Tuple
 
 from quests.scenes.decisions import DecisionScene
 from quests.scenes.dungeons import DungeonScene
@@ -17,23 +17,55 @@ class SceneType(Enum):
     TURNBASED = 'turnbased'
 
     @property
-    def arg_labels(self) -> List[str]:
+    def arg_labels(self) -> Tuple[str, ...]:
         return _arg_labels[self]
 
     def scene_constructor(self) -> Callable:
         return _scene_map[self]
 
+        # def field_type(self, arg: str) -> SceneDataType:
+        #     if arg not in self.arg_labels + ('type',):
+        #         raise KeyError(
+        #             'Unrecognized field {} for SceneType {}'.format(arg, self))
+        #     return scene_field_type[arg]
 
-_arg_labels = {SceneType.DUNGEON: ['map file', 'resolutions'],
-               SceneType.TURNBASED: ['map file', 'resolutions'],
-               SceneType.DECISION: ['description', 'choices'],
-               SceneType.TRANSITION: ['description', 'gained item label'],
-               SceneType.SKILL_CHECK: ['success', 'failure', 'difficulty']}
+
+class SceneDataType(Enum):
+    FIXED = 'fixed'
+    SHORT_TEXT = 'short'
+    LONG_TEXT = 'long'
+    NESTED = 'nested'
+    DIFFICULTY = 'difficulty'
+
+
+_arg_labels = {SceneType.DUNGEON: ('map file', 'resolutions'),
+               SceneType.TURNBASED: ('map file', 'resolutions'),
+               SceneType.DECISION: ('description', 'choices'),
+               SceneType.TRANSITION: ('description', 'gained item label'),
+               SceneType.SKILL_CHECK: ('success', 'failure', 'difficulty')}
 _scene_map = {SceneType.DUNGEON: DungeonScene,
               SceneType.TURNBASED: TurnBasedScene,
               SceneType.DECISION: DecisionScene,
               SceneType.TRANSITION: TransitionScene,
               SceneType.SKILL_CHECK: SkillCheckScene}
+
+_scene_field_type = {
+    'type': SceneDataType.FIXED,
+    'map file': SceneDataType.SHORT_TEXT,
+    'resolutions': SceneDataType.NESTED,
+    'description': SceneDataType.LONG_TEXT,
+    'success': SceneDataType.NESTED,
+    'failure': SceneDataType.NESTED,
+    'gained item label': SceneDataType.SHORT_TEXT,
+    'choices': SceneDataType.NESTED,
+    'difficulty': SceneDataType.DIFFICULTY
+}
+
+
+def scene_field_type(arg: str) -> SceneDataType:
+    if arg not in _scene_field_type:
+        raise KeyError('Unrecognized field label {}.'.format(arg))
+    return _scene_field_type[arg]
 
 
 def make_scene(scene_data: Dict[str, Any]) -> Scene:

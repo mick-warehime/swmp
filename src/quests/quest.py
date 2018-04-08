@@ -72,9 +72,8 @@ class Quest(object):
 
         self._set_scene_resolutions(scene, resltns)
 
-    def _set_scene_resolutions(
-            self, current_scene: Scene,
-            resolutions: Sequence[Resolution]) -> None:
+    def _set_scene_resolutions(self, current_scene: Scene,
+                               resolutions: Sequence[Resolution]) -> None:
         """ The Scene object outputs resolutions in a specific order. We match
         that order to the key assigned to each edge, which tells us what scene
         each resolution points to."""

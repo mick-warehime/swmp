@@ -119,20 +119,20 @@ def _open_quest() -> None:
 
 
 def main() -> None:
-    root = util.new_window('Quest editor', resizable=False)
+    # root = util.new_window('Quest editor', resizable=False)
+    #
+    # new_fun = util.close_window_after_call(_new_quest, root)
+    # new_button = tkinter.Button(root, text="New Quest", command=new_fun)
+    # new_button.pack(pady=10)
+    #
+    # open_fun = util.close_window_after_call(_open_quest, root)
+    # open_button = tkinter.Button(root, text="Open Quest", command=open_fun)
+    # open_button.pack(pady=10)
+    #
+    # quit_button = tkinter.Button(root, text="Quit", command=root.quit)
+    # quit_button.pack(pady=10)
 
-    new_fun = util.close_window_after_call(_new_quest, root)
-    new_button = tkinter.Button(root, text="New Quest", command=new_fun)
-    new_button.pack(pady=10)
-
-    open_fun = util.close_window_after_call(_open_quest, root)
-    open_button = tkinter.Button(root, text="Open Quest", command=open_fun)
-    open_button.pack(pady=10)
-
-    quit_button = tkinter.Button(root, text="Quit", command=root.quit)
-    quit_button.pack(pady=10)
-
-    # _quest_editor_window('zombie_quest.yml', full_path=False)
+    _quest_editor_window('zombie_quest.yml', full_path=False)
 
     tkinter.mainloop()
 

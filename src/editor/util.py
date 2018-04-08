@@ -51,14 +51,15 @@ def canvas_coords_to_master_coords(canvas: tkinter.Canvas,
     return canvas_x - top_left_canvas_x, canvas_y - top_left_canvas_y
 
 
-def new_window(title: str, start_dimensions=None,
-               resizable=True) -> tkinter.Tk:
+def new_window(title: str, resizable=True) -> tkinter.Tk:
     root = tkinter.Tk()
 
-    # set the dimensions of the screen
-    # and where it is placed
-    if start_dimensions is not None:
-        root.geometry('%dx%d+%d+%d' % start_dimensions)
+    # # set the dimensions of the screen
+    # # and where it is placed
+    # if start_dimensions is not None:
+    #     root.geometry('%dx%d+%d+%d' % start_dimensions)
+    # else:
+    #     root.geometry('+100 +100')
     root.title(title)
 
     if not resizable:

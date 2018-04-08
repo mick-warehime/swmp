@@ -3,8 +3,8 @@ from tkinter import *
 root = Tk()
 
 text1 = Text(root, height=40, width=60)
-photo=PhotoImage(file='zombie-thinking.gif')
-text1.insert(END,'\n')
+photo = PhotoImage(file='zombie-thinking.gif')
+text1.insert(END, '\n')
 text1.image_create(END, image=photo)
 
 text1.pack(side=LEFT)
@@ -15,9 +15,10 @@ text2.configure(yscrollcommand=scroll.set)
 text2.tag_configure('bold_italics', font=('Arial', 12, 'bold', 'italic'))
 text2.tag_configure('big', font=('Verdana', 20, 'bold'))
 text2.tag_configure('color', foreground='#476042',
-						font=('Tempus Sans ITC', 12, 'bold'))
-text2.tag_bind('follow', '<1>', lambda e, t=text2: t.insert(END, "Not now, maybe later!"))
-text2.insert(END,'\nWilliam Shakespeare\n', 'big')
+                    font=('Tempus Sans ITC', 12, 'bold'))
+text2.tag_bind('follow', '<1>',
+               lambda e, t=text2: t.insert(END, "Not now, maybe later!"))
+text2.insert(END, '\nWilliam Shakespeare\n', 'big')
 quote = """
 To be, or not to be that is the question:
 Whether 'tis Nobler in the mind to suffer
