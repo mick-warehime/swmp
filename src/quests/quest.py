@@ -70,9 +70,9 @@ class Quest(object):
                                              Inventory())
         self._current_ctrl.set_player_data(self._player_data)
 
-        self._resolutions_to_scenes = self._resolution_to_scene(scene, resltns)
+        self._set_scene_resolutions(scene, resltns)
 
-    def _resolution_to_scene(
+    def _set_scene_resolutions(
             self, current_scene: Scene,
             resolutions: Sequence[Resolution]) -> Dict[Resolution, Scene]:
         """ The Scene object outputs resolutions in a specific order. We match
@@ -86,7 +86,7 @@ class Quest(object):
         next_scenes = sorted(next_scenes, key=lambda x: x[2])
         resols = {res: scene_tup[1] for res, scene_tup in
                   zip(resolutions, next_scenes)}
-        return resols
+        self._resolutions_to_scenes = resols
 
     def _resolved_resolution(self) -> Union[Resolution, None]:
         resolved = [res for res in self._resolutions_to_scenes if
