@@ -2,7 +2,7 @@ import math
 import tkinter
 from typing import Dict, Any, Iterable, Tuple
 
-from editor import scene_editor
+from editor import editors
 from editor.util import draw_circle, CanvasAccess, \
     canvas_coords_to_master_coords
 from quests.scenes.builder import SceneType
@@ -13,6 +13,7 @@ _selectables_registry = {}
 
 
 class Selectable(object):
+    """Denotes a selectable object on a canvas."""
     selected_object: 'Selectable' = None
 
     def __init__(self):
@@ -86,11 +87,7 @@ class SceneNode(CanvasAccess, Selectable):
         )
 
     def _open_editor_window(self):
-        wx, wy = canvas_coords_to_master_coords(self.canvas, self.x, self.y)
-        window_offset_x = self.canvas.master.winfo_x() + 30
-        window_offset_y = self.canvas.master.winfo_y() - 30
-        dimensions = (300, 200, wx + window_offset_x, wy + window_offset_y)
-        self._editor = scene_editor.scene_editor(self.label, self._data)
+        self._editor = editors.scene_editor(self.label, self._data)
 
     def _on_select(self) -> None:
 
@@ -149,6 +146,8 @@ class ResolutionEdge(CanvasAccess, Selectable):
         self._source = source
         self._sink = sink
 
+        self._editor: tkinter.Tk = None
+
         self._line = self.canvas.create_line(start_x, start_y, final_x,
                                              final_y, arrow=tkinter.LAST,
                                              tags=('line',) + self.tags,
@@ -163,3 +162,7 @@ class ResolutionEdge(CanvasAccess, Selectable):
 
     def _on_select(self):
         self.canvas.itemconfig(self._line, width=self._selected_linewidth)
+
+    def _open_editor_window(self):
+        self._editor = editors.scene_editor(self.label, self._data)
+

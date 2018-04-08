@@ -1,4 +1,5 @@
 import tkinter
+import tkinter as tk
 from enum import Enum
 from typing import Callable, Any, Tuple
 
@@ -75,3 +76,14 @@ class DataType(Enum):
     LONG_TEXT = 'long'
     NESTED = 'nested'
     DIFFICULTY = 'difficulty'
+
+
+_widget_from_data_type = {DataType.SHORT_TEXT: tk.Entry,
+                          DataType.LONG_TEXT: tk.Text,
+                          DataType.NESTED: tk.Text,
+                          DataType.FIXED: tk.Label,
+                          DataType.DIFFICULTY: tk.Entry}
+
+
+def widget_from_data_type(data_type: DataType) -> Callable:
+    return _widget_from_data_type[data_type]

@@ -2,8 +2,8 @@
 import tkinter as tk
 
 from editor import util
+from editor.util import widget_from_data_type
 from quests.scenes.builder import scene_field_type, SceneType
-from editor.util import DataType
 
 
 def scene_editor(title, scene_data, **window_options):
@@ -17,7 +17,7 @@ def scene_editor(title, scene_data, **window_options):
 
         var = tk.StringVar(root, value=scene_data[field])
 
-        constructor = _widget_from_data_type[scene_field_type(field)]
+        constructor = widget_from_data_type(scene_field_type(field))
 
         value_widget = constructor(root)
         if isinstance(value_widget, (tk.Entry, tk.Label)):
@@ -50,12 +50,6 @@ def scene_editor(title, scene_data, **window_options):
 #                 value_widget.config(height=5)
 #             value_widget.grid(row=row, column=1)
 
-
-_widget_from_data_type = {DataType.SHORT_TEXT: tk.Entry,
-                          DataType.LONG_TEXT: tk.Text,
-                          DataType.NESTED: tk.Text,
-                          DataType.FIXED: tk.Label,
-                          DataType.DIFFICULTY: tk.Entry}
 
 # def item_editor(root: tk.Tk, item_data: Dict[str, str]) -> object:
 #     for row, (field, value) in enumerate(item_data.items()):
