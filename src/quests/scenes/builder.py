@@ -69,23 +69,40 @@ def make_scene(scene_data: Dict[str, Any]) -> Scene:
 
 
 def next_scene_labels(scene_data: Dict[str, Any]) -> List[str]:
-    scene_labels = []
-    scene_type = SceneType(scene_data['type'])
-    if scene_type == SceneType.DECISION:
-        for index, choice in enumerate(scene_data['choices']):
-            assert len(choice.values()) == 1
-            choice_data = list(choice.values())[0]
-            scene_labels.append(choice_data['next scene'])
-    elif scene_type == SceneType.TRANSITION:
-        scene_labels.append(scene_data['next scene'])
-    elif scene_type == SceneType.SKILL_CHECK:
-        scene_labels.append(scene_data['success']['next scene'])
-        scene_labels.append(scene_data['failure']['next scene'])
-    else:
-        assert scene_type in (SceneType.DUNGEON, SceneType.TURNBASED)
-        for index, resolution in enumerate(scene_data['resolutions']):
-            assert len(resolution.values()) == 1
-            res_data = list(resolution.values())[0]
-            scene_labels.append(res_data['next scene'])
+    next_scene_fun = _next_scenes_fun_from_type[SceneType(scene_data['type'])]
+    return next_scene_fun(scene_data)
 
+
+def _turnbased_next_scenes(scene_data):
+    scene_labels = []
+    for index, resolution in enumerate(scene_data['resolutions']):
+        assert len(resolution.values()) == 1
+        res_data = list(resolution.values())[0]
+        scene_labels.append(res_data['next scene'])
     return scene_labels
+
+
+def _skill_check_next_scenes(scene_data):
+    scene_labels = [scene_data['success']['next scene'],
+                    scene_data['failure']['next scene']]
+    return scene_labels
+
+
+def _transition_next_scenes(scene_data):
+    return [scene_data['next scene']]
+
+
+def _decision_next_scenes(scene_data):
+    scene_labels = []
+    for index, choice in enumerate(scene_data['choices']):
+        assert len(choice.values()) == 1
+        choice_data = list(choice.values())[0]
+        scene_labels.append(choice_data['next scene'])
+    return scene_labels
+
+
+_next_scenes_fun_from_type = {SceneType.DECISION: _decision_next_scenes,
+                              SceneType.TRANSITION: _transition_next_scenes,
+                              SceneType.SKILL_CHECK: _skill_check_next_scenes,
+                              SceneType.TURNBASED: _turnbased_next_scenes,
+                              SceneType.DUNGEON: _turnbased_next_scenes}
