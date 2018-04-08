@@ -70,10 +70,9 @@ class Quest(object):
                                              Inventory())
         self._current_ctrl.set_player_data(self._player_data)
 
-        resols = self._resolution_to_next_scene_map(scene, resltns)
-        self._resolutions_to_scenes = resols
+        self._resolutions_to_scenes = self._resolution_to_scene(scene, resltns)
 
-    def _resolution_to_next_scene_map(
+    def _resolution_to_scene(
             self, current_scene: Scene,
             resolutions: Sequence[Resolution]) -> Dict[Resolution, Scene]:
         """ The Scene object outputs resolutions in a specific order. We match
