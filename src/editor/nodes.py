@@ -2,7 +2,7 @@ import math
 import tkinter
 from typing import Dict, Any, Iterable
 
-from editor import dict_editor
+from editor import scene_editor
 from editor.util import draw_circle, CanvasAccess, \
     canvas_coords_to_master_coords
 from quests.scenes.builder import SceneType
@@ -64,7 +64,7 @@ class QuestNode(CanvasAccess):
         window_offset_x = self.canvas.master.winfo_x() + 30
         window_offset_y = self.canvas.master.winfo_y() - 30
         dimensions = (300, 200, wx + window_offset_x, wy + window_offset_y)
-        self._editor = dict_editor.dict_editor(self.label, self._data)
+        self._editor = scene_editor.scene_editor(self.label, self._data)
 
     def deselect(self):
         self.canvas.itemconfig(self._circle, width=self._unselected_linewidth)

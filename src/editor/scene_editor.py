@@ -2,16 +2,17 @@
 import tkinter as tk
 
 from editor import util
-from quests.scenes.builder import SceneDataType, scene_field_type
+from quests.scenes.builder import scene_field_type
+from editor.util import DataType
 
-_widget_from_data_type = {SceneDataType.SHORT_TEXT: tk.Entry,
-                          SceneDataType.LONG_TEXT: tk.Text,
-                          SceneDataType.NESTED: tk.Text,
-                          SceneDataType.FIXED: tk.Label,
-                          SceneDataType.DIFFICULTY: tk.Entry}
+_widget_from_scene_data_type = {DataType.SHORT_TEXT: tk.Entry,
+                                DataType.LONG_TEXT: tk.Text,
+                                DataType.NESTED: tk.Text,
+                                DataType.FIXED: tk.Label,
+                                DataType.DIFFICULTY: tk.Entry}
 
 
-def dict_editor(title, data, **window_options):
+def scene_editor(title, data, **window_options):
     root = util.new_window(title)
 
     for row, (field, value) in enumerate(data.items()):
@@ -20,7 +21,7 @@ def dict_editor(title, data, **window_options):
 
         var = tk.StringVar(root, value=value)
 
-        constructor = _widget_from_data_type[scene_field_type(field)]
+        constructor = _widget_from_scene_data_type[scene_field_type(field)]
 
         value_widget = constructor(root)
         if isinstance(value_widget, (tk.Entry, tk.Label)):

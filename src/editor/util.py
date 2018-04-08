@@ -1,4 +1,5 @@
 import tkinter
+from enum import Enum
 from typing import Callable, Any, Tuple
 
 
@@ -66,3 +67,11 @@ def new_window(title: str, resizable=True) -> tkinter.Tk:
         root.resizable(width=False, height=False)
 
     return root
+
+
+class DataType(Enum):
+    FIXED = 'fixed'
+    SHORT_TEXT = 'short'
+    LONG_TEXT = 'long'
+    NESTED = 'nested'
+    DIFFICULTY = 'difficulty'
