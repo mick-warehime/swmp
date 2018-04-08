@@ -5,7 +5,7 @@ from typing import Callable
 
 from data.input_output import load_quest_data
 from editor import util
-from editor.nodes import node_registry, QuestNode
+from editor.nodes import SceneNode, Selectable
 from editor.util import assert_yaml_filename, CanvasAccess
 from quests.scenes.builder import next_scene_labels
 
@@ -60,7 +60,7 @@ def _build_nodes(base_offset_x, column_length, node_spacing_x, quest_data,
         current_level_nodes = []
         for row, scene_label in enumerate(scenes_in_level):
             data = quest_data[scene_label]
-            node = QuestNode(scene_label, data, pos_x, y_offset + row * \
+            node = SceneNode(scene_label, data, pos_x, y_offset + row * \
                              y_spacing)
             current_level_nodes.append(node)
             nodes.append(node)
@@ -98,11 +98,9 @@ def apply_for_canvas(func: Callable, canvas: tkinter.Canvas) -> Callable:
 
 def on_mouse1_click(event, canvas: tkinter.Canvas = None):
     currently_selected = canvas.gettags('current')
-    if any(tag in currently_selected for tag in ('circle', 'type')):
-        node_tag = [tag for tag in currently_selected if 'Node' in tag]
-        assert len(node_tag) == 1
-        node = node_registry[node_tag[0]]
-        node.select()
+    if any(tag == 'selectable' for tag in currently_selected):
+        Selectable.from_tags(currently_selected).select()
+
 
 
 def _new_quest() -> None:

@@ -1,6 +1,6 @@
 import math
 import tkinter
-from typing import Dict, Any, Iterable
+from typing import Dict, Any, Iterable, Tuple
 
 from editor import scene_editor
 from editor.util import draw_circle, CanvasAccess, \
@@ -9,14 +9,58 @@ from quests.scenes.builder import SceneType
 
 _scene_type_letter = {SceneType.DECISION: 'D', SceneType.DUNGEON: 'C',
                       SceneType.SKILL_CHECK: 'S', SceneType.TRANSITION: 'T'}
-node_registry = {}
-selected_nodes = set()
+_selectables_registry = {}
 
 
-class QuestNode(CanvasAccess):
+class Selectable(object):
+    selected_object: 'Selectable' = None
+
+    def __init__(self):
+        _selectables_registry[str(hash(self))] = self
+
+    def _on_select(self):
+        raise NotImplementedError
+
+    def _on_deselect(self):
+        raise NotImplementedError
+
+    @property
+    def tags(self) -> Tuple[str, str]:
+        return str(hash(self)), 'selectable'
+
+    def select(self):
+
+        if Selectable.selected_object is not None:
+            previous_selected = Selectable.selected_object
+
+            previous_selected.deselect()
+            if self is previous_selected:
+                return
+
+        Selectable.selected_object = self
+
+        self._on_select()
+
+    def deselect(self):
+        self._on_deselect()
+
+    @classmethod
+    def from_tags(cls, tags: Tuple[str, ...]) -> 'Selectable':
+        id_tags = [tag for tag in tags if tag in _selectables_registry]
+        if not id_tags:
+            raise KeyError(
+                'No id tags recognized in registry, for tags {}'.format(tags))
+        return _selectables_registry[id_tags[0]]
+
+
+class SceneNode(CanvasAccess, Selectable):
+    _selected_linewidth = 4
+    _unselected_linewidth = 1
+
     def __init__(self, label: str, data: Dict[str, Any], pos_x, pos_y,
                  color="", radius=15):
         super().__init__()
+        Selectable.__init__(self)
         self.label = label
 
         self._data = data
@@ -26,38 +70,20 @@ class QuestNode(CanvasAccess):
         self._editor: tkinter.Tk = None
 
         self._child_edges = {}
-        self._selected_linewidth = 3
-        self._unselected_linewidth = 1
+
         self._circle = draw_circle(pos_x, pos_y, radius, self.canvas,
-                                   fill=color, tags=('circle', self.tag))
-        self.deselect()
+                                   fill=color, tags=('circle',) + self.tags)
 
         self._texts = []
 
         self._texts.append(
             self.canvas.create_text(pos_x, pos_y + radius * 2, text=label,
-                                    tags=('label', self.tag)))
+                                    tags=('label',) + self.tags))
         letter = _scene_type_letter[SceneType(self._data['type'])]
         self._texts.append(
             self.canvas.create_text(pos_x, pos_y, text=letter,
-                                    tags=('type', self.tag))
+                                    tags=('type',) + self.tags)
         )
-
-        node_registry[self.tag] = self
-
-    def select(self) -> None:
-
-        if selected_nodes:
-            previous_node = selected_nodes.pop()
-
-            previous_node.deselect()
-            if self is previous_node:
-                return
-
-        selected_nodes.add(self)
-        self.canvas.itemconfig(self._circle, width=self._selected_linewidth)
-
-        self._open_editor_window()
 
     def _open_editor_window(self):
         wx, wy = canvas_coords_to_master_coords(self.canvas, self.x, self.y)
@@ -66,7 +92,13 @@ class QuestNode(CanvasAccess):
         dimensions = (300, 200, wx + window_offset_x, wy + window_offset_y)
         self._editor = scene_editor.scene_editor(self.label, self._data)
 
-    def deselect(self):
+    def _on_select(self) -> None:
+
+        self.canvas.itemconfig(self._circle, width=self._selected_linewidth)
+
+        self._open_editor_window()
+
+    def _on_deselect(self):
         self.canvas.itemconfig(self._circle, width=self._unselected_linewidth)
         self._close_editor_window()
 
@@ -75,15 +107,11 @@ class QuestNode(CanvasAccess):
             self._editor.destroy()
             self._editor = None
 
-    @property
-    def tag(self) -> str:
-        return 'Node {} ({})'.format(self.label, str(self.__hash__()))
-
-    def add_children(self, children: Iterable['QuestNode']) -> None:
+    def add_children(self, children: Iterable['SceneNode']) -> None:
         for child in children:
             self.add_child(child)
 
-    def add_child(self, node: 'QuestNode'):
+    def add_child(self, node: 'SceneNode'):
         if node not in self._child_edges.keys():
             dx = (node.x - self.x)
             dy = (node.y - self.y)
@@ -99,11 +127,39 @@ class QuestNode(CanvasAccess):
             final_x = self.x + scaling_final * dx
             final_y = self.y + scaling_final * dy
 
-            line = self.canvas.create_line(start_x, start_y, final_x, final_y,
-                                           arrow=tkinter.LAST, tags=(
-                    'edge', self.tag, node.tag))
-            self._child_edges[node] = line
+            self._child_edges[node] = ResolutionEdge(start_x, start_y,
+                                                     final_x, final_y, self,
+                                                     node)
 
     def __str__(self):
         child_labels = [node.label for node in self._child_edges.keys()]
-        return "Node({}), children: {}".format(self.label, child_labels)
+        return "Node({} - {}), children: {}".format(self.label,
+                                                    self.__hash__(),
+                                                    child_labels)
+
+
+class ResolutionEdge(CanvasAccess, Selectable):
+    _selected_linewidth = 3
+    _unselected_linewidth = 1
+
+    def __init__(self, start_x, start_y, final_x, final_y, source, sink):
+        super().__init__()
+        Selectable.__init__(self)
+
+        self._source = source
+        self._sink = sink
+
+        self._line = self.canvas.create_line(start_x, start_y, final_x,
+                                             final_y, arrow=tkinter.LAST,
+                                             tags=('line',) + self.tags,
+                                             width=self._unselected_linewidth)
+
+    def __str__(self):
+        text = 'ResolutionEdge({}): {} to {}'
+        return text.format(hash(self), self._source, self._sink)
+
+    def _on_deselect(self):
+        self.canvas.itemconfig(self._line, width=self._unselected_linewidth)
+
+    def _on_select(self):
+        self.canvas.itemconfig(self._line, width=self._selected_linewidth)

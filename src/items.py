@@ -20,17 +20,6 @@ class ItemData(BaseItemData):
         return super().__new__(cls, mod_data, image_file)
 
 
-_item_field_type = {'mod_data': DataType.SHORT_TEXT,
-                    'image_file': DataType.SHORT_TEXT}
-
-
-def item_field_type(field: str) -> DataType:
-    if field not in _item_field_type:
-        raise KeyError('Field label {} not recognized for item '
-                       'data.'.format(field))
-    return _item_field_type[field]
-
-
 class ItemObject(GameObject, TimeAccess):
     """A bobbing in-game object that can be picked up."""
 
